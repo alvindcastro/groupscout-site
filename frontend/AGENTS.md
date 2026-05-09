@@ -12,17 +12,6 @@ bd close <id>         # Complete work
 bd dolt push          # Push beads data to remote
 ```
 
-## Repository Roles
-
-This repository is the coordination point for GroupScout work. Future feature and bug-fix prompts should start here, then agents should route implementation work to the owning code repository:
-
-- Backend: `/mnt/c/Users/alvin/GolandProjects/groupscout`
-- Frontend: `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`
-- Centralized backend docs: `backend/`
-- Centralized frontend docs: `frontend/`
-
-When work touches backend or frontend code, create or reuse a task branch in that repo before editing where possible. Keep source-repo changes scoped to implementation, tests, and runtime files; markdown project docs now live here unless a repo-local generated file is required.
-
 ## Non-Interactive Shell Commands
 
 **ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.

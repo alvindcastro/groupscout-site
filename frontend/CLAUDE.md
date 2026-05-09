@@ -62,13 +62,8 @@ _Add your build and test commands here_
 
 ## Architecture Overview
 
-This repository coordinates the GroupScout backend and frontend workspaces.
-
-- Backend code lives at `/mnt/c/Users/alvin/GolandProjects/groupscout`.
-- Frontend code lives at `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
-- Backend markdown documentation has been centralized under `backend/`.
-- Frontend markdown documentation has been centralized under `frontend/`.
+_Add a brief overview of your project architecture_
 
 ## Conventions & Patterns
 
-Start new feature and bug-fix work here, then route code changes to the owning backend or frontend repository. Prefer creating a task branch in the source repository before editing. Keep project markdown in this coordination repo unless a local generated artifact is required by tooling.
+_Add your project-specific conventions here_

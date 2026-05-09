@@ -2,6 +2,8 @@
 
 This guide provides technical details for developers working on the `groupscout` project, including the main lead generation server and the `alertd` airport disruption monitor.
 
+This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/backend/docs/DEVELOPER.md`. Run backend implementation, build, test, and Docker commands from the backend source repo at `/mnt/c/Users/alvin/GolandProjects/groupscout`. Long-lived backend and frontend markdown docs now live in `/mnt/c/Users/alvin/groupscout-site`.
+
 ## 🛠 Project Management (Makefile)
 
 The `Makefile` is the central hub for common development tasks. Run `make help` to see all available commands.
@@ -112,7 +114,7 @@ We use a combination of unit tests, integration tests, and manual verification s
 ```bash
 make test
 ```
-See [docs/guides/TESTING.md](./docs/guides/TESTING.md) for details on running specific tests and Postgres integration.
+See [TESTING.md](./guides/TESTING.md) for details on running specific tests and Postgres integration.
 
 ### 2. Ollama & LLM Testing
 A dedicated script verifies Ollama connectivity and model availability:
@@ -129,7 +131,7 @@ See [TESTING.md](./guides/TESTING.md#8-api-testing-details) for examples.
 - `cmd/`: Entry points for `server`, `alertd`, and dev tools.
 - `config/`: Centralized environment and YAML configuration.
 - `.junie/agents/`: Definitions for specialized Junie subagents.
-- `docs/`: In-depth guides and planning documents.
+- `docs/`: Historical source location for in-depth guides and planning documents. Long-lived markdown docs are now centralized under `/mnt/c/Users/alvin/groupscout-site/backend`.
 - `internal/`: Core business logic (scrapers, scoring, state machines, storage).
 - `migrations/`: SQL migration files (for Postgres/SQLite).
 
@@ -137,26 +139,26 @@ See [TESTING.md](./guides/TESTING.md#8-api-testing-details) for examples.
 
 This project uses specialized Junie subagents to streamline development in different domains. These agents are defined in `.junie/agents/` and can be used to handle specific tasks with tailored instructions.
 
-See [docs/guides/SUBAGENTS.md](./docs/guides/SUBAGENTS.md) for a list of available agents and how to use them.
+See [SUBAGENTS.md](./guides/SUBAGENTS.md) for a list of available agents and how to use them.
 
 ## 📄 Related Documentation
-- [README.md](./README.md) - Project overview and user setup.
-- [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System design and data flow.
-- [CHANGELOG.md](./docs/CHANGELOG.md) - Plain-English record of all changes.
-- [DOCKER.md](./docs/guides/DOCKER.md) - Running and troubleshooting Docker.
+- [README.md](../README.md) - Project overview and user setup.
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - System design and data flow.
+- [CHANGELOG.md](./CHANGELOG.md) - Plain-English record of all changes.
+- [DOCKER.md](./guides/DOCKER.md) - Running and troubleshooting Docker.
 - [BACKEND_FRONTEND_DOCKER_E2E.md](./planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md) - Current backend plus separate UI Docker smoke path.
-- [SUBAGENTS.md](./docs/guides/SUBAGENTS.md) - How to use specialized Junie agents.
-- [TROUBLESHOOTING.md](./docs/guides/TROUBLESHOOTING.md) - Pipeline and missing lead troubleshooting.
-- [SETUP.md](./docs/guides/SETUP.md) - Detailed environment and dependency setup.
-- [TESTING.md](./docs/guides/TESTING.md) - Comprehensive testing guide.
-- [N8N_GUIDE.md](./docs/guides/N8N_GUIDE.md) - Workflow automation and scheduling.
-- [HOME_DEPLOY.md](./docs/guides/HOME_DEPLOY.md) - Self-hosting and deployment guide.
-- [API_CONFIG.md](./docs/API_CONFIG.md) - Detailed API and endpoint configuration.
-- [TESTING.md](./guides/TESTING.md#8-api-testing-details) - Guide on how to test the APIs.
-- [ALERTD_SETUP.md](./docs/guides/ALERTD_SETUP.md) - Specific configuration for the alert system.
-- [OLLAMA_INTEGRATION.md](./docs/planning/OLLAMA_INTEGRATION.md) - Local LLM integration plan and phases.
-- [OLLAMA_SETUP.md](./docs/guides/OLLAMA_SETUP.md) - Docker and native setup guide for Ollama.
-- [PHASES.md](./docs/planning/PHASES.md) - Build tracker and phase history.
-- [ROADMAP.md](./docs/planning/ROADMAP.md) - Long-term project roadmap.
-- [AUDIT_TRAIL.md](./docs/planning/AUDIT_TRAIL.md) - Input storage and verification plan.
-- [PROMPTS.md](./docs/planning/PROMPTS.md) - Prompt library and Strict TDD guide.
+- [SUBAGENTS.md](./guides/SUBAGENTS.md) - How to use specialized Junie agents.
+- [TROUBLESHOOTING.md](./guides/TROUBLESHOOTING.md) - Pipeline and missing lead troubleshooting.
+- [SETUP.md](./guides/SETUP.md) - Detailed environment and dependency setup.
+- [TESTING.md](./guides/TESTING.md) - Comprehensive testing guide.
+- [N8N_GUIDE.md](./guides/N8N_GUIDE.md) - Workflow automation and scheduling.
+- [HOME_DEPLOY.md](./guides/HOME_DEPLOY.md) - Self-hosting and deployment guide.
+- [API_CONFIG.md](./API_CONFIG.md) - Detailed API and endpoint configuration.
+- [TESTING API examples](./guides/TESTING.md#8-api-testing-details) - Guide on how to test the APIs.
+- [ALERTD_SETUP.md](./guides/ALERTD_SETUP.md) - Specific configuration for the alert system.
+- [OLLAMA_INTEGRATION.md](./planning/OLLAMA_INTEGRATION.md) - Local LLM integration plan and phases.
+- [OLLAMA_SETUP.md](./guides/OLLAMA_SETUP.md) - Docker and native setup guide for Ollama.
+- [PHASES.md](./planning/PHASES.md) - Build tracker and phase history.
+- [ROADMAP.md](./planning/ROADMAP.md) - Long-term project roadmap.
+- [AUDIT_TRAIL.md](./planning/AUDIT_TRAIL.md) - Input storage and verification plan.
+- [PROMPTS.md](./planning/PROMPTS.md) - Prompt library and Strict TDD guide.

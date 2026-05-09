@@ -1,5 +1,7 @@
 # Testing
 
+This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/testing.md`. Run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui` and backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
+
 ## UI Repo
 
 Run the full UI test suite:
@@ -63,7 +65,7 @@ docker run --rm groupscout-ui-test
 
 The D2 browser runtime contract reserved a lightweight Node server with `npm run start:ui`, container port `3000`, and `/healthz`. D3 added the initial development Compose health harness. D4 implements production static serving and same-origin `/api/*` proxying. Phase 13 adds the dependency-free product renderer, static build, product dev server, and backend compatibility classifier. See [Phase 12 UI Dockerization Prompt Pack](./phase-12-ui-dockerization.md), [UI Dockerization Contract](./ui-dockerization-contract.md), and [Phase 13 Product Renderer Runtime](./phase-13-product-renderer-runtime.md).
 
-Development Compose config validation:
+Development Compose config validation from the UI source repo:
 
 ```sh
 docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet
@@ -83,7 +85,7 @@ The Phase 13 UI service is `groupscout-ui`. It joins the backend `groupscout_net
 
 Use `-p groupscout` when the D3 run will be followed by a D4 production-container smoke that attaches to `groupscout_groupscout_net`.
 
-Production UI runtime smoke commands:
+Production UI runtime smoke commands from the UI source repo:
 
 ```sh
 docker build --target production -t groupscout-ui-production .
@@ -97,7 +99,7 @@ curl -i http://localhost:3002/api/system
 Split these checks by dependency:
 
 - Backend-independent UI runtime checks: `GET /healthz`, `GET /`, and `GET /assets/app.js`.
-- Backend-dependent proxy checks: `GET /api/leads?limit=1` and `GET /api/system` should reach the backend when `UI_SESSION_SECRET` is not configured for Docker smoke. When `UI_SESSION_SECRET` is configured, unauthenticated `/api/*` requests should return `401` from the UI session gate.
+- Backend-dependent proxy checks: `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` should reach the backend and return `200` when `UI_SESSION_SECRET` is not configured for Docker smoke. When `UI_SESSION_SECRET` is configured, unauthenticated `/api/*` requests should return `401` from the UI session gate.
 
 Backend plus UI Docker smoke run on 2026-05-08:
 
@@ -110,10 +112,12 @@ docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_gr
 curl -i http://localhost:3002/healthz
 curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
+curl -i http://localhost:3002/api/leads?limit=1
 curl -i http://localhost:3002/api/system
+curl -i http://localhost:3002/api/alerts?limit=1
 ```
 
-Expected results: backend `/health` returns `200`; D3 UI `/healthz` returns `200`; D4 `/healthz`, `/`, and `/assets/app.js` return `200`; D4 `/api/leads?limit=1` reaches the backend and returns `200`; D4 `/api/system` reaches the backend and returns `200` when implemented or backend `404` when absent. Treat `502` as Docker/proxy reachability failure.
+Expected results: backend `/health` returns `200`; D3 UI `/healthz` returns `200`; D4 `/healthz`, `/`, and `/assets/app.js` return `200`; D4 `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` reach the backend and return `200`. Treat `502` as Docker/proxy reachability failure.
 
 Docker operations docs check:
 

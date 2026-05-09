@@ -1,12 +1,18 @@
 # How To Run The Backend
 
-This UI repo does not start the GroupScout backend directly. The backend lives at:
+This document is maintained in the coordinator repo at:
+
+```sh
+/mnt/c/Users/alvin/groupscout-site/frontend/docs/how-to-run-backend.md
+```
+
+Run backend commands from the backend source repo:
 
 ```sh
 /mnt/c/Users/alvin/GolandProjects/groupscout
 ```
 
-Use these notes when you need API data for UI contract work or local integration checks. They mirror useful backend context, but the backend repo remains the source of truth when examples disagree.
+Use these notes when you need API data for UI contract work or local integration checks. Long-lived markdown docs now live under `/mnt/c/Users/alvin/groupscout-site/backend` and `/mnt/c/Users/alvin/groupscout-site/frontend`; the backend source repo remains the source of truth for current code, config, Compose files, and Makefile targets when examples disagree.
 
 ## Prerequisites
 
@@ -164,11 +170,19 @@ docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_gr
 curl -i http://localhost:3002/healthz
 curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
+curl -i http://localhost:3002/api/leads?limit=1
 curl -i http://localhost:3002/api/system
+curl -i http://localhost:3002/api/alerts?limit=1
 docker stop groupscout-ui-production-smoke
 ```
 
-On the 2026-05-08 smoke run, backend `/health` returned `200`, UI D3 `/healthz` returned `200`, and D4 static checks returned `200`. D4 `/api/system` and `/api/leads` returned backend `404`, which means proxy networking worked but the live backend did not expose those UI-modeled `/api/*` routes yet.
+Current backend plus UI smoke expectations:
+
+- Backend `GET /health` returns `200`.
+- UI D3 `GET /healthz` on port `3001` returns `200`.
+- UI D4 `GET /healthz`, `GET /`, and `GET /assets/app.js` on port `3002` return `200`.
+- UI D4 `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` should reach the backend and return `200`.
+- A `502` from `/api/*` means proxy or Docker-network reachability failed.
 
 ## Alertd
 
@@ -205,13 +219,13 @@ For container logs after a run:
 docker compose logs groupscout --tail=50
 ```
 
-## Backend Source Docs
+## Centralized Backend Docs
 
 Primary backend references:
 
-- `/mnt/c/Users/alvin/GolandProjects/groupscout/README.md`
-- `/mnt/c/Users/alvin/GolandProjects/groupscout/docs/DEVELOPER.md`
-- `/mnt/c/Users/alvin/GolandProjects/groupscout/docs/guides/SETUP.md`
-- `/mnt/c/Users/alvin/GolandProjects/groupscout/docs/guides/DOCKER.md`
-- `/mnt/c/Users/alvin/GolandProjects/groupscout/docs/guides/TESTING.md`
-- `/mnt/c/Users/alvin/GolandProjects/groupscout/docs/guides/TROUBLESHOOTING.md`
+- `/mnt/c/Users/alvin/groupscout-site/backend/README.md`
+- `/mnt/c/Users/alvin/groupscout-site/backend/docs/DEVELOPER.md`
+- `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/SETUP.md`
+- `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/DOCKER.md`
+- `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/TESTING.md`
+- `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/TROUBLESHOOTING.md`

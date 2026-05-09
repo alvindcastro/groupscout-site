@@ -1,5 +1,7 @@
 # Troubleshooting
 
+This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/troubleshooting.md`. Run UI diagnostics from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`; run backend diagnostics from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
+
 ## UI Tests Fail Immediately
 
 Confirm the Node runtime is modern enough:
@@ -160,7 +162,7 @@ docker run --rm -p 3005:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:
 Interpret `/api/*` smoke failures by status:
 
 - `502`: the backend is unreachable or `UI_API_PROXY_TARGET` points at the wrong host.
-- `404`: the proxy reached the backend, but the backend does not implement that `/api/*` route.
+- `404`: the proxy reached the backend, but the requested backend route is missing or the path is wrong. Current smoke routes `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` are expected to return `200`.
 - `401`: `UI_SESSION_SECRET` is configured and the request does not have a valid `groupscout_session`; unset `UI_SESSION_SECRET` only for backend Docker smoke checks that need no-login proxy reachability.
 - DNS errors for `groupscout`: the production container is not on the backend Compose network, or it is running with standalone `docker run` and should use `http://host.docker.internal:8080`.
 
@@ -173,7 +175,7 @@ D3/Phase 13 and D4 are different modes:
 - Phase 13 `compose.dev.yml` runs `node web/src/server/productDevServer.js`; it serves `web/dist`, healthchecks `/healthz`, and keeps backend discovery server-side.
 - D4 `groupscout-ui-production` runs `npm run start:ui`; it serves `web/dist` and proxies `/api/*`.
 
-If `http://localhost:3001/api/system` fails with backend route drift, classify it the same way as D4 proxy smoke: `502` is proxy/backend reachability, `404` is live backend route drift, `401`/`403` is auth, and a `200` with missing fields is schema drift.
+If `http://localhost:3001/api/system` fails with backend route drift, classify it the same way as D4 proxy smoke: `502` is proxy/backend reachability, `404` is missing backend route or wrong path, `401`/`403` is auth, and a `200` with missing fields is schema drift.
 
 If D4 is run with standalone `docker run`, use a host backend target:
 
@@ -187,7 +189,7 @@ If D4 is run on the backend Compose network, use the backend service name:
 docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_groupscout_net -p 3002:3000 -e UI_API_PROXY_TARGET=http://groupscout:8080 groupscout-ui-production
 ```
 
-The current backend smoke contract expects `/api/leads?limit=1` to return `200` through the D4 proxy. `/api/system` may return backend `200` or `404`; both distinguish a reachable backend from `502` proxy failure.
+The current backend smoke contract expects `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` to return `200` through the D4 proxy. A `404` is no longer a passing compatibility result for those routes; it means the backend route set or proxy path has drifted.
 
 ## Production UI Runtime Fails
 
@@ -270,8 +272,9 @@ docker compose logs groupscout --tail=50
 
 Known backend documentation drift observed during housekeeping:
 
-- Some docs reference `docs/API_TESTING.md`, but that file was not present during inspection.
-- Some docs use `SENDGRID_API_KEY`, while `.env.example` and config use `RESEND_API_KEY`.
-- Some Postgres examples reference a generated container name, while compose sets `container_name: groupscout_postgres`.
+- Long-lived markdown docs are centralized in `/mnt/c/Users/alvin/groupscout-site/backend` and `/mnt/c/Users/alvin/groupscout-site/frontend`; the backend and frontend source repos may no longer contain those files.
+- Some historical docs reference `docs/API_TESTING.md`, but that file was not present during inspection.
+- Some historical docs use `SENDGRID_API_KEY`, while `.env.example` and config use `RESEND_API_KEY`.
+- Some historical Postgres examples reference a generated container name, while compose sets `container_name: groupscout_postgres`.
 
-Prefer the current backend `.env.example`, `config/config.go`, `docker-compose.yml`, and `Makefile` when commands disagree.
+Prefer the current backend source files `.env.example`, `config/config.go`, `docker-compose.yml`, and `Makefile` when commands disagree.

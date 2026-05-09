@@ -2,6 +2,8 @@
 
 This guide helps you diagnose why the GroupScout pipeline may return "0 new leads" or fewer leads than expected.
 
+This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/TROUBLESHOOTING.md`. Run backend diagnostics from `/mnt/c/Users/alvin/GolandProjects/groupscout`; run UI diagnostics from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
+
 ## 🔍 Core Pipeline Flow
 
 GroupScout filters data at three distinct stages. Understanding these is key to troubleshooting:
@@ -72,9 +74,9 @@ docker compose -p groupscout \
   config --quiet
 ```
 
-### `localhost:3001` Does Not Serve The UI
+### `localhost:3001` Does Not Serve The Production UI
 
-That is expected. Port `3001` is the UI D3 health harness and only serves `/healthz`.
+That is expected. Port `3001` is the UI development/product dev server health path for the Compose override. Use it for `/healthz` checks.
 
 Use the D4 production UI container on port `3002` for static assets and `/api/*` proxy smoke checks.
 
@@ -94,7 +96,7 @@ Check:
 
 ### D4 Proxy Returns `404`
 
-The proxy reached the backend, but the route does not exist. This is currently expected for UI-modeled routes such as `/api/system` and `/api/leads` until backend `/api/*` endpoints are implemented.
+The proxy reached the backend, but the route does not exist or the path is wrong. Current smoke routes `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` are expected to return `200`; a `404` means the backend route set or proxy path drifted.
 
 ### UI Container Has Backend Secrets
 

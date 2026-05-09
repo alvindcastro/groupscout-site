@@ -1,5 +1,7 @@
 ### GroupScout Testing Strategy
 
+This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/TESTING.md`. Run backend test commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`; run UI test commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
+
 The GroupScout testing infrastructure ensures the reliability of the lead collection, enrichment, and notification pipeline. It focuses on unit testing, data parsing verification, and end-to-end integration checks.
 
 ### 1. Automated Go Tests (Makefile)
@@ -179,6 +181,7 @@ docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_gr
 curl -i http://localhost:3002/healthz
 curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
+curl -i http://localhost:3002/api/leads?limit=1
 curl -i http://localhost:3002/api/system
 curl -i http://localhost:3002/api/alerts?limit=1
 ```
@@ -187,7 +190,7 @@ Expected current results:
 
 - Backend `GET /health` returns `200`.
 - UI D3 `GET /healthz` on port `3001` returns `200`.
-- UI D4 `GET /healthz`, `GET /`, `GET /assets/app.js`, `GET /api/system`, and `GET /api/alerts?limit=1` on port `3002` return `200`.
+- UI D4 `GET /healthz`, `GET /`, `GET /assets/app.js`, `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` on port `3002` return `200`.
 - A `502` from `/api/*` is a Docker/proxy reachability failure.
 
 ### 5. Collector Test Pattern

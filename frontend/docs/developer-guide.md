@@ -1,6 +1,8 @@
 # Developer Guide
 
-This repo is currently a plain JavaScript UI workspace for GroupScout operator screens. It has model-level screen factories, a dependency-free vanilla DOM renderer, a static build script, and Node's built-in test runner.
+This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/developer-guide.md`. Run UI implementation, build, test, and Docker commands from the UI source repo at `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
+
+The UI source repo is currently a plain JavaScript UI workspace for GroupScout operator screens. It has model-level screen factories, a dependency-free vanilla DOM renderer, a static build script, and Node's built-in test runner.
 
 ## Current Shape
 
@@ -28,6 +30,15 @@ This repo is currently a plain JavaScript UI workspace for GroupScout operator s
 - `test/*.test.js` contains contract and screen-model tests using `node:test`.
 
 There is no bundler, framework runtime, lockfile, or package-install step yet.
+
+## Coordinator Workflow
+
+- Start feature and bug-fix prompts in `/mnt/c/Users/alvin/groupscout-site`.
+- Read and update long-lived markdown under `frontend/` and `backend/` in the coordinator repo.
+- Make UI code changes in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
+- Make backend code changes in `/mnt/c/Users/alvin/GolandProjects/groupscout`.
+- Create or reuse a source-repo task branch before editing implementation files when possible.
+- Keep generated or tool-owned docs, such as Beads metadata, in their owning repo.
 
 ## Runtime
 
@@ -71,11 +82,13 @@ docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_gr
 curl -i http://localhost:3002/healthz
 curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
+curl -i http://localhost:3002/api/leads?limit=1
 curl -i http://localhost:3002/api/system
+curl -i http://localhost:3002/api/alerts?limit=1
 docker stop groupscout-ui-production-smoke
 ```
 
-Interpret the checks separately. `GET /healthz`, `GET /`, and `GET /assets/app.js` prove the production UI container. With `UI_SESSION_SECRET` unset for Docker smoke, `GET /api/leads?limit=1` should reach the backend and return `200`; `GET /api/system` proves proxy reachability when it returns backend `200` or backend `404`. A `502` means the UI container could not reach `UI_API_PROXY_TARGET`.
+Interpret the checks separately. `GET /healthz`, `GET /`, and `GET /assets/app.js` prove the production UI container. With `UI_SESSION_SECRET` unset for Docker smoke, `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` should reach the backend and return `200`. A `502` means the UI container could not reach `UI_API_PROXY_TARGET`.
 
 Production same-origin server: `npm run start:ui`
 
@@ -190,6 +203,8 @@ The backend repo is separate:
 ```
 
 For backend startup and API checks, see [how-to-run-backend.md](./how-to-run-backend.md).
+
+Backend markdown references are centralized under `/mnt/c/Users/alvin/groupscout-site/backend`; do not expect backend docs to exist in the backend source checkout after the doc move.
 
 Current UI client contracts:
 

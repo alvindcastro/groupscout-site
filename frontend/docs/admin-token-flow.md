@@ -50,7 +50,7 @@ The default setup token is file-backed by `data/admin-setup-token`. It rotates a
 The UI serves immutable `/assets/*` files. The admin-login Docker refresh uses:
 
 ```txt
-/assets/app.js?v=admin-login-1
+/assets/app.js?v=admin-login-2
 ```
 
 If the browser does not show login after containers were rebuilt:
@@ -59,7 +59,7 @@ If the browser does not show login after containers were rebuilt:
 curl -i --max-time 5 http://localhost:3001/
 ```
 
-The HTML should reference `admin-login-1`. If it still references an older version such as `pipeline-output-4`, rebuild the UI image. If it references `admin-login-1` but the browser is stale, hard-refresh or open `/admin/login` directly.
+The HTML should reference `admin-login-2`. If it still references an older version such as `pipeline-output-4`, rebuild the UI image. If it references `admin-login-2` but the browser is stale, hard-refresh or open `/admin/login` directly.
 
 ## Direct API Smoke
 

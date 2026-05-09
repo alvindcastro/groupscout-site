@@ -219,10 +219,10 @@ Expected auth status:
 Expected HTML asset version:
 
 ```html
-<script type="module" src="/assets/app.js?v=admin-login-1"></script>
+<script type="module" src="/assets/app.js?v=admin-login-2"></script>
 ```
 
-If auth status is `404`, the backend container is old and must be rebuilt from the admin-login branch. If `/` still references `pipeline-output-4`, the UI container is old or the static build was not regenerated. If the HTML references `admin-login-1` but the browser still shows the old app, hard-refresh the browser or open `http://localhost:3001/admin/login` directly.
+If auth status is `404`, the backend container is old and must be rebuilt from the admin-login branch. If `/` still references `pipeline-output-4`, the UI container is old or the static build was not regenerated. If the HTML references `admin-login-2` but the browser still shows the old app, hard-refresh the browser or open `http://localhost:3001/admin/login` directly.
 
 ## Admin Login Is Still Full Width
 

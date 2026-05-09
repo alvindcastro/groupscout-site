@@ -61,7 +61,7 @@ curl -i --max-time 5 http://localhost:3001/api/auth/status
 curl -i --max-time 5 http://localhost:3001/
 ```
 
-Expected: `/api/auth/status` returns `auth_required:true` and `authenticated:false`, and `/` references `/assets/app.js?v=admin-login-1`. If the browser still shows the old app without login, hard-refresh or open `/admin/login` directly so the immutable old `pipeline-output-4` asset is not reused from browser cache.
+Expected: `/api/auth/status` returns `auth_required:true` and `authenticated:false`, and `/` references `/assets/app.js?v=admin-login-2`. If the browser still shows the old app without login, hard-refresh or open `/admin/login` directly so the immutable old `pipeline-output-4` asset is not reused from browser cache.
 
 The UI Docker test image no longer copies `DESIGN.md` or `docs/` from the UI repo because long-lived markdown lives in `/mnt/c/Users/alvin/groupscout-site/frontend`. In an isolated container without that mount, centralized-doc-only assertions are skipped while runtime/code assertions still run. To force doc assertions inside the container, mount the coordinator docs and set `GROUPSCOUT_UI_DOCS_ROOT`.
 

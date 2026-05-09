@@ -78,7 +78,7 @@ curl -i -b /tmp/groupscout-admin.cookies -c /tmp/groupscout-admin.cookies \
   -X POST http://localhost:3001/api/auth/logout
 ```
 
-File-backed setup tokens rotate after successful login. Read `data/admin-setup-token` again if another login is needed. Env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically.
+The token file is `/app/data/admin-setup-token` inside the `groupscout_app` container; the host command above reads it through `docker exec`. File-backed setup tokens rotate after successful login. Read the file again if another login is needed. Env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically.
 
 Current verification refresh on 2026-05-09: `npm test` passed all 26 test files after the renderer runtime review fixes for raw-audit-safe SPA navigation, `/src/*` cache policy, and mobile Verification Queue rendering.
 

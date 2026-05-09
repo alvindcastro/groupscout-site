@@ -18,7 +18,9 @@ Use this flow when testing the Docker UI at `http://localhost:3001`.
    {"auth_required":true,"authenticated":false,"setup_token_file":"data/admin-setup-token"}
    ```
 
-2. Read the setup token from the backend container:
+2. Read the setup token from the backend container.
+
+   The in-container token file is `/app/data/admin-setup-token`. From the host, use:
 
    ```sh
    docker exec groupscout_app sh -lc 'cat data/admin-setup-token'
@@ -38,9 +40,9 @@ Use this flow when testing the Docker UI at `http://localhost:3001`.
 
 ## Rotation Rules
 
-The default setup token is file-backed by `data/admin-setup-token`. It rotates after every successful login.
+The default setup token is file-backed by `/app/data/admin-setup-token` inside `groupscout_app`. The auth status response reports the same file as the relative backend path `data/admin-setup-token`. It rotates after every successful login.
 
-- If a token is rejected after a successful login, read `data/admin-setup-token` again.
+- If a token is rejected after a successful login, read `/app/data/admin-setup-token` again with `docker exec groupscout_app sh -lc 'cat data/admin-setup-token'`.
 - If `ADMIN_SETUP_TOKEN` is configured in the backend environment, the token is env-backed and cannot rotate automatically. Change the env var and restart the backend to rotate it.
 - Sessions expire after `ADMIN_SESSION_TTL_HOURS`, default `24`.
 - Sessions are currently in memory, so backend restarts invalidate active browser sessions.

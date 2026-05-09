@@ -247,9 +247,11 @@ curl -i --max-time 5 http://localhost:3001/api/auth/status
 docker exec groupscout_app sh -lc 'cat data/admin-setup-token'
 ```
 
+The setup-token file is `/app/data/admin-setup-token` inside the backend container. The `docker exec` command above reads it from the container's `/app` working directory.
+
 Common causes:
 
-- File-backed setup tokens rotate after successful login. Re-read `data/admin-setup-token`.
+- File-backed setup tokens rotate after successful login. Re-read `/app/data/admin-setup-token` with `docker exec groupscout_app sh -lc 'cat data/admin-setup-token'`.
 - `ADMIN_SETUP_TOKEN` is set in the backend environment, so the file-backed token is ignored.
 - The backend restarted, which clears in-memory sessions and requires another login.
 - The session expired after `ADMIN_SESSION_TTL_HOURS`, default `24`.

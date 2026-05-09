@@ -181,7 +181,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Keep same-origin `/api/*` links outside SPA route interception so raw audit and other API links reach the production proxy normally.
 - Keep browser auth session-based. Do not repurpose automation credentials for operator browser sessions.
 - Keep protected app routes behind `/api/auth/status` checks and redirect unauthenticated users to `/admin/login` when auth is required.
-- Keep setup-token handling server-owned: default token file is backend `data/admin-setup-token`, file-backed tokens rotate after successful login, env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically, and browser code never sees `API_TOKEN`.
+- Keep setup-token handling server-owned: default token file is backend `data/admin-setup-token`, which is `/app/data/admin-setup-token` inside the `groupscout_app` container; file-backed tokens rotate after successful login, env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically, and browser code never sees `API_TOKEN`.
 - Keep the admin login UI as a compact `admin-login-window` form inside the `admin-login` centering stage; do not move setup-token entry into a generic full-width screen panel.
 - Keep logout wired through `createApiClient().logout()` and `/api/auth/logout`; do not clear cookies from browser JavaScript directly.
 - Keep `API_TOKEN` out of browser runtime/config modules.

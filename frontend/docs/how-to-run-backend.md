@@ -225,7 +225,7 @@ curl -i -c /tmp/groupscout-admin.cookies \
   http://localhost:8080/api/auth/login
 ```
 
-Use `http://localhost:3001/admin/login` for browser login when the UI Docker service is running. File-backed setup tokens rotate after successful login, so read `data/admin-setup-token` again for the next setup login.
+The setup-token file is `/app/data/admin-setup-token` inside `groupscout_app`; the `docker exec` command reads it from the container working directory. Use `http://localhost:3001/admin/login` for browser login when the UI Docker service is running. File-backed setup tokens rotate after successful login, so read the file again for the next setup login.
 
 ```sh
 curl -i -X POST \

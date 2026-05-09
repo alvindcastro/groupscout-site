@@ -20,6 +20,9 @@ Phase 9 adds the minimum deployment and session model needed to keep the operato
 
 - Browser access to `/api/*` requires the `groupscout_session` cookie to match a server-side session store when `UI_SESSION_SECRET` is configured.
 - Missing or invalid sessions return `401` with a `GroupScoutSession` challenge when session auth is configured.
+- Browser route rendering now checks `/api/auth/status` before protected app routes and redirects unauthenticated users to `/admin/login` when admin auth is required.
+- `/admin/login` posts a setup token to `/api/auth/login`, verifies the resulting admin session, and then navigates to `/`.
+- Protected app chrome includes a logout control that posts `/api/auth/logout`, clears local route state, and returns to `/admin/login`.
 - The production request handler applies this authorization check before proxying `/api/*` to `UI_API_PROXY_TARGET`; with no session secret configured, the backend Docker smoke path can proxy `/api/*` without a browser login flow.
 - Health, static, JSON, and proxied responses include baseline browser security headers: CSP, `x-content-type-options`, `x-frame-options`, and `referrer-policy`.
 - Disabled UI access returns `404` so the operator UI is not mounted.
@@ -36,11 +39,13 @@ Phase 9 does not add a new visual surface and does not require new `DESIGN.md` t
 - Full-suite green run: `npm test`.
 - Refresh red run on 2026-05-09: `node --test test/session-deployment.test.js` failed because the production request handler did not expose session-gated `/api/*` behavior.
 - Refresh green run on 2026-05-09: `node --test test/session-deployment.test.js` passed after `createProductionRequestHandler(...)` gated `/api/*` with `authorizeUiApiRequest(...)` and added browser security headers.
+- Admin completion green run on 2026-05-09: `node --test test/app-shell.test.js test/api-boundary.test.js test/phase-13-renderer-runtime.test.js test/session-deployment.test.js` and `npm test` passed after adding route auth checks, logout, login verification, and production readiness enforcement.
 
 ## Out Of Scope
 
 - Complex role matrices.
 - Password, MFA, OAuth, or identity-provider UI.
+- Durable multi-admin user management.
 - Replacing automation `API_TOKEN` clients.
 - Production reverse-proxy configuration.
 - A server framework or browser renderer.

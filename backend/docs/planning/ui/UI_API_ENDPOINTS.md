@@ -12,11 +12,15 @@
 | `POST /run` | Implemented | Bearer-token protected when `API_TOKEN` is set. Blocking pipeline trigger. |
 | `POST /digest?to=` | Implemented | Bearer-token protected when `API_TOKEN` is set. Sends email digest. |
 | `POST /n8n/webhook` | Implemented | Bearer-token protected when `API_TOKEN` is set. Accepts a lead-shaped payload. |
-| `GET /leads/{id}/raw` | Implemented | Raw audit payload lookup. No UI auth/session wrapper yet. |
+| `GET /leads/{id}/raw` | Implemented | Legacy raw audit payload lookup. Now requires `API_TOKEN` or admin session when either auth mode is configured. |
+| `GET /api/auth/status` | Implemented | Public admin auth status and session check. |
+| `POST /api/auth/login` | Implemented | Setup-token login. File-backed setup tokens rotate after successful login. |
+| `POST /api/auth/logout` | Implemented | Session revocation and cookie clearing. |
+| `GET /api/auth/me` | Implemented | Current admin lookup for valid session cookie or bearer session token. |
 | `GET /api/leads` | Implemented Phase 35 | Filtered lead inbox list with `status`, `source`, `min_score`, `q`, `limit`, and `cursor`. |
 | `GET /api/leads/{id}` | Implemented Phase 35 | Lead detail with safe audit metadata and no raw payload body. |
 | `PATCH /api/leads/{id}` | Implemented Phase 35 | Updates `status` and `notes`; rejects unsafe or not-yet-schema-backed fields. |
-| `GET /api/leads/{id}/raw` | Implemented Phase 35 | Raw audit evidence alias requiring bearer auth when `API_TOKEN` is configured. |
+| `GET /api/leads/{id}/raw` | Implemented Phase 35 | Raw audit evidence alias requiring admin session when admin auth is enabled, or bearer auth when `API_TOKEN` is configured. |
 | `GET /api/leads/{id}/outreach` | Implemented Phase 36 | Lists outreach history newest-first. |
 | `POST /api/leads/{id}/outreach` | Implemented Phase 36 | Logs outreach attempts. |
 | `POST /api/pipeline/runs` | Implemented Phase 37 | Starts a persisted asynchronous pipeline run. |
@@ -50,6 +54,10 @@
 | `GET /api/stats` | UI summaries | `window` | `{window, by_status, by_source, score_bands, by_owner, by_week, by_outcome}` |
 | `GET /api/system` | UI health summary | none | `{status, database, ollama, metrics_available, last_pipeline_run}` |
 | `GET /api/alerts` | Read-only alert console compatibility | `state`, `property`, `limit`, `cursor` | `{alerts:[], items:[], next_cursor, read_only, filters}` |
+| `GET /api/auth/status` | Admin session status | none | `{auth_required, authenticated, setup_token_file}` |
+| `POST /api/auth/login` | Admin setup-token login | `{token}` | `{session_token, token_type, expires_at, setup_token_rotated, user}` plus `groupscout_session` cookie |
+| `POST /api/auth/logout` | Admin logout | cookie or bearer session token | `{revoked}` plus expired `groupscout_session` cookie |
+| `GET /api/auth/me` | Current admin | cookie or bearer session token | `{user:{role:"admin"}}` |
 
 ## Response Shape Notes
 

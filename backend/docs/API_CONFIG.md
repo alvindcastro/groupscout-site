@@ -18,7 +18,11 @@ Default port: `8080` (Configurable via `PORT`)
 | `/run` | `POST` | Manually triggers the collect-enrich-notify pipeline. | Yes (Bearer Token) |
 | `/digest` | `POST` | Sends a weekly email summary of leads via Resend. | Yes (Bearer Token) |
 | `/n8n/webhook` | `POST` | Receives raw lead data from n8n for storage and enrichment. | Yes (Bearer Token) |
-| `/leads/{id}/raw` | `GET` | Returns the stored raw audit payload associated with a lead. | No today; UI wrapper should require auth |
+| `/leads/{id}/raw` | `GET` | Legacy raw audit payload route. | Yes when `API_TOKEN` or admin auth is configured |
+| `/api/auth/status` | `GET` | Reports admin auth requirement and current session status. | No |
+| `/api/auth/login` | `POST` | Exchanges the current admin setup token for a `groupscout_session` cookie. File-backed setup tokens rotate after successful login. | Setup token |
+| `/api/auth/logout` | `POST` | Revokes the current admin session and clears the browser cookie. | No; revokes when a session is present |
+| `/api/auth/me` | `GET` | Returns the current admin user for a valid session cookie or bearer session token. | Yes (admin session) |
 
 #### Alertd Binary (`cmd/alertd`)
 Default port: `8081` (Configurable via `ALERTD_PORT`)
@@ -81,10 +85,14 @@ Do **not** expose `API_TOKEN` to browser JavaScript. It is intended for server-t
 
 | Endpoint | Method | Status | Purpose |
 |---|---|---|---|
+| `/api/auth/status` | `GET` | Implemented | Public auth status endpoint used by the browser before rendering protected routes. |
+| `/api/auth/login` | `POST` | Implemented | Setup-token login that creates a short-lived admin session and rotates file-backed setup tokens. |
+| `/api/auth/logout` | `POST` | Implemented | Revokes the current session and clears `groupscout_session`. |
+| `/api/auth/me` | `GET` | Implemented | Session-backed current-admin lookup. |
 | `/api/leads` | `GET` | Implemented | List leads with filters such as `status`, `source`, `min_score`, `q`, `limit`, and `cursor`. |
 | `/api/leads/{id}` | `GET` | Implemented | Return lead detail, enrichment fields, status, notes, and audit metadata without raw payload bodies. |
 | `/api/leads/{id}` | `PATCH` | Implemented | Update safe fields and apply validated actions: claim, dismiss, snooze, flag, contacted, won, lost, no-response, and reopen. |
-| `/api/leads/{id}/raw` | `GET` | Implemented | Authenticated UI alias for raw audit evidence when `API_TOKEN` is configured. |
+| `/api/leads/{id}/raw` | `GET` | Implemented | Authenticated UI alias for raw audit evidence. Requires admin session when admin auth is enabled, or bearer `API_TOKEN` when configured. |
 | `/api/leads/{id}/outreach` | `GET` | Implemented | List outreach attempts and outcomes for the lead. |
 | `/api/leads/{id}/outreach` | `POST` | Implemented | Log an outreach attempt, channel, contact, notes, and outcome. |
 | `/api/pipeline/runs` | `POST` | Implemented | Start a pipeline run asynchronously instead of blocking the browser for the full run. |

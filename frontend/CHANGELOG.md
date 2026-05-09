@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Admin Login Session Completion
+
+- What: Completed the browser-side admin setup-token login flow with protected-route auth checks, post-login session verification, logout API support, a topbar logout control, production startup readiness enforcement, and tests that read centralized markdown docs after docs moved out of the UI source repo.
+- Where: Updated `web/src/api/auth.js`, `web/src/app/shell.js`, `web/src/renderer/staticAppEntry.js`, `web/src/renderer/domRenderer.js`, `web/src/renderer/staticStyles.css`, `web/src/server/productionServer.js`, `web/src/server/uiDeployment.js`, generated `web/dist` assets, `test/api-boundary.test.js`, `test/app-shell.test.js`, `test/design-tokens.test.js`, `test/dockerization-contract.test.js`, `test/phase-13-renderer-runtime.test.js`, and `test/session-deployment.test.js`.
+- When: Completed on 2026-05-09 during coordinator task `groupscout-site-9ge`.
+- Why: The prior `/admin/login` route could submit a setup token, but protected app routes still rendered before session checks, there was no logout control, successful login did not verify the resulting session, production startup did not enforce deployment readiness, and UI tests still assumed markdown docs lived inside the UI source repo.
+- How: Added `logout()` to the auth API client, added route-level auth-status checks with unauthenticated redirects to `/admin/login`, verified `/api/auth/status` or `/api/auth/me` after login, rendered a logout button for protected routes, forwarded `/api/auth/logout` before proxy session gating, called deployment readiness before starting the production server, regenerated static assets, and reran focused plus full UI tests.
+
 ### Renderer Runtime Review Fixes
 
 - What: Fixed review findings in the dependency-free browser runtime by limiting SPA click interception to app routes, preserving normal `/api/*` raw audit link navigation, serving copied `/src/*` static modules with `no-store`, rendering mobile Verification Queue cards from mobile model data, and removing `.idea` line-ending churn from the worktree.

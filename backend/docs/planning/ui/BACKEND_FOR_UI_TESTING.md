@@ -2,7 +2,7 @@
 
 Use this runbook when a frontend developer needs a GroupScout backend available while building or testing the operator UI.
 
-The current backend is ready for health checks, pipeline triggers, metrics, and raw audit lookup. The UI-specific `/api/*` lead list/detail endpoints are still planned, so a UI scaffold may need mocked lead data until those endpoints are implemented.
+The current backend is ready for health checks, pipeline triggers, metrics, admin setup-token login, session-gated `/api/*` UI routes, and raw audit lookup. The UI-specific lead list/detail, outreach, pipeline, stats, system, and alert compatibility endpoints are implemented for local UI testing.
 
 ## Quick Start: Local Backend
 
@@ -11,6 +11,7 @@ This is the fastest path for UI work because it avoids the full Docker stack and
 ```bash
 DATABASE_URL=groupscout-ui-dev.db \
 API_TOKEN=dev-token \
+ADMIN_AUTH_ENABLED=true \
 OLLAMA_ENABLED=false \
 ENRICHMENT_ENABLED=false \
 go run cmd/server/main.go
@@ -23,6 +24,15 @@ Verify it:
 ```bash
 curl -i http://localhost:8080/health
 ```
+
+If `ADMIN_SETUP_TOKEN` is not set, the backend writes a first-run setup token to `data/admin-setup-token`. Use that value at `/admin/login` in the UI, or call the auth API directly:
+
+```bash
+curl -i http://localhost:8080/api/auth/status
+curl -i -X POST -H "Content-Type: application/json" -d '{"token":"YOUR_SETUP_TOKEN"}' http://localhost:8080/api/auth/login
+```
+
+Successful login sets an HttpOnly `groupscout_session` cookie. File-backed setup tokens rotate after login, so read the token file again if another setup login is needed.
 
 Expected result is `200 OK` with JSON similar to:
 

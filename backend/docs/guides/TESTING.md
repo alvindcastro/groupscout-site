@@ -28,6 +28,8 @@ These cover the Phase 35 filtered lead listing storage contract and the `/api/le
 
 Phase 36 and 37 extend the same package tests with outreach logging, lead actions, pipeline run persistence, stats, `/api/system`, and the read-only `/api/alerts` compatibility route.
 
+The admin-login completion tests also live in `cmd/server`: invalid setup-token login, file-backed setup-token rotation, bearer session-token access, `/api/auth/me`, session expiry, `/api/auth/logout` revocation, and legacy `/leads/{id}/raw` auth coverage.
+
 #### Run UI Docker Smoke Contract Tests
 ```bash
 go test ./internal/smoke

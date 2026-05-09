@@ -20,6 +20,8 @@ There is still no package install requirement.
 
 Current verification refresh on 2026-05-09: `npm test` passed all 26 test files after the renderer runtime review fixes for raw-audit-safe SPA navigation, `/src/*` cache policy, and mobile Verification Queue rendering.
 
+Admin login completion run on 2026-05-09: `node --test test/app-shell.test.js test/api-boundary.test.js test/phase-13-renderer-runtime.test.js test/session-deployment.test.js`, `npm run build`, and `npm test` passed after adding protected-route auth redirects, setup-token login verification, logout, production readiness enforcement, and centralized-doc test fallbacks.
+
 Renderer runtime review fix on 2026-05-09: `node --test test/phase-13-renderer-runtime.test.js test/dockerization-contract.test.js test/verification-queue.test.js` covered app-route-only click interception, normal `/api/*` raw audit link behavior, copied `/src/*` module `no-store` caching, and mobile Verification Queue cards.
 
 Housekeeping run on 2026-05-08: `npm test` passed all 22 test files.
@@ -173,6 +175,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Same-origin `/api/*` browser request boundary, public API-client facade shape, split adapter module ownership, request defaults, and invalid-route pre-fetch rejection.
 - Session-cookie enforcement metadata for UI `/api/*` access.
 - Production request-handler enforcement that rejects missing/invalid `groupscout_session` before `/api/*` proxying when `UI_SESSION_SECRET` is configured, allows the no-secret backend Docker smoke proxy path, and applies baseline browser security headers.
+- Admin setup-token login route rendering, protected-route redirect metadata, login verification through auth status/current-admin calls, and logout routing through `/api/auth/logout`.
 - `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, and development-only `CORS_ALLOWED_ORIGINS` deployment behavior.
 - D2 browser runtime contract metadata for the reserved start command, port, health path, static asset boundary, `/api/*` server/proxy target, and forbidden browser public config keys.
 - D3/Phase 13 development Compose metadata for the UI service, backend network attachment, backend service dependency, port mapping, healthcheck command, no-secret Compose boundary, and product dev-server health payload.

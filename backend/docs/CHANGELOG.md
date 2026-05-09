@@ -1,3 +1,15 @@
+## 2026-05-09 - Admin login session completion
+
+### groupscout-site-9ge - Complete backend admin login flow
+
+- **What:** Hardened the setup-token admin login flow with logout/revoke support, file-backed setup-token rotation after successful login, session expiry tests, bearer session-token validation, OpenAPI/Bruno auth coverage, and authentication for the legacy `/leads/{id}/raw` route.
+- **Where:** `cmd/server/admin_auth.go`, `cmd/server/main.go`, `cmd/server/ui_api.go`, `cmd/server/ui_api_test.go`, `api/swagger.yaml`, `api/bruno/AdminAuthStatus.bru`, `api/bruno/AdminLogin.bru`, `api/bruno/AdminLogout.bru`, `api/bruno/environments/Local.bru`, and centralized docs.
+- **When:** 2026-05-09.
+- **Why:** The first admin flow could issue a session, but it had no logout path, reusable file-backed setup tokens, weak test coverage for session lifecycle behavior, missing API docs, and a legacy raw-audit route that could bypass the UI admin session boundary.
+- **How:** Added `POST /api/auth/logout`, session revocation, expired cookie clearing, file-backed setup-token rotation, legacy raw route auth checks, tests for invalid login, `/api/auth/me`, bearer session auth, expiry, logout, token reuse rejection, and raw-route auth, then documented the auth endpoints and Bruno requests.
+
+---
+
 ## 2026-05-09 - Frontend Docker contract compatibility
 
 ### groupscout-ehq - Review frontend UI docs and Docker contracts

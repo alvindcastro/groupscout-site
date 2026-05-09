@@ -168,6 +168,21 @@ Interpret `/api/*` smoke failures by status:
 
 Browser-visible code and config should still show relative `/api/*`, never `http://groupscout:8080` or backend secrets.
 
+## Admin Login Redirects Unexpectedly
+
+Protected app routes call `/api/auth/status` before rendering. If a route redirects to `/admin/login`, check:
+
+- The backend is reachable through the UI proxy.
+- `GET /api/auth/status` returns `auth_required: true` and `authenticated: true` after login.
+- The browser received the HttpOnly `groupscout_session` cookie from `POST /api/auth/login`.
+- The setup token was read from the current `ADMIN_SETUP_TOKEN` value or `ADMIN_SETUP_TOKEN_FILE`. File-backed setup tokens rotate after successful login.
+
+If `UI_SESSION_SECRET` is configured, `/api/*` requests without a valid cookie return `401` before proxying. If it is unset for Docker smoke, API requests can proxy without a browser session, but the backend may still require its own admin auth depending on `ADMIN_AUTH_ENABLED`.
+
+## Logout Does Not End Session
+
+The logout control posts `/api/auth/logout`, which revokes the backend session when a token is present and expires `groupscout_session`. If a user remains authenticated, verify that the UI proxy forwards `/api/auth/logout` as a public auth endpoint and that the backend branch includes session revocation support.
+
 ## Backend And UI Docker Mode Mismatch
 
 D3/Phase 13 and D4 are different modes:

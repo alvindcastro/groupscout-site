@@ -151,6 +151,8 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Keep browser requests behind same-origin `/api/*` paths.
 - Keep same-origin `/api/*` links outside SPA route interception so raw audit and other API links reach the production proxy normally.
 - Keep browser auth session-based. Do not repurpose automation credentials for operator browser sessions.
+- Keep protected app routes behind `/api/auth/status` checks and redirect unauthenticated users to `/admin/login` when auth is required.
+- Keep logout wired through `createApiClient().logout()` and `/api/auth/logout`; do not clear cookies from browser JavaScript directly.
 - Keep `API_TOKEN` out of browser runtime/config modules.
 - Keep `UI_API_PROXY_TARGET` server-only; browser code and public config may only expose relative `/api/*`.
 - Keep production public config whitelist-only and free of provider keys, Slack tokens, Resend/SendGrid keys, database URLs, and `UI_SESSION_SECRET`.
@@ -223,6 +225,7 @@ Current UI client contracts:
 ## API Module Map
 
 - `web/src/api/client.js`: public facade for `createApiClient(...)` and exported constants.
+- `web/src/api/auth.js`: admin auth status, setup-token login, current-admin lookup, and logout methods.
 - `web/src/api/transport.js`: centralized same-origin `/api/*` request validation, JSON defaults, session credentials, non-2xx errors, and non-JSON success behavior.
 - `web/src/api/shared.js`: small helpers shared by adapters.
 - `web/src/api/leads.js`: lead inbox reads, lead detail reads, and lead PATCH writes.
@@ -232,6 +235,10 @@ Current UI client contracts:
 - `web/src/api/stats.js`: analytics stats reads and hit-rate metadata adaptation.
 - `web/src/api/alerts.js`: read-only alert list reads.
 - `web/src/api/system.js`: read-only system summary reads.
+
+## Centralized Doc Tests
+
+Some tests still assert against long-lived markdown contracts after docs moved to `/mnt/c/Users/alvin/groupscout-site/frontend`. They first read local docs when present, then fall back to `GROUPSCOUT_UI_DOCS_ROOT` or `/mnt/c/Users/alvin/groupscout-site/frontend`.
 
 ## Adding A New UI Phase
 

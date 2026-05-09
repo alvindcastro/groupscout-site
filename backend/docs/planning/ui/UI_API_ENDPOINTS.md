@@ -59,6 +59,14 @@
 | `POST /api/auth/logout` | Admin logout | cookie or bearer session token | `{revoked}` plus expired `groupscout_session` cookie |
 | `GET /api/auth/me` | Current admin | cookie or bearer session token | `{user:{role:"admin"}}` |
 
+Admin setup-token notes:
+
+- `ADMIN_AUTH_ENABLED` defaults to `true`.
+- If `ADMIN_SETUP_TOKEN` is absent, the backend reads or creates `ADMIN_SETUP_TOKEN_FILE`, default `data/admin-setup-token`.
+- File-backed setup tokens rotate after successful login; env-backed `ADMIN_SETUP_TOKEN` values do not.
+- Admin sessions are in-memory and expire after `ADMIN_SESSION_TTL_HOURS`, default `24`.
+- Browser clients use the HttpOnly `groupscout_session` cookie. Non-browser smoke clients may use the returned `session_token` as `Authorization: Bearer ...`.
+
 ## Response Shape Notes
 
 `lead_summary` should include:

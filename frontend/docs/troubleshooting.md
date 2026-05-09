@@ -224,6 +224,33 @@ Expected HTML asset version:
 
 If auth status is `404`, the backend container is old and must be rebuilt from the admin-login branch. If `/` still references `pipeline-output-4`, the UI container is old or the static build was not regenerated. If the HTML references `admin-login-1` but the browser still shows the old app, hard-refresh the browser or open `http://localhost:3001/admin/login` directly.
 
+## Setup Token Is Rejected
+
+Check the active token source:
+
+```sh
+curl -i --max-time 5 http://localhost:3001/api/auth/status
+docker exec groupscout_app sh -lc 'cat data/admin-setup-token'
+```
+
+Common causes:
+
+- File-backed setup tokens rotate after successful login. Re-read `data/admin-setup-token`.
+- `ADMIN_SETUP_TOKEN` is set in the backend environment, so the file-backed token is ignored.
+- The backend restarted, which clears in-memory sessions and requires another login.
+- The session expired after `ADMIN_SESSION_TTL_HOURS`, default `24`.
+
+For direct API smoke, keep cookies in a jar:
+
+```sh
+TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
+curl -i -c /tmp/groupscout-admin.cookies \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"${TOKEN}\"}" \
+  http://localhost:3001/api/auth/login
+curl -i -b /tmp/groupscout-admin.cookies http://localhost:3001/api/auth/me
+```
+
 ## Logout Does Not End Session
 
 The logout control posts `/api/auth/logout`, which revokes the backend session when a token is present and expires `groupscout_session`. If a user remains authenticated, verify that the UI proxy forwards `/api/auth/logout` as a public auth endpoint and that the backend branch includes session revocation support.

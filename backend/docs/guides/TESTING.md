@@ -58,6 +58,36 @@ Phase 36 and 37 extend the same package tests with outreach logging, lead action
 
 The admin-login completion tests also live in `cmd/server`: invalid setup-token login, file-backed setup-token rotation, bearer session-token access, `/api/auth/me`, session expiry, `/api/auth/logout` revocation, and legacy `/leads/{id}/raw` auth coverage.
 
+#### Run Admin Auth Token Flow Smoke
+
+Local backend:
+
+```bash
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+curl -i http://localhost:8080/api/auth/status
+SETUP_TOKEN="$(cat data/admin-setup-token)"
+curl -i -c /tmp/groupscout-admin.cookies \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"${SETUP_TOKEN}\"}" \
+  http://localhost:8080/api/auth/login
+curl -i -b /tmp/groupscout-admin.cookies http://localhost:8080/api/auth/me
+curl -i -b /tmp/groupscout-admin.cookies -c /tmp/groupscout-admin.cookies \
+  -X POST http://localhost:8080/api/auth/logout
+```
+
+Docker backend:
+
+```bash
+SETUP_TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
+curl -i -c /tmp/groupscout-admin.cookies \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"${SETUP_TOKEN}\"}" \
+  http://localhost:3001/api/auth/login
+curl -i -b /tmp/groupscout-admin.cookies http://localhost:3001/api/auth/me
+```
+
+File-backed setup tokens rotate after successful login. If a setup token is rejected after a successful login, read `data/admin-setup-token` again. Env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically.
+
 #### Run UI Docker Smoke Contract Tests
 ```bash
 go test ./internal/smoke

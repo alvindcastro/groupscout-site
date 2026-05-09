@@ -211,6 +211,19 @@ curl -X POST -d "command=/inventory&text=34" http://localhost:8081/slack/invento
 curl -i http://localhost:8080/health
 ```
 
+Admin auth status and token flow:
+
+```sh
+curl -i http://localhost:8080/api/auth/status
+SETUP_TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
+curl -i -c /tmp/groupscout-admin.cookies \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"${SETUP_TOKEN}\"}" \
+  http://localhost:8080/api/auth/login
+```
+
+Use `http://localhost:3001/admin/login` for browser login when the UI Docker service is running. File-backed setup tokens rotate after successful login, so read `data/admin-setup-token` again for the next setup login.
+
 ```sh
 curl -i -X POST \
   -H "Authorization: Bearer YOUR_API_TOKEN" \

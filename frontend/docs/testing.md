@@ -65,6 +65,21 @@ Expected: `/api/auth/status` returns `auth_required:true` and `authenticated:fal
 
 The UI Docker test image no longer copies `DESIGN.md` or `docs/` from the UI repo because long-lived markdown lives in `/mnt/c/Users/alvin/groupscout-site/frontend`. In an isolated container without that mount, centralized-doc-only assertions are skipped while runtime/code assertions still run. To force doc assertions inside the container, mount the coordinator docs and set `GROUPSCOUT_UI_DOCS_ROOT`.
 
+Admin token flow smoke:
+
+```sh
+TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
+curl -i -c /tmp/groupscout-admin.cookies \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"${TOKEN}\"}" \
+  http://localhost:3001/api/auth/login
+curl -i -b /tmp/groupscout-admin.cookies http://localhost:3001/api/auth/me
+curl -i -b /tmp/groupscout-admin.cookies -c /tmp/groupscout-admin.cookies \
+  -X POST http://localhost:3001/api/auth/logout
+```
+
+File-backed setup tokens rotate after successful login. Read `data/admin-setup-token` again if another login is needed. Env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically.
+
 Current verification refresh on 2026-05-09: `npm test` passed all 26 test files after the renderer runtime review fixes for raw-audit-safe SPA navigation, `/src/*` cache policy, and mobile Verification Queue rendering.
 
 Admin login completion run on 2026-05-09: `node --test test/app-shell.test.js test/api-boundary.test.js test/phase-13-renderer-runtime.test.js test/session-deployment.test.js`, `npm run build`, and `npm test` passed after adding protected-route auth redirects, setup-token login verification, logout, production readiness enforcement, and centralized-doc test fallbacks.

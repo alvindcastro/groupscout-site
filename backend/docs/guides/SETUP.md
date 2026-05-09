@@ -29,6 +29,8 @@ CLAUDE_API_KEY=sk-ant-...
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/XXX/YYY/ZZZ
 API_TOKEN=your_secure_token_here
 DATABASE_URL=groupscout.db # Or postgres://user:pass@localhost:5432/db
+ADMIN_AUTH_ENABLED=true
+ADMIN_SETUP_TOKEN_FILE=data/admin-setup-token
 
 # Privacy (Optional)
 PII_STRIP=true             # Set to true to redact emails and phone numbers from raw audit trail
@@ -40,6 +42,8 @@ openssl rand -hex 32
 ```
 
 > Everything else has sensible defaults. See `.env.example` for the full list.
+
+Admin auth defaults on. If `ADMIN_SETUP_TOKEN` is not set, the backend creates `ADMIN_SETUP_TOKEN_FILE` and uses that value for `/admin/login`. File-backed setup tokens rotate after successful login. See [ADMIN_AUTH.md](./ADMIN_AUTH.md) for the complete login, logout, and token-rotation flow.
 
 ---
 

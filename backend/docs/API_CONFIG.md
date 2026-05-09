@@ -83,6 +83,14 @@ The automation API remains optimized for n8n and server-to-server triggers. The 
 
 Do **not** expose `API_TOKEN` to browser JavaScript. It is intended for server-to-server automation. Use a cookie session, an auth proxy, or another server-side session boundary for the admin UI.
 
+### Admin Auth And Setup Token Flow
+
+Admin auth defaults to enabled through `ADMIN_AUTH_ENABLED=true`. If `ADMIN_SETUP_TOKEN` is absent, the server reads or creates `ADMIN_SETUP_TOKEN_FILE`, default `data/admin-setup-token`. Use that setup token at `/admin/login` or `POST /api/auth/login`.
+
+Successful login creates a short-lived in-memory admin session, sets the HttpOnly `groupscout_session` cookie, and returns a `session_token` for non-browser smoke clients. File-backed setup tokens rotate after successful login; read `data/admin-setup-token` again before another setup login. Env-backed `ADMIN_SETUP_TOKEN` values cannot rotate automatically, so rotate them by changing the env var and restarting the backend.
+
+Session lifetime is controlled by `ADMIN_SESSION_TTL_HOURS`, default `24`. `POST /api/auth/logout` revokes the current session and expires `groupscout_session`. Backend restarts clear in-memory sessions.
+
 | Endpoint | Method | Status | Purpose |
 |---|---|---|---|
 | `/api/auth/status` | `GET` | Implemented | Public auth status endpoint used by the browser before rendering protected routes. |

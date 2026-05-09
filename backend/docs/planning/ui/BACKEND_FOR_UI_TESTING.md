@@ -29,10 +29,22 @@ If `ADMIN_SETUP_TOKEN` is not set, the backend writes a first-run setup token to
 
 ```bash
 curl -i http://localhost:8080/api/auth/status
-curl -i -X POST -H "Content-Type: application/json" -d '{"token":"YOUR_SETUP_TOKEN"}' http://localhost:8080/api/auth/login
+SETUP_TOKEN="$(cat data/admin-setup-token)"
+curl -i -c /tmp/groupscout-admin.cookies \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"${SETUP_TOKEN}\"}" \
+  http://localhost:8080/api/auth/login
+curl -i -b /tmp/groupscout-admin.cookies http://localhost:8080/api/auth/me
 ```
 
-Successful login sets an HttpOnly `groupscout_session` cookie. File-backed setup tokens rotate after login, so read the token file again if another setup login is needed.
+Successful login sets an HttpOnly `groupscout_session` cookie and returns a `session_token` for non-browser smoke clients. File-backed setup tokens rotate after login, so read the token file again if another setup login is needed. Env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically.
+
+Logout revokes the current session and expires the cookie:
+
+```bash
+curl -i -b /tmp/groupscout-admin.cookies -c /tmp/groupscout-admin.cookies \
+  -X POST http://localhost:8080/api/auth/logout
+```
 
 Expected result is `200 OK` with JSON similar to:
 
@@ -85,6 +97,18 @@ Service URLs:
 | Prometheus | `http://localhost:9090` |
 
 The `groupscout` compose service depends on Postgres, Ollama, and `ollama-init`. First boot can take several minutes because `ollama-init` pulls models.
+
+For the Docker backend, read the current setup token from the app container:
+
+```bash
+docker exec groupscout_app sh -lc 'cat data/admin-setup-token'
+```
+
+The browser login route is served by the UI container at:
+
+```txt
+http://localhost:3001/admin/login
+```
 
 ## Backend Plus UI Docker Smoke
 

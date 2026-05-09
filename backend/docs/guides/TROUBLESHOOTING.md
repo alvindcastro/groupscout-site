@@ -79,6 +79,24 @@ docker compose logs ollama --tail=50
 docker exec groupscout_ollama ollama list
 ```
 
+### Admin Setup Token Is Rejected
+
+Default admin auth is setup-token based. Check the current token source:
+
+```bash
+curl -i http://localhost:8080/api/auth/status
+docker exec groupscout_app sh -lc 'cat data/admin-setup-token'
+```
+
+Common causes:
+
+- The backend container was rebuilt or restarted and active sessions were lost.
+- A file-backed setup token already succeeded once and rotated; read `data/admin-setup-token` again.
+- `ADMIN_SETUP_TOKEN` is set in the backend environment, so the file value is ignored and the env value is the active setup token.
+- The browser is still using stale UI assets; check that `http://localhost:3001/` references `/assets/app.js?v=admin-login-1`.
+
+Successful login sets `groupscout_session`. Logout must call `POST /api/auth/logout`; browser JavaScript should not try to clear the HttpOnly cookie directly.
+
 ### `compose.dev.yml` Fails By Itself
 
 The UI repo's `compose.dev.yml` is an override for the backend Compose file. It expects backend service `groupscout` and network `groupscout_net`.

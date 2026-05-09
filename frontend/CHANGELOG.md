@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Admin Token Flow Documentation
+
+- What: Added a dedicated admin-token flow doc and expanded UI docs for setup-token login, `groupscout_session`, logout, token rotation, Docker smoke, and stale browser assets.
+- Where: Added `docs/admin-token-flow.md`; updated `README.md`, `docs/developer-guide.md`, `docs/how-to-run-backend.md`, `docs/nice-to-knows.md`, `docs/phase-9-session-auth-wrapper-same-origin-deployment.md`, `docs/testing.md`, `docs/troubleshooting.md`, and related backend centralized docs.
+- When: Updated on 2026-05-09 during coordinator task `groupscout-site-0o7`.
+- Why: The login implementation works, but the operating flow needed to be explicit for testers: read the current setup token, submit it, expect rotation, use logout, and hard-refresh if old immutable assets are cached.
+- How: Documented the browser path, direct curl smoke, Docker setup-token command, file-backed versus env-backed token behavior, session TTL/restart caveats, and `admin-login-1` asset version.
+
 ### Docker Admin Login Smoke Fix
 
 - What: Fixed the UI Docker runtime so the current admin-login bundle is visible after markdown docs moved out of the UI source repo, and kept the containerized test image useful without mounting the coordinator docs.

@@ -110,6 +110,7 @@ The default development UI host port is `3001` because the backend stack publish
 ## Developer Docs
 
 - [Developer Guide](./docs/developer-guide.md)
+- [Admin Token Flow](./docs/admin-token-flow.md)
 - [How To Run The Backend](./docs/how-to-run-backend.md)
 - [Testing](./docs/testing.md)
 - [Troubleshooting](./docs/troubleshooting.md)
@@ -223,6 +224,10 @@ The default development UI host port is `3001` because the backend stack publish
 
 - Deployment helper: `createUiDeploymentConfig(...)`, `assertUiDeploymentReady(...)`, `resolveUiMount(...)`, and `authorizeUiApiRequest(...)`.
 - Session cookie: `groupscout_session` is required for browser `/api/*` access when the UI is enabled and `UI_SESSION_SECRET` is configured.
+- Admin login route: `/admin/login` submits the backend setup token to `/api/auth/login`, verifies the new session, and redirects to `/`.
+- Setup-token source: backend `data/admin-setup-token` by default, or `ADMIN_SETUP_TOKEN` when explicitly configured.
+- Token rotation: file-backed setup tokens rotate after successful login; env-backed setup tokens do not rotate automatically.
+- Logout route: the topbar logout control calls `/api/auth/logout`, revokes the session, expires `groupscout_session`, and returns to `/admin/login`.
 - Settings: `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, and development-only `CORS_ALLOWED_ORIGINS`.
 - Mounted shell: `createMountedRouteShell(...)` maps URLs under `UI_BASE_PATH` to internal routes and emits base-path-aware hrefs.
 - Out of scope: role matrices, identity-provider UI, production proxy config, and repurposing `API_TOKEN` for browser sessions.

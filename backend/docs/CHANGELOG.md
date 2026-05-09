@@ -1,3 +1,15 @@
+## 2026-05-09 - Admin token flow documentation
+
+### groupscout-site-0o7 - Document admin token login flow
+
+- **What:** Added a dedicated backend admin auth guide and expanded centralized backend/frontend docs for setup-token login, cookie sessions, logout, token rotation, Docker smoke, and stale-asset recovery.
+- **Where:** `docs/guides/ADMIN_AUTH.md`, `docs/API_CONFIG.md`, `docs/guides/DOCKER.md`, `docs/guides/TESTING.md`, `docs/guides/TROUBLESHOOTING.md`, `docs/DEVELOPER.md`, `docs/planning/ui/BACKEND_FOR_UI_TESTING.md`, `docs/planning/ui/UI_API_ENDPOINTS.md`, and frontend centralized docs.
+- **When:** 2026-05-09.
+- **Why:** Operators need a single clear flow for finding the setup token, logging in, understanding token rotation, logging out, and diagnosing stale Docker/browser state.
+- **How:** Documented `ADMIN_AUTH_ENABLED`, `ADMIN_SETUP_TOKEN`, `ADMIN_SETUP_TOKEN_FILE`, `ADMIN_SESSION_TTL_HOURS`, `groupscout_session`, bearer session-token smoke usage, and the `admin-login-1` static asset cache key.
+
+---
+
 ## 2026-05-09 - Docker testing prep documentation
 
 ### groupscout-site-1fr - Refresh testing Docker documentation

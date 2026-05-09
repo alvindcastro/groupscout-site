@@ -53,6 +53,8 @@ Use `createApiClient(...)` for API access. It enforces same-origin `/api/*` path
 
 Avoid direct external backend URLs in browser-facing modules.
 
+Admin login uses the same boundary. The browser submits the setup token to `/api/auth/login`, receives an HttpOnly `groupscout_session`, and never receives the automation `API_TOKEN`. File-backed setup tokens rotate after a successful login, so a rejected setup token often means the token file was already used once.
+
 ## Mocked Data Is Intentional
 
 Current screen data is mocked so the UI can lock screen contracts before a renderer and live backend integration exist. This applies across Lead Inbox, Lead Detail, Verification, Outreach, Pipeline, Analytics, Alerts, and Today.

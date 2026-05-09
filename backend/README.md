@@ -171,6 +171,7 @@ GQ5 review samples can be converted into review-only draft cases with the evalop
 *   [CHANGELOG.md](./docs/CHANGELOG.md) - Plain-English record of all changes.
 *   [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System design and data flow.
 *   [SETUP.md](./docs/guides/SETUP.md) - Installation and configuration guide.
+*   [ADMIN_AUTH.md](./docs/guides/ADMIN_AUTH.md) - Admin setup-token login, session cookie, logout, and token rotation.
 *   [DOCKER.md](./docs/guides/DOCKER.md) - Running and troubleshooting Docker.
 *   [TESTING.md](./docs/guides/TESTING.md) - Comprehensive testing guide (unit, integration, Ollama).
 *   [VERIFICATION.md](./docs/guides/VERIFICATION.md) - Runtime and EvalOps verification checklist.

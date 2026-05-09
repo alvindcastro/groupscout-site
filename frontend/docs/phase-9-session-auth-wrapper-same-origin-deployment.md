@@ -23,6 +23,10 @@ Phase 9 adds the minimum deployment and session model needed to keep the operato
 - Browser route rendering now checks `/api/auth/status` before protected app routes and redirects unauthenticated users to `/admin/login` when admin auth is required.
 - `/admin/login` posts a setup token to `/api/auth/login`, verifies the resulting admin session, and then navigates to `/`.
 - Protected app chrome includes a logout control that posts `/api/auth/logout`, clears local route state, and returns to `/admin/login`.
+- The backend setup token is file-backed by default at `data/admin-setup-token`. It rotates after every successful login, so a second setup login needs the new file value.
+- If the backend uses `ADMIN_SETUP_TOKEN`, that env-backed setup token is active and does not rotate automatically.
+- The backend response includes a bearer `session_token` for non-browser smoke clients, but browser code relies on the HttpOnly `groupscout_session` cookie.
+- Admin sessions are in-memory and expire after `ADMIN_SESSION_TTL_HOURS`, default `24`; backend restarts invalidate active browser sessions.
 - The production request handler applies this authorization check before proxying `/api/*` to `UI_API_PROXY_TARGET`; with no session secret configured, the backend Docker smoke path can proxy `/api/*` without a browser login flow.
 - Health, static, JSON, and proxied responses include baseline browser security headers: CSP, `x-content-type-options`, `x-frame-options`, and `referrer-policy`.
 - Disabled UI access returns `404` so the operator UI is not mounted.
@@ -40,6 +44,7 @@ Phase 9 does not add a new visual surface and does not require new `DESIGN.md` t
 - Refresh red run on 2026-05-09: `node --test test/session-deployment.test.js` failed because the production request handler did not expose session-gated `/api/*` behavior.
 - Refresh green run on 2026-05-09: `node --test test/session-deployment.test.js` passed after `createProductionRequestHandler(...)` gated `/api/*` with `authorizeUiApiRequest(...)` and added browser security headers.
 - Admin completion green run on 2026-05-09: `node --test test/app-shell.test.js test/api-boundary.test.js test/phase-13-renderer-runtime.test.js test/session-deployment.test.js` and `npm test` passed after adding route auth checks, logout, login verification, and production readiness enforcement.
+- Admin Docker smoke refresh on 2026-05-09: rebuilt backend/UI containers, verified `GET /api/auth/status` through the UI proxy returns `auth_required:true`, and bumped the immutable static asset query to `admin-login-1`.
 
 ## Out Of Scope
 

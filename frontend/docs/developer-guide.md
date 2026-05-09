@@ -170,6 +170,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Keep same-origin `/api/*` links outside SPA route interception so raw audit and other API links reach the production proxy normally.
 - Keep browser auth session-based. Do not repurpose automation credentials for operator browser sessions.
 - Keep protected app routes behind `/api/auth/status` checks and redirect unauthenticated users to `/admin/login` when auth is required.
+- Keep setup-token handling server-owned: default token file is backend `data/admin-setup-token`, file-backed tokens rotate after successful login, env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically, and browser code never sees `API_TOKEN`.
 - Keep logout wired through `createApiClient().logout()` and `/api/auth/logout`; do not clear cookies from browser JavaScript directly.
 - Keep `API_TOKEN` out of browser runtime/config modules.
 - Keep `UI_API_PROXY_TARGET` server-only; browser code and public config may only expose relative `/api/*`.
@@ -224,6 +225,8 @@ The backend repo is separate:
 ```
 
 For backend startup and API checks, see [how-to-run-backend.md](./how-to-run-backend.md).
+
+For the exact operator login, setup-token rotation, API smoke, and stale-asset recovery flow, see [admin-token-flow.md](./admin-token-flow.md).
 
 Backend markdown references are centralized under `/mnt/c/Users/alvin/groupscout-site/backend`; do not expect backend docs to exist in the backend source checkout after the doc move.
 

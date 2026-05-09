@@ -32,6 +32,19 @@ curl -i --max-time 5 http://localhost:3001/healthz
 curl -i --max-time 5 http://localhost:3001/
 ```
 
+Admin login smoke for the Docker UI:
+
+```bash
+SETUP_TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
+curl -i -c /tmp/groupscout-admin.cookies \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"${SETUP_TOKEN}\"}" \
+  http://localhost:3001/api/auth/login
+curl -i -b /tmp/groupscout-admin.cookies http://localhost:3001/api/auth/me
+```
+
+Open `http://localhost:3001/admin/login` for the browser flow. File-backed setup tokens rotate after successful login; read `data/admin-setup-token` again before another login.
+
 ### 1. Prerequisites
 - **Docker Desktop** (for Windows/macOS) or **Docker Engine + Docker Compose** (for Linux).
 - **WSL2** (strongly recommended for Windows users).

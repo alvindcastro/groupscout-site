@@ -129,6 +129,8 @@ make test
 ```
 See [TESTING.md](./guides/TESTING.md) for details on running specific tests and Postgres integration.
 
+Admin/operator login uses a setup-token flow, not `API_TOKEN`. See [ADMIN_AUTH.md](./guides/ADMIN_AUTH.md) for `ADMIN_AUTH_ENABLED`, `ADMIN_SETUP_TOKEN`, setup-token rotation, `groupscout_session`, logout, and Docker smoke details.
+
 ### 2. Ollama & LLM Testing
 A dedicated script verifies Ollama connectivity and model availability:
 ```bash
@@ -159,6 +161,7 @@ See [SUBAGENTS.md](./guides/SUBAGENTS.md) for a list of available agents and how
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - System design and data flow.
 - [CHANGELOG.md](./CHANGELOG.md) - Plain-English record of all changes.
 - [DOCKER.md](./guides/DOCKER.md) - Running and troubleshooting Docker.
+- [ADMIN_AUTH.md](./guides/ADMIN_AUTH.md) - Admin setup-token login, session cookie, logout, and token rotation.
 - [BACKEND_FRONTEND_DOCKER_E2E.md](./planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md) - Current backend plus separate UI Docker smoke path.
 - [SUBAGENTS.md](./guides/SUBAGENTS.md) - How to use specialized Junie agents.
 - [TROUBLESHOOTING.md](./guides/TROUBLESHOOTING.md) - Pipeline and missing lead troubleshooting.

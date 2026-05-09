@@ -4,6 +4,34 @@ This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/group
 
 The GroupScout testing infrastructure ensures the reliability of the lead collection, enrichment, and notification pipeline. It focuses on unit testing, data parsing verification, and end-to-end integration checks.
 
+### Current Docker Test Prep
+
+As of 2026-05-09, the local Docker test stack is already spun up for smoke and integration work:
+
+```bash
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+docker compose up -d postgres
+docker compose -p groupscout -f docker-compose.yml -f /mnt/c/Users/alvin/WebstormProjects/groupscout-ui/compose.dev.yml ps
+```
+
+Observed running services for the testing session:
+
+- `groupscout_postgres` on `localhost:5432`, healthy, using `pgvector/pgvector:pg17`.
+- `groupscout_app` on `localhost:8080`.
+- `groupscout-groupscout-ui-1` on `localhost:3001`, healthy.
+- `groupscout_n8n` on `localhost:5678`.
+- `groupscout_ollama` is container-healthy, but `GET /health` currently reports `"ollama":"unavailable"` from the API. Treat that as non-blocking for UI/API smoke and Postgres tests; fix it before LLM enrichment, model, or pipeline-quality testing.
+
+Quick readiness checks:
+
+```bash
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+curl -i --max-time 5 http://localhost:3001/
+```
+
+Expected for this prep state: backend `/health` returns `200` with `"database":"ok"`, UI `/healthz` returns `200`, and the UI shell responds on port `3001`.
+
 ### 1. Automated Go Tests (Makefile)
 
 The project includes standard Go unit and integration tests. The recommended way to run them is via the `Makefile`.
@@ -124,6 +152,14 @@ Integration tests are available for the storage layer and require a running data
 
 - **SQLite**: Standard tests run on SQLite by default.
 - **Postgres**: Integration tests for Postgres are gated by the `TEST_POSTGRES_URL` environment variable and the `integration` build tag.
+
+Start or confirm the Postgres test container:
+
+```bash
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+docker compose up -d postgres
+docker compose ps postgres
+```
 
 **Run Postgres integration tests:**
 ```powershell

@@ -59,6 +59,26 @@ If the filters are too strict, you can relax them in your `.env` file or environ
 
 Use [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md) for the full current smoke runbook.
 
+### Current Testing Stack Sanity Checks
+
+For the 2026-05-09 testing prep, these checks describe the expected local state:
+
+```bash
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+curl -i --max-time 5 http://localhost:3001/
+```
+
+Backend `/health` should return `200` with `"database":"ok"`, and the UI product dev server should return `200` for `/healthz` and `/`. This is enough for UI/API smoke and Postgres-backed testing.
+
+If only the Ollama field is unhealthy, do not block UI/API smoke. Do block LLM enrichment and quality testing until the API can reach Ollama and required models are listed:
+
+```bash
+docker compose ps ollama
+docker compose logs ollama --tail=50
+docker exec groupscout_ollama ollama list
+```
+
 ### `compose.dev.yml` Fails By Itself
 
 The UI repo's `compose.dev.yml` is an override for the backend Compose file. It expects backend service `groupscout` and network `groupscout_net`.
@@ -76,7 +96,7 @@ docker compose -p groupscout \
 
 ### `localhost:3001` Does Not Serve The Production UI
 
-That is expected. Port `3001` is the UI development/product dev server health path for the Compose override. Use it for `/healthz` checks.
+That is expected. Port `3001` is the UI development/product dev server for the Compose override. Use it for `/healthz` and generated app-shell checks, not for proving the production static/proxy server.
 
 Use the D4 production UI container on port `3002` for static assets and `/api/*` proxy smoke checks.
 

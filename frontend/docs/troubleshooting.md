@@ -141,6 +141,25 @@ docker compose version
 
 Do not pass the backend `.env` file into UI containers with `--env-file`. UI Docker operations should not receive `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET`.
 
+## Current Testing Stack Looks Partially Unhealthy
+
+For the 2026-05-09 testing prep, these checks are enough for ordinary UI/API smoke:
+
+```sh
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+curl -i --max-time 5 http://localhost:3001/
+```
+
+Acceptable smoke state:
+
+- Backend `/health` is `200`.
+- Backend health JSON includes `"database":"ok"`.
+- UI `/healthz` is `200`.
+- UI `/` returns the generated app shell.
+
+Known caveat: backend health may include `"ollama":"unavailable"` while `groupscout_ollama` is container-healthy. That is not a blocker for UI rendering, API proxy, admin-login, or Postgres-backed contract testing. It is a blocker for claiming LLM enrichment, model, or pipeline-quality behavior is healthy.
+
 ## Docker Port Conflicts
 
 The backend stack publishes Grafana on host port `3000`, so the UI development Compose service defaults to host port `3001`.
@@ -259,6 +278,14 @@ For Docker:
 docker compose ps
 docker compose logs groupscout --tail=50
 docker compose logs postgres --tail=50
+```
+
+If the backend health status is `200` but only the `ollama` field is unavailable, inspect the model service separately:
+
+```sh
+docker compose ps ollama
+docker compose logs ollama --tail=50
+docker exec groupscout_ollama ollama list
 ```
 
 Some backend docs still mention `docker compose logs app`; the current compose service is `groupscout`.

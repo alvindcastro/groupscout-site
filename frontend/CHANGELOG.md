@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Docker Testing Prep Documentation
+
+- What: Documented the current testing-ready Docker state for manual UI/API smoke, Postgres integration, backend health checks, and the Ollama health caveat.
+- Where: Updated `docs/testing.md`, `docs/how-to-run-backend.md`, `docs/developer-guide.md`, `docs/troubleshooting.md`, `docs/nice-to-knows.md`, and related backend centralized docs.
+- When: Updated on 2026-05-09 during coordinator task `groupscout-site-1fr`.
+- Why: Manual testing needs to know which containers are already spun up, which smoke checks should pass now, and why an Ollama-unavailable health field blocks LLM/enrichment testing but not ordinary UI/API checks.
+- How: Confirmed `groupscout_postgres`, `groupscout_app`, `groupscout-groupscout-ui-1`, `groupscout_n8n`, and `groupscout_ollama` status, ran backend/UI smoke curls, and added current commands and caveats to the testing, how-to, developer, troubleshooting, and nice-to-know docs.
+
 ### Admin Login Session Completion
 
 - What: Completed the browser-side admin setup-token login flow with protected-route auth checks, post-login session verification, logout API support, a topbar logout control, production startup readiness enforcement, and tests that read centralized markdown docs after docs moved out of the UI source repo.

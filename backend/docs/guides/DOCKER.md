@@ -6,6 +6,32 @@ This guide provides technical details for running and troubleshooting GroupScout
 
 GroupScout includes a `docker-compose.yml` that starts the full stack, including the lead generation server, disruption monitor, database, and monitoring tools.
 
+## Current Testing-Ready Containers
+
+For the 2026-05-09 manual testing session, the lightweight test stack is already running:
+
+```bash
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+docker compose up -d postgres
+docker compose -p groupscout -f docker-compose.yml -f /mnt/c/Users/alvin/WebstormProjects/groupscout-ui/compose.dev.yml ps
+```
+
+Use this state for UI/API smoke and Postgres-backed integration tests:
+
+- `groupscout_postgres` is healthy on `localhost:5432`.
+- `groupscout_app` serves the backend on `localhost:8080`.
+- `groupscout-groupscout-ui-1` serves the UI product dev server on `localhost:3001`.
+- `groupscout_n8n` is available on `localhost:5678` when workflow tests need it.
+- `groupscout_ollama` is container-healthy, but backend `/health` currently reports Ollama unavailable. Do not treat LLM/enrichment testing as green until that is fixed.
+
+Smoke the ready state:
+
+```bash
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+curl -i --max-time 5 http://localhost:3001/
+```
+
 ### 1. Prerequisites
 - **Docker Desktop** (for Windows/macOS) or **Docker Engine + Docker Compose** (for Linux).
 - **WSL2** (strongly recommended for Windows users).
@@ -97,7 +123,7 @@ Key points:
 - Backend Compose service `groupscout` publishes `http://localhost:8080` and joins `groupscout_net`.
 - Grafana uses host port `3000`, so UI examples use `3001` for the development health harness and `3002` for the production static/proxy smoke container.
 - The UI repo's `compose.dev.yml` is an override, not a standalone Compose file.
-- The UI D3 Compose service only serves `/healthz`; use the UI D4 production image when you need static assets and server-side `/api/*` proxying.
+- The UI Compose service is the Phase 13 product dev server. It serves generated `web/dist` assets and `/healthz`; use the UI D4 production image when you need the production static/proxy runtime.
 - First backend boot can be slow because `groupscout` depends on `ollama` and `ollama-init`.
 
 Minimal smoke sequence:

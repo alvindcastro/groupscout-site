@@ -18,6 +18,39 @@ node --test
 
 There is still no package install requirement.
 
+## Current Docker Test Prep
+
+As of 2026-05-09, the local Docker stack is ready for UI smoke and backend integration testing:
+
+```sh
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+docker compose up -d postgres
+
+cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
+docker compose -p groupscout \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f compose.dev.yml \
+  ps
+```
+
+Current expected containers:
+
+- `groupscout_postgres`: healthy on `localhost:5432`.
+- `groupscout_app`: backend API on `localhost:8080`.
+- `groupscout-groupscout-ui-1`: UI product dev server on `localhost:3001`, healthy.
+- `groupscout_n8n`: available on `localhost:5678` if workflow testing is needed.
+- `groupscout_ollama`: container-healthy, but backend `/health` can still report `"ollama":"unavailable"` until API-to-Ollama connectivity/model readiness is fixed.
+
+Smoke before testing:
+
+```sh
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+curl -i --max-time 5 http://localhost:3001/
+```
+
+Expected current prep result: backend `/health` returns `200` with `"database":"ok"`, UI `/healthz` returns `200`, and the UI shell responds. The Ollama health caveat does not block ordinary UI tests, static/proxy checks, or Postgres-backed API tests; it does block confidence in LLM/enrichment behavior.
+
 Current verification refresh on 2026-05-09: `npm test` passed all 26 test files after the renderer runtime review fixes for raw-audit-safe SPA navigation, `/src/*` cache policy, and mobile Verification Queue rendering.
 
 Admin login completion run on 2026-05-09: `node --test test/app-shell.test.js test/api-boundary.test.js test/phase-13-renderer-runtime.test.js test/session-deployment.test.js`, `npm run build`, and `npm test` passed after adding protected-route auth redirects, setup-token login verification, logout, production readiness enforcement, and centralized-doc test fallbacks.

@@ -52,6 +52,23 @@ Local UI tests:
 npm test
 ```
 
+Current Docker prep for manual testing:
+
+```sh
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+docker compose up -d postgres
+
+cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
+docker compose -p groupscout \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f compose.dev.yml \
+  ps
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+```
+
+On 2026-05-09 this prep showed Postgres healthy, backend `/health` returning `200` with database OK, and the UI product dev server healthy on port `3001`. Backend `/health` also reported Ollama unavailable, so do not use this state as proof for LLM/enrichment testing.
+
 Containerized test-image run:
 
 ```sh
@@ -184,7 +201,8 @@ Backend dependency expectations:
 - The backend Compose file is expected at `/mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml`.
 - The UI dev service is `groupscout-ui`; the backend service is `groupscout`; both run on `groupscout_net`.
 - Starting `groupscout` also starts `postgres`, `ollama`, and `ollama-init` because of the backend dependency chain.
-- The UI product dev-server smoke does not require `alertd`, `n8n`, Grafana, Prometheus, Loki, Promtail, or a lead pipeline run.
+- The UI product dev-server smoke does not require `alertd`, `n8n`, Grafana, Prometheus, Loki, Promtail, or a lead pipeline run. For most UI/API smoke, Postgres plus backend plus `groupscout-ui` are enough.
+- If backend `/health` says `"ollama":"unavailable"`, continue with UI/API smoke but pause LLM or enrichment testing until API-to-Ollama connectivity and model readiness are fixed.
 
 CI hook order:
 

@@ -1,3 +1,15 @@
+## 2026-05-09 - Docker testing prep documentation
+
+### groupscout-site-1fr - Refresh testing Docker documentation
+
+- **What:** Documented the current Docker testing-ready state, including the spun-up Postgres, backend API, UI product dev server, n8n, and Ollama caveat.
+- **Where:** `docs/guides/TESTING.md`, `docs/guides/DOCKER.md`, `docs/guides/TROUBLESHOOTING.md`, `docs/DEVELOPER.md`, and related frontend centralized docs.
+- **When:** 2026-05-09.
+- **Why:** Manual testing needs a clear split between lightweight UI/API smoke, Postgres-backed integration tests, full Docker E2E, and LLM/enrichment checks.
+- **How:** Confirmed the running Docker services, verified backend and UI smoke endpoints, refreshed the testing/how-to/developer/troubleshooting/nice-to-know docs, and recorded that backend `/health` can be `200` with database OK while Ollama remains unavailable.
+
+---
+
 ## 2026-05-09 - Admin login session completion
 
 ### groupscout-site-9ge - Complete backend admin login flow

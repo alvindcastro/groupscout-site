@@ -81,7 +81,9 @@ The UI repo has more than one Docker mode. Phase 13 `compose.dev.yml` runs a bac
 
 Use `docker compose -p groupscout` when combining backend and UI Compose files if you need the network name to be predictably `groupscout_groupscout_net` for a later D4 `docker run --network groupscout_groupscout_net ...` smoke.
 
-There is now a dependency-free product renderer, but not a dedicated production Compose override for the D4 runtime. A `404` from `/api/system` or `/api/leads` through D4 means the proxy reached the current backend, but the backend does not yet expose those UI-modeled `/api/*` routes.
+There is now a dependency-free product renderer, but not a dedicated production Compose override for the D4 runtime. The current backend exposes the UI smoke routes `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1`; a `404` through D4 means the backend route set or proxy path drifted.
+
+For the 2026-05-09 testing prep, the necessary lightweight containers are already spun up: `groupscout_postgres`, `groupscout_app`, and `groupscout-groupscout-ui-1`. `groupscout_n8n` is also running for workflow checks. `groupscout_ollama` is container-healthy, but backend `/health` can still report Ollama unavailable; treat that as an LLM/enrichment-specific follow-up, not a blocker for UI/API smoke.
 
 ## Backend Docker Service Names
 

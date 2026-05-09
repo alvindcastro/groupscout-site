@@ -198,6 +198,32 @@ Protected app routes call `/api/auth/status` before rendering. If a route redire
 
 If `UI_SESSION_SECRET` is configured, `/api/*` requests without a valid cookie return `401` before proxying. If it is unset for Docker smoke, API requests can proxy without a browser session, but the backend may still require its own admin auth depending on `ADMIN_AUTH_ENABLED`.
 
+## Admin Login Does Not Appear In Docker
+
+First verify the running containers are not stale:
+
+```sh
+cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
+npm run build
+docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui
+curl -i --max-time 5 http://localhost:3001/api/auth/status
+curl -i --max-time 5 http://localhost:3001/
+```
+
+Expected auth status:
+
+```json
+{"auth_required":true,"authenticated":false,"setup_token_file":"data/admin-setup-token"}
+```
+
+Expected HTML asset version:
+
+```html
+<script type="module" src="/assets/app.js?v=admin-login-1"></script>
+```
+
+If auth status is `404`, the backend container is old and must be rebuilt from the admin-login branch. If `/` still references `pipeline-output-4`, the UI container is old or the static build was not regenerated. If the HTML references `admin-login-1` but the browser still shows the old app, hard-refresh the browser or open `http://localhost:3001/admin/login` directly.
+
 ## Logout Does Not End Session
 
 The logout control posts `/api/auth/logout`, which revokes the backend session when a token is present and expires `groupscout_session`. If a user remains authenticated, verify that the UI proxy forwards `/api/auth/logout` as a public auth endpoint and that the backend branch includes session revocation support.

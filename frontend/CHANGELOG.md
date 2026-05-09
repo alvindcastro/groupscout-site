@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Docker Admin Login Smoke Fix
+
+- What: Fixed the UI Docker runtime so the current admin-login bundle is visible after markdown docs moved out of the UI source repo, and kept the containerized test image useful without mounting the coordinator docs.
+- Where: Updated the UI source repo `Dockerfile`, static asset version references, generated `web/dist` assets, and Docker/runtime tests; updated centralized testing and troubleshooting docs.
+- When: Updated on 2026-05-09 during coordinator task `groupscout-site-6nh`.
+- Why: The running Docker UI did not show login because the containers were old, the Dockerfile still copied missing `DESIGN.md` and `docs/` paths, and browsers could keep the old immutable `pipeline-output-4` JS asset.
+- How: Removed stale Markdown copies from the UI Dockerfile, made centralized-doc-only tests skip when docs are not mounted in the isolated container, bumped the static asset query to `admin-login-1`, rebuilt/restarted backend and UI containers, and verified `/api/auth/status` returns `auth_required:true` with the UI serving the new asset version.
+
 ### Docker Testing Prep Documentation
 
 - What: Documented the current testing-ready Docker state for manual UI/API smoke, Postgres integration, backend health checks, and the Ollama health caveat.

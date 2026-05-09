@@ -119,6 +119,7 @@ Production cache and navigation rules:
 
 - `/assets/*` files are treated as immutable versioned assets.
 - `/src/*` copied renderer modules are served with `cache-control: no-store` because they are unbundled and may be imported transitively without a query string.
+- Bump the static asset query in `buildStaticApp.js` and `staticAppEntry.js` when Docker smoke needs browsers to stop using an older immutable app bundle; the admin-login Docker refresh uses `admin-login-1`.
 - Static app click interception is limited to first-party app routes. `/api/*` raw audit links, `/assets/*`, `/src/*`, file-extension URLs, download links, target links, external links, and modified clicks keep normal browser behavior.
 
 Optional design-doc lint. This uses `npx` and may fetch the package if it is not already cached:

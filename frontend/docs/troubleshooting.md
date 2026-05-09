@@ -224,6 +224,20 @@ Expected HTML asset version:
 
 If auth status is `404`, the backend container is old and must be rebuilt from the admin-login branch. If `/` still references `pipeline-output-4`, the UI container is old or the static build was not regenerated. If the HTML references `admin-login-1` but the browser still shows the old app, hard-refresh the browser or open `http://localhost:3001/admin/login` directly.
 
+## Admin Login Is Still Full Width
+
+The current `/admin/login` screen should render the token form as a compact floating window. If it still appears as a wide embedded panel:
+
+```sh
+cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
+npm run build
+node --test test/phase-13-renderer-runtime.test.js
+docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui
+curl -i --max-time 5 http://localhost:3001/
+```
+
+Check that `web/src/renderer/domRenderer.js` renders `class="admin-login-window"` on the login form and that `web/src/renderer/staticStyles.css` makes `.admin-login` a transparent centering stage while `.admin-login-window` owns the border, background, and shadow. If source is correct but Docker is stale, rebuild the UI service and hard-refresh the browser.
+
 ## Setup Token Is Rejected
 
 Check the active token source:

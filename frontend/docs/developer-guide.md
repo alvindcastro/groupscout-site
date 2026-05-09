@@ -8,6 +8,7 @@ The UI source repo is currently a plain JavaScript UI workspace for GroupScout o
 
 - `web/src/api/client.js` is the stable browser API facade. Focused adapters live under `web/src/api/*`, and `web/src/api/transport.js` owns the shared same-origin `/api/*` request guard.
 - `web/src/app/shell.js` owns route-shell selection.
+- `web/src/app/adminLogin.js` owns the setup-token login screen model.
 - `web/src/server/uiDeployment.js` owns model-level UI deployment settings, base-path mounting, session-cookie API authorization, and development-only CORS metadata.
 - `web/src/server/browserRuntimeContract.js` owns the D2 browser runtime contract metadata for the future lightweight Node server, reserved port, health path, static asset boundary, `/api/*` routing expectation, and forbidden browser public config keys.
 - `web/src/server/productRendererRuntime.js` owns the Phase 13 renderer/runtime contract.
@@ -158,6 +159,16 @@ node --test test/baseline-reconciliation.test.js
 node --test test/browser-ux-hardening.test.js
 ```
 
+Admin login floating-window verification after CSS or renderer changes:
+
+```sh
+node --test test/phase-13-renderer-runtime.test.js
+npm run build
+npm test
+```
+
+Manual Docker/browser smoke should open `http://localhost:3001/admin/login` and confirm the login form appears as a compact floating window, not as a full-width page panel. The automated renderer test asserts the `admin-login-window` class contract; it is not a visual regression test.
+
 API-client smell-phase baseline:
 
 ```sh
@@ -171,6 +182,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Keep browser auth session-based. Do not repurpose automation credentials for operator browser sessions.
 - Keep protected app routes behind `/api/auth/status` checks and redirect unauthenticated users to `/admin/login` when auth is required.
 - Keep setup-token handling server-owned: default token file is backend `data/admin-setup-token`, file-backed tokens rotate after successful login, env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically, and browser code never sees `API_TOKEN`.
+- Keep the admin login UI as a compact `admin-login-window` form inside the `admin-login` centering stage; do not move setup-token entry into a generic full-width screen panel.
 - Keep logout wired through `createApiClient().logout()` and `/api/auth/logout`; do not clear cookies from browser JavaScript directly.
 - Keep `API_TOKEN` out of browser runtime/config modules.
 - Keep `UI_API_PROXY_TARGET` server-only; browser code and public config may only expose relative `/api/*`.

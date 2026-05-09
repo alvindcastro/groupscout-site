@@ -30,6 +30,8 @@ Use this flow when testing the Docker UI at `http://localhost:3001`.
    http://localhost:3001/admin/login
    ```
 
+   The setup-token form should appear as a compact floating window centered in the workspace area. If it renders as a wide page panel, rebuild the UI static assets and Docker service before continuing the browser test.
+
 4. Submit the token. Successful login sets the backend-owned HttpOnly `groupscout_session` cookie and navigates to `/`.
 
 5. Use the topbar `Log out` control to call `/api/auth/logout`, revoke the session, expire the cookie, and return to `/admin/login`.

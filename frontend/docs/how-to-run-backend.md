@@ -161,10 +161,13 @@ Expected endpoints:
 - Backend health: `http://localhost:8080/health`
 - Backend Grafana, when the full stack is started: `http://localhost:3000`
 - UI product dev server health: `http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz`
+- UI admin login: `http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/admin/login`
 
 The UI service in `compose.dev.yml` is now the Phase 13 product dev server. It serves generated `web/dist` assets, healthchecks `/healthz`, and keeps `http://groupscout:8080` backend discovery server-side. In the current prepared test stack, `http://localhost:3001/healthz` and `http://localhost:3001/` both return `200`.
 
 Current smoke note: `GET http://localhost:8080/health` returns `200` with `"database":"ok"`. It may also report `"ollama":"unavailable"` even when the `groupscout_ollama` container is healthy. That is acceptable for UI/API smoke and Postgres tests, but resolve it before testing LLM enrichment or model-dependent pipeline behavior.
+
+When testing the admin flow through the UI service, `/admin/login` should show a compact floating setup-token window. If it shows a wide embedded panel, rebuild from the UI repo with `npm run build` and restart `groupscout-ui` with `--build`.
 
 For a same-origin UI runtime against the backend container, build and run the D4 production image on the backend Compose network:
 

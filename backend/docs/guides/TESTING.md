@@ -4,33 +4,9 @@ This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/group
 
 The GroupScout testing infrastructure ensures the reliability of the lead collection, enrichment, and notification pipeline. It focuses on unit testing, data parsing verification, and end-to-end integration checks.
 
-### Current Docker Test Prep
+### Docker And UI Smoke
 
-As of 2026-05-09, the local Docker test stack is already spun up for smoke and integration work:
-
-```bash
-cd /mnt/c/Users/alvin/GolandProjects/groupscout
-docker compose up -d postgres
-docker compose -p groupscout -f docker-compose.yml -f /mnt/c/Users/alvin/WebstormProjects/groupscout-ui/compose.dev.yml ps
-```
-
-Observed running services for the testing session:
-
-- `groupscout_postgres` on `localhost:5432`, healthy, using `pgvector/pgvector:pg17`.
-- `groupscout_app` on `localhost:8080`.
-- `groupscout-groupscout-ui-1` on `localhost:3001`, healthy.
-- `groupscout_n8n` on `localhost:5678`.
-- `groupscout_ollama` is container-healthy, but `GET /health` currently reports `"ollama":"unavailable"` from the API. Treat that as non-blocking for UI/API smoke and Postgres tests; fix it before LLM enrichment, model, or pipeline-quality testing.
-
-Quick readiness checks:
-
-```bash
-curl -i --max-time 5 http://localhost:8080/health
-curl -i --max-time 5 http://localhost:3001/healthz
-curl -i --max-time 5 http://localhost:3001/
-```
-
-Expected for this prep state: backend `/health` returns `200` with `"database":"ok"`, UI `/healthz` returns `200`, and the UI shell responds on port `3001`.
+Use [BACKEND_FOR_UI_TESTING.md](../planning/ui/BACKEND_FOR_UI_TESTING.md) for local backend startup notes and [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md) for the backend plus external UI smoke runbook. This guide keeps test commands and links to canonical runtime docs instead of duplicating Docker lifecycles.
 
 ### 1. Automated Go Tests (Makefile)
 
@@ -228,38 +204,13 @@ docker compose logs -f groupscout
 
 ### Backend Plus UI Docker Smoke Checks
 
-Use this when you want to verify that the backend Compose stack and the separate UI Docker image can run together. The canonical runbook is [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md).
-
-From the UI repo:
+Use this when you want to verify that the backend Compose stack and the separate UI Docker image can run together:
 
 ```bash
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-
-docker compose -p groupscout \
-  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
-  -f compose.dev.yml \
-  up -d --build groupscout groupscout-ui
-
-curl -i http://localhost:8080/health
-curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-
-docker build --target production -t groupscout-ui-production .
-docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_groupscout_net -p 3002:3000 -e UI_API_PROXY_TARGET=http://groupscout:8080 groupscout-ui-production
-
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/leads?limit=1
-curl -i http://localhost:3002/api/system
-curl -i http://localhost:3002/api/alerts?limit=1
+bash scripts/smoke-ui-docker-e2e.sh
 ```
 
-Expected current results:
-
-- Backend `GET /health` returns `200`.
-- UI D3 `GET /healthz` on port `3001` returns `200`.
-- UI D4 `GET /healthz`, `GET /`, `GET /assets/app.js`, `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` on port `3002` return `200`.
-- A `502` from `/api/*` is a Docker/proxy reachability failure.
+The canonical manual runbook is [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md).
 
 ### 5. Collector Test Pattern
 When adding a new collector, follow the pattern used in `internal/collector/richmond_test.go`:

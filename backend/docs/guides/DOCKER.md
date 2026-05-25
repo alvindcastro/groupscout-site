@@ -6,44 +6,9 @@ This guide provides technical details for running and troubleshooting GroupScout
 
 GroupScout includes a `docker-compose.yml` that starts the full stack, including the lead generation server, disruption monitor, database, and monitoring tools.
 
-## Current Testing-Ready Containers
+## Current Operational Runbooks
 
-For the 2026-05-09 manual testing session, the lightweight test stack is already running:
-
-```bash
-cd /mnt/c/Users/alvin/GolandProjects/groupscout
-docker compose up -d postgres
-docker compose -p groupscout -f docker-compose.yml -f /mnt/c/Users/alvin/WebstormProjects/groupscout-ui/compose.dev.yml ps
-```
-
-Use this state for UI/API smoke and Postgres-backed integration tests:
-
-- `groupscout_postgres` is healthy on `localhost:5432`.
-- `groupscout_app` serves the backend on `localhost:8080`.
-- `groupscout-groupscout-ui-1` serves the UI product dev server on `localhost:3001`.
-- `groupscout_n8n` is available on `localhost:5678` when workflow tests need it.
-- `groupscout_ollama` is container-healthy, but backend `/health` currently reports Ollama unavailable. Do not treat LLM/enrichment testing as green until that is fixed.
-
-Smoke the ready state:
-
-```bash
-curl -i --max-time 5 http://localhost:8080/health
-curl -i --max-time 5 http://localhost:3001/healthz
-curl -i --max-time 5 http://localhost:3001/
-```
-
-Admin login smoke for the Docker UI:
-
-```bash
-SETUP_TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
-curl -i -c /tmp/groupscout-admin.cookies \
-  -H "Content-Type: application/json" \
-  -d "{\"token\":\"${SETUP_TOKEN}\"}" \
-  http://localhost:3001/api/auth/login
-curl -i -b /tmp/groupscout-admin.cookies http://localhost:3001/api/auth/me
-```
-
-Open `http://localhost:3001/admin/login` for the browser flow. File-backed setup tokens rotate after successful login; read `data/admin-setup-token` again before another login.
+Use [BACKEND_FOR_UI_TESTING.md](../planning/ui/BACKEND_FOR_UI_TESTING.md) for local backend startup notes, [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md) for backend plus external UI smoke, [TESTING.md](./TESTING.md) for test commands, and [OLLAMA_SETUP.md](./OLLAMA_SETUP.md) for Ollama model operations.
 
 ### 1. Prerequisites
 - **Docker Desktop** (for Windows/macOS) or **Docker Engine + Docker Compose** (for Linux).
@@ -123,13 +88,7 @@ make start-fresh
 
 ## 🖥 Frontend UI Docker Smoke
 
-The operator UI lives in a separate repo at:
-
-```bash
-/mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-```
-
-For the current backend-plus-frontend Docker runbook, see [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md).
+The operator UI lives in a separate repo at `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`. For the current backend-plus-frontend Docker runbook, see [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md).
 
 Key points:
 
@@ -139,43 +98,11 @@ Key points:
 - The UI Compose service is the Phase 13 product dev server. It serves generated `web/dist` assets and `/healthz`; use the UI D4 production image when you need the production static/proxy runtime.
 - First backend boot can be slow because `groupscout` depends on `ollama` and `ollama-init`.
 
-Minimal smoke sequence:
-
-```bash
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-
-docker compose -p groupscout \
-  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
-  -f compose.dev.yml \
-  up -d --build groupscout groupscout-ui
-
-curl -i http://localhost:8080/health
-curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-
-docker build --target production -t groupscout-ui-production .
-docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_groupscout_net -p 3002:3000 -e UI_API_PROXY_TARGET=http://groupscout:8080 groupscout-ui-production
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/system
-```
+Keep the full command sequence in the E2E runbook so D3/D4 smoke expectations do not drift across docs.
 
 ## 🧠 Ollama Model Management
 
-Models are stored in a persistent volume (`groupscout_ollama_data`).
-
-### Update a Model
-To pull the latest version of a model (e.g., `mistral`):
-```bash
-docker exec groupscout_ollama ollama pull mistral
-docker restart groupscout_app
-```
-
-### Changing the Default Model
-Edit the `OLLAMA_MODEL` variable in your `.env` file and restart the stack:
-```env
-OLLAMA_MODEL=phi3:mini
-```
+Models are stored in a persistent volume (`groupscout_ollama_data`). Use [OLLAMA_SETUP.md](./OLLAMA_SETUP.md) for model pull/list/push commands, default-model configuration, and Ollama troubleshooting.
 
 ## 💾 Backups
 

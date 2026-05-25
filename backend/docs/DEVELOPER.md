@@ -23,18 +23,7 @@ Use [BACKEND_FRONTEND_DOCKER_E2E.md](./planning/ui/BACKEND_FRONTEND_DOCKER_E2E.m
 
 Important distinction: UI port `3001` is the Phase 13 product dev server for generated app assets and `/healthz`. The production static/proxy smoke is the D4 container on `3002`.
 
-Current 2026-05-09 testing prep:
-
-```bash
-cd /mnt/c/Users/alvin/GolandProjects/groupscout
-docker compose up -d postgres
-curl -i --max-time 5 http://localhost:8080/health
-
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-curl -i --max-time 5 http://localhost:3001/healthz
-```
-
-Use this prep for UI/API smoke and Postgres-backed tests. Backend health may return `200` with database OK while reporting Ollama unavailable; treat that as a blocker only for LLM/enrichment testing.
+Use [BACKEND_FOR_UI_TESTING.md](./planning/ui/BACKEND_FOR_UI_TESTING.md) for local backend startup notes and [TESTING.md](./guides/TESTING.md) for test commands. Backend health may return `200` with database OK while reporting Ollama unavailable; treat that as a blocker only for LLM/enrichment testing.
 
 ## 🏗 Project Architecture
 

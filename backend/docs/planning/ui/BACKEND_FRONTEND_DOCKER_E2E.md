@@ -4,6 +4,12 @@ Use this runbook when you want the current GroupScout backend and the separate U
 
 This is a smoke path, not a full product UI acceptance test. The backend is live, the UI production container serves static assets and forwards `/api/*`, and the backend implements the core UI smoke routes used here.
 
+Executable form from the backend repo:
+
+```sh
+bash scripts/smoke-ui-docker-e2e.sh
+```
+
 ## Repos
 
 | Repo | Path |
@@ -77,6 +83,7 @@ Smoke the frontend origin:
 curl -i http://localhost:3002/healthz
 curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
+curl -i http://localhost:3002/api/leads?limit=1
 curl -i http://localhost:3002/api/system
 curl -i http://localhost:3002/api/alerts?limit=1
 ```
@@ -86,6 +93,8 @@ Expected:
 - `/healthz`, `/`, and `/assets/app.js` should return `200` from the UI container.
 - `/api/system`, `/api/leads?limit=1`, and `/api/alerts?limit=1` should return `200` through the same-origin UI proxy.
 - A `502` from `/api/*` means the UI container could not reach the backend target.
+
+An intentionally bad `UI_API_PROXY_TARGET` should return `502` for `/api/system`; this proves proxy failures are surfaced by the UI runtime instead of being mistaken for backend route drift.
 
 ## Cleanup
 

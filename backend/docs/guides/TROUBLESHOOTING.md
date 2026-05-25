@@ -59,9 +59,9 @@ If the filters are too strict, you can relax them in your `.env` file or environ
 
 Use [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md) for the full current smoke runbook.
 
-### Current Testing Stack Sanity Checks
+### Testing Stack Sanity Checks
 
-For the 2026-05-09 testing prep, these checks describe the expected local state:
+For UI/API smoke and Postgres-backed testing, these checks are enough before deeper debugging:
 
 ```bash
 curl -i --max-time 5 http://localhost:8080/health

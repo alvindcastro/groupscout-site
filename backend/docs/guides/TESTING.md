@@ -351,6 +351,15 @@ Verify that emails and phone numbers are redacted when `PII_STRIP=true` is enabl
 go test -v ./internal/storage -run TestAuditStore_StripPII
 ```
 
+#### Test Raw Audit Preview Safety
+Raw audit preview is stricter than authenticated raw access. Before any inline raw-payload display ships, tests must prove:
+
+- Default lead list, lead detail, and verification queue responses do not contain raw body fields or raw audit IDs.
+- `GET /api/leads/{id}/raw` remains authenticated and returns stored bytes only after explicit raw-route access.
+- Preview rendering redacts secrets, credentials, cookies, signed URLs, database URLs, webhook URLs, emails, phones, and individual contact names.
+- JSON/XML/plain text/sanitized HTML are the only inline-preview payload classes; PDFs, images, archives, office documents, unknown binary, and oversized payloads stay download/open-only.
+- Browser/static asset scans still reject `API_TOKEN`, provider keys, database URLs, Slack/email secrets, session secrets, and literal bearer tokens.
+
 #### Test Retention Purge
 Verify that old records are deleted, but referenced ones are kept:
 ```bash

@@ -167,6 +167,29 @@ Responses:
 
 This is a UI alias for raw evidence and keeps browser-visible JavaScript away from `API_TOKEN`. A deployed browser UI should call it through a server-side session boundary or auth proxy.
 
+This endpoint is the authenticated raw access boundary, not an inline preview contract:
+
+- It returns the stored payload bytes and stored content type for deliberate operator review.
+- It must not be called by default `GET /api/leads/{id}` detail loads, lead-list responses, verification queue responses, static prerendering, or search indexing.
+- It may return payloads that are unsuitable for inline display, including PDFs, binary files, HTML, and oversized source documents.
+- A future inline preview must use a separate sanitized preview adapter or response envelope. That preview must apply the raw audit redaction policy before bytes reach browser-visible state.
+
+The redaction policy for inline previews is:
+
+- Allowed preview payloads: `application/json`, `application/xml`, `text/xml`, `application/rss+xml`, `text/plain`, and sanitized text extracted from `text/html`.
+- Download-only payloads: `application/pdf`, images, archives, office documents, unknown binary payloads, and any payload larger than the configured preview limit.
+- Always redact secrets and credentials: authorization headers, cookies, API keys, bearer/basic tokens, OAuth tokens, session IDs, signed URLs, webhook URLs, passwords, database URLs, provider keys, and equivalent key names in nested JSON/XML/HTML.
+- Always redact direct contact data: emails, phone/fax numbers, individual contact names, and fields such as `contact_email`, `contact_phone`, `applicant_email`, `contractor_phone`, `owner_phone`, `first_name`, and `last_name`.
+- Redact residential or private-address details when a payload describes an individual residence rather than a public commercial project.
+- Preserve verification-safe metadata: source URL with sensitive query parameters stripped, source name, collector name, collected timestamp, public permit/bid IDs, municipality, commercial project title, project value, public organization names, payload type, and hash metadata.
+
+Tests that should block implementation regressions:
+
+- `GET /api/leads/{id}` and `GET /api/leads` contract tests fail if raw body fields, raw audit IDs, or raw payload bytes appear in JSON responses.
+- Raw endpoint tests continue to require authentication and assert stored bytes plus content type only after explicit raw-route access.
+- Preview tests, when the preview route exists, fail on unredacted secrets, credentials, contact data, signed URLs, database URLs, webhook URLs, or unsupported payload types rendered inline.
+- Static/browser build scans fail on `API_TOKEN`, provider keys, database URLs, session secrets, Slack/email secrets, and literal bearer tokens.
+
 ## Test Evidence
 
 Red evidence:

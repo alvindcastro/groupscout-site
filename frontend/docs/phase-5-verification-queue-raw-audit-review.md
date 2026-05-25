@@ -39,12 +39,38 @@ Rows are included only when at least one trigger is present.
 
 ## Redaction Policy
 
-Redaction rules are not defined yet. Phase 5 keeps that decision visible through `RAW_AUDIT_REDACTION_POLICY`:
+Raw audit links are allowed before inline previews because they open the authenticated raw audit route deliberately. Inline preview is a stricter feature and must not ship until the preview renderer applies this policy.
 
-- `status`: `blocked`
-- `todo`: `Define raw audit payload redaction rules before rendering sensitive fields inline.`
+`RAW_AUDIT_REDACTION_POLICY` is now defined as:
 
-The UI can open the authenticated raw audit entry point, but it does not claim complete safe inline raw payload display.
+- `status`: `defined`
+- `inline_preview_default`: `disabled`
+- `raw_access_endpoint`: `GET /api/leads/{id}/raw`
+- `preview_payload_types`: `application/json`, `application/xml`, `text/xml`, `application/rss+xml`, `text/plain`, and sanitized text extracted from `text/html`
+- `download_only_payload_types`: `application/pdf`, images, archives, office documents, unknown binary payloads, and any payload larger than the configured preview limit
+
+Inline preview redaction must remove or mask these values before rendering:
+
+- Secrets and credentials: `Authorization`, `Cookie`, `Set-Cookie`, API keys, bearer/basic tokens, OAuth tokens, session IDs, signed URLs, webhook URLs, passwords, database URLs, and provider keys.
+- Direct contact fields: email addresses, phone and fax numbers, personal contact names, and contact-specific fields such as `contact_email`, `contact_phone`, `applicant_email`, `contractor_phone`, `owner_phone`, `first_name`, and `last_name`.
+- Residential or private-address details when a payload appears to describe an individual residence rather than a public commercial project.
+- Oversized free-text source excerpts beyond the preview limit; render a truncation marker instead of the hidden text.
+
+Inline preview may preserve business-safe evidence fields needed for verification: source name, source URL with sensitive query parameters stripped, collector name, collected timestamp, public permit or bid identifiers, municipality, commercial project title, project value, public organization names, payload type, and hash metadata.
+
+Authenticated raw audit access differs from inline evidence display:
+
+- `GET /api/leads/{id}/raw` returns the stored raw bytes with the stored content type through the API/session boundary.
+- Lead Detail and Verification Queue screens may link to that route, but they must not fetch it during default render, search indexing, mocked fixture loading, or screen-model construction.
+- A future inline preview must use a separate sanitized preview adapter or response envelope. It must not reuse raw bytes directly in browser-visible state.
+
+Tests that must block unsafe payload exposure:
+
+- Fixture and screen-model tests fail if default detail or queue data contains raw body fields such as `payload`, `raw_body`, `raw_data`, `html`, `pdf`, `body`, or `bytes`.
+- Raw audit client tests cover same-origin `/api/leads/{id}/raw`, encoded lead IDs, and explicit user action before fetch.
+- Preview tests cover redaction of secrets, bearer tokens, cookies, signed URLs, API keys, database URLs, webhook URLs, emails, phones, and individual contact names.
+- Preview tests cover payload-type gating: JSON/XML/plain text/sanitized HTML can render after redaction; PDF, image, archive, office, unknown binary, and oversized payloads render metadata plus a download/open action only.
+- Static asset scans continue to fail on browser-visible `API_TOKEN`, provider keys, database URLs, Slack/email secrets, session secrets, or literal bearer tokens.
 
 ## Design Tokens
 

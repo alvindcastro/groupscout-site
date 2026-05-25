@@ -254,7 +254,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Lead detail sections, source evidence, raw audit link intent, AI enrichment metadata, corrections, timeline, and states.
 - Verification Queue desktop/tablet table models, mobile card rendering, raw audit links, and review actions.
 - Lead status transition rules, invalid transition blocking, validation, and PATCH mutation intent.
-- Verification queue trigger classification, filters, row actions, raw audit alias links, responsive metadata, and blocked redaction-policy metadata.
+- Verification queue trigger classification, filters, row actions, raw audit alias links, responsive metadata, and defined redaction-policy metadata for future inline previews.
 - Raw audit client access through same-origin `GET /api/leads/{id}/raw`, encoded lead IDs, and raw policy defaults.
 - Outreach client access through same-origin `GET/POST /api/leads/{id}/outreach`, encoded lead IDs, optional draft logging, and manual logging validation.
 - Outreach workspace editable drafts, contact validation, manual copied/sent/logged states, outcome capture, activity timelines, responsive metadata, and route mounting.

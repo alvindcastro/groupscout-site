@@ -57,9 +57,19 @@
 ## Operations & Maintenance
 
 ### PII Redaction
-By enabling `PII_STRIP=true`, the `AuditStore` will automatically redact emails and phone numbers from raw payloads before storage. 
+By enabling `PII_STRIP=true`, the `AuditStore` will automatically redact emails and phone numbers from raw payloads before storage.
 -   **Regex matching**: Uses predefined patterns to identify and replace sensitive strings.
 -   **No impact on leads**: Redaction only affects the `raw_inputs` table, not the leads extracted from them (which are typically public anyway).
+
+### Raw Audit Display Policy
+Storage redaction and UI preview redaction are separate controls.
+
+- Storage-time `PII_STRIP=true` protects persisted raw payloads by redacting emails and phone numbers before they are written to `raw_inputs`.
+- Authenticated raw access through `GET /leads/{id}/raw`, `GET /api/leads/{id}/raw`, or `groupscout audit <lead_id>` returns the stored bytes for deliberate operator verification. It is not the contract for inline browser preview.
+- Inline browser preview must use a sanitized preview layer that redacts secrets, authorization headers, cookies, API keys, bearer/basic tokens, OAuth tokens, session IDs, signed URLs, webhook URLs, passwords, database URLs, provider keys, emails, phone/fax numbers, individual contact names, and residential/private-address details.
+- Inline preview may preserve source metadata, collector name, collected timestamp, public permit or bid IDs, municipality, commercial project title, project value, public organization names, payload type, and hash metadata.
+- JSON, XML/RSS, plain text, and sanitized text extracted from HTML are eligible for inline preview after redaction. PDFs, images, archives, office documents, unknown binary payloads, and oversized payloads are download/open-only.
+- Tests for any preview implementation must fail on unredacted secrets or contact data, unsupported payload types rendered inline, raw body fields in default lead/detail responses, and browser-visible automation tokens.
 
 ### Data Retention (Purging)
 Use the `PurgeOlderThan(ctx, time)` method in the storage layer to clean up old audit records.

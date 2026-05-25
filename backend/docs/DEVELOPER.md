@@ -130,6 +130,11 @@ A dedicated script verifies Ollama connectivity and model availability:
 Manual API testing can be done via `curl` or the **Bruno** collection in `api/bruno`.
 See [TESTING.md](./guides/TESTING.md#8-api-testing-details) for examples.
 
+### 4. n8n Webhook Score Contract
+`POST /n8n/webhook` is a direct-insert path for pre-enriched lead-shaped payloads. It does not run the normal collector/enrichment scorer, so boundary normalization happens in the webhook handler before storage and before Slack notification.
+
+Use `PriorityScore` on the Slack/internal `0-10` scale. Legacy workflows that still send percent-style `0-100` values are accepted and normalized (`90 -> 9`, `98 -> 10`) so Slack and email never show impossible scores such as `98/10`. Defensive display clamping also protects older bad rows already in storage.
+
 ## 📂 Project Structure
 - `api/`: OpenAPI / Swagger specifications.
 - `cmd/`: Entry points for `server`, `alertd`, and dev tools.

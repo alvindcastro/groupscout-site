@@ -79,6 +79,10 @@ Keep `/n8n/webhook` for pre-enriched lead-shaped payloads. It direct-inserts a `
 The response is `201` with `{"status":"created","inserted":true,...}` when a lead is inserted, or `200` with `{"status":"duplicate","inserted":false,...}` when the normalized payload hash has already been seen.
 
 #### Direct Lead Insert Fallback: `/n8n/webhook`
+Use this only when n8n has already produced a pre-enriched lead-shaped payload. If GroupScout should score and enrich one raw source item, use `POST /ingest` instead.
+
+Priority scores are stored and rendered on the Slack/internal `0-10` scale. New workflows should send `PriorityScore` as `0` through `10`; older n8n workflows that still send percent-style `0-100` values are normalized before storage and Slack delivery.
+
 - **Method**: `POST`
 - **URL**: `http://<groupscout-host>:8080/n8n/webhook`
 - **Authentication**: `Predefined Credential`.

@@ -290,10 +290,20 @@ curl -i -X POST \
     "Source": "curl_test",
     "Title": "Simulated Lead",
     "Location": "Vancouver, BC",
-    "ProjectValue": 500000
+    "ProjectValue": 500000,
+    "PriorityScore": 9
   }' \
   http://localhost:8080/n8n/webhook
 ```
+
+Expected: HTTP `201`. The lead is inserted directly and Slack delivery is attempted immediately. `PriorityScore` should be sent as `0-10`; legacy `0-100` values are normalized before storage and notification. To verify the regression fix for impossible Slack scores, send `PriorityScore:98`, then confirm the stored and notified score is `10`:
+
+```bash
+docker exec groupscout_postgres psql -U groupscout -d groupscout \
+  -c "SELECT title, priority_score FROM leads WHERE source = 'curl_test' ORDER BY created_at DESC LIMIT 5;"
+```
+
+Slack and email display code also clamps scores defensively, so stored legacy rows cannot render as `98/10`.
 
 **Slack Inventory Update (Port 8081)**
 ```bash

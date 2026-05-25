@@ -407,6 +407,8 @@ If you've been using SQLite (`groupscout.db`) and want to move your data to a ne
 
 All endpoints except `/health` require `Authorization: Bearer YOUR_API_TOKEN`.
 
+For `/n8n/webhook`, send `PriorityScore` on the Slack/internal `0-10` scale. Legacy percent-style `0-100` scores are accepted for compatibility and normalized before storage and Slack/email display, so a stale workflow that sends `90` renders as `9/10` instead of `90/10`. Prefer `/ingest` when the payload is raw source data that GroupScout should score itself.
+
 ---
 
 ## Troubleshooting
@@ -416,6 +418,7 @@ All endpoints except `/health` require `Authorization: Bearer YOUR_API_TOKEN`.
 | `401 Unauthorized` | Check `API_TOKEN` in `.env` matches the Bearer value in n8n |
 | `Connection refused` (Docker n8n → groupscout) | Use `http://groupscout:8080` not `localhost` — they share a Docker network |
 | `Connection refused` (local n8n → local Go) | Use `http://host.docker.internal:8080` on Mac/Windows |
+| Slack shows an impossible score such as `98/10` | Update to the score-normalizing backend and send `/n8n/webhook` `PriorityScore` as `0-10`; old `0-100` payloads are normalized after the fix. |
 | No leads generated | Lower `MIN_PERMIT_VALUE_CAD` to `100000` for testing |
 | PDF parse errors | Confirm `pdftotext` is on your PATH: `pdftotext -v` |
 | `pdftotext not found` (local) | Add `C:\Program Files\Git\mingw64\bin` to your system PATH |

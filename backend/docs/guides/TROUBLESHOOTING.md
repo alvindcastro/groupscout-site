@@ -104,6 +104,7 @@ If the filters are too strict, you can relax them in your `.env` file or environ
 ### 4. Verify External Tools
 - **Richmond/Delta Permits**: These require `pdftotext` (from `poppler-utils`) to be installed on your system or inside your Docker container. If it's missing, these collectors will log an error and return 0 leads.
 - **n8n / API Triggers**: If you are triggering the pipeline via `/run`, ensure your `API_TOKEN` is correct.
+- **n8n direct leads**: If you are posting pre-enriched leads to `/n8n/webhook`, send `PriorityScore` on the `0-10` scale. Legacy `0-100` values are normalized by the backend before storage and Slack/email delivery.
 
 ---
 
@@ -203,6 +204,11 @@ This usually happens if:
 - You've already run the pipeline today, and all other permits are now **duplicates**.
 - The latest weekly report only has 1 permit that meets both the **commercial sub-type** AND the **$500k+ value** criteria.
 - Most other permits have a **score of 0** (meaning they aren't in Richmond/YVR and didn't contain any high-value keywords like "pipeline", "film", or "concrete").
+
+### Why did Slack show `98/10`?
+That means an external pre-enriched payload posted to `/n8n/webhook` supplied a raw `PriorityScore` such as `98` while Slack renders priority as `/10`. The backend now normalizes webhook scores before storage and notification: `90` becomes `9`, `98` becomes `10`, values above `100` become `10`, and negatives become `0`.
+
+For new n8n workflows, send `PriorityScore` as `0-10`. Use `/ingest` instead of `/n8n/webhook` when GroupScout should score and enrich a raw source item.
 
 ### How do I re-process old leads?
 If you want to force the pipeline to re-process everything (e.g., after changing the scoring logic), you must clear the database:

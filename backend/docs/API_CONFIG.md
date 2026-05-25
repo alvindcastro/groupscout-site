@@ -18,7 +18,7 @@ Default port: `8080` (Configurable via `PORT`)
 | `/run` | `POST` | Manually triggers the collect-enrich-notify pipeline and returns JSON counts. With `guarantee_one_lead:true`, `delivery_mode:"exactly_one"`, and a cadence key, sends/logs exactly one eligible cadence lead or returns a structured no-lead/duplicate/locked status. `schedule_key` defaults from `cadence_key`; if both are omitted, the backend can generate `lead-cadence:YYYY-MM-DD:weekday`. Retries may also send an `Idempotency-Key` header. | Yes (Bearer Token) |
 | `/digest` | `POST` | Sends a weekly email summary of leads via Resend. | Yes (Bearer Token) |
 | `/ingest` | `POST` | Accepts one normalized raw project/event payload, stores the raw audit payload, runs `EnrichOne()`, and deduplicates by payload hash. Present in the current event-driven ingest backend branch. | Yes (Bearer Token) |
-| `/n8n/webhook` | `POST` | Receives a lead-shaped JSON payload from n8n, inserts it directly, and optionally notifies Slack. Keep this for pre-enriched lead pushes; use `/ingest` when GroupScout should enrich one raw item. | Yes (Bearer Token) |
+| `/n8n/webhook` | `POST` | Receives a pre-enriched lead-shaped JSON payload from n8n, inserts it directly, and optionally notifies Slack. `PriorityScore` is the Slack/internal `0-10` score; legacy `0-100` values are normalized before storage and delivery. Keep this for pre-enriched lead pushes; use `/ingest` when GroupScout should enrich one raw item. | Yes (Bearer Token) |
 | `/leads/{id}/raw` | `GET` | Current legacy raw audit payload route. The inspected backend source snapshot does not enforce bearer or admin-session auth here; do not expose this route to browser UI until auth/sanitized preview work lands. | No in current snapshot |
 | `/api/auth/status` | `GET` | Planned admin auth status endpoint; not live in the inspected backend source snapshot. | Planned |
 | `/api/auth/login` | `POST` | Planned setup-token login for a `groupscout_session` cookie; not live in the inspected backend source snapshot. | Planned |
@@ -73,6 +73,7 @@ The following URLs are polled by collectors to gather raw data.
 
 -   **Internal APIs**: The Lead Generation Server and Alertd are separate binaries with distinct ports.
 -   **Security**: Use the `API_TOKEN` (Bearer Auth) for all sensitive POST endpoints.
+-   **Score scale**: Lead priority is displayed as `/10` in Slack and email. API producers should send `PriorityScore` as `0-10`; `/n8n/webhook` keeps backward compatibility by converting legacy percent-style `0-100` values before persistence.
 -   **Extensibility**: Adding new data sources usually requires a new entry in the Scrapers table and a corresponding URL in the `.env` file.
 -   **Testing**: See [TESTING.md](./guides/TESTING.md#8-api-testing-details) for a guide on how to test these endpoints with curl, Bruno, or Swagger.
 

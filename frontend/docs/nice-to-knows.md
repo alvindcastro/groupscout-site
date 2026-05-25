@@ -83,6 +83,8 @@ Backend startup notes in this repo are convenience notes for UI work, not the ba
 
 When backend examples disagree, prefer the backend repo's current `.env.example`, `config/config.go`, `docker-compose.yml`, and `Makefile`.
 
+Backend lead priority is a `/10` contract in the operator-facing UI, Slack, and email. Direct n8n lead pushes through `/n8n/webhook` should send `PriorityScore` as `0-10`; the backend normalizes legacy `0-100` webhook values before storage and clamps display scores so old rows cannot show impossible values such as `98/10`.
+
 ## Docker Modes Are Different
 
 The UI repo has more than one Docker mode. Phase 13 `compose.dev.yml` runs a backend-network product dev server on `localhost:3001`; it serves generated `web/dist` assets and keeps backend discovery server-side. D4 `groupscout-ui-production` runs the production static/proxy server on container port `3000`; use the `smoke-ui-e2e` Compose profile to attach it to the backend network for backend plus UI smoke checks.

@@ -50,7 +50,7 @@
 - [x] Update Slack notifications to include a link to the raw data (if exposed via internal reference).
 
 ### Part E — Retention & Privacy ◐ PARTIAL
-- [ ] Implement a scheduled cleanup worker that invokes retention policy for old raw inputs.
+- [ ] Implement a scheduled cleanup worker that invokes retention policy for old raw inputs. Beads: `groupscout-site-j73`.
 - [x] Add `PII_STRIP` option to remove sensitive info before storage if required.
 - [x] Implement hashing logic to ensure we don't store identical payloads multiple times.
 
@@ -64,6 +64,8 @@ By enabling `PII_STRIP=true`, the `AuditStore` will automatically redact emails 
 -   **No impact on leads**: Redaction only affects the `raw_inputs` table, not the leads extracted from them (which are typically public anyway).
 
 ### Raw Audit Display Policy
+
+Browser-safe sanitized preview implementation is tracked in `groupscout-site-4cv`.
 Storage redaction and UI preview redaction are separate controls.
 
 - Storage-time `PII_STRIP=true` protects persisted raw payloads by redacting emails and phone numbers before they are written to `raw_inputs`.

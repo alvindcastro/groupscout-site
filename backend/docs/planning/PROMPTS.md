@@ -62,6 +62,8 @@ Test prompts against:
 
 ## Planned Improvements (Phase 29)
 
+> Related Beads coverage: AI-ready prompt context, prompt-builder refactor, Langfuse, and EvalLead runtime are tracked in `groupscout-site-48g`; broader enrichment prompt/provider cleanup smells are tracked in `groupscout-site-2h1`.
+
 - [ ] **Prompt Template Migration:** Move prompts out of `.go` files and into `assets/prompts/*.tmpl` for better visibility and hot-reloading.
 - [ ] **Few-Shot Examples:** Inject 2-3 "Gold Standard" examples into the user turn to improve scoring accuracy.
 - [ ] **Evaluation Harness:** Automate the comparison between "Human Score" and "AI Score" in the test suite.

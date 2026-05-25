@@ -84,7 +84,7 @@ Admin setup-token notes:
 - `has_raw`
 - `audit_source_url`
 
-Phase 35 implemented `lead_summary` without `owner` or `verification_state` because those fields are not schema-backed yet.
+Historical note: Phase 35 implemented `lead_summary` without `owner` or `verification_state`; Phase 36 schema-backed those fields. `groupscout-site-dxq` tracks reconciling any remaining stale Phase 35-era schema notes.
 
 `lead` should include full current storage fields plus UI-safe audit metadata. Do not include raw payload bodies by default. Phase 34 detail fixtures should mirror this as `{lead, audit, outreach_summary, activity}` where `audit` contains metadata such as `has_raw`, `raw_link`, `payload_type`, `source_url`, `collector_name`, and `collected_at`, never the raw `payload` body.
 
@@ -120,16 +120,16 @@ Phase 35 implemented `lead_summary` without `owner` or `verification_state` beca
 - `room_inventory`
 - `action_history`
 
-The current backend compatibility route returns empty `alerts` and `items` arrays because `alertd` still keeps runtime alert state outside the lead API database.
+The current backend compatibility route returns empty `alerts` and `items` arrays because `alertd` still keeps runtime alert state outside the lead API database. Tracked follow-up: `groupscout-site-3gq`.
 
 ## Schema Gaps To Handle Explicitly
 
-The current database schema supports core lead fields, status, notes, raw input IDs, and `outreach_log`. It does not yet support every planned UI field.
+The current database schema supports core lead fields, status, notes, raw input IDs, owner/snooze/flag workflow fields, `verification_state`, `outreach_log`, and persisted `pipeline_runs`. Some older Phase 35 notes predate Phase 36/37; `groupscout-site-dxq` tracks reconciling any remaining stale roadmap/schema notes.
 
 | Planned UI field | Current status | Planning action |
 |---|---|---|
-| `owner` | Missing | Add through a migration-backed phase. |
-| `snoozed_until` | Missing | Add through a migration-backed phase. |
-| `verification_state` | Missing | Decide separate verification field versus status value before implementation. |
+| `owner` | Implemented Phase 36 | Keep list/detail/UI docs aligned with live API responses. |
+| `snoozed_until` | Implemented Phase 36 | Keep list/detail/UI docs aligned with live API responses. |
+| `verification_state` | Implemented Phase 36 | Stored separately from commercial workflow status. |
 | `corrections` | Missing | Needs audit-safe correction model before UI edit controls are live. |
-| `pipeline_runs` | Missing | Needs persistence or an explicitly temporary dev-only run tracker. |
+| `pipeline_runs` | Implemented Phase 37 | Keep smoke/docs aligned with persisted run history. |

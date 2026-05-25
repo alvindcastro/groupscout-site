@@ -93,6 +93,12 @@ There is now a dependency-free product renderer, but not a dedicated production 
 
 For current Docker mode commands and expected smoke results, use [Docker Runtime Matrix](./docker-runtime-matrix.md). If backend `/health` reports Ollama unavailable while the UI and Postgres-backed API checks pass, treat that as an LLM/enrichment-specific follow-up, not a blocker for UI/API smoke.
 
+Tracked follow-ups: `groupscout-site-mt5` owns first-class production UI Compose wiring, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+
+## Known Refactor Follow-Up
+
+Broader backend/frontend smell refactors from the missed-task audit are tracked by `groupscout-site-2h1`.
+
 ## Backend Docker Service Names
 
 The current backend compose file names the API service `groupscout` and the container `groupscout_app`.

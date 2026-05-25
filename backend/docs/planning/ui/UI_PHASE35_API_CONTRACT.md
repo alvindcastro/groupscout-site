@@ -1,7 +1,7 @@
 # Phase 35 UI API Contract
 
 > Implemented backend contract for the first same-origin GroupScout operator UI endpoints.
-> The current repository still has no checked-in frontend package, so frontend types are maintained in `UI_PHASE35_FRONTEND_TYPES.md` until a generated client exists.
+> The current repository still has no checked-in frontend package, so frontend types are maintained in `UI_PHASE35_FRONTEND_TYPES.md` until a generated client exists. Generated client/types work is tracked by `groupscout-site-29q`.
 
 ## Scope
 
@@ -16,7 +16,8 @@ Implemented:
 
 Not implemented in this phase:
 
-- `owner`, `snoozed_until`, `verification_state`, and `corrections`, because they require migration-backed storage design.
+- `owner`, `snoozed_until`, and `verification_state` were intentionally excluded from Phase 35, then implemented in Phase 36.
+- `corrections`, because they require an audit-safe correction model before UI edit controls are live.
 - Outreach history endpoints, which belong to Phase 36.
 - Pipeline run, stats, and system endpoints, which belong to Phase 37.
 
@@ -129,7 +130,7 @@ Allowed request fields:
 }
 ```
 
-Rejected fields:
+Rejected fields in Phase 35:
 
 - `owner`
 - `snoozed_until`
@@ -154,6 +155,8 @@ Response:
 
 The actual `lead` object in the response uses the full safe detail shape from `GET /api/leads/{id}`.
 
+Historical note: Phase 36 later added migration-backed support for `owner`, `snoozed_until`, and `verification_state`; `corrections` remains unsupported.
+
 ## `GET /api/leads/{id}/raw`
 
 Returns raw audit bytes for a lead. This endpoint is authenticated when admin session auth or `API_TOKEN` is configured and returns `401` for missing or incorrect credentials.
@@ -172,7 +175,7 @@ This endpoint is the authenticated raw access boundary, not an inline preview co
 - It returns the stored payload bytes and stored content type for deliberate operator review.
 - It must not be called by default `GET /api/leads/{id}` detail loads, lead-list responses, verification queue responses, static prerendering, or search indexing.
 - It may return payloads that are unsuitable for inline display, including PDFs, binary files, HTML, and oversized source documents.
-- A future inline preview must use a separate sanitized preview adapter or response envelope. That preview must apply the raw audit redaction policy before bytes reach browser-visible state.
+- A future inline preview must use a separate sanitized preview adapter or response envelope. That preview must apply the raw audit redaction policy before bytes reach browser-visible state. Tracked follow-up: `groupscout-site-4cv`.
 
 The redaction policy for inline previews is:
 

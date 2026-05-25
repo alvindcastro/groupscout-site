@@ -138,6 +138,8 @@ Use this when the goal is a dependable internal lead prompt without changing bac
 
 This MVP is safe because n8n only uses server-to-server `API_TOKEN` credentials and GroupScout remains the source of truth. It does not guarantee a real lead when no eligible lead exists.
 
+Tracked follow-up: `groupscout-site-yfl` owns exporting and smoke-testing the importable n8n workflow JSON for this MVP.
+
 #### Robust guaranteed-lead design
 
 For a true "send exactly one lead every Sunday and Wednesday" guarantee, add backend support instead of encoding selection rules in n8n:
@@ -149,6 +151,8 @@ For a true "send exactly one lead every Sunday and Wednesday" guarantee, add bac
 - UI/system visibility for the next scheduled send, last sent lead, failed cadence reason, retry count, and n8n execution link.
 
 With those pieces in place, n8n should orchestrate the cadence while the backend owns selection, idempotency, delivery state, and auditability.
+
+Tracked follow-up: `groupscout-site-fuc`.
 
 ---
 

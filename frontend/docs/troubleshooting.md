@@ -287,6 +287,8 @@ If D4 is run with standalone `docker run`, use a host backend target. If D4 is r
 
 The current backend smoke contract expects `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` to return `200` through the D4 proxy. A `404` is no longer a passing compatibility result for those routes; it means the backend route set or proxy path has drifted.
 
+Tracked follow-ups: `groupscout-site-mt5` owns first-class production UI Compose wiring, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+
 ## Production UI Runtime Fails
 
 D4 adds the production same-origin server:

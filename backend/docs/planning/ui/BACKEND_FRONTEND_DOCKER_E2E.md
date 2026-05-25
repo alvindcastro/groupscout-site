@@ -26,7 +26,7 @@ bash scripts/smoke-ui-docker-e2e.sh
 | UI D4 production container | `3002` in this runbook | Serves `web/dist`, exposes `/healthz`, and proxies same-origin `/api/*` to `http://groupscout:8080`. |
 | Grafana | `3000` | Backend observability stack, so the UI examples avoid host port `3000`. |
 
-The D4 production UI runtime is not wired into Compose yet. Until that exists, start the backend with Compose and attach the UI production container manually to `groupscout_groupscout_net`.
+The D4 production UI runtime is not wired into Compose yet. Until `groupscout-site-mt5` lands, start the backend with Compose and attach the UI production container manually to `groupscout_groupscout_net`. `groupscout-site-e5a` tracks turning this runbook into a repeatable backend plus UI Docker E2E gate.
 
 ## Prerequisites
 

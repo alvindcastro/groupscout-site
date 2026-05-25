@@ -72,6 +72,8 @@ docker stop groupscout-ui-production-smoke
 
 This is the closest current backend plus frontend Docker path. It remains manual because `compose.dev.yml` runs the development product server, while D4 production is still a separate image target. The current backend smoke contract expects `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` to return `200`, and an intentionally bad proxy target to return `502`.
 
+Tracked follow-ups: `groupscout-site-mt5` owns first-class Compose wiring for the production UI runtime, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+
 ## Stable Boundaries
 
 - Browser-facing JavaScript should see relative `/api/*` paths, not `http://groupscout:8080`.

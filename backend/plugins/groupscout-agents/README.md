@@ -28,3 +28,4 @@ This plugin is a repo-local Codex skill bundle derived from the existing markdow
 
 - The source of truth for role boundaries remains the backend source repo's `.claude/agents/` specs unless a later plugin migration explicitly supersedes them.
 - Marketplace registration is environment-specific. To index this plugin locally, add `plugins/groupscout-agents` to the active Codex marketplace configuration for the workspace.
+- Plugin drift review is tracked by `groupscout-site-a1h`: verify Codex marketplace registration, compare plugin skills against backend agent specs, and document Junie/Codex source-of-truth boundaries.

@@ -158,6 +158,8 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 
 Docker operation mode selection, required env vars, backend dependency expectations, and D3/D4 smoke commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
+Tracked follow-ups: `groupscout-site-mt5` owns first-class production UI Compose wiring, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+
 CI hook order:
 
 1. `npm test`

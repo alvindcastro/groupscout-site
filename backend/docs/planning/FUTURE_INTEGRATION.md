@@ -20,7 +20,7 @@
 | Multimodal PDF parsing via Claude vision | ⏸ deferred (5+ cities threshold) | Phase 24-C |
 | Multi-agent pipeline: one agent per source, coordinator deduplicates | 📋 future | Phase 26+ |
 
-**Next concrete task:** `internal/enrichment/react_test.go` — write `TestReactEnricher_CallsToolOnBorderlineScore` with mock LLM; fail first.
+**Next concrete task:** `internal/enrichment/react_test.go` — write `TestReactEnricher_CallsToolOnBorderlineScore` with mock LLM; fail first. Prerequisite provider abstraction is tracked in `groupscout-site-vud`.
 
 ---
 
@@ -38,7 +38,7 @@
 | AI observability eval (RAGAS / Vertex Eval for hallucination detection) | 📋 future | Phase 26+ |
 | Unstructured PDF ingestion (AI-driven parsing for tender docs) | 📋 future | Phase 24-C |
 
-**Next concrete task:** `migrations/005_ai_context.up.sql` — `v_lead_context` view; then `TestGetContext_ReturnsExpectedString`.
+**Next concrete task:** `migrations/005_ai_context.up.sql` — `v_lead_context` view; then `TestGetContext_ReturnsExpectedString`. Beads: `groupscout-site-48g`.
 
 ---
 
@@ -56,7 +56,7 @@
 | AIaaS API Layer: expose enrichment as standalone service | 📋 future | Phase 10 |
 | CRM/ERP Integration: HubSpot, Salesforce, SAP | 📋 future | Phase 11 |
 
-**Next concrete task (Phase 26-A):** Provision Hetzner CX32, install Coolify, deploy from existing `docker-compose.yml`, verify `/health` → 200. Write `docs/guides/COOLIFY.md`.
+**Next concrete task (Phase 26-A/B/C):** Home deploy smoke and restore are tracked in `groupscout-site-39g`; Coolify guide/backup setup in `groupscout-site-06a`; event-driven `/ingest` in `groupscout-site-b25`.
 
 ---
 

@@ -12,7 +12,7 @@ This document outlines potential technical enhancements and a roadmap for the fu
 - [x] **Structured Logging** — Standardize all logs into JSON format using `slog` for log aggregators like ELK or Grafana Loki.
 - [x] **Sentry Integration** — Automated error reporting to catch and alert on scraper failures or API timeouts in real-time.
 - [x] **Advanced Health Checks** — `/health` endpoint checking DB connectivity and last successful run times per collector.
-- [ ] **Distributed Tracing (OpenTelemetry)** — Implement tracing to visualize lead flow from collection to notification, making it easier to identify bottlenecks or failures in the enrichment pipeline.
+- [ ] **Distributed Tracing (OpenTelemetry)** — Implement tracing to visualize lead flow from collection to notification, making it easier to identify bottlenecks or failures in the enrichment pipeline. Beads: `groupscout-site-yyj`.
 
 #### 2. Intelligence & Enrichment
 - [x] **Entity Resolution (Deduplication)** — Basic hash-based dedup. Upgrade: AI or fuzzy matching to identify when multiple sources report on the same project.
@@ -86,13 +86,13 @@ This document outlines potential technical enhancements and a roadmap for the fu
 > Full tool comparison (embedding providers, vector stores, observability) with cloud alternatives: see [AI_DATA_STRATEGY.md](../prompts/AI_DATA_STRATEGY.md).
 
 **Automation & Orchestration:**
-- [x] **n8n** — Workflow automation to trigger `/run` and `/digest`. Also used for "Active Collection" (n8n scrapes → pushes to `/n8n/webhook`).
+- [x] **n8n** — Workflow automation to trigger `/run` and `/digest`. Also used for "Active Collection" (n8n scrapes → pushes to `/n8n/webhook`). Importable Sunday/Wednesday workflow and guaranteed one-lead delivery remain tracked in `groupscout-site-yfl` and `groupscout-site-fuc`.
 
 **Monitoring & Observability:**
 - [x] **Prometheus** — Infrastructure metrics.
 - [x] **Grafana Loki** — Log aggregation.
 - [ ] **Metabase or Grafana** — Connect to `groupscout.db` (via SQLite connector) to visualize lead trends, source performance, and enrichment accuracy.
-- [ ] **Langfuse** — LLM observability: track Claude API calls, token costs, prompt versions, response quality. Self-hosted or cloud (free hobby tier).
+- [ ] **Langfuse** — LLM observability: track Claude API calls, token costs, prompt versions, response quality. Self-hosted or cloud (free hobby tier). Beads: `groupscout-site-48g`.
 
 **AI / Embeddings:**
 - [ ] **Ollama** (`ollama/ollama`) — Local embedding + LLM server. Run `nomic-embed-text` for embeddings; no external API key needed. Add to Docker Compose alongside groupscout.

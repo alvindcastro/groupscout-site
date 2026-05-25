@@ -291,6 +291,8 @@ curl -Iv http://server.groupscout.duckdns.org/health 2>&1 | grep "301\|Location"
 
 All three must pass before proceeding to A5 or calling Part A complete.
 
+Deployment completion is tracked by `groupscout-site-39g`: choose DuckDNS/Traefik or Cloudflare Tunnel, verify public HTTPS health and redirects, lock down observability surfaces, configure weekly backups, and run at least one restore smoke.
+
 ---
 
 ## Tier 2 Alt — Cloudflare Tunnel (CGNAT / No Port Forwarding)
@@ -375,6 +377,8 @@ Run this weekly via cron:
 0 2 * * 0 cd /path/to/groupscout && docker exec groupscout_postgres pg_dump -U groupscout groupscout > backups/backup_$(date +\%Y\%m\%d).sql
 ```
 
+Tracked follow-up: `groupscout-site-39g` owns choosing and executing the home deploy path, locking down observability surfaces, configuring weekly backups, and running one restore smoke.
+
 ---
 
 ## Troubleshooting
@@ -406,7 +410,7 @@ curl ifconfig.me
 ## Reference
 
 - Deployment options comparison: `docs/planning/DEPLOYMENT_OPTIONS.md`
-- Moving to cloud (Hetzner + Coolify): see Phase 25 Part B in `docs/planning/PHASES.md`
+- Moving to cloud with Hetzner + Coolify: tracked by `groupscout-site-06a`, which should create `docs/guides/COOLIFY.md` with VPS setup, service mapping, env vars, pgvector health, domain SSL, and scheduled Postgres/volume backup.
 - Architecture overview: `docs/ARCHITECTURE.md`
 - DuckDNS setup guide: https://www.duckdns.org/install.jsp
 

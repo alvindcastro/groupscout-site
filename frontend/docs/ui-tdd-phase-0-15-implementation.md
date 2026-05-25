@@ -47,4 +47,4 @@ The checkout was reconciled to the tracked Phase 13 UI baseline rather than rebu
 
 ## Residual Risk
 
-The current Phase 15 proof is deterministic HTML/model-level hardening, not Playwright or a real browser engine. Real focus traversal, computed layout, screenshots, pixel checks, and overlap detection should be added once the repo accepts a browser harness dependency.
+The current Phase 15 proof is deterministic HTML/model-level hardening, not Playwright or a real browser engine. Real focus traversal, computed layout, screenshots, pixel checks, and overlap detection should be added once the repo accepts a browser harness dependency; `groupscout-site-kb4` tracks that browser harness follow-up.

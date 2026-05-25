@@ -258,7 +258,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [x] **8.2** Sentry Integration — Initialize Sentry and capture collector/API errors.
 - [x] **8.3** Health Check — `/health` endpoint checking DB ping and critical env vars.
 - [x] **8.4** Pipeline Metrics — Basic counts logged; Prometheus endpoint planned (Phase 14.7).
-- [ ] **8.5** Distributed Tracing — Implement OpenTelemetry for visualizing lead flow and pipeline bottlenecks.
+- [ ] **8.5** Distributed Tracing — Implement OpenTelemetry for visualizing lead flow and pipeline bottlenecks. Related ops metrics/freshness work: `groupscout-site-yyj`.
 - [x] **8.6** Entity Resolution — Basic lead deduplication (hash-based).
 - [x] **8.7** Testing Documentation — Create `TESTING.md`.
 
@@ -286,11 +286,11 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **10.3** `cmd/server/main.go` — Add `PATCH /api/leads/{id}` for safe operator fields: status, owner, notes, snooze date, and corrections.
 - [ ] **10.4** `internal/storage/outreach.go` — Add outreach log list/insert methods around the existing `outreach_log` table.
 - [ ] **10.5** `cmd/server/main.go` — Add `GET/POST /api/leads/{id}/outreach` handlers.
-- [ ] **10.6** `api/swagger.yaml` — Document UI-facing `/api/*` contracts before generating frontend types.
-- [ ] **10.7** `web/` — Create TypeScript React SPA with lead inbox, filters, detail view, and raw audit access.
+- [ ] **10.6** `api/swagger.yaml` — Document UI-facing `/api/*` contracts before generating frontend types. Frontend type generation: `groupscout-site-29q`.
+- [ ] **10.7** `web/` — Create TypeScript React SPA with lead inbox, filters, detail view, and raw audit access. Production UI runtime/smoke: `groupscout-site-mt5`, `groupscout-site-e5a`; browser harness: `groupscout-site-kb4`.
 - [ ] **10.8** `web/` — Add status actions: claim, dismiss, snooze, flag, contacted, won, lost.
-- [ ] **10.9** `web/` — Add pipeline controls and compact health panel without replacing Grafana/Prometheus.
-- [ ] **10.10** `cmd/server` or deployment config — Add same-origin serving and session/auth boundary so browser code never sees `API_TOKEN`.
+- [ ] **10.9** `web/` — Add pipeline controls and compact health panel without replacing Grafana/Prometheus. Alertd shared-state bridge: `groupscout-site-3gq`.
+- [ ] **10.10** `cmd/server` or deployment config — Add same-origin serving and session/auth boundary so browser code never sees `API_TOKEN`. Production Compose runtime: `groupscout-site-mt5`.
 - [ ] **10.11** CRM Sync — "One-click" push to HubSpot/Salesforce.
 - [ ] **10.12** Outreach Refinement — Multi-persona drafting (A/B testing for templates).
 - [ ] **10.13** Chrome Extension — Manually clip leads from the browser into the pipeline.
@@ -312,7 +312,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **12.1** Burnaby Permits — Scraper for Burnaby daily/weekly permit PDFs.
 - [ ] **12.2** Vancouver Open Data — Integration for City of Vancouver building permits (API/CSV).
 - [ ] **12.3** Coquitlam/Surrey — Implement scrapers for monthly permit summary PDFs.
-- [ ] **12.4** Specialized Scrapers — Target Journal of Commerce (focusing on Richmond/Delta) or regional venue calendars (PNE/LEC).
+- [ ] **12.4** Specialized Scrapers — Target Journal of Commerce (focusing on Richmond/Delta) or regional venue calendars (PNE/LEC). Next collector slice planning: `groupscout-site-aaj`.
 
 ### 12.5 — LinkedIn Job Postings Collector
 > Companies hiring "site supervisors", "field crew leads", or "camp coordinator" roles signal incoming out-of-town workers. LinkedIn job RSS/API is rate-limited — scrape the public jobs search page or use a proxy feed. No login required for public postings.
@@ -330,7 +330,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 ### Phase 13 — Public Tenders & Utilities (Expansion)
 **Goal:** Track major infrastructure and utility projects and federal contract awards.
 
-- [ ] **13.1** BC Hydro / FortisBC — Scraper for major utility project announcements and tenders.
+- [ ] **13.1** BC Hydro / FortisBC — Scraper for major utility project announcements and tenders. Next source slice planning: `groupscout-site-aaj`.
 
 ### 13.2 — Buyandsell.gc.ca Federal Contract Awards
 > Canada's federal contract awards portal. Covers DND, CBSA, Transport Canada, and other agencies near YVR. Published as open data (CSV/API) — no scraping required. Filter by vendor location (BC) and NAICS codes for construction (23xxxx) and engineering (541xxx).
@@ -626,7 +626,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 **Goal:** Deploy and manage a self-hosted ecosystem for automation and observability.
 
 - [x] **14.1** Docker Compose — Standardize the deployment of GroupScout alongside n8n and Redis.
-- [x] **14.2** n8n Workflow — Implement a workflow to trigger `/run` and `/digest` on a custom schedule.
+- [x] **14.2** n8n Workflow — Implement a workflow to trigger `/run` and `/digest` on a custom schedule. Importable Sunday/Wednesday workflow and guaranteed one-lead delivery are tracked in `groupscout-site-yfl` and `groupscout-site-fuc`.
 - [x] **14.3** n8n Webhook Integration — Implement `/n8n/webhook` endpoint for receiving external leads.
 - [ ] **14.4** Visualization Dashboard — Connect Metabase or Grafana to `groupscout.db` for lead analytics.
 - [ ] **14.5** Search Engine — Integrate Meilisearch for fast lead searching in the upcoming Admin UI.
@@ -775,7 +775,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **B3** Verify: `server` and `alertd` running as persistent containers; Postgres+pgvector up; `/health` returns 200
 - [ ] **B4** Configure Coolify automatic deploys on `git push main`
 - [ ] **B5** Set up Coolify scheduled backup for the Postgres volume (weekly, to Hetzner Object Storage or S3-compatible)
-- [ ] **B6** `docs/guides/COOLIFY.md` — deploy guide: VPS setup, Coolify install, service mapping, env vars, backup config, custom domain + SSL
+- [ ] **B6** `docs/guides/COOLIFY.md` — deploy guide: VPS setup, Coolify install, service mapping, env vars, backup config, custom domain + SSL. Beads: `groupscout-site-06a`.
 
 ### Part C — Event-Driven Ingestion (opt-in, platform-agnostic)
 > Complements the existing cron/n8n trigger. A webhook push can trigger per-project enrichment without a full pipeline run — useful for n8n pipelines that discover leads from external sources.
@@ -783,7 +783,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **B-T** `cmd/server/events_test.go` — `TestWebhookHandler_DecodesAndEnqueues`: fixture JSON body → decode → assert `RawProject` fields extracted and routed to `EnrichOne`; fail first
 - [ ] **B-T** `cmd/server/events_test.go` — `TestWebhookHandler_RejectsInvalidPayload`: malformed JSON → 400; missing `source` field → 400; fail first
 - [ ] **B1** `internal/enrichment/enricher.go` — `EnrichOne(ctx context.Context, raw RawProject) error` — single-project path alongside existing `RunPipeline()`; reuses the same dedup → score → enrich → store → notify flow
-- [ ] **B2** `cmd/server/main.go` — `POST /ingest` endpoint: accepts a single `RawProject` JSON body; calls `EnrichOne`; returns enriched lead ID on success; protected by existing Bearer token auth
+- [ ] **B2** `cmd/server/main.go` — `POST /ingest` endpoint: accepts a single `RawProject` JSON body; calls `EnrichOne`; returns enriched lead ID on success; protected by existing Bearer token auth. Beads: `groupscout-site-b25`.
 - [ ] **B3** `config/config.go` — no new env var needed; endpoint is always registered (alongside `/run`, `/digest`, `/health`)
 - [ ] **B4** `docs/API_TESTING.md` — add `/ingest` example request to Bruno collection
 - [ ] **B5** `api/swagger.yaml` — add `POST /ingest` endpoint definition
@@ -811,6 +811,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [x] **20.7** `scripts/doctor.sh` — Environment health check script for new devs.
 - [x] **20.8** Subagent toolset reliability fix — Added `update_status` and `AskUserQuestion` to specialized agent allowlists.
 - [x] **20.9** Repository Housekeeping — Moved tools to `cmd/tools/`, refactored internal domain packages (`alert`, `enrichment`, `leadnotify`), and consolidated documentation.
+
+> Follow-up cleanup remains tracked in Beads: plugin/skill drift audit (`groupscout-site-a1h`) and remaining backend/frontend smell refactors (`groupscout-site-2h1`).
 
 ---
 
@@ -850,7 +852,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [x] **27.10** CLI Tool: `groupscout audit <lead_id>` — dumps metadata and provides `--save` flag for raw payload.
 
 ### Part D — Retention & Privacy
-- [ ] **27.11** Implement cleanup worker for old raw inputs and hashing logic for de-duplication.
+- [ ] **27.11** Implement cleanup worker for old raw inputs and hashing logic for de-duplication. Beads: `groupscout-site-j73`.
 
 ---
 

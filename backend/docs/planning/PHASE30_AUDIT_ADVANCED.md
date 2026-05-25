@@ -2,6 +2,8 @@
 
 **Goal:** Transform the raw audit trail from Phase 27 into a proactive verification and quality assurance system. This phase focuses on AI-driven cross-referencing, source health monitoring, and closing the loop between extracted leads and their source material.
 
+> Related Beads: sanitized raw audit preview is tracked in `groupscout-site-4cv`; AI-ready SQL, LLM observability, and runtime enrichment eval are tracked in `groupscout-site-48g`.
+
 ## 1. Brainstormed API Endpoints
 
 ### Verification & Feedback

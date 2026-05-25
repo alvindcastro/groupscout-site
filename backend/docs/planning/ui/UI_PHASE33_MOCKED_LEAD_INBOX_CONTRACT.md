@@ -34,7 +34,7 @@ Fixtures should include the fields needed to test dense lead triage while stayin
 | `status` | Yes | Commercial workflow state such as `new`, `notified`, `claimed`, `contacted`, `snoozed`, `flagged`, `dismissed`, `won`, `lost`, or `no_response`. |
 | `priority_score` | Yes | Sortable score column and score band badge. |
 | `priority_reason` | Recommended | Tooltip or detail-ready metadata; not required as a visible table column. |
-| `owner` | Yes, nullable | Use `Unassigned` or an explicit empty owner state in UI copy. Current backend schema does not yet persist this field. |
+| `owner` | Yes, nullable | Use `Unassigned` or an explicit empty owner state in UI copy. Historical note: Phase 36 later persisted this field. |
 | `verification_state` | Yes | Separate from `status`; examples: `unverified`, `source_backed`, `missing_evidence`, `weak_confidence`, `contradiction`, `review_requested`. |
 | `created_at` | Yes | Sortable created-date column. |
 | `suggested_outreach_timing` | Yes | Timing column for outreach urgency. |

@@ -64,7 +64,7 @@ Phase 34 implementation note: this repository still has no checked-in frontend p
 - [x] Update OpenAPI only after the expected failing tests define the contract.
 - [x] Generate or maintain frontend types from the contract.
 
-Phase 35 implementation note: `/api/leads`, `/api/leads/{id}`, `PATCH /api/leads/{id}`, and authenticated `/api/leads/{id}/raw` are implemented against the current lead and raw-audit schema. `PATCH` intentionally supports only `status` and `notes`; `owner`, `snoozed_until`, `verification_state`, and `corrections` remain blocked on migration-backed design work in `groupscout-bxt`. Frontend types are maintained in `UI_PHASE35_FRONTEND_TYPES.md` until a frontend package and generated client exist.
+Phase 35 implementation note: `/api/leads`, `/api/leads/{id}`, `PATCH /api/leads/{id}`, and authenticated `/api/leads/{id}/raw` are implemented against the then-current lead and raw-audit schema. Phase 36/37 later implemented owner, snooze, verification, outreach, and pipeline persistence; remaining stale schema-doc reconciliation is tracked by `groupscout-site-dxq`, and generated frontend client/types are tracked by `groupscout-site-29q`.
 
 ## Phase 36 - Outreach And Lead State Actions
 

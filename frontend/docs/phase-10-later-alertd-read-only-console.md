@@ -9,6 +9,8 @@ Phase 10 adds a later-stage, read-only disruption alert console. It keeps `alert
 - `createApiClient().listAlerts(...)` reads alert data through same-origin `GET /api/alerts`.
 - `createAlertConsoleRequest(...)` documents the read-only browser request intent for state, property, limit, and cursor filters.
 
+Current backend note: `/api/alerts` is a compatibility/read model that returns an empty collection until `alertd` writes shared alert state. Shared-state wiring is tracked by `groupscout-site-3gq`.
+
 ## Alert Fields
 
 - Summary: active alert count, highest SPS, active unavailable-room impact, and last update.

@@ -62,7 +62,7 @@ Authenticated raw audit access differs from inline evidence display:
 
 - `GET /api/leads/{id}/raw` returns the stored raw bytes with the stored content type through the API/session boundary.
 - Lead Detail and Verification Queue screens may link to that route, but they must not fetch it during default render, search indexing, mocked fixture loading, or screen-model construction.
-- A future inline preview must use a separate sanitized preview adapter or response envelope. It must not reuse raw bytes directly in browser-visible state.
+- A future inline preview must use a separate sanitized preview adapter or response envelope. It must not reuse raw bytes directly in browser-visible state. Tracked follow-up: `groupscout-site-4cv`.
 
 Tests that must block unsafe payload exposure:
 

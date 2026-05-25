@@ -21,6 +21,10 @@
 
 ---
 
+Current deployment follow-ups: `groupscout-site-39g` owns executing the home deploy path and restore smoke. `groupscout-site-06a` owns the missing Coolify deployment guide and backup setup.
+
+---
+
 ## Platform Comparison
 
 ### 0. Home Server + Dynamic DNS ⭐ Completely Free

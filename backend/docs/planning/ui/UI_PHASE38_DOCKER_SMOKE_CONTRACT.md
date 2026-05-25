@@ -32,4 +32,4 @@ Green evidence:
 
 - `go test ./internal/smoke`
 
-Runtime Docker smoke was not executed during this implementation pass; the script is the executable runbook for a host with Docker and the external UI repo available.
+Runtime Docker smoke was not executed during this implementation pass; the script is the executable runbook for a host with Docker and the external UI repo available. `groupscout-site-e5a` tracks making the backend plus production UI smoke path an executable release/CI gate, and `groupscout-site-mt5` tracks first-class production UI Compose lifecycle wiring.

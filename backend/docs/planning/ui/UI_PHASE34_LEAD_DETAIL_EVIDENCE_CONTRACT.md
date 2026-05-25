@@ -55,10 +55,10 @@ Fixtures should mirror current storage fields where possible and use documented 
 | `audit.collector_name` | Recommended | Collector metadata when known. |
 | `audit.collected_at` | Recommended | Collected timestamp when known. |
 | `audit.payload_type` | Recommended | Metadata only, not body content. |
-| `verification_state` | Yes | Fixture-only until persisted: `source_backed`, `missing_evidence`, `weak_confidence`, `contradiction`, or `review_requested`. |
+| `verification_state` | Yes | Historical note: fixture-only in Phase 34; Phase 36 later persisted verification state separately from commercial status. |
 | `evidence_items` | Yes | Fixture-only claim/evidence pairs for UI tests. |
-| `outreach_summary` | Yes | Fixture-only draft/log summary until outreach APIs exist. |
-| `activity` | Yes | Fixture-only status, note, correction, and outreach events until backend activity exists. |
+| `outreach_summary` | Yes | Historical note: fixture-only in Phase 34; Phase 36 later added outreach APIs. |
+| `activity` | Yes | Fixture-backed status, note, correction, and outreach events; corrections remain disabled unless separately implemented. |
 
 Fixtures must include at least:
 
@@ -82,7 +82,7 @@ The lead detail view is the review surface where operators compare model output 
 | Raw audit link | Provides a deliberate link or action for raw audit access without embedding payload bytes in the default detail data. | Tests fail if fixture/default detail data includes `payload`, `raw_body`, `raw_data`, or equivalent body content. |
 | Outreach | Shows fixture-backed draft/status/contact/log summary capacity. | No send or log action calls live email, Slack, CRM, or outreach endpoints in Phase 34. |
 | Activity | Shows fixture-backed status history, notes, outreach attempts, and reviewer correction events. | Activity ordering is deterministic in tests. |
-| Status actions | Renders claim, dismiss, snooze, flag for verification, contacted, won, lost, no-response, and reopen capacity where appropriate. | Actions are disabled, mocked, or clearly fixture-only until Phase 36 defines validated transitions. |
+| Status actions | Renders claim, dismiss, snooze, flag for verification, contacted, won, lost, no-response, and reopen capacity where appropriate. | Historical note: Phase 36 later defined validated transitions. |
 | Corrections | Shows correction controls for extracted fields only as disabled or mocked controls. | Controls explain unavailable backend support through accessible state, not through hidden copy. |
 
 Use dense rows, split panes, tabs, and right-rail activity patterns. Do not build a marketing hero, decorative card grid, or oversized presentation page.

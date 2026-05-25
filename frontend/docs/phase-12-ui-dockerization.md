@@ -376,7 +376,7 @@ Do not add new runtime behavior in this phase unless a failing operations test r
 - Containerized test: `docker run --rm groupscout-ui-test`.
 - Docker production build: `docker build --target production -t groupscout-ui-production .`.
 - Production smoke checks: `GET /healthz`, `GET /`, and `GET /assets/app.js` against the UI production container passed on host port `3006`.
-- Backend-dependent `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` smoke was not counted because `GET http://localhost:8080/health` could not connect; it requires a reachable backend or CI stub.
+- Backend-dependent `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` smoke was not counted because `GET http://localhost:8080/health` could not connect; it requires a reachable backend or CI stub. `groupscout-site-e5a` tracks turning this into a repeatable backend plus production UI E2E gate, and `groupscout-site-mt5` tracks first-class production UI Compose lifecycle wiring.
 
 ## Suggested Parallel Agent Prompts
 

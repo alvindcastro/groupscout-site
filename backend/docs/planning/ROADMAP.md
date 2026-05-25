@@ -8,6 +8,24 @@
 
 ---
 
+## Live Beads Follow-Ups
+
+Roadmap checkboxes are historical/strategic context. The missed-task audit on 2026-05-25 filed the concrete follow-up work in Beads:
+
+- `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery.
+- `groupscout-site-yfl` — export and smoke-test the Sunday/Wednesday n8n workflow asset.
+- `groupscout-site-j73` — raw audit retention purge worker.
+- `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and backend plus UI Docker E2E gate.
+- `groupscout-site-3gq` — shared `alertd` state for `/api/alerts`.
+- `groupscout-site-yyj` — ops metrics and collector freshness observability.
+- `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
+- `groupscout-site-b25` — event-driven `POST /ingest` and `EnrichOne`.
+- `groupscout-site-06a` and `groupscout-site-39g` — Coolify/home-deploy runbooks and restore smoke.
+- `groupscout-site-29q`, `groupscout-site-4cv`, and `groupscout-site-dxq` — generated UI API client, sanitized raw preview, and UI roadmap schema cleanup.
+- `groupscout-site-aaj`, `groupscout-site-1ee`, and `groupscout-site-a1h` — next source-expansion slice, multi-property design, and Codex plugin skill drift.
+
+---
+
 ## Phase Summary
 
 - [x] **Phase 1** — Foundation: DB boots, schema applied
@@ -17,26 +35,26 @@
 - [ ] **Phase 5** — Smart refresh: avoid redundant PDF fetches *(deferred)*
 - [x] **Phase 6** — Productionize: Docker, Postgres, VPS deploy ✅
 - [ ] **Phase 7** — User requests & API refinements *(in progress)*
-- [ ] **Phase 8** — System reliability & observability *(in progress)*
+- [ ] **Phase 8** — System reliability & observability *(in progress; `groupscout-site-yyj`)*
 - [ ] **Phase 9** — Architecture & scaling: concurrency, caching
-- [ ] **Phase 10** — Ecosystem & UI: dashboard, CRM, extensions
+- [ ] **Phase 10** — Ecosystem & UI: dashboard, CRM, extensions (`groupscout-site-mt5`, `groupscout-site-e5a`, `groupscout-site-3gq`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-dxq`, `groupscout-site-kb4`)
 - [ ] **Phase 11** — CRM direct integration: HubSpot, Salesforce
-- [ ] **Phase 12** — Source expansion: Metro Vancouver municipalities
-- [ ] **Phase 13** — Public tenders & utilities: BC Hydro, FortisBC
-- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem *(in progress)*
+- [ ] **Phase 12** — Source expansion: Metro Vancouver municipalities (`groupscout-site-aaj` selects the next slice)
+- [ ] **Phase 13** — Public tenders & utilities: BC Hydro, FortisBC (`groupscout-site-aaj` selects the next slice)
+- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem *(in progress; `groupscout-site-yfl`, `groupscout-site-fuc`)*
 - [x] **Phase 15** — PostgreSQL + pgvector migration: production storage + RAG foundation ✅
-- [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄
+- [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄 (`groupscout-site-vud`)
 - [x] **Phase 17** — Airport Disruption Alert System (`alertd`): YVR real-time monitoring ✅
 - [ ] **Phase 18** — Contact Enrichment: Hunter.io integration & budget tiers 📋
 - [ ] **Phase 19** — Slack Actions & Lead Feedback: claim/dismiss/snooze buttons 📋
-- [x] **Phase 20** — Housekeeping & Developer Experience ✅
+- [x] **Phase 20** — Housekeeping & Developer Experience ✅ (`groupscout-site-a1h`, `groupscout-site-2h1`)
 - [x] **Phase 21** — Ollama Prod Hardening ✅
-- [ ] **Phase 22** — Multi-Property Support: portfolio routing & YAML config 📋
+- [ ] **Phase 22** — Multi-Property Support: portfolio routing & YAML config 📋 (`groupscout-site-1ee`)
 - [ ] **Phase 23** — Advanced Intelligence: Repeat Detection & Signal Quality 📋
 - [ ] **Phase 24** — Agentic Reasoning & Tool-Calling: ReAct loop + BC Registry / LinkedIn tools 📋
-- [ ] **Phase 25** — AI Observability & Quality: Langfuse + AI-Ready SQL + eval harness 📋
-- [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), event-driven `/ingest` endpoint 📋
-- [ ] **Phase 27** — Input Audit & Verification Trail ◐ raw audit/redaction complete; retention cleanup remains open
+- [ ] **Phase 25** — AI Observability & Quality: Langfuse + AI-Ready SQL + eval harness 📋 (`groupscout-site-48g`)
+- [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), event-driven `/ingest` endpoint 📋 (`groupscout-site-06a`, `groupscout-site-39g`, `groupscout-site-b25`)
+- [ ] **Phase 27** — Input Audit & Verification Trail ◐ raw audit/redaction complete; retention cleanup remains open (`groupscout-site-j73`; sanitized preview: `groupscout-site-4cv`)
 - [ ] **Phase 28** — Analytics & Source Attribution 📋
 - [ ] **Phase 29** — Prompt Engineering & Strict TDD 📋
 - [ ] **Phase 30** — Advanced Audit & Verification 📋
@@ -112,6 +130,8 @@
 - [ ] Prometheus `/metrics` endpoint — counters for leads collected, enriched, notified
 - [ ] Grafana Loki dashboard — structured log aggregation
 - [ ] Advanced health check — last successful run time per collector
+
+Tracked follow-up: `groupscout-site-yyj` owns Prometheus metrics, collector freshness in health/system data, and dashboard documentation.
 
 ---
 
@@ -361,6 +381,7 @@
 ## Phase 22 — Multi-Property Support 📋
 
 > Configure and run GroupScout for multiple hotel properties with different geographies, segments, and thresholds. No changes to the collector/enrichment core — all config-driven. See `PHASES.md` Phase 22 for atomic tasks.
+> Beads follow-up: `groupscout-site-1ee`.
 
 - [ ] **Part A** — Property Config Model: name, location (lat/lng), segments, Slack webhook.
 - [ ] **Part B** — Property-Scoped Pipeline: geo-match raw projects against property radius.
@@ -390,6 +411,7 @@
 ## Phase 25 — AI Observability & Quality 📋
 
 > Track LLM call quality, token costs, and prompt versions. Add AI-Ready SQL view to simplify prompt construction. Structural eval harness to catch bad enrichment outputs before they hit Slack. See `PHASES.md` Phase 25 for atomic tasks.
+> Beads follow-up: `groupscout-site-48g`.
 
 - [ ] **Part A** — AI-Ready SQL: `v_lead_context` view + `GetContext()` method; refactor prompt builders
 - [ ] **Part B** — Langfuse integration: trace per LLM call (model, tokens, latency, score); noop client when key absent
@@ -402,10 +424,11 @@
 > Deploy the full stack to production. **Hetzner CX32 + Coolify (~$10/month) is the primary recommendation** — it runs both binaries as persistent containers, deploys your existing `docker-compose.yml` directly, and includes n8n/Prometheus/Loki at no extra cost. Railway is the managed-PaaS alternative (~$10–18/month). GCP Cloud Run is **incompatible with `alertd`** (scales to zero; daemon needs persistent compute). See `docs/planning/DEPLOYMENT_OPTIONS.md` for the full analysis.
 >
 > See `PHASES.md` Phase 26 for atomic tasks.
+> Beads follow-ups: `groupscout-site-39g` for home deploy, `groupscout-site-06a` for Coolify guidance, and `groupscout-site-b25` for event-driven ingestion.
 
-- [ ] **Part A** — Home server: No-IP/DuckDNS DDNS + port forwarding → Traefik + Let's Encrypt → optional Cloudflare Tunnel; `docs/guides/HOME_DEPLOY.md`
-- [ ] **Part B** — Hetzner + Coolify cloud deploy (if uptime SLA matters): VPS provision, Coolify setup, backup config, `docs/guides/COOLIFY.md`
-- [ ] **Part C** — Event-driven ingestion: `POST /ingest` + `EnrichOne()` (platform-agnostic)
+- [ ] **Part A** — Home server: No-IP/DuckDNS DDNS + port forwarding → Traefik + Let's Encrypt → optional Cloudflare Tunnel; `docs/guides/HOME_DEPLOY.md` (`groupscout-site-39g`)
+- [ ] **Part B** — Hetzner + Coolify cloud deploy (if uptime SLA matters): VPS provision, Coolify setup, backup config, `docs/guides/COOLIFY.md` (`groupscout-site-06a`)
+- [ ] **Part C** — Event-driven ingestion: `POST /ingest` + `EnrichOne()` (platform-agnostic) (`groupscout-site-b25`)
 - [ ] **Part D** — Terraform IaC for GCP (optional; alertd needs Compute Engine VM — Cloud Run won't work)
 
 ---
@@ -417,7 +440,7 @@
 - [x] **Part A** — Storage Architecture: `raw_inputs` table + `AuditStore` interface
 - [x] **Part B** — Collector Integration: save raw PDF/API content before parsing
 - [x] **Part C** — Verification Tools: `GET /leads/{id}/raw` + CLI audit tool
-- [ ] **Part D** — Retention & Privacy: cleanup worker remains open in [PHASES.md](./PHASES.md); raw audit redaction policy is documented separately and complete.
+- [ ] **Part D** — Retention & Privacy: cleanup worker remains open in [PHASES.md](./PHASES.md) and `groupscout-site-j73`; raw audit redaction policy is documented separately and complete.
 
 ---
 

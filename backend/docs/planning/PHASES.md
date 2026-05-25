@@ -626,7 +626,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 **Goal:** Deploy and manage a self-hosted ecosystem for automation and observability.
 
 - [x] **14.1** Docker Compose — Standardize the deployment of GroupScout alongside n8n and Redis.
-- [x] **14.2** n8n Workflow — Implement a workflow to trigger `/run` and `/digest` on a custom schedule. Importable Sunday/Wednesday workflow and guaranteed one-lead delivery are tracked in `groupscout-site-yfl` and `groupscout-site-fuc`.
+- [x] **14.2** n8n Workflow — Implement a workflow to trigger `/run` and `/digest` on a custom schedule. Importable Sunday/Wednesday workflow and guaranteed one-lead delivery were completed in `groupscout-site-yfl` and `groupscout-site-fuc`.
 - [x] **14.3** n8n Webhook Integration — Implement `/n8n/webhook` endpoint for receiving external leads.
 - [ ] **14.4** Visualization Dashboard — Connect Metabase or Grafana to `groupscout.db` for lead analytics.
 - [ ] **14.5** Search Engine — Integrate Meilisearch for fast lead searching in the upcoming Admin UI.

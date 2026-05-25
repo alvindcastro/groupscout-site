@@ -68,8 +68,10 @@ By enabling `PII_STRIP=true`, the `AuditStore` will automatically redact emails 
 Browser-safe sanitized preview implementation is tracked in `groupscout-site-4cv`.
 Storage redaction and UI preview redaction are separate controls.
 
+Current source caveat, 2026-05-25: the legacy `GET /leads/{id}/raw` endpoint returns the stored raw payload bytes and the inspected backend source snapshot does not enforce bearer or admin-session auth on that route. Do not expose it directly to browser UI. Use it only for deliberate operator verification until the authenticated UI alias and sanitized preview work land.
+
 - Storage-time `PII_STRIP=true` protects persisted raw payloads by redacting emails and phone numbers before they are written to `raw_inputs`.
-- Authenticated raw access through `GET /leads/{id}/raw`, `GET /api/leads/{id}/raw`, or `groupscout audit <lead_id>` returns the stored bytes for deliberate operator verification. It is not the contract for inline browser preview.
+- Planned authenticated raw access through `GET /api/leads/{id}/raw` and CLI access through `groupscout audit <lead_id>` should return the stored bytes for deliberate operator verification. They are not the contract for inline browser preview. In the inspected backend source snapshot, legacy `GET /leads/{id}/raw` is still unauthenticated and should stay off the browser path.
 - Inline browser preview must use a sanitized preview layer that redacts secrets, authorization headers, cookies, API keys, bearer/basic tokens, OAuth tokens, session IDs, signed URLs, webhook URLs, passwords, database URLs, provider keys, emails, phone/fax numbers, individual contact names, and residential/private-address details.
 - Inline preview may preserve source metadata, collector name, collected timestamp, public permit or bid IDs, municipality, commercial project title, project value, public organization names, payload type, and hash metadata.
 - JSON, XML/RSS, plain text, and sanitized text extracted from HTML are eligible for inline preview after redaction. PDFs, images, archives, office documents, unknown binary payloads, and oversized payloads are download/open-only.

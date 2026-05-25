@@ -107,7 +107,7 @@ Historical note: Phase 35 planned `lead_summary` without `owner` or `verificatio
 - `room_inventory`
 - `action_history`
 
-The current backend compatibility route returns empty `alerts` and `items` arrays because `alertd` still keeps runtime alert state outside the lead API database. Tracked follow-up: `groupscout-site-3gq`.
+Planned/branch-history compatibility returns empty `alerts` and `items` arrays until `alertd` has a shared persistent alert store. The inspected backend source snapshot does not currently expose `/api/alerts`. Tracked follow-up: `groupscout-site-3gq`.
 
 ## Live Schema And API Gaps To Handle Explicitly
 

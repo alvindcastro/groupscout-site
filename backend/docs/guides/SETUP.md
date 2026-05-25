@@ -318,9 +318,19 @@ n8n needs your `API_TOKEN` to call GroupScout.
 
 ---
 
-### 5c — Create the workflow
+### 5c — Import the Sunday/Wednesday workflow
 
-1. Go to **Workflows** → **New Workflow**
+Use the tracked workflow asset as the primary path:
+
+```txt
+backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json
+```
+
+Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md). After import, confirm the workflow is inactive, set the `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` environment variables or node values, run **Test Workflow**, then activate it.
+
+Manual fallback:
+
+1. Go to **Workflows** → **New Workflow**.
 2. Add a **Schedule** trigger node:
    - **Trigger Interval**: `Weeks`
    - **Days of the Week**: `Sunday`, `Wednesday`
@@ -361,7 +371,7 @@ For the Sunday/Wednesday cadence:
 
 The backend now owns "which one lead is eligible" and "has this cadence already delivered" through a `lead_deliveries` table, a `delivery_locks` run lock, backlog fallback selection, and machine-readable `/run` results. n8n owns the Sunday/Wednesday schedule and failure routing.
 
-Completed workflow asset: `groupscout-site-yfl` added the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence idempotency key, and no-leads/failure Slack branch. `groupscout-site-fuc` adds the backend delivery guarantee: delivery log, fallback selector, machine-readable run/delivery result, and run lock.
+Completed workflow asset: `groupscout-site-yfl` added the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence idempotency key, and no-leads/failure Slack branch. `groupscout-site-fuc` added the backend delivery guarantee: delivery log, fallback selector, machine-readable run/delivery result, and run lock.
 
 Workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 

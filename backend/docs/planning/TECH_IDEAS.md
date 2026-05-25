@@ -86,11 +86,12 @@ This document outlines potential technical enhancements and a roadmap for the fu
 > Full tool comparison (embedding providers, vector stores, observability) with cloud alternatives: see [AI_DATA_STRATEGY.md](../prompts/AI_DATA_STRATEGY.md).
 
 **Automation & Orchestration:**
-- [x] **n8n** — Workflow automation to trigger `/run` and `/digest`. Also used for "Active Collection" (n8n scrapes → pushes to `/n8n/webhook`). The importable Sunday/Wednesday workflow is tracked under `backend/docs/workflows/n8n/`; guaranteed one-lead backend delivery remains tracked in `groupscout-site-fuc`.
+- [x] **n8n** — Workflow automation to trigger `/run` and `/digest`. Also used for "Active Collection" (n8n scrapes → pushes to `/n8n/webhook`). The importable Sunday/Wednesday workflow is tracked under `backend/docs/workflows/n8n/`; guaranteed one-lead backend delivery was completed in `groupscout-site-fuc`.
 
 **Monitoring & Observability:**
 - [x] **Prometheus** — Infrastructure metrics.
 - [x] **Grafana Loki** — Log aggregation.
+- [ ] **Advanced health and collector freshness** — Last successful collector run times and lead-delivery counters remain open under `groupscout-site-yyj`.
 - [ ] **Metabase or Grafana** — Connect to `groupscout.db` (via SQLite connector) to visualize lead trends, source performance, and enrichment accuracy.
 - [ ] **Langfuse** — LLM observability: track Claude API calls, token costs, prompt versions, response quality. Self-hosted or cloud (free hobby tier). Beads: `groupscout-site-48g`.
 

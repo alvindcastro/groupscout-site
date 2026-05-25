@@ -4,6 +4,8 @@ This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/group
 
 Status reconciliation, 2026-05-25: the inspected UI checkout is missing the documented admin login/auth client, `createApiClient().getLead(...)`, and Phase 15 hardening module/test; the inspected backend source snapshot is also missing planned `/api/*` UI routes, admin auth, EvalOps targets, and `make smoke-ui-docker-e2e`. Treat historical green runs below as branch-history until `groupscout-site-0m0`, `groupscout-site-eqm`, and `groupscout-site-crz` land or the docs are further narrowed.
 
+The dated runs below remain useful implementation history, but they are not current-source proof for admin login, production session gating, `getLead`, browser UX hardening, generated clients, or protected `/api/*` backend routes in the inspected checkouts.
+
 ## Run This Now
 
 Use this current verification path before digging into historical phase evidence.

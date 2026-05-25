@@ -166,8 +166,8 @@ New permit → AI-Ready SQL builds context_text
 
 ## Model & Provider Selection Guide
 
-> Current implementation is hardcoded to Anthropic. For provider abstraction (no lock-in), see [AI_DATA_STRATEGY.md — LLM Provider Abstraction](./prompts/AI_DATA_STRATEGY.md).
-> Short version: one `LLMClient` interface, two concrete impls (Claude + OpenAI-compatible), config-driven.
+> Current implementation can select Claude or Gemini with `AI_PROVIDER`, and uses separate Ollama runtime paths for local extraction/scoring. The broader no-lock-in provider abstraction is not implemented yet. For the planned OpenAI-compatible/Azure/fallback provider layer, see [AI_DATA_STRATEGY.md — LLM Provider Abstraction](./prompts/AI_DATA_STRATEGY.md) and `groupscout-site-vud`.
+> Short version: one `LLMClient` interface, cloud/self-hosted concrete implementations, config-driven fallback, and shared observability.
 
 ### By use case (Claude defaults)
 

@@ -26,6 +26,8 @@ The JSON keeps secrets out of the repository. If these environment variables are
 
 The tracked export includes a stable workflow `id` because the Docker-backed n8n smoke stack currently runs n8n `2.14.2`, whose CLI import requires a non-empty workflow id.
 
+This workflow calls `/run` for cadence delivery. The separate `/n8n/webhook` automation path currently direct-inserts a lead-shaped payload and does not run single-item raw enrichment; `POST /ingest` plus `EnrichOne()` remains planned under `groupscout-site-b25`.
+
 ### Docker Import Smoke
 
 From the coordination repo root:

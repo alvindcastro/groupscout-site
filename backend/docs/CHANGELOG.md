@@ -8,6 +8,8 @@
 - **Why:** The current backend source snapshot exposes only the automation/server routes plus the legacy raw-audit route, and the current UI checkout lacks several admin/session, detail-client, and Phase 15 hardening artifacts described by the docs.
 - **How:** Cross-checked Beads, backend source, frontend source, and docs with parallel agents; kept historical changelog entries intact but added current-source caveats and follow-up links.
 
+Historical 2026-05-09 entries for admin auth, `/api/*` operator routes, EvalOps, and UI Docker smoke describe branch-history work. They are not current-source proof until `groupscout-site-eqm`, `groupscout-site-crz`, and related reconciliation tasks restore or merge those files into the inspected backend checkout.
+
 ---
 
 ## 2026-05-25 - Raw audit retention worker

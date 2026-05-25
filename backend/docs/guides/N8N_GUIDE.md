@@ -49,6 +49,8 @@ Use this to start the GroupScout collection, enrichment, and notification proces
 
 Use this to send leads from other n8n-connected sources (RSS, Web Scrapers, Google Sheets) into GroupScout.
 
+Current behavior: `/n8n/webhook` direct-inserts a lead-shaped payload. It does not store the incoming item as a `RawProject` or run the normal enrichment pipeline for one raw item. The event-driven `POST /ingest` endpoint and `EnrichOne()` path remain planned under `groupscout-site-b25`.
+
 #### Node: **HTTP Request**
 - **Method**: `POST`
 - **URL**: `http://<groupscout-host>:8080/n8n/webhook`

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Current Source Reconciliation
+
+- What: Keep the historical 2026-05-09 UI/admin/session, Phase 15 hardening, and backend API smoke entries scoped as branch-history where the inspected UI/backend checkouts no longer contain the referenced files or routes.
+- Where: Current source caveats live in `README.md`, `docs/testing.md`, `docs/phase-9-session-auth-wrapper-same-origin-deployment.md`, `docs/phase-15-browser-ux-hardening.md`, and related backend planning docs.
+- When: Reviewed on 2026-05-25 during coordinator task `groupscout-site-de5`.
+- Handoff: current reconciliation remains tracked by `groupscout-site-0m0`, live backend `/api/*` routes by `groupscout-site-eqm`, generated client/types by `groupscout-site-29q`, real-browser Phase 15 by `groupscout-site-kb4`, sanitized raw preview by `groupscout-site-4cv`, and restored EvalOps/UI smoke artifacts by `groupscout-site-crz`.
+
 ### Documentation Consolidation
 
 - What: Consolidated duplicate agent and phase prompt documentation in the centralized frontend docs.

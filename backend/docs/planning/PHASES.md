@@ -276,6 +276,8 @@
 ## Phase 10 — Ecosystem & UI (Planned)
 **Goal:** Improve user interaction and external integrations.
 
+> Historical broad checklist. Backend-owned UI API contracts and smoke paths are tracked more precisely in `docs/planning/ui/UI_TDD_PHASE_PLAN.md` Phases 31-38.
+
 - [x] **10.0** `docs/planning/ui/UI_STRATEGY.md` — Define operator UI strategy, information architecture, status model, API boundaries, and MVP sequence.
 - [ ] **10.1** `internal/storage/leads.go` — Add filtered `List` with status/source/min-score/search/pagination support.
 - [ ] **10.2** `cmd/server/main.go` — Add UI-facing `GET /api/leads` and `GET /api/leads/{id}` handlers.

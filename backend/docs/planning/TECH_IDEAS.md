@@ -2,6 +2,8 @@
 
 This document outlines potential technical enhancements and a roadmap for the future development of GroupScout, moving beyond the core Phase 6 productionization goals.
 
+> **Idea archive:** [PHASES.md](./PHASES.md) is the canonical atomic tracker and [ROADMAP.md](./ROADMAP.md) is the strategic summary. Check those files before treating any checkbox here as current implementation status.
+
 ---
 
 ### Categorized Brainstorming

@@ -1,7 +1,9 @@
 # GroupScout — Product & Technical Planning
 
-> Group lodging demand intelligence for hotel sales teams.  
+> Group lodging demand intelligence for hotel sales teams.
 > Go backend · Work in progress · Vancouver-focused expansion
+
+> **Idea archive:** this document is product/technical brainstorming. Use [PHASES.md](./PHASES.md) for atomic task status and [ROADMAP.md](./ROADMAP.md) for the current strategic roadmap.
 
 ---
 

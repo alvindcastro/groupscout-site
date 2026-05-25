@@ -3,6 +3,8 @@
 > Group lodging demand intelligence for hotel sales teams.
 > GitHub: https://github.com/alvindcastro/groupscout
 
+> **Historical planning note:** this file records the early Phase 3 planning baseline. For current status use [ROADMAP.md](./ROADMAP.md); for atomic phase tasks use [PHASES.md](./PHASES.md). Do not treat the phase checklist below as the live tracker.
+
 ---
 
 ## Problem Statement
@@ -29,7 +31,7 @@ Key selling points for construction crews:
 
 ## Phased Roadmap
 
-> **Current Status:** Phase 3 completed; transitioning to Advanced Audit & Intelligence.
+> **Historical Status:** Phase 3 completed; this section predates the current Phase 16+ and UI/API roadmap.
 > For the live big-picture roadmap, see [ROADMAP.md](./ROADMAP.md).
 > For atomic task tracking, see [PHASES.md](./PHASES.md).
 

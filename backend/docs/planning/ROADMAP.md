@@ -131,6 +131,7 @@
 ## Phase 10 — Ecosystem & UI 📋
 
 > Product and integration strategy: [UI_STRATEGY.md](./ui/UI_STRATEGY.md).
+> Backend-owned UI API contracts and smoke paths are now tracked in [UI_TDD_PHASE_PLAN.md](./ui/UI_TDD_PHASE_PLAN.md) Phases 31-38. The broad checklist below is retained as strategic product scope rather than authoritative implementation status.
 > UI design adaptation: [UI_DESIGN_SYSTEM.md](./ui/UI_DESIGN_SYSTEM.md).
 > UI shell/routing contract: [UI_PHASE32_APP_SHELL_ROUTING_CONTRACT.md](./ui/UI_PHASE32_APP_SHELL_ROUTING_CONTRACT.md).
 > UI mocked lead inbox contract: [UI_PHASE33_MOCKED_LEAD_INBOX_CONTRACT.md](./ui/UI_PHASE33_MOCKED_LEAD_INBOX_CONTRACT.md).
@@ -415,7 +416,7 @@
 - [x] **Part A** — Storage Architecture: `raw_inputs` table + `AuditStore` interface
 - [x] **Part B** — Collector Integration: save raw PDF/API content before parsing
 - [x] **Part C** — Verification Tools: `GET /leads/{id}/raw` + CLI audit tool
-- [x] **Part D** — Retention & Privacy: Purge old records, PII redaction
+- [ ] **Part D** — Retention & Privacy: cleanup worker remains open in [PHASES.md](./PHASES.md); raw audit redaction policy is documented separately.
 
 ---
 

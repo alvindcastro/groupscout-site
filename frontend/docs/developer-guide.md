@@ -186,7 +186,9 @@ For the exact operator login, setup-token rotation, API smoke, and stale-asset r
 
 Backend markdown references are centralized under `/mnt/c/Users/alvin/groupscout-site/backend`; do not expect backend docs to exist in the backend source checkout after the doc move.
 
-Planned/current UI client contracts:
+Frontend client contract targets:
+
+The `/api/*` list below describes UI client contracts, not live backend routes in the current source snapshot. Treat them as planned until `groupscout-site-eqm` lands the backend UI API surface and `groupscout-site-29q` regenerates checked frontend client/types.
 
 - `GET /api/leads`
 - `GET /api/leads/{id}` (planned in the inspected UI checkout until `createApiClient().getLead(...)` is restored)

@@ -1,6 +1,6 @@
 # UI Planning Docs
 
-This folder groups planning documents for the future GroupScout operator UI.
+This folder groups planning documents for the separate GroupScout operator UI and the future backend `/api/*` contracts it will use.
 
 ## Documents
 

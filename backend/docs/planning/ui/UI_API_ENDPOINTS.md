@@ -13,7 +13,8 @@ Status reconciliation, 2026-05-25: backend `main` currently exposes the automati
 | `GET /metrics` | Implemented | Prometheus output. Useful for observability, not a direct UI data source. |
 | `POST /run` | Implemented | Bearer-token protected when `API_TOKEN` is set. Blocking pipeline trigger. |
 | `POST /digest?to=` | Implemented | Bearer-token protected when `API_TOKEN` is set. Sends email digest. |
-| `POST /n8n/webhook` | Implemented | Bearer-token protected when `API_TOKEN` is set. Accepts a lead-shaped payload. |
+| `POST /ingest` | Implemented in backend branch `task/event-driven-ingest` | Bearer-token protected when `API_TOKEN` is set. Accepts one raw project/event payload and runs `EnrichOne()` through the dedup, raw audit, scoring, enrichment, and lead storage path. Not a browser UI route. |
+| `POST /n8n/webhook` | Implemented | Bearer-token protected when `API_TOKEN` is set. Accepts a pre-enriched lead-shaped payload and direct-inserts it. |
 | `GET /leads/{id}/raw` | Implemented legacy route | Raw audit payload lookup. The inspected backend source snapshot does not enforce bearer or admin-session auth here; do not expose it directly to browser UI. Sanitized/authenticated preview remains tracked by `groupscout-site-4cv`. |
 | `POST /slack/inventory` | Implemented in `alertd` | Slack slash-command endpoint, separate from the lead UI MVP. |
 

@@ -67,6 +67,15 @@ Actions by marker:
 | `slack notify` | Check `SLACK_WEBHOOK_URL` and Slack webhook status. |
 | collector or `pdftotext` error | Rebuild with `docker compose up -d --build` and confirm `poppler-utils`/`pdftotext` exists in the image. |
 
+Guaranteed cadence runs add a `delivery_status` field to `/run` JSON:
+
+| Status | What to check |
+|---|---|
+| `sent` | One eligible lead was delivered and recorded in `lead_deliveries`. |
+| `duplicate` | The same `idempotency_key` or `schedule_key` already delivered; retries should stop without a second Slack send. |
+| `no_eligible_lead` | Neither fresh `new` leads nor eligible `notified` backlog leads are available; n8n should send an ops note. |
+| `locked` | Another run owns the `delivery_locks` row; retry later. |
+
 ### 2. Inspect the Database
 Use `psql` (Postgres) or `sqlite3` (SQLite) to see what's happening under the hood.
 
@@ -188,6 +197,8 @@ Do not pass backend `.env` files into UI containers. The browser-visible UI must
 ## ❓ FAQ
 
 ### Why is there only 1 lead?
+If `/run` was called with `guarantee_one_lead:true` and `delivery_mode:"exactly_one"`, one lead is intentional: the Sunday/Wednesday cadence sends exactly one eligible lead and records it in `lead_deliveries`.
+
 This usually happens if:
 - You've already run the pipeline today, and all other permits are now **duplicates**.
 - The latest weekly report only has 1 permit that meets both the **commercial sub-type** AND the **$500k+ value** criteria.

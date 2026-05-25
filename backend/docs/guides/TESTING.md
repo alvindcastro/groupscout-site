@@ -251,12 +251,35 @@ curl -i -X POST \
   http://localhost:8080/run
 ```
 
+**Guaranteed Sunday/Wednesday Delivery Run**
+```bash
+curl -i -X POST \
+  -H "Authorization: Bearer your_api_token" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: lead-cadence:2026-05-27:wednesday" \
+  -d '{"guarantee_one_lead":true,"delivery_mode":"exactly_one","cadence_key":"lead-cadence:2026-05-27:wednesday","idempotency_key":"lead-cadence:2026-05-27:wednesday"}' \
+  http://localhost:8080/run
+```
+
+Expected `delivery_status` values are `sent`, `duplicate`, `no_eligible_lead`, or `locked`.
+
 **Trigger Weekly Digest**
 ```bash
 curl -i -X POST \
   -H "Authorization: Bearer your_api_token" \
   "http://localhost:8080/digest?to=alvin@groupscout.ai"
 ```
+
+**Raw Project/Event Ingest**
+```bash
+curl -i -X POST \
+  -H "Authorization: Bearer your_api_token" \
+  -H "Content-Type: application/json" \
+  -d '{"source":"curl_test","title":"Richmond warehouse infrastructure","location":"Richmond BC","project_value":12000000,"description":"Civil warehouse expansion with likely travelling crews."}' \
+  http://localhost:8080/ingest
+```
+
+Expected: `201` with `{"status":"created","inserted":true,...}` for a newly inserted lead, or `200` with `{"status":"duplicate","inserted":false,...}` when the normalized payload hash already exists. Postgres integration follow-up for the enrichment raw-input FK path is tracked by `groupscout-site-wda`.
 
 **n8n Webhook Simulation**
 ```bash

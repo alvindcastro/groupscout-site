@@ -1,3 +1,35 @@
+## 2026-05-25 - Missed task markdown reconciliation
+
+### groupscout-site-cw2 - Review MD files for missed task drift
+
+- **What:** Updated markdown task state around the completed `/ingest` work, live missed-task follow-ups, and UI-planning endpoint inventories.
+- **Where:** Centralized backend README, roadmap/phase/future-integration docs, UI API planning docs, and the legacy Phase 25 prompt archive.
+- **When:** 2026-05-25.
+- **Why:** The docs still had stale planned-language for raw single-item enrichment and omitted the remaining Postgres FK follow-up from the live missed-task list.
+- **How:** Cross-checked Beads and parallel agent findings, then aligned endpoint tables, Phase 26 labels, and handoff notes with `groupscout-site-b25` complete and `groupscout-site-wda` open.
+
+---
+
+## 2026-05-25 - Guaranteed lead cadence
+
+### groupscout-site-fuc - Guaranteed Sunday/Wednesday one-lead delivery
+
+- **What:** Added backend delivery semantics for exactly one eligible cadence lead.
+- **Where:** Backend delivery log, run lock, fallback selector, and `/run` JSON result behavior; centralized setup, n8n, testing, troubleshooting, and API docs.
+- **When:** 2026-05-25.
+- **Why:** The Sunday/Wednesday operator prompt needs a dependable single lead without duplicate Slack sends on retries.
+- **How:** Documented `lead_deliveries`, `delivery_locks`, cadence/idempotency keys, `delivery_status` outcomes, and backlog fallback behavior.
+
+### groupscout-site-yfl - Importable Sunday/Wednesday n8n workflow
+
+- **What:** Added the importable n8n workflow asset and Docker import smoke notes for the guaranteed cadence.
+- **Where:** `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json`, workflow README, and setup/runbook docs.
+- **When:** 2026-05-25.
+- **Why:** Operators need the Sunday/Wednesday workflow to be reproducible rather than recreated by hand.
+- **How:** Captured the schedule, health preflight, guaranteed `/run` request, cadence idempotency key, retry behavior, and ops Slack no-leads/failure branch.
+
+---
+
 ## 2026-05-25 - Event-driven ingest endpoint
 
 ### groupscout-site-b25 - Implement event-driven ingest endpoint

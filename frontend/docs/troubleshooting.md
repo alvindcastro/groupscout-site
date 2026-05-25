@@ -214,8 +214,8 @@ docker run --rm -p 3005:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:
 Interpret `/api/*` smoke failures by status:
 
 - `502`: the backend is unreachable or `UI_API_PROXY_TARGET` points at the wrong host.
-- `404`: the proxy reached the backend, but the requested backend route is missing or the path is wrong. Current smoke routes `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` are expected to return `200`.
-- `401`: `UI_SESSION_SECRET` is configured and the request does not have a valid `groupscout_session`; unset `UI_SESSION_SECRET` only for backend Docker smoke checks that need no-login proxy reachability.
+- `404`: the proxy reached the backend, but the requested backend route is missing or the path is wrong. On the current backend source snapshot, `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` may return `404` until `groupscout-site-eqm` lands the UI API routes.
+- `401`: expected only once protected UI API routes and session auth are present and the request does not have a valid `groupscout_session`; unset `UI_SESSION_SECRET` only for backend Docker smoke checks that need no-login proxy reachability.
 - DNS errors for `groupscout`: the production container is not on the backend Compose network, or it is running with standalone `docker run` and should use `http://host.docker.internal:8080`.
 
 Browser-visible code and config should still show relative `/api/*`, never `http://groupscout:8080` or backend secrets.

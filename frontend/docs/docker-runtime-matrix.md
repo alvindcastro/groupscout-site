@@ -56,7 +56,7 @@ curl -i http://localhost:3002/assets/app.js
 curl -i http://localhost:3002/api/system
 ```
 
-Unauthenticated `GET /api/system` returns `401` from the UI before proxying when `UI_SESSION_SECRET` is configured. The backend-owned Docker smoke leaves `UI_SESSION_SECRET` unset, so `/api/system` can prove proxy reachability without browser credentials. `GET /healthz`, `GET /`, and `GET /assets/app.js` can validate the UI container without a backend.
+Planned session-gate behavior under `groupscout-site-0m0`: unauthenticated `GET /api/system` should return `401` from the UI before proxying when `UI_SESSION_SECRET` is configured. In the inspected UI checkout, the production server proxies `/api/*` directly, so current smoke should treat backend `404` as route absence and `502` as proxy reachability failure. `GET /healthz`, `GET /`, and `GET /assets/app.js` can validate the UI container without a backend.
 
 To smoke the production UI container against the backend container instead of a host backend, use the `smoke-ui-e2e` Compose profile:
 

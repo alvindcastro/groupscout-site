@@ -28,7 +28,7 @@ Context:
 - The UI design reference is `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui/DESIGN.md`.
 - GroupScout should use the dense docs/product surface language, not marketing hero patterns.
 - The implementation contract is `docs/planning/ui/UI_PHASE31_DESIGN_SYSTEM_CONTRACT.md`.
-- If this repository still has no checked-in frontend package, do not invent untested UI code; create the frontend harness first, then make the contract tests fail before implementing components.
+- The frontend package lives in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`; do not invent untested UI code in the coordination repo. Update the frontend harness first, then make the contract tests fail before implementing components.
 
 TDD steps:
 1. Write failing tests for token availability: typography, colors, spacing, radii, focus states, and semantic statuses.

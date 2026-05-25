@@ -204,7 +204,8 @@ Existing useful endpoints:
 | `GET /metrics` | Implemented | Prometheus/Grafana, not direct UI data. |
 | `POST /run` | Implemented | Automation trigger; wrap before exposing in browser UI. |
 | `POST /digest` | Implemented | Digest trigger; wrap before exposing in browser UI. |
-| `POST /n8n/webhook` | Implemented | External lead ingestion. |
+| `POST /ingest` | Implemented in backend branch `task/event-driven-ingest` | External raw project/event ingestion through `EnrichOne()`; keep server-to-server. |
+| `POST /n8n/webhook` | Implemented | External pre-enriched lead direct insert. |
 | `GET /leads/{id}/raw` | Implemented | Raw audit review; needs auth/session wrapper for UI. |
 
 Minimum UI-facing `/api/*` contracts:

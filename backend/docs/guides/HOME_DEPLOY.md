@@ -85,7 +85,7 @@ ports:
 ```bash
 docker compose up -d groupscout postgres
 curl http://groupscout.duckdns.org:8080/health
-# Expected: {"status":"ok"} or similar
+# Expected: HTTP 200 with "database":"ok"
 ```
 
 If this returns a response, DDNS and port forwarding are working. Proceed to Tier 2 for HTTPS.
@@ -196,6 +196,9 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
       - WEBHOOK_URL=https://n8n.groupscout.duckdns.org/
+      - GROUPSCOUT_API_BASE_URL=https://server.groupscout.duckdns.org
+      - GROUPSCOUT_API_TOKEN=${API_TOKEN}
+      - GROUPSCOUT_OPS_SLACK_WEBHOOK_URL=${GROUPSCOUT_OPS_SLACK_WEBHOOK_URL}
     volumes:
       - n8n_data:/home/node/.n8n
     labels:
@@ -277,7 +280,7 @@ Look for: `Obtained certificate from ACME provider` in Traefik logs.
 ### Step 9 — Verify (A4 gate)
 
 ```bash
-# Health check — must return {"status":"ok"} over HTTPS
+# Health check — must return HTTP 200 with "database":"ok" over HTTPS
 curl -fs https://server.groupscout.duckdns.org/health
 
 # Verify TLS certificate issuer
@@ -289,7 +292,9 @@ curl -Iv http://server.groupscout.duckdns.org/health 2>&1 | grep "301\|Location"
 # Expected: 301 redirect to https://...
 ```
 
-All three must pass before proceeding to A5 or calling Part A complete.
+All three must pass before proceeding to A5 or calling Part A complete. `ollama` may report `unavailable` for non-LLM smoke, but the database must be healthy.
+
+For the Sunday/Wednesday cadence, import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json`, keep it inactive until the environment variables above resolve, then run the health and guaranteed `/run` nodes before activation.
 
 Deployment completion is tracked by `groupscout-site-39g`: choose DuckDNS/Traefik or Cloudflare Tunnel, verify public HTTPS health and redirects, lock down observability surfaces, configure weekly backups, and run at least one restore smoke.
 
@@ -341,7 +346,7 @@ With Cloudflare Tunnel, you **do not need Traefik** for TLS — Cloudflare termi
 
 ```bash
 curl -fs https://server.yourdomain.com/health
-# Expected: {"status":"ok"}
+# Expected: HTTP 200 with "database":"ok"
 ```
 
 ---

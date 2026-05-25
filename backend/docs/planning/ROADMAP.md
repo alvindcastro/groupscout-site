@@ -16,6 +16,7 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 - `groupscout-site-yyj` — ops metrics and collector freshness observability.
 - `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
 - `groupscout-site-crz` — restore or reconcile backend EvalOps and UI Docker smoke artifacts that docs reference but the inspected backend source snapshot lacks.
+- `groupscout-site-wda` — investigate the Postgres enrichment raw-input FK integration failure found after `/ingest` landed.
 - `groupscout-site-39g` — home-deploy runbook execution and restore smoke. Coolify guide was added in `backend/docs/guides/COOLIFY.md`.
 - `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-0m0` — planned operator UI API routes, generated UI API client, sanitized raw preview, real-browser Phase 15 harness, and current UI checkout admin/session/detail-client hardening reconciliation.
 - `groupscout-site-2h1` — remaining backend/frontend smell refactors.
@@ -59,7 +60,7 @@ Recently completed:
 - [ ] **Phase 23** — Advanced Intelligence: Repeat Detection & Signal Quality 📋
 - [ ] **Phase 24** — Agentic Reasoning & Tool-Calling: ReAct loop + BC Registry / LinkedIn tools 📋
 - [ ] **Phase 25** — AI Observability & Quality: Langfuse + AI-Ready SQL + eval harness 📋 (`groupscout-site-48g`)
-- [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), event-driven `/ingest` endpoint 📋 (`groupscout-site-39g`, `groupscout-site-b25`; Coolify guide complete)
+- [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), home deploy/restore smoke open (`groupscout-site-39g`; event-driven `/ingest` complete in `groupscout-site-b25`)
 - [x] **Phase 27** — Input Audit & Verification Trail ✅ raw audit/redaction/retention complete; sanitized preview remains separate (`groupscout-site-4cv`)
 - [ ] **Phase 28** — Analytics & Source Attribution 📋
 - [ ] **Phase 29** — Prompt Engineering & Strict TDD 📋

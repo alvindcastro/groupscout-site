@@ -354,13 +354,14 @@ Click **Test Workflow** (or the play button on the Schedule node) to fire it imm
 
 Check:
 - The HTTP Request node shows a `200 OK` response
-- A new Slack message appears with leads
+- The backend JSON includes `delivery_status:"sent"`, `delivery_status:"duplicate"`, `delivery_status:"no_eligible_lead"`, or `delivery_status:"locked"` when using the tracked cadence workflow
+- `sent` posts one lead, `duplicate` may stop silently, `no_eligible_lead` should route to the ops Slack note, and `locked` should retry later
 
 ### 5e — Make the twice-weekly lead send reliable
 
-The workflow above reliably runs GroupScout, but it does not by itself guarantee one lead every Sunday and Wednesday. GroupScout may return zero new leads after deduplication, low-value filtering, or previous notification.
+The tracked importable workflow already includes the reliable Sunday/Wednesday path: health preflight, guaranteed `/run` body, cadence idempotency, and ops Slack branching. The manual fallback above is only a basic scheduler until you add the guarantee body and branches below.
 
-For the Sunday/Wednesday cadence:
+For a manual Sunday/Wednesday cadence:
 
 1. Add a preflight HTTP Request node for `GET http://groupscout:8080/health`.
 2. Keep the scheduled `POST /run` node as the source-of-truth pipeline trigger.

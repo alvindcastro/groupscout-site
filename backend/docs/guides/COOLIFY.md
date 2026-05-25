@@ -72,7 +72,7 @@ Map services from Compose as persistent services. Names may vary with the backen
 
 | Service | Public? | Purpose | Health check |
 |---|---:|---|---|
-| `groupscout` | Yes | Main API, `/run`, `/digest`, `/api/*`, raw audit routes | `GET /health` returns HTTP 200 with `"database":"ok"` |
+| `groupscout` | Yes | Main automation API, `/run`, `/digest`, `/ingest`, `/n8n/webhook`, raw audit routes; `/api/*` UI routes remain planned under `groupscout-site-eqm` | `GET /health` returns HTTP 200 with `"database":"ok"` |
 | `alertd` | Optional | YVR disruption daemon and Slack slash-command endpoint | `GET /health` on the alertd internal port |
 | `postgres` | No | Postgres with pgvector | `SELECT 1; SELECT extname FROM pg_extension WHERE extname='vector';` |
 | `n8n` | Optional | Workflow scheduler and integrations | n8n UI loads and can reach `http://groupscout:8080/health` |
@@ -228,6 +228,8 @@ curl -fsS https://server.example.com/health
 curl -i -X POST https://server.example.com/run \
   -H "Authorization: Bearer $API_TOKEN"
 ```
+
+For cadence delivery, import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` into n8n, confirm it is inactive after import, set `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, then run the health preflight and guaranteed `/run` test. Expected delivery statuses are `sent`, `duplicate`, `no_eligible_lead`, or `locked`.
 
 Then verify the containers:
 

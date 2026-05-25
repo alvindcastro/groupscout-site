@@ -57,7 +57,8 @@ Useful endpoints:
 - `GET /health`
 - `POST /run`
 - `POST /digest?to=email@example.com`
-- `POST /n8n/webhook`
+- `POST /ingest` for raw or lightly normalized project/event items that should run through GroupScout enrichment
+- `POST /n8n/webhook` for pre-enriched lead-shaped direct inserts
 
 Most write or trigger endpoints expect:
 

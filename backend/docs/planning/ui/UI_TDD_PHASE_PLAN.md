@@ -1,6 +1,6 @@
 # UI TDD Phase Plan
 
-> Tickable planning checklist for the future GroupScout operator UI and its `/api/*` backend contracts.
+> Tickable planning checklist for the separate GroupScout operator UI and its future `/api/*` backend contracts.
 > Beads remains the canonical task tracker. These checkboxes are prompt scaffolding and acceptance planning only.
 
 Status reconciliation, 2026-05-25: Phase 35-37 rows below describe TDD contract targets and historical implementation notes from planning/branch work. They are not proof that the routes are live on backend `main`. Current backend `main` does not expose the planned `/api/leads`, `/api/leads/{id}/outreach`, `/api/pipeline/runs`, `/api/stats`, `/api/system`, admin auth, or `/api/alerts` routes; implementation or merge work is tracked by `groupscout-site-eqm`, and Docker smoke docs therefore still accept backend `404` for `/api/system`.
@@ -25,7 +25,7 @@ Status reconciliation, 2026-05-25: Phase 35-37 rows below describe TDD contract 
 - [x] Verify static frontend assets do not expose secrets.
 - [x] Keep marketing hero patterns out of the operator workspace.
 
-Phase 31 implementation note: this repository has no checked-in frontend package or component test harness today, so the phase is implemented as the contract in `UI_PHASE31_DESIGN_SYSTEM_CONTRACT.md`. The first frontend package must turn that contract into failing tests before production UI code.
+Phase 31 implementation note: the frontend package now lives in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`, while these centralized docs keep the contract history. Current UI checkout reconciliation is tracked by `groupscout-site-0m0`.
 
 ## Phase 32 - App Shell And Routing
 
@@ -35,7 +35,7 @@ Phase 31 implementation note: this repository has no checked-in frontend package
 - [x] Test responsive collapse for navigation and detail/evidence rail.
 - [x] Verify build and component tests.
 
-Phase 32 implementation note: this repository still has no checked-in frontend package, route test harness, or static UI build directory, so the phase is implemented as the contract in `UI_PHASE32_APP_SHELL_ROUTING_CONTRACT.md`. The first frontend package must turn that contract into failing route, layout, responsive, build, component, and static-asset safety tests before production shell code.
+Phase 32 implementation note: the separate frontend repo contains the UI package; this planning file remains the centralized contract record. Route/static artifact reconciliation for the inspected UI checkout is tracked by `groupscout-site-0m0`.
 
 ## Phase 33 - Mocked Lead Inbox
 
@@ -45,7 +45,7 @@ Phase 32 implementation note: this repository still has no checked-in frontend p
 - [x] Test keyboard navigation and accessible filter controls.
 - [x] Keep the API boundary replaceable with generated or typed clients.
 
-Phase 33 implementation note: this repository still has no checked-in frontend package, UI test harness, static UI build directory, or `GET /api/leads` backend route, so the phase is implemented as the contract in `UI_PHASE33_MOCKED_LEAD_INBOX_CONTRACT.md`. The first frontend package must turn that contract into failing fixture-boundary, table, search, filter, sorting, state, keyboard, accessibility, responsive, build, and static-asset safety tests before production inbox code.
+Phase 33 implementation note: mocked lead inbox work belongs to the separate frontend repo, while the live backend `GET /api/leads` route remains planned under `groupscout-site-eqm`; generated client/types follow in `groupscout-site-29q`.
 
 ## Phase 34 - Lead Detail And Evidence Review
 
@@ -55,7 +55,7 @@ Phase 33 implementation note: this repository still has no checked-in frontend p
 - [x] Keep correction controls disabled or mocked until backend correction storage exists.
 - [x] Verify no raw payload body loads into the default detail response.
 
-Phase 34 implementation note: this repository still has no checked-in frontend package, UI test harness, static UI build directory, or `GET /api/leads/{id}` backend route, so the phase is implemented as the contract in `UI_PHASE34_LEAD_DETAIL_EVIDENCE_CONTRACT.md`. The first frontend package must turn that contract into failing detail fixture-boundary, summary, source evidence, AI rationale, raw audit link, outreach activity, status action, correction-control, accessibility, responsive, build, and static-asset safety tests before production detail code.
+Phase 34 implementation note: lead detail/evidence UI work belongs to the separate frontend repo, while the live backend `GET /api/leads/{id}` route remains planned under `groupscout-site-eqm`; current checkout detail-client reconciliation is tracked by `groupscout-site-0m0`.
 
 ## Phase 35 - UI API Contracts
 

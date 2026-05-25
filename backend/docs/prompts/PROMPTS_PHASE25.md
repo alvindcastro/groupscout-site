@@ -195,7 +195,7 @@ Verify A4 — run all three checks:
 
   Check 1 — HTTPS health endpoint:
     curl -fs https://server.groupscout.duckdns.org/health
-    Expected: {"status":"ok"} (or equivalent JSON with status field)
+    Expected: HTTP 200 with "database":"ok" (or equivalent health JSON if the runtime contract changes)
 
   Check 2 — TLS certificate issuer:
     curl -sv https://server.groupscout.duckdns.org/health 2>&1 | grep -i "issuer"
@@ -212,7 +212,7 @@ Verify A4 — run all three checks:
 
   Also verify alertd routing:
     curl -fs https://alertd.groupscout.duckdns.org/health
-    Expected: {"status":"ok"}
+    Expected: HTTP 200 with "database":"ok"
 ```
 
 ---
@@ -258,7 +258,7 @@ Verify A5:
   # Expected: "Registered tunnel connection" message
 
   curl -fs https://server.yourdomain.com/health
-  # Expected: {"status":"ok"}
+  # Expected: HTTP 200 with "database":"ok"
 
   # Confirm IP is Cloudflare's, not yours:
   curl -s https://dns.google/resolve?name=server.yourdomain.com&type=A | jq '.Answer[].data'
@@ -338,6 +338,8 @@ Task B4 — docs/guides/COOLIFY.md:
 ---
 
 ## Part C — Event-Driven Ingestion (`POST /ingest`)
+
+> Current status, 2026-05-25: implemented under `groupscout-site-b25` in backend branch `task/event-driven-ingest`. The shipped handler returns `201` with `{"status":"created","inserted":true,...}` for an inserted lead and `200` with `{"status":"duplicate","inserted":false,...}` for duplicate payloads. Remaining Postgres integration follow-up is tracked by `groupscout-site-wda`.
 
 > Part C adds Go code. TDD applies strictly: write tests first, commit failing, then implement.
 

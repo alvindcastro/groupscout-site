@@ -1,7 +1,7 @@
 # Future Integration Roadmap
 
 > Maps brainstorm ideas to concrete GroupScout phases and PHASES.md tasks.
-> Last updated: 2026-04-10
+> Last updated: 2026-05-25
 
 > **Roadmap ownership:** [PHASES.md](./PHASES.md) is the canonical atomic tracker and [ROADMAP.md](./ROADMAP.md) is the strategic summary. This file is an idea map; keep phase numbers aligned with those canonical docs when editing it.
 
@@ -50,13 +50,13 @@
 | Idea | Status | Phase |
 |---|---|---|
 | LLM Provider Abstraction (`LLMClient` interface, factory) | 📋 planned | Phase 16 |
-| Hetzner CX32 + Coolify production deploy (primary recommendation, ~$10/month) | 📋 planned | Phase 26-A |
-| Event-driven ingestion: `POST /ingest` → `EnrichOne()` (platform-agnostic) | ✅ implemented in backend branch `task/event-driven-ingest` | Phase 26-B |
-| Terraform IaC for GCP (optional; alertd incompatible with Cloud Run — needs Compute Engine VM) | 📋 optional | Phase 26-C |
+| Hetzner CX32 + Coolify production deploy (primary recommendation, ~$10/month) | 📋 planned | Phase 26-B |
+| Event-driven ingestion: `POST /ingest` → `EnrichOne()` (platform-agnostic) | ✅ implemented in backend branch `task/event-driven-ingest` | Phase 26-C |
+| Terraform IaC for GCP (optional; alertd incompatible with Cloud Run — needs Compute Engine VM) | 📋 optional | Phase 26-D |
 | AIaaS API Layer: expose enrichment as standalone service | 📋 future | Phase 10 |
 | CRM/ERP Integration: HubSpot, Salesforce, SAP | 📋 future | Phase 11 |
 
-**Next concrete task (Phase 26-A/B/C):** Home deploy smoke and restore are tracked in `groupscout-site-39g`; Coolify guide/backup setup is documented in `docs/guides/COOLIFY.md`; event-driven `/ingest` was implemented under `groupscout-site-b25`.
+**Next concrete task (Phase 26-A/B/D):** Home deploy smoke and restore are tracked in `groupscout-site-39g`; Coolify guide/backup setup is documented in `docs/guides/COOLIFY.md`; event-driven `/ingest` was implemented under `groupscout-site-b25`. The remaining Postgres raw-input FK integration failure from the ingest test pass is tracked in `groupscout-site-wda`.
 
 ---
 
@@ -82,4 +82,4 @@ By priority:
 3. **Phase 25-A** — AI-Ready SQL view — quick win; immediately improves prompt quality and reduces `claude.go` complexity
 4. **Phase 9** — Parallel collector execution — reduces pipeline runtime from sequential to concurrent
 5. **Phase 24** — ReAct loop + tool-calling — highest AI value; requires Phase 16 first
-6. **Phase 26** — Terraform IaC — enables cloud-native deployment and event-driven processing
+6. **Phase 26** — Home/Coolify deploy execution and optional Terraform IaC; event-driven processing is already covered by `/ingest`

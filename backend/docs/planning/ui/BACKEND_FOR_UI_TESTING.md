@@ -135,6 +135,17 @@ curl -i -X POST http://localhost:8080/run \
   -d '{"bcbid_raw_input": ""}'
 ```
 
+Single raw project/event ingest:
+
+```bash
+curl -i -X POST http://localhost:8080/ingest \
+  -H "Authorization: Bearer dev-token" \
+  -H "Content-Type: application/json" \
+  -d '{"source":"manual","title":"Richmond warehouse infrastructure","location":"Richmond BC","project_value":12000000,"description":"Civil warehouse expansion with likely travelling crews."}'
+```
+
+Postgres integration follow-up for the enrichment raw-input FK path is tracked by `groupscout-site-wda`; the handler and single-item enrichment unit suites pass.
+
 Metrics:
 
 ```bash
@@ -173,7 +184,8 @@ Implemented today:
 | `GET /metrics` | Observability smoke check; not intended as direct UI data. |
 | `POST /run` | Manual pipeline trigger behind Bearer auth. |
 | `POST /digest` | Manual digest trigger behind Bearer auth. |
-| `POST /n8n/webhook` | External lead ingestion behind Bearer auth. |
+| `POST /ingest` | External raw project/event ingest through `EnrichOne()` behind Bearer auth. |
+| `POST /n8n/webhook` | External pre-enriched lead direct insert behind Bearer auth. |
 
 Planned UI contract, not live on backend `main`:
 

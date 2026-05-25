@@ -150,7 +150,8 @@ Runs a persistent HTTP server that listens for remote triggers (ideal for n8n/cr
 - `GET /health`: Health check.
 - `POST /run`: Trigger the full collect→enrich→notify pipeline.
 - `POST /digest?to=email@example.com`: Send a weekly summary digest.
-- `POST /n8n/webhook`: Receive a lead-shaped JSON payload from external automation and insert it directly. Raw single-item enrichment remains planned under `groupscout-site-b25`.
+- `POST /ingest`: Receive one raw project/event payload from external automation and run it through `EnrichOne()` with the same dedup, audit, scoring, enrichment, and lead storage path as collectors.
+- `POST /n8n/webhook`: Receive a pre-enriched lead-shaped JSON payload from external automation and insert it directly.
 
 See `/mnt/c/Users/alvin/GolandProjects/groupscout/api/swagger.yaml` in the backend source repo for the full OpenAPI specification.
 

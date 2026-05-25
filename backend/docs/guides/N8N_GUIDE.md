@@ -133,9 +133,9 @@ Trigger a summary email of all "new" or "notified" leads from the last 7 days.
 
 ---
 
-### 6. Scheduling with n8n
+### 6. Basic Scheduling with n8n
 
-You can use the **Schedule** node in n8n to automate GroupScout runs at specific times.
+You can use the **Schedule** node in n8n to automate GroupScout runs at specific times. This plain `/run` schedule starts the pipeline, but it does not guarantee a Sunday/Wednesday one-lead send. For that cadence, use Section 7 or import the tracked workflow asset.
 
 #### Example: Run every Sunday and Wednesday at 9:00 AM
 
@@ -197,7 +197,9 @@ Implemented under `groupscout-site-fuc`.
 
 #### Common Errors
 - **401 Unauthorized**: Check your `API_TOKEN` in `.env` matches the `Bearer` token in n8n.
-- **400 Bad Request**: Your JSON body is invalid or missing the `Title` field.
+- **400 Bad Request**: Your JSON body is invalid or missing endpoint-specific required fields.
+  - For `/n8n/webhook`, include the lead-shaped `Title` field.
+  - For `/ingest`, include at least one of `title`, `description`, or `raw_data`; malformed JSON also returns `400`.
 - **Connection Refused**:
     - From Compose n8n to Compose backend, use `http://groupscout:8080`.
     - From host n8n to a host backend, use `http://localhost:8080`.
@@ -216,7 +218,7 @@ Implemented under `groupscout-site-fuc`.
 
 ### 9. Docker Network Note
 If you are using the provided `docker-compose.yml`, both services share the same network. You can reach GroupScout from n8n using:
-- **URL**: `http://groupscout:8080/run` (or `/n8n/webhook`, `/digest`)
+- **URL**: `http://groupscout:8080/run` (or `/ingest`, `/n8n/webhook`, `/digest`)
 
 Check n8n-to-backend connectivity from the running n8n container:
 

@@ -780,13 +780,12 @@ This older workflow is retained for context only. Current sessions use Beads and
 ### Part C — Event-Driven Ingestion (opt-in, platform-agnostic)
 > Complements the existing cron/n8n trigger. A webhook push can trigger per-project enrichment without a full pipeline run — useful for n8n pipelines that discover leads from external sources.
 
-- [ ] **B-T** `cmd/server/events_test.go` — `TestWebhookHandler_DecodesAndEnqueues`: fixture JSON body → decode → assert `RawProject` fields extracted and routed to `EnrichOne`; fail first
-- [ ] **B-T** `cmd/server/events_test.go` — `TestWebhookHandler_RejectsInvalidPayload`: malformed JSON → 400; missing `source` field → 400; fail first
-- [ ] **B1** `internal/enrichment/enricher.go` — `EnrichOne(ctx context.Context, raw RawProject) error` — single-project path alongside existing `RunPipeline()`; reuses the same dedup → score → enrich → store → notify flow
-- [ ] **B2** `cmd/server/main.go` — `POST /ingest` endpoint: accepts a single `RawProject` JSON body; calls `EnrichOne`; returns enriched lead ID on success; protected by existing Bearer token auth. Beads: `groupscout-site-b25`.
-- [ ] **B3** `config/config.go` — no new env var needed; endpoint is always registered (alongside `/run`, `/digest`, `/health`)
-- [ ] **B4** `docs/API_TESTING.md` — add `/ingest` example request to Bruno collection
-- [ ] **B5** `api/swagger.yaml` — add `POST /ingest` endpoint definition
+- [x] **B-T** `cmd/server/ingest_test.go` and `internal/enrichment/enricher_test.go` — handler and single-item enrichment coverage for auth, validation, normalization, duplicate, and processor error behavior.
+- [x] **B1** `internal/enrichment/enricher.go` — `EnrichOne(ctx context.Context, raw RawProject)` single-project path alongside existing `Run()`, reusing dedup → audit → score → enrich → store.
+- [x] **B2** `cmd/server/main.go` — `POST /ingest` endpoint: accepts one normalized project JSON body, calls `EnrichOne`, returns `201 created` or `200 duplicate`, and uses existing Bearer token auth. Beads: `groupscout-site-b25`.
+- [x] **B3** `config/config.go` — no new env var needed; endpoint is always registered alongside `/run`, `/digest`, and `/health`.
+- [x] **B4** `api/bruno/Ingest.bru` — added an authenticated `/ingest` example request for local API smoke.
+- [x] **B5** `api/swagger.yaml` — added `POST /ingest` endpoint definition in backend branch `task/event-driven-ingest`.
 
 ### Part D — Terraform IaC (GCP, optional)
 > Only pursue this path if GCP-specific requirements exist (compliance, existing credits, org policy). Requires adding a persistent Compute Engine VM for `alertd` — Cloud Run cannot host the daemon.

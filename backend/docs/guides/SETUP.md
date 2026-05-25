@@ -401,7 +401,8 @@ If you've been using SQLite (`groupscout.db`) and want to move your data to a ne
 | `/health` | GET | Health check — no auth required |
 | `/run` | POST | Run full pipeline (collect → enrich → notify) |
 | `/digest` | POST | Send weekly email digest (`?to=email@example.com`) |
-| `/n8n/webhook` | POST | Push a single lead from an external n8n workflow |
+| `/ingest` | POST | Push one raw project/event payload through `EnrichOne()` |
+| `/n8n/webhook` | POST | Push a pre-enriched single lead from an external n8n workflow |
 
 All endpoints except `/health` require `Authorization: Bearer YOUR_API_TOKEN`.
 

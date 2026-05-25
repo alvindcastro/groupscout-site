@@ -1,3 +1,15 @@
+## 2026-05-25 - Event-driven ingest endpoint
+
+### groupscout-site-b25 - Implement event-driven ingest endpoint
+
+- **What:** Added a backend `POST /ingest` path for one raw project/event payload plus `EnrichOne()` on the enrichment pipeline.
+- **Where:** Backend source branch `task/event-driven-ingest`; centralized backend API, n8n, roadmap, and setup docs.
+- **When:** 2026-05-25.
+- **Why:** n8n and other automation sources need to push one raw item through GroupScout enrichment without triggering the full collector pipeline or direct-inserting a pre-enriched lead.
+- **How:** Added failing single-item enrichment and HTTP handler tests first, normalized inbound raw project payloads, reused the existing dedup/audit/score/enrich/store path, protected `/ingest` with the existing bearer-token rule, updated OpenAPI, and documented when to use `/ingest` versus `/n8n/webhook`.
+
+---
+
 ## 2026-05-25 - Source snapshot reconciliation
 
 ### groupscout-site-6s9 - Review missed task documentation drift

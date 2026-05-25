@@ -37,6 +37,7 @@ This document outlines potential technical enhancements and a roadmap for the fu
 **System & Integration (existing endpoints):**
 - [x] `POST /digest` — Trigger manual digest delivery.
 - [x] `POST /run` — Trigger full pipeline.
+- [x] `POST /ingest` — Event-driven single-project enrichment for raw n8n/Make/API payloads.
 - [x] `POST /n8n/webhook` — Direct lead ingestion for external automation (n8n/Make).
 - [x] `GET /health` — System health check (DB connectivity, API status).
 

@@ -51,12 +51,12 @@
 |---|---|---|
 | LLM Provider Abstraction (`LLMClient` interface, factory) | 📋 planned | Phase 16 |
 | Hetzner CX32 + Coolify production deploy (primary recommendation, ~$10/month) | 📋 planned | Phase 26-A |
-| Event-driven ingestion: `POST /ingest` → `EnrichOne()` (platform-agnostic) | 📋 planned | Phase 26-B |
+| Event-driven ingestion: `POST /ingest` → `EnrichOne()` (platform-agnostic) | ✅ implemented in backend branch `task/event-driven-ingest` | Phase 26-B |
 | Terraform IaC for GCP (optional; alertd incompatible with Cloud Run — needs Compute Engine VM) | 📋 optional | Phase 26-C |
 | AIaaS API Layer: expose enrichment as standalone service | 📋 future | Phase 10 |
 | CRM/ERP Integration: HubSpot, Salesforce, SAP | 📋 future | Phase 11 |
 
-**Next concrete task (Phase 26-A/B/C):** Home deploy smoke and restore are tracked in `groupscout-site-39g`; Coolify guide/backup setup is documented in `docs/guides/COOLIFY.md`; event-driven `/ingest` is tracked in `groupscout-site-b25`.
+**Next concrete task (Phase 26-A/B/C):** Home deploy smoke and restore are tracked in `groupscout-site-39g`; Coolify guide/backup setup is documented in `docs/guides/COOLIFY.md`; event-driven `/ingest` was implemented under `groupscout-site-b25`.
 
 ---
 

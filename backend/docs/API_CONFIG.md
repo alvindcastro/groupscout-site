@@ -17,7 +17,8 @@ Default port: `8080` (Configurable via `PORT`)
 | `/metrics` | `GET` | Prometheus endpoint for currently wired runtime metrics; collected/enriched/notified/failure counters, collector freshness, and dashboard docs remain open in `groupscout-site-yyj`. | No |
 | `/run` | `POST` | Manually triggers the collect-enrich-notify pipeline and returns JSON counts. With `guarantee_one_lead:true`, `delivery_mode:"exactly_one"`, and a cadence `idempotency_key`, sends/logs exactly one eligible cadence lead or returns a structured no-lead/duplicate/locked status. | Yes (Bearer Token) |
 | `/digest` | `POST` | Sends a weekly email summary of leads via Resend. | Yes (Bearer Token) |
-| `/n8n/webhook` | `POST` | Receives a lead-shaped JSON payload from n8n, inserts it directly, and optionally notifies Slack. Raw single-item enrichment is planned separately in `groupscout-site-b25`. | Yes (Bearer Token) |
+| `/ingest` | `POST` | Accepts one normalized raw project/event payload, stores the raw audit payload, runs `EnrichOne()`, and deduplicates by payload hash. Implemented in backend branch `task/event-driven-ingest`. | Yes (Bearer Token) |
+| `/n8n/webhook` | `POST` | Receives a lead-shaped JSON payload from n8n, inserts it directly, and optionally notifies Slack. Keep this for pre-enriched lead pushes; use `/ingest` when GroupScout should enrich one raw item. | Yes (Bearer Token) |
 | `/leads/{id}/raw` | `GET` | Current legacy raw audit payload route. The inspected backend source snapshot does not enforce bearer or admin-session auth here; do not expose this route to browser UI until auth/sanitized preview work lands. | No in current snapshot |
 | `/api/auth/status` | `GET` | Planned admin auth status endpoint; not live in the inspected backend source snapshot. | Planned |
 | `/api/auth/login` | `POST` | Planned setup-token login for a `groupscout_session` cookie; not live in the inspected backend source snapshot. | Planned |

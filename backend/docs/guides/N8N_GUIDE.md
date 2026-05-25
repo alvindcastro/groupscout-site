@@ -45,13 +45,40 @@ Use this to start the GroupScout collection, enrichment, and notification proces
 
 ---
 
-### 4. Pushing External Leads (`/n8n/webhook`)
+### 4. Pushing External Leads (`/ingest` or `/n8n/webhook`)
 
-Use this to send leads from other n8n-connected sources (RSS, Web Scrapers, Google Sheets) into GroupScout.
+Use this to send leads from other n8n-connected sources (RSS, web scrapers, Google Sheets) into GroupScout.
 
-Current behavior: `/n8n/webhook` direct-inserts a lead-shaped payload. It does not store the incoming item as a `RawProject` or run the normal enrichment pipeline for one raw item. The event-driven `POST /ingest` endpoint and `EnrichOne()` path remain planned under `groupscout-site-b25`.
+Use `POST /ingest` when the upstream source has raw or lightly normalized project/event data and GroupScout should run the same dedup, audit, scoring, enrichment, and lead storage path used by collectors. The backend branch `task/event-driven-ingest` implements this path with `EnrichOne()`.
+
+Keep `/n8n/webhook` for pre-enriched lead-shaped payloads. It direct-inserts a `Lead` and optionally notifies Slack; it does not rerun enrichment or create a raw-project audit record.
 
 #### Node: **HTTP Request**
+- **Method**: `POST`
+- **URL**: `http://<groupscout-host>:8080/ingest`
+- **Authentication**: `Predefined Credential`.
+- **Body Mode**: `JSON`
+- **JSON Payload Example**:
+  ```json
+  {
+    "source": "n8n-rss",
+    "external_id": "evt-123",
+    "title": "Richmond warehouse infrastructure",
+    "location": "Richmond BC",
+    "project_value": 12000000,
+    "description": "Civil warehouse expansion with likely travelling crews.",
+    "source_url": "https://example.com/project",
+    "raw_data": "{\"title\":\"Richmond warehouse infrastructure\"}",
+    "raw_type": "application/json",
+    "metadata": {
+      "applicant": "Example Applicant"
+    }
+  }
+  ```
+
+The response is `201` with `{"status":"created","inserted":true,...}` when a lead is inserted, or `200` with `{"status":"duplicate","inserted":false,...}` when the normalized payload hash has already been seen.
+
+#### Direct Lead Insert Fallback: `/n8n/webhook`
 - **Method**: `POST`
 - **URL**: `http://<groupscout-host>:8080/n8n/webhook`
 - **Authentication**: `Predefined Credential`.

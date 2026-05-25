@@ -26,7 +26,7 @@ The JSON keeps secrets out of the repository. If these environment variables are
 
 The tracked export includes a stable workflow `id` because the Docker-backed n8n smoke stack currently runs n8n `2.14.2`, whose CLI import requires a non-empty workflow id.
 
-This workflow calls `/run` for cadence delivery. The separate `/n8n/webhook` automation path currently direct-inserts a lead-shaped payload and does not run single-item raw enrichment; `POST /ingest` plus `EnrichOne()` remains planned under `groupscout-site-b25`.
+This workflow calls `/run` for cadence delivery. For separate event-driven source pushes, use `POST /ingest` when GroupScout should enrich one raw project/event payload through `EnrichOne()`. Use `/n8n/webhook` only for pre-enriched lead-shaped payloads that should be inserted directly.
 
 ### Docker Import Smoke
 

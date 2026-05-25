@@ -16,7 +16,6 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 - `groupscout-site-yyj` — ops metrics and collector freshness observability.
 - `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
 - `groupscout-site-crz` — restore or reconcile backend EvalOps and UI Docker smoke artifacts that docs reference but the inspected backend source snapshot lacks.
-- `groupscout-site-b25` — event-driven `POST /ingest` and `EnrichOne`.
 - `groupscout-site-39g` — home-deploy runbook execution and restore smoke. Coolify guide was added in `backend/docs/guides/COOLIFY.md`.
 - `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-0m0` — planned operator UI API routes, generated UI API client, sanitized raw preview, real-browser Phase 15 harness, and current UI checkout admin/session/detail-client hardening reconciliation.
 - `groupscout-site-2h1` — remaining backend/frontend smell refactors.
@@ -24,6 +23,7 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 
 Recently completed:
 
+- `groupscout-site-b25` — event-driven `POST /ingest` and `EnrichOne` backend branch, with single-item enrichment tests, handler tests, and OpenAPI/docs updates.
 - `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery with a delivery log, run lock, fallback selector, and JSON `/run` result.
 - `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n and tracked under `backend/docs/workflows/n8n/`.
 - `groupscout-site-j73` — opt-in raw audit retention worker, manual purge command, Docker env, and Postgres purge-safety coverage.
@@ -430,11 +430,11 @@ Tracked follow-up: `groupscout-site-yyj` owns Prometheus metrics, collector fres
 > Deploy the full stack to production. **Hetzner CX32 + Coolify (~$10/month) is the primary recommendation** — it runs both binaries as persistent containers, deploys your existing `docker-compose.yml` directly, and includes n8n/Prometheus/Loki at no extra cost. Railway is the managed-PaaS alternative (~$10–18/month). GCP Cloud Run is **incompatible with `alertd`** (scales to zero; daemon needs persistent compute). See `docs/planning/DEPLOYMENT_OPTIONS.md` for the full analysis.
 >
 > See `PHASES.md` Phase 26 for atomic tasks.
-> Beads follow-ups: `groupscout-site-39g` for home deploy and `groupscout-site-b25` for event-driven ingestion. Coolify guidance now lives in `docs/guides/COOLIFY.md`.
+> Beads follow-ups: `groupscout-site-39g` for home deploy. Event-driven ingestion was implemented under `groupscout-site-b25`; Coolify guidance now lives in `docs/guides/COOLIFY.md`.
 
 - [ ] **Part A** — Home server: No-IP/DuckDNS DDNS + port forwarding → Traefik + Let's Encrypt → optional Cloudflare Tunnel; `docs/guides/HOME_DEPLOY.md` (`groupscout-site-39g`)
 - [ ] **Part B** — Hetzner + Coolify cloud deploy (if uptime SLA matters): VPS provision, Coolify setup, backup config; guide complete in `docs/guides/COOLIFY.md`
-- [ ] **Part C** — Event-driven ingestion: `POST /ingest` + `EnrichOne()` (platform-agnostic) (`groupscout-site-b25`)
+- [x] **Part C** — Event-driven ingestion: `POST /ingest` + `EnrichOne()` (platform-agnostic) (`groupscout-site-b25`)
 - [ ] **Part D** — Terraform IaC for GCP (optional; alertd needs Compute Engine VM — Cloud Run won't work)
 
 ---

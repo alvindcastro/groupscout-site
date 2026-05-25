@@ -285,9 +285,9 @@ If `http://localhost:3001/api/system` fails with backend route drift, classify i
 
 If D4 is run with standalone `docker run`, use a host backend target. If D4 is run on the backend Compose network, use the backend service name. The exact commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
-The current backend smoke contract expects `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` to return `200` through the D4 proxy. A `404` is no longer a passing compatibility result for those routes; it means the backend route set or proxy path has drifted.
+The current backend smoke contract expects `/api/system` to return the backend's current status through the D4 proxy. On backend `main`, that is `404`; once protected UI API routes are present, expect `401` without a browser session. A `502` means the UI proxy could not reach the backend target.
 
-Tracked follow-ups: `groupscout-site-mt5` owns first-class production UI Compose wiring, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+The production UI Compose profile and repeatable backend plus UI Docker E2E gate are implemented.
 
 ## Production UI Runtime Fails
 

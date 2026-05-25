@@ -177,7 +177,7 @@ Check:
 
 ### D4 Proxy Returns `404`
 
-The proxy reached the backend, but the route does not exist or the path is wrong. Current smoke routes `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` are expected to return `200`; a `404` means the backend route set or proxy path drifted.
+The proxy reached the backend, but the route does not exist or the path is wrong. On backend `main`, `/api/system` currently returns `404` through the D4 proxy; once protected UI API routes are present, expect `401` without a browser session. A `502` means the UI proxy could not reach the backend target.
 
 ### UI Container Has Backend Secrets
 

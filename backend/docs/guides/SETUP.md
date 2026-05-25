@@ -354,7 +354,7 @@ For the current n8n-only MVP:
 
 For a true guaranteed one-lead cadence, plan backend work for a delivery log, fallback lead selector, run lock, and machine-readable `/run` result. The backend should own "which one lead is eligible" and "has this cadence already delivered"; n8n should own the Sunday/Wednesday schedule and failure routing.
 
-Tracked follow-ups: `groupscout-site-yfl` owns the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence idempotency key, and no-leads/failure Slack branch. `groupscout-site-fuc` owns the backend delivery guarantee: delivery log, fallback selector, machine-readable run/delivery result, and run lock.
+Completed workflow asset: `groupscout-site-yfl` added the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence idempotency key, and no-leads/failure Slack branch. Tracked follow-up: `groupscout-site-fuc` owns the backend delivery guarantee: delivery log, fallback selector, machine-readable run/delivery result, and run lock.
 
 Workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 

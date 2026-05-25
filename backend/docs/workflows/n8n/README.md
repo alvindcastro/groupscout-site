@@ -24,6 +24,8 @@ Required n8n environment variables:
 
 The JSON keeps secrets out of the repository. If these environment variables are not set, imported nodes show placeholder values that must be replaced before activation.
 
+The tracked export includes a stable workflow `id` because the Docker-backed n8n smoke stack currently runs n8n `2.14.2`, whose CLI import requires a non-empty workflow id.
+
 ### Docker Import Smoke
 
 From the coordination repo root:

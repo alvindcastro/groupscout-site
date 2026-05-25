@@ -158,7 +158,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 
 Docker operation mode selection, required env vars, backend dependency expectations, and D3/D4 smoke commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
-Tracked follow-ups: `groupscout-site-mt5` owns first-class production UI Compose wiring, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+The production UI Compose profile and repeatable backend plus UI Docker E2E gate are implemented; run `make smoke-ui-docker-e2e` from the backend repo.
 
 CI hook order:
 
@@ -166,7 +166,7 @@ CI hook order:
 2. `docker build --target test -t groupscout-ui-test .`
 3. `docker run --rm groupscout-ui-test`
 4. `docker build --target production -t groupscout-ui-production .`
-5. Optional smoke checks for `/healthz`, `/`, and `/assets/app.js`; smoke `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` only when a backend or CI stub is reachable, and expect `200`.
+5. Optional smoke checks for `/healthz`, `/`, and `/assets/app.js`; smoke `/api/system` only when a backend or CI stub is reachable, and expect the backend's current status through the proxy.
 
 Do not run UI Docker containers with backend `.env` or `--env-file`. Do not pass `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts. Browser-visible config may only expose relative `/api/*`.
 

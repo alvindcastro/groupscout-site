@@ -85,15 +85,15 @@ When backend examples disagree, prefer the backend repo's current `.env.example`
 
 ## Docker Modes Are Different
 
-The UI repo has more than one Docker mode. Phase 13 `compose.dev.yml` runs a backend-network product dev server on `localhost:3001`; it serves generated `web/dist` assets and keeps backend discovery server-side. D4 `groupscout-ui-production` runs the production static/proxy server on container port `3000`; it can be attached manually to `groupscout_groupscout_net` and pointed at `http://groupscout:8080` for backend plus UI smoke checks.
+The UI repo has more than one Docker mode. Phase 13 `compose.dev.yml` runs a backend-network product dev server on `localhost:3001`; it serves generated `web/dist` assets and keeps backend discovery server-side. D4 `groupscout-ui-production` runs the production static/proxy server on container port `3000`; use the `smoke-ui-e2e` Compose profile to attach it to the backend network for backend plus UI smoke checks.
 
-Use `docker compose -p groupscout` when combining backend and UI Compose files if you need the network name to be predictably `groupscout_groupscout_net` for a later D4 `docker run --network groupscout_groupscout_net ...` smoke.
+Use `docker compose -p groupscout` when combining backend and UI Compose files so service names and the shared network stay predictable.
 
-There is now a dependency-free product renderer, but not a dedicated production Compose override for the D4 runtime. The current backend exposes the UI smoke routes `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1`; a `404` through D4 means the backend route set or proxy path drifted.
+There is now a dependency-free product renderer and a dedicated production Compose profile for the D4 runtime. On backend `main`, `/api/system` currently returns `404` through the D4 proxy; that still proves proxy reachability until the protected UI API routes land.
 
 For current Docker mode commands and expected smoke results, use [Docker Runtime Matrix](./docker-runtime-matrix.md). If backend `/health` reports Ollama unavailable while the UI and Postgres-backed API checks pass, treat that as an LLM/enrichment-specific follow-up, not a blocker for UI/API smoke.
 
-Tracked follow-ups: `groupscout-site-mt5` owns first-class production UI Compose wiring, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo.
 
 ## Known Refactor Follow-Up
 

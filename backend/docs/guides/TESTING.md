@@ -72,7 +72,7 @@ go test ./internal/smoke
 This verifies the backend-owned Phase 38 smoke script contract. To run the full Docker smoke against the external UI repo:
 
 ```bash
-bash scripts/smoke-ui-docker-e2e.sh
+make smoke-ui-docker-e2e
 ```
 
 #### Run Alertd Tests
@@ -207,7 +207,7 @@ docker compose logs -f groupscout
 Use this when you want to verify that the backend Compose stack and the separate UI Docker image can run together:
 
 ```bash
-bash scripts/smoke-ui-docker-e2e.sh
+make smoke-ui-docker-e2e
 ```
 
 The canonical manual runbook is [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md).

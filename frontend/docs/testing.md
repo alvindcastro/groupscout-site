@@ -114,9 +114,9 @@ node --test test/dockerization-contract.test.js
 
 ## CI Notes
 
-CI should run `npm test`, build and run the D1 test image, then build the production image. If the backend Compose file is available, CI can also run the merged Compose config validation command. Smoke `/healthz`, `/`, and `/assets/app.js` against the production UI container without backend secrets; smoke `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` only when the backend service or a CI stub is reachable, and expect `200`.
+CI should run `npm test`, build and run the D1 test image, then build the production image. If the backend Compose file is available, CI can also run the merged Compose config validation command or the backend-owned `make smoke-ui-docker-e2e` gate. Smoke `/healthz`, `/`, and `/assets/app.js` against the production UI container without backend secrets; smoke `/api/system` through the D4 proxy and accept the current backend status (`404` on backend `main`, or `401` once protected UI API routes are present).
 
-Tracked follow-ups: `groupscout-site-mt5` owns first-class production UI Compose wiring, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+The production UI Compose profile and repeatable backend plus UI Docker E2E gate are implemented.
 
 Do not run CI UI containers with backend `.env` or `--env-file`. Do not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.
 

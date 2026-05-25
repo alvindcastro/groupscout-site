@@ -287,10 +287,10 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **10.4** `internal/storage/outreach.go` — Add outreach log list/insert methods around the existing `outreach_log` table.
 - [ ] **10.5** `cmd/server/main.go` — Add `GET/POST /api/leads/{id}/outreach` handlers.
 - [ ] **10.6** `api/swagger.yaml` — Document UI-facing `/api/*` contracts before generating frontend types. Frontend type generation: `groupscout-site-29q`.
-- [ ] **10.7** `web/` — Create TypeScript React SPA with lead inbox, filters, detail view, and raw audit access. Production UI runtime/smoke: `groupscout-site-mt5`, `groupscout-site-e5a`; browser harness: `groupscout-site-kb4`.
+- [ ] **10.7** `web/` — Create TypeScript React SPA with lead inbox, filters, detail view, and raw audit access. Production UI runtime/smoke is now covered by the external UI repo profile plus backend `make smoke-ui-docker-e2e`; browser harness: `groupscout-site-kb4`.
 - [ ] **10.8** `web/` — Add status actions: claim, dismiss, snooze, flag, contacted, won, lost.
 - [ ] **10.9** `web/` — Add pipeline controls and compact health panel without replacing Grafana/Prometheus. Alertd shared-state bridge: `groupscout-site-3gq`.
-- [ ] **10.10** `cmd/server` or deployment config — Add same-origin serving and session/auth boundary so browser code never sees `API_TOKEN`. Production Compose runtime: `groupscout-site-mt5`.
+- [ ] **10.10** `cmd/server` or deployment config — Add same-origin serving and session/auth boundary so browser code never sees `API_TOKEN`. External production Compose runtime is covered by the UI repo `smoke-ui-e2e` profile.
 - [ ] **10.11** CRM Sync — "One-click" push to HubSpot/Salesforce.
 - [ ] **10.12** Outreach Refinement — Multi-persona drafting (A/B testing for templates).
 - [ ] **10.13** Chrome Extension — Manually clip leads from the browser into the pipeline.

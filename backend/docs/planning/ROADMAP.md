@@ -13,9 +13,7 @@
 Roadmap checkboxes are historical/strategic context. The missed-task audit on 2026-05-25 filed the concrete follow-up work in Beads:
 
 - `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery.
-- `groupscout-site-yfl` — export and smoke-test the Sunday/Wednesday n8n workflow asset. Asset added under `backend/docs/workflows/n8n/`.
 - `groupscout-site-j73` — raw audit retention purge worker.
-- `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and backend plus UI Docker E2E gate.
 - `groupscout-site-3gq` — shared `alertd` state for `/api/alerts`.
 - `groupscout-site-yyj` — ops metrics and collector freshness observability.
 - `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
@@ -23,6 +21,11 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 - `groupscout-site-39g` — home-deploy runbook execution and restore smoke. Coolify guide was added in `backend/docs/guides/COOLIFY.md`.
 - `groupscout-site-29q`, `groupscout-site-4cv`, and `groupscout-site-dxq` — generated UI API client, sanitized raw preview, and UI roadmap schema cleanup.
 - `groupscout-site-aaj`, `groupscout-site-1ee`, and `groupscout-site-a1h` — next source-expansion slice, multi-property design, and Codex plugin skill drift.
+
+Recently completed:
+
+- `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n and tracked under `backend/docs/workflows/n8n/`.
+- `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and the backend plus UI Docker E2E gate are implemented.
 
 ---
 
@@ -37,11 +40,11 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 - [ ] **Phase 7** — User requests & API refinements *(in progress)*
 - [ ] **Phase 8** — System reliability & observability *(in progress; `groupscout-site-yyj`)*
 - [ ] **Phase 9** — Architecture & scaling: concurrency, caching
-- [ ] **Phase 10** — Ecosystem & UI: dashboard, CRM, extensions (`groupscout-site-mt5`, `groupscout-site-e5a`, `groupscout-site-3gq`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-dxq`, `groupscout-site-kb4`)
+- [ ] **Phase 10** — Ecosystem & UI: dashboard, CRM, extensions (`groupscout-site-3gq`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-dxq`, `groupscout-site-kb4`)
 - [ ] **Phase 11** — CRM direct integration: HubSpot, Salesforce
 - [ ] **Phase 12** — Source expansion: Metro Vancouver municipalities (`groupscout-site-aaj` selects the next slice)
 - [ ] **Phase 13** — Public tenders & utilities: BC Hydro, FortisBC (`groupscout-site-aaj` selects the next slice)
-- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem *(in progress; `groupscout-site-yfl`, `groupscout-site-fuc`)*
+- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem *(in progress; `groupscout-site-fuc`)*
 - [x] **Phase 15** — PostgreSQL + pgvector migration: production storage + RAG foundation ✅
 - [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄 (`groupscout-site-vud`)
 - [x] **Phase 17** — Airport Disruption Alert System (`alertd`): YVR real-time monitoring ✅

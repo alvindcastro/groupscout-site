@@ -7,7 +7,7 @@ This is a smoke path, not a full product UI acceptance test. The backend is live
 Executable form from the backend repo:
 
 ```sh
-bash scripts/smoke-ui-docker-e2e.sh
+make smoke-ui-docker-e2e
 ```
 
 ## Repos
@@ -24,9 +24,10 @@ bash scripts/smoke-ui-docker-e2e.sh
 | Backend `groupscout` service | `8080` | Live Go API container from backend Compose. |
 | UI D3 product dev server | `3001` by default | Proves the UI service can build, join the backend Compose network, serve product assets, and expose `/healthz`. |
 | UI D4 production container | `3002` in this runbook | Serves `web/dist`, exposes `/healthz`, and proxies same-origin `/api/*` to `http://groupscout:8080`. |
+| UI D4 bad-proxy container | `3003` in this runbook | Uses an intentionally invalid upstream so `/api/*` must return `502`. |
 | Grafana | `3000` | Backend observability stack, so the UI examples avoid host port `3000`. |
 
-The D4 production UI runtime is not wired into Compose yet. Until `groupscout-site-mt5` lands, start the backend with Compose and attach the UI production container manually to `groupscout_groupscout_net`. `groupscout-site-e5a` tracks turning this runbook into a repeatable backend plus UI Docker E2E gate.
+The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compose profile. The backend repo owns the repeatable gate through `scripts/smoke-ui-docker-e2e.sh` and `make smoke-ui-docker-e2e`.
 
 ## Prerequisites
 
@@ -60,21 +61,18 @@ Expected:
 - Backend `/health` returns `200`.
 - UI D3 `/healthz` returns `200`.
 
-Use the D4 production container on port `3002` for same-origin production proxy smoke checks.
+Use the D4 production profile on port `3002` for same-origin production proxy smoke checks.
 
-## Start The D4 Production UI Container
+## Start The D4 Production UI Profile
 
 Still from the UI repo:
 
 ```sh
-docker build --target production -t groupscout-ui-production .
-
-docker run --rm -d \
-  --name groupscout-ui-production-smoke \
-  --network groupscout_groupscout_net \
-  -p 3002:3000 \
-  -e UI_API_PROXY_TARGET=http://groupscout:8080 \
-  groupscout-ui-production
+docker compose -p groupscout \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f compose.dev.yml \
+  --profile smoke-ui-e2e \
+  up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy
 ```
 
 Smoke the frontend origin:
@@ -83,28 +81,32 @@ Smoke the frontend origin:
 curl -i http://localhost:3002/healthz
 curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/leads?limit=1
 curl -i http://localhost:3002/api/system
-curl -i http://localhost:3002/api/alerts?limit=1
+curl -i http://localhost:3003/api/system
 ```
 
 Expected:
 
 - `/healthz`, `/`, and `/assets/app.js` should return `200` from the UI container.
-- `/api/system`, `/api/leads?limit=1`, and `/api/alerts?limit=1` should return `200` through the same-origin UI proxy.
-- A `502` from `/api/*` means the UI container could not reach the backend target.
+- `/api/system` on port `3002` should return the current backend status through the same-origin UI proxy: `404` on backend `main`, or `401` once protected UI API routes are present.
+- `/api/system` on port `3003` should return `502`; this proves proxy failures are surfaced by the UI runtime instead of being mistaken for backend route drift.
 
-An intentionally bad `UI_API_PROXY_TARGET` should return `502` for `/api/system`; this proves proxy failures are surfaced by the UI runtime instead of being mistaken for backend route drift.
+The executable gate performs these checks and verifies the UI Compose overlay does not inject `API_TOKEN`, provider keys, Slack/email keys, database URLs, Ollama endpoints, or `UI_SESSION_SECRET`.
 
 ## Cleanup
 
 ```sh
-docker stop groupscout-ui-production-smoke
+docker compose -p groupscout \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f compose.dev.yml \
+  --profile smoke-ui-e2e \
+  stop groupscout-ui-production groupscout-ui-production-bad-proxy
 
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
   -f compose.dev.yml \
-  down
+  --profile smoke-ui-e2e \
+  rm -f groupscout-ui-production groupscout-ui-production-bad-proxy
 ```
 
 Use `--volumes` only when you intentionally want to delete Postgres, n8n, Grafana, and Ollama volumes.

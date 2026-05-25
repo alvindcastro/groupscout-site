@@ -100,7 +100,7 @@ Key points:
 
 Keep the full command sequence in the E2E runbook so D3/D4 smoke expectations do not drift across docs.
 
-Open follow-ups: `groupscout-site-mt5` tracks replacing the manual D4 production UI container attach with a Compose profile/service. `groupscout-site-e5a` tracks making the backend plus production UI smoke path an executable release/CI gate. `groupscout-site-yyj` tracks Prometheus metrics, collector freshness, and dashboard documentation for collected/enriched/notified/failure counts.
+Completed UI Docker gate: the UI repo has a `smoke-ui-e2e` production profile, and the backend repo exposes `make smoke-ui-docker-e2e`. Open follow-up: `groupscout-site-yyj` tracks Prometheus metrics, collector freshness, and dashboard documentation for collected/enriched/notified/failure counts.
 
 ## 🧠 Ollama Model Management
 

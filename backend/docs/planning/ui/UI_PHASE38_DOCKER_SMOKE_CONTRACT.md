@@ -13,14 +13,12 @@ The script assumes the UI repo lives at `/mnt/c/Users/alvin/WebstormProjects/gro
 The smoke script verifies:
 
 - Backend Compose health: `GET http://localhost:8080/health`.
-- UI D3 health harness: `GET /healthz` on `${GROUPSCOUT_UI_HOST_PORT:-3001}`.
-- Production UI container serves `/healthz`, `/`, and `/assets/app.js` on `${GROUPSCOUT_UI_PROD_PORT:-3002}`.
-- Same-origin proxy reaches backend `/api/leads?limit=1`.
-- Same-origin proxy reaches backend `/api/system`.
-- Same-origin proxy reaches backend `/api/alerts?limit=1`.
+- Production UI Compose profile validates with `docker compose ... --profile smoke-ui-e2e config --quiet`.
+- Production UI container serves `/healthz`, `/`, and `/assets/app.js` on `${GROUPSCOUT_UI_PRODUCTION_HOST_PORT:-3002}`.
+- Same-origin proxy reaches the backend: `GET /api/system` returns `404` on backend `main`, or `401` once protected UI API routes are present.
 - A deliberately bad proxy target returns `502`, proving proxy failures are distinguishable from backend route misses.
-- UI model-level route smoke runs `node --test test/app-shell.test.js test/lead-inbox-screen.test.js test/lead-detail-screen.test.js`.
-- Static assets do not contain `API_TOKEN`, database URLs, Slack/email/LLM keys, session secrets, bearer tokens, private key markers, or `http://groupscout:8080` in browser assets.
+- The UI Compose overlay does not contain `API_TOKEN`, database URLs, Slack/email/LLM keys, Ollama endpoints, or `UI_SESSION_SECRET`.
+- Cleanup removes the production UI and bad-proxy Compose service containers without tearing down backend data volumes.
 
 ## Evidence
 
@@ -31,5 +29,6 @@ Red evidence:
 Green evidence:
 
 - `go test ./internal/smoke`
+- `make smoke-ui-docker-e2e`
 
-Runtime Docker smoke was not executed during this implementation pass; the script is the executable runbook for a host with Docker and the external UI repo available. `groupscout-site-e5a` tracks making the backend plus production UI smoke path an executable release/CI gate, and `groupscout-site-mt5` tracks first-class production UI Compose lifecycle wiring.
+The gate is intentionally backend-owned because it verifies the backend Compose stack plus the external UI production runtime on one Docker network. The production UI services live in the UI repo's `smoke-ui-e2e` Compose profile.

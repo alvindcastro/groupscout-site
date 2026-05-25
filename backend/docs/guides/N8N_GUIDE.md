@@ -91,7 +91,7 @@ The response is `201` with `{"status":"created","inserted":true,...}` when a lea
     "Source": "Custom RSS Scraper",
     "ProjectValue": 25000000,
     "ProjectType": "Commercial",
-    "PriorityScore": 90,
+    "PriorityScore": 9,
     "PriorityReason": "High value project near transit.",
     "SourceURL": "https://example.com/project",
     "GeneralContractor": "Major Build Inc.",
@@ -108,7 +108,7 @@ The response is `201` with `{"status":"created","inserted":true,...}` when a lea
 | `Source` | String | No | Source name (defaults to "n8n"). |
 | `ProjectValue` | Number | No | Estimated total project value (Integer/Long). |
 | `ProjectType` | String | No | e.g., "Commercial", "Hotel", "Residential". |
-| `PriorityScore`| Number | No | Relevance score (0-100). |
+| `PriorityScore`| Number | No | Relevance score on the Slack/internal 0-10 scale. Legacy 0-100 inputs are normalized before storage and Slack delivery. |
 | `PriorityReason`| String | No | Brief explanation for the score. |
 | `SourceURL` | String | No | Direct link to the source document/page. |
 | `GeneralContractor`| String | No | Name of the GC. |

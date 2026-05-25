@@ -55,6 +55,44 @@ Phase 0-15 now follows the canonical `UI_TDD_PHASE_PROMPTS.md` order: baseline r
 npm test
 ```
 
+## Operator Smoke Checklist
+
+Run backend checks from `/mnt/c/Users/alvin/GolandProjects/groupscout` and UI checks from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
+
+Backend and UI health:
+
+```sh
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+curl -i --max-time 5 http://localhost:3001/
+```
+
+Expected:
+
+- Backend `/health` is HTTP `200` with `"database":"ok"`.
+- UI `/healthz` is HTTP `200`.
+- UI `/` is HTTP `200` and returns the generated app shell, including `/assets/app.js`.
+
+Route smoke:
+
+```sh
+for path in / /admin/login /leads /leads/lead_hotel_001 /verification /outreach /pipeline /analytics /alerts; do
+  curl -i --max-time 5 "http://localhost:3001$path" | head -n 1
+done
+```
+
+Expected: app routes return HTTP `200` from the UI shell, or redirect to `/admin/login` when session auth is enabled and the user is unauthenticated. A `404` means the static route fallback or container is stale.
+
+API proxy smoke:
+
+```sh
+curl -i --max-time 5 http://localhost:3001/api/leads?limit=1
+curl -i --max-time 5 http://localhost:3001/api/system
+curl -i --max-time 5 http://localhost:3001/api/alerts?limit=1
+```
+
+Expected: HTTP `200` when the UI proxy can reach a compatible backend and auth is satisfied. `502` means backend/proxy reachability, `404` means route drift, and `401`/`403` means session/backend auth.
+
 Static product build:
 
 ```sh

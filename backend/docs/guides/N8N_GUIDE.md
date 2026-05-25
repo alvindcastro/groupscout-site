@@ -10,7 +10,7 @@ Before you begin, ensure you have the following:
 
 - **GroupScout Server**: Running and accessible (via `go run cmd/server/main.go` or Docker).
 - **API Token**: A user-defined secret for authentication.
-    - **How to generate**: Run `openssl rand -hex 32` or use the Go tool: `go run -e "import 'crypto/rand'; import 'encoding/hex'; func main() { b := make([]byte, 32); rand.Read(b); println(hex.EncodeToString(b)) }"`
+    - **How to generate**: Run `openssl rand -hex 32`.
     - **Set it**: In your `.env` file: `API_TOKEN=your_generated_token`.
 - **n8n Instance**:
     - **Self-Hosted**: Use the provided `docker-compose.yml`. n8n will be at `http://localhost:5678`.
@@ -132,7 +132,8 @@ Use this when the goal is a dependable internal lead prompt without changing bac
 3.  **Trigger collection**: call `POST http://groupscout:8080/run` with the `GroupScout API` bearer credential.
 4.  **Branch on result**:
     - If `/run` succeeds and Slack receives leads, treat the cadence as delivered.
-    - If the response says no new leads were available, send an operational Slack note such as "No qualified GroupScout lead was available for the Wednesday cadence."
+    - Current `/run` returns plain success text, not a structured lead count. To check whether the run found leads, inspect GroupScout logs for `sent leads to Slack`, `no new leads to notify`, or pipeline errors.
+    - If logs show no new leads, send an operational Slack note such as "No qualified GroupScout lead was available for the Wednesday cadence."
 5.  **Retry policy**: let n8n retry transient HTTP failures, but keep a workflow variable or data-store key such as `lead-cadence:YYYY-MM-DD:sunday` so a retry does not send duplicate operational messages.
 
 This MVP is safe because n8n only uses server-to-server `API_TOKEN` credentials and GroupScout remains the source of truth. It does not guarantee a real lead when no eligible lead exists.
@@ -157,8 +158,10 @@ With those pieces in place, n8n should orchestrate the cadence while the backend
 - **401 Unauthorized**: Check your `API_TOKEN` in `.env` matches the `Bearer` token in n8n.
 - **400 Bad Request**: Your JSON body is invalid or missing the `Title` field.
 - **Connection Refused**:
-    - If n8n is in Docker and GroupScout is on the host, use `http://host.docker.internal:8080`.
-    - Check if the GroupScout server is actually running (`go run cmd/server/main.go`).
+    - From Compose n8n to Compose backend, use `http://groupscout:8080`.
+    - From host n8n to a host backend, use `http://localhost:8080`.
+    - From containerized n8n to a host backend, use `http://host.docker.internal:8080` on Docker Desktop.
+    - Check if the GroupScout server is actually running (`docker compose ps` or `go run cmd/server/main.go`).
 - **No lead sent on Sunday/Wednesday**: A successful `/run` can still produce zero fresh leads. For the MVP, send an operational "no qualified lead" notice; for the robust version, implement the fallback selector and delivery log above.
 - **Duplicate lead sent after retry**: Add a cadence idempotency key in n8n now, and move that guard into a backend `lead_delivery_log` before enabling automatic fallback delivery.
 
@@ -173,3 +176,11 @@ With those pieces in place, n8n should orchestrate the cadence while the backend
 ### 9. Docker Network Note
 If you are using the provided `docker-compose.yml`, both services share the same network. You can reach GroupScout from n8n using:
 - **URL**: `http://groupscout:8080/run` (or `/n8n/webhook`, `/digest`)
+
+Check n8n-to-backend connectivity from the running n8n container:
+
+```sh
+docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
+```
+
+Expected output includes `"database":"ok"`.

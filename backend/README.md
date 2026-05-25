@@ -48,7 +48,7 @@
 
 3.  **Configure Environment Variables:**
     Create a `.env` file in the root directory. You **must** define an `API_TOKEN` (a secret string of your choice) to secure the API.
-    *   **To generate a secure token**: Run `go run -e "import 'crypto/rand'; import 'encoding/hex'; func main() { b := make([]byte, 32); rand.Read(b); println(hex.EncodeToString(b)) }"` or `openssl rand -hex 32`.
+    *   **To generate a secure token**: Run `openssl rand -hex 32`.
     *   Set it in `.env`: `API_TOKEN=your_generated_token_here`.
 
 4.  **Install Dependencies:**
@@ -68,6 +68,26 @@ docker compose up -d
 *   **GroupScout API**: `http://localhost:8080`
 *   **n8n Dashboard**: `http://localhost:5678`
 *   **Grafana Dashboard**: `http://localhost:3000`
+
+Quick post-start check:
+
+```bash
+docker compose ps
+curl -i --max-time 5 http://localhost:8080/health
+docker exec groupscout_postgres psql -U groupscout -d groupscout -c "SELECT 1;"
+```
+
+Expected result:
+
+- `groupscout`, `postgres`, and `n8n` are running; health-dependent services should show healthy once startup finishes.
+- `/health` returns HTTP `200` with `"database":"ok"`. `"ollama":"unavailable"` blocks LLM enrichment checks, but not basic UI/API smoke.
+- Postgres returns one row for `SELECT 1`.
+
+If these checks fail, inspect the runtime logs:
+
+```bash
+docker compose logs --tail=100 groupscout postgres n8n ollama
+```
 
 ---
 

@@ -165,6 +165,31 @@ docker compose logs n8n --tail=30
 docker compose logs grafana --tail=30
 ```
 
+#### Docker — Operator Quick Check
+
+Run these checks after `docker compose up -d`:
+
+```bash
+docker compose ps
+curl -i --max-time 5 http://localhost:8080/health
+docker exec groupscout_postgres psql -U groupscout -d groupscout -c "SELECT 1;"
+docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
+```
+
+Expected result:
+
+- `docker compose ps` shows `groupscout`, `postgres`, and `n8n` running.
+- `/health` returns HTTP `200` and JSON with `"database":"ok"`.
+- `"ollama":"ok"` is required for LLM enrichment claims. `"ollama":"degraded"` or `"ollama":"unavailable"` is not a blocker for basic backend/UI/API smoke.
+- Postgres returns a single `1`.
+- The n8n container can reach `http://groupscout:8080/health`.
+
+If any check fails, inspect:
+
+```bash
+docker compose logs --tail=100 groupscout postgres n8n ollama
+```
+
 ---
 
 #### Docker — Reading a Pipeline Run
@@ -220,13 +245,16 @@ docker compose down --rmi all --volumes
 ## Step 3 — Verify the server is up
 
 ```bash
-curl http://localhost:8080/health
+curl -i --max-time 5 http://localhost:8080/health
 ```
 
-Expected response:
+Expected response: HTTP `200` with JSON similar to:
+
 ```json
-{"status": "ok"}
+{"status":"ok","database":"ok","ollama":"ok"}
 ```
+
+The `ollama` value may also be `degraded` or `unavailable`; that blocks LLM enrichment verification, not basic health or UI/API smoke. A non-`ok` database value blocks the backend.
 
 ---
 
@@ -239,7 +267,21 @@ curl -X POST http://localhost:8080/run \
   -H "Authorization: Bearer YOUR_API_TOKEN"
 ```
 
-You should see new leads posted to Slack within ~30 seconds.
+Expected response: HTTP `200` with `Pipeline completed successfully`. That confirms the run finished; it does not prove that new leads were found.
+
+Check the run result in logs:
+
+```bash
+docker compose logs groupscout --tail=100
+```
+
+Interpret the result:
+
+- `sent leads to Slack count=N`: leads were delivered to Slack.
+- `no new leads to notify`: the run succeeded, but filters or deduplication left no fresh leads.
+- `Unauthorized`: the `API_TOKEN` in n8n or curl does not match the backend.
+- `slack notify`: Slack delivery failed; check `SLACK_WEBHOOK_URL`.
+- collector or `pdftotext` errors: rebuild the image and inspect collector settings.
 
 > **Tip:** Lower `MIN_PERMIT_VALUE_CAD=100000` in `.env` during testing to get more results through the filter.
 
@@ -281,8 +323,9 @@ n8n needs your `API_TOKEN` to call GroupScout.
 3. Add an **HTTP Request** node and connect it to the Schedule node:
    - **Method**: `POST`
    - **URL**:
-     - Docker mode: `http://groupscout:8080/run`
-     - Local Go mode: `http://host.docker.internal:8080/run`
+     - Compose n8n to Compose backend: `http://groupscout:8080/run`
+     - Host n8n to host backend: `http://localhost:8080/run`
+     - Containerized n8n to host backend: `http://host.docker.internal:8080/run`
    - **Authentication**: `Predefined Credential Type` → `Header Auth` → select `GroupScout API`
 4. **Save** the workflow
 5. Toggle **Active** (top-right switch) to enable it
@@ -305,8 +348,9 @@ For the current n8n-only MVP:
 
 1. Add a preflight HTTP Request node for `GET http://groupscout:8080/health`.
 2. Keep the scheduled `POST /run` node as the source-of-truth pipeline trigger.
-3. Add an error/no-leads branch that sends an operational Slack message when no qualified lead is available.
-4. Store a cadence key such as `lead-cadence:YYYY-MM-DD:sunday` in n8n's data store so retries do not duplicate the same cadence notification.
+3. For now, use a log check or manual database check to distinguish `sent leads to Slack` from `no new leads to notify`; the current `/run` response is plain text and does not include lead counts.
+4. Add an error/no-leads branch that sends an operational Slack message when no qualified lead is available.
+5. Store a cadence key such as `lead-cadence:YYYY-MM-DD:sunday` in n8n's data store so retries do not duplicate the same cadence notification.
 
 For a true guaranteed one-lead cadence, plan backend work for a delivery log, fallback lead selector, run lock, and machine-readable `/run` result. The backend should own "which one lead is eligible" and "has this cadence already delivered"; n8n should own the Sunday/Wednesday schedule and failure routing.
 

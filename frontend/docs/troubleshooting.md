@@ -2,6 +2,49 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/troubleshooting.md`. Run UI diagnostics from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`; run backend diagnostics from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 
+## Operator Smoke Checklist
+
+Use this first when a user asks whether the UI is usable.
+
+```sh
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+curl -i --max-time 5 http://localhost:3001/
+```
+
+Expected:
+
+- Backend `/health` is HTTP `200` and includes `"database":"ok"`.
+- UI `/healthz` is HTTP `200`.
+- UI `/` is HTTP `200` and includes `/assets/app.js`.
+
+Check app routes:
+
+```sh
+for path in / /admin/login /leads /leads/lead_hotel_001 /verification /outreach /pipeline /analytics /alerts; do
+  curl -i --max-time 5 "http://localhost:3001$path" | head -n 1
+done
+```
+
+Expected: HTTP `200` for app-shell routes, or a login redirect when session auth is enabled. A `404` means the route fallback, static build, or running container is stale.
+
+Check API proxy routes:
+
+```sh
+curl -i --max-time 5 http://localhost:3001/api/leads?limit=1
+curl -i --max-time 5 http://localhost:3001/api/system
+curl -i --max-time 5 http://localhost:3001/api/alerts?limit=1
+```
+
+Interpret failures:
+
+| Status | Meaning | First check |
+|---|---|---|
+| `502` | UI proxy cannot reach backend | `UI_API_PROXY_TARGET`, Docker network, backend container |
+| `404` | Backend route missing or proxy path drifted | backend branch and `/api/*` route list |
+| `401`/`403` | Session or backend auth is required | `/api/auth/status`, `groupscout_session`, `ADMIN_AUTH_ENABLED` |
+| stale HTML or old screen | Browser or container is serving old assets | rebuild UI, hard-refresh, check `/assets/app.js` query |
+
 ## UI Tests Fail Immediately
 
 Confirm the Node runtime is modern enough:

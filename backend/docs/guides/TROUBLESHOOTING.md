@@ -4,6 +4,30 @@ This guide helps you diagnose why the GroupScout pipeline may return "0 new lead
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/TROUBLESHOOTING.md`. Run backend diagnostics from `/mnt/c/Users/alvin/GolandProjects/groupscout`; run UI diagnostics from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
 
+## Operator Quick Check
+
+Run from `/mnt/c/Users/alvin/GolandProjects/groupscout`:
+
+```bash
+docker compose ps
+curl -i --max-time 5 http://localhost:8080/health
+docker exec groupscout_postgres psql -U groupscout -d groupscout -c "SELECT status, count(*) FROM leads GROUP BY status ORDER BY status;"
+docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
+```
+
+Expected:
+
+- Backend health is HTTP `200` and includes `"database":"ok"`.
+- `ollama` may be `degraded` or `unavailable` for UI/API smoke, but must be healthy before claiming LLM enrichment is working.
+- Postgres query succeeds. Zero `new` leads is not automatically a failure; check filter and dedup logs below.
+- n8n reaches the backend over `http://groupscout:8080`.
+
+If a check fails:
+
+```bash
+docker compose logs --tail=100 groupscout postgres n8n ollama
+```
+
 ## 🔍 Core Pipeline Flow
 
 GroupScout filters data at three distinct stages. Understanding these is key to troubleshooting:
@@ -19,10 +43,29 @@ GroupScout filters data at three distinct stages. Understanding these is key to 
 ### 1. Check the Logs
 If you run `go run cmd/server/main.go --run-once`, look for these log markers:
 
+For Docker runs:
+
+```bash
+docker compose logs groupscout --tail=200 | rg "filtering complete|skipping duplicate|skipping enrichment|sent leads|no new leads|slack notify|error"
+```
+
 - `parsed records from PDF count=102`: How many raw entries were found before filtering.
 - `filtering complete source=richmond passed=5 skipped_low_value=90 skipped_residential=7`: Detailed breakdown of why permits were excluded.
 - `skipping duplicate`: The permit was already processed in a previous run.
 - `skipping enrichment: low score score=0`: The project was recorded but wasn't interesting enough to justify AI costs.
+- `sent leads to Slack count=N`: the run produced and delivered leads.
+- `no new leads to notify`: the run completed, but there were no fresh `new` leads to send.
+
+Actions by marker:
+
+| Marker | What to check |
+|---|---|
+| `skipped_low_value` | Lower `MIN_PERMIT_VALUE_CAD` for testing or accept that small projects are filtered. |
+| `skipped_residential` | Expected for residential permits; adjust collector rules only if residential work should become eligible. |
+| `skipping duplicate` | The source item was already processed. Inspect `raw_projects` or clear test data only when deliberately replaying. |
+| `skipping enrichment: low score` | Lower `ENRICHMENT_THRESHOLD` for testing or improve scoring rules. |
+| `slack notify` | Check `SLACK_WEBHOOK_URL` and Slack webhook status. |
+| collector or `pdftotext` error | Rebuild with `docker compose up -d --build` and confirm `poppler-utils`/`pdftotext` exists in the image. |
 
 ### 2. Inspect the Database
 Use `psql` (Postgres) or `sqlite3` (SQLite) to see what's happening under the hood.

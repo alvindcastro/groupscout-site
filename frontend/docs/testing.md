@@ -2,6 +2,37 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/testing.md`. Run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui` and backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 
+## Run This Now
+
+Use this current verification path before digging into historical phase evidence.
+
+From `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`:
+
+```sh
+npm test
+npm run build
+```
+
+For UI Docker test coverage:
+
+```sh
+docker build --target test -t groupscout-ui-test .
+docker run --rm groupscout-ui-test
+```
+
+For operator smoke with backend and UI already running:
+
+```sh
+curl -i --max-time 5 http://localhost:8080/health
+curl -i --max-time 5 http://localhost:3001/healthz
+curl -i --max-time 5 http://localhost:3001/
+curl -i --max-time 5 http://localhost:3001/api/leads?limit=1
+curl -i --max-time 5 http://localhost:3001/api/system
+curl -i --max-time 5 http://localhost:3001/api/alerts?limit=1
+```
+
+Expected: backend `/health` is HTTP `200` with `"database":"ok"`, UI `/healthz` and `/` are HTTP `200`, and the three `/api/*` routes return HTTP `200` when the backend is compatible and auth is satisfied. Treat `502` as backend/proxy reachability, `404` as route drift, and `401`/`403` as auth/session configuration.
+
 ## UI Repo
 
 Run the full UI test suite:

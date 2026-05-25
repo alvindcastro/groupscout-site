@@ -1,6 +1,6 @@
 ### n8n Integration Guide for GroupScout
 
-This guide provides comprehensive instructions for integrating n8n with GroupScout. It covers triggering the internal pipeline, pushing external leads, and managing automated digests.
+This guide provides comprehensive instructions for integrating n8n with GroupScout. It covers triggering the internal pipeline, pushing external leads, managing automated digests, and coordinating a Sunday/Wednesday internal lead send.
 
 ---
 
@@ -108,24 +108,59 @@ Trigger a summary email of all "new" or "notified" leads from the last 7 days.
 
 You can use the **Schedule** node in n8n to automate GroupScout runs at specific times.
 
-#### Example: Run every Monday and Wednesday at 9:00 AM
+#### Example: Run every Sunday and Wednesday at 9:00 AM
 
 1.  Add a **Schedule** node to your workflow.
 2.  Set **Trigger Interval** to `Weeks`.
-3.  **Days of the Week**: Select `Monday` and `Wednesday`.
+3.  **Days of the Week**: Select `Sunday` and `Wednesday`.
 4.  **Time**: Set to `09:00`.
-5.  Connect this node to an **HTTP Request** node configured for the `/run` endpoint (as described in Section 3).
+5.  Set the workflow timezone to the hotel/operator timezone, for example `America/Vancouver`.
+6.  Connect this node to an **HTTP Request** node configured for the `/run` endpoint (as described in Section 3).
 
 ---
 
-### 7. Troubleshooting & Tips
+### 7. Sunday/Wednesday One-Lead Send
+
+The current backend can run the pipeline and notify all newly collected leads, but "always send one lead" is stronger than "run the pipeline." A normal run can produce zero fresh leads because GroupScout deduplicates source records, filters low-value records, and marks notified leads so they do not repeat as new.
+
+#### n8n-only MVP
+
+Use this when the goal is a dependable internal lead prompt without changing backend code:
+
+1.  **Schedule**: run every `Sunday` and `Wednesday` at `09:00` in `America/Vancouver`.
+2.  **Preflight**: call `GET http://groupscout:8080/health`. Stop and notify operations if the database is unavailable.
+3.  **Trigger collection**: call `POST http://groupscout:8080/run` with the `GroupScout API` bearer credential.
+4.  **Branch on result**:
+    - If `/run` succeeds and Slack receives leads, treat the cadence as delivered.
+    - If the response says no new leads were available, send an operational Slack note such as "No qualified GroupScout lead was available for the Wednesday cadence."
+5.  **Retry policy**: let n8n retry transient HTTP failures, but keep a workflow variable or data-store key such as `lead-cadence:YYYY-MM-DD:sunday` so a retry does not send duplicate operational messages.
+
+This MVP is safe because n8n only uses server-to-server `API_TOKEN` credentials and GroupScout remains the source of truth. It does not guarantee a real lead when no eligible lead exists.
+
+#### Robust guaranteed-lead design
+
+For a true "send exactly one lead every Sunday and Wednesday" guarantee, add backend support instead of encoding selection rules in n8n:
+
+- A machine-readable `/run` response with counts such as `new_leads`, `notified_leads`, `fallback_lead_id`, and delivery status.
+- A `lead_delivery_log` table with `lead_id`, `channel`, `schedule_key`, `sent_at`, `idempotency_key`, and `result`.
+- A fallback selector that can resurface the best eligible backlog lead when no fresh lead exists. Prefer high-score leads, exclude `contacted`, `won`, `lost`, and `dismissed`, and exclude leads delivered by the scheduled cadence in the last 14-30 days.
+- A run lock, preferably a Postgres advisory lock or `pipeline_locks` row, so n8n retries and manual pipeline starts cannot race each other.
+- UI/system visibility for the next scheduled send, last sent lead, failed cadence reason, retry count, and n8n execution link.
+
+With those pieces in place, n8n should orchestrate the cadence while the backend owns selection, idempotency, delivery state, and auditability.
+
+---
+
+### 8. Troubleshooting & Tips
 
 #### Common Errors
 - **401 Unauthorized**: Check your `API_TOKEN` in `.env` matches the `Bearer` token in n8n.
 - **400 Bad Request**: Your JSON body is invalid or missing the `Title` field.
-- **Connection Refused**: 
+- **Connection Refused**:
     - If n8n is in Docker and GroupScout is on the host, use `http://host.docker.internal:8080`.
     - Check if the GroupScout server is actually running (`go run cmd/server/main.go`).
+- **No lead sent on Sunday/Wednesday**: A successful `/run` can still produce zero fresh leads. For the MVP, send an operational "no qualified lead" notice; for the robust version, implement the fallback selector and delivery log above.
+- **Duplicate lead sent after retry**: Add a cadence idempotency key in n8n now, and move that guard into a backend `lead_delivery_log` before enabling automatic fallback delivery.
 
 #### Advanced Workflow Example
 1.  **RSS Read**: Check for new construction news.
@@ -135,6 +170,6 @@ You can use the **Schedule** node in n8n to automate GroupScout runs at specific
 
 ---
 
-### 8. Docker Network Note
+### 9. Docker Network Note
 If you are using the provided `docker-compose.yml`, both services share the same network. You can reach GroupScout from n8n using:
 - **URL**: `http://groupscout:8080/run` (or `/n8n/webhook`, `/digest`)

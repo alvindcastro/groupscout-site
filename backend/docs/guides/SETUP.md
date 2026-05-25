@@ -275,8 +275,9 @@ n8n needs your `API_TOKEN` to call GroupScout.
 1. Go to **Workflows** → **New Workflow**
 2. Add a **Schedule** trigger node:
    - **Trigger Interval**: `Weeks`
-   - **Days of the Week**: `Monday`, `Wednesday`
+   - **Days of the Week**: `Sunday`, `Wednesday`
    - **Time**: `09:00`
+   - **Timezone**: `America/Vancouver` unless the operator team works from another fixed timezone
 3. Add an **HTTP Request** node and connect it to the Schedule node:
    - **Method**: `POST`
    - **URL**:
@@ -290,11 +291,24 @@ n8n needs your `API_TOKEN` to call GroupScout.
 
 ### 5d — Test the workflow manually
 
-Click **Test Workflow** (or the play button on the Schedule node) to fire it immediately without waiting for Monday.
+Click **Test Workflow** (or the play button on the Schedule node) to fire it immediately without waiting for Sunday or Wednesday.
 
 Check:
 - The HTTP Request node shows a `200 OK` response
 - A new Slack message appears with leads
+
+### 5e — Make the twice-weekly lead send reliable
+
+The workflow above reliably runs GroupScout, but it does not by itself guarantee one lead every Sunday and Wednesday. GroupScout may return zero new leads after deduplication, low-value filtering, or previous notification.
+
+For the current n8n-only MVP:
+
+1. Add a preflight HTTP Request node for `GET http://groupscout:8080/health`.
+2. Keep the scheduled `POST /run` node as the source-of-truth pipeline trigger.
+3. Add an error/no-leads branch that sends an operational Slack message when no qualified lead is available.
+4. Store a cadence key such as `lead-cadence:YYYY-MM-DD:sunday` in n8n's data store so retries do not duplicate the same cadence notification.
+
+For a true guaranteed one-lead cadence, plan backend work for a delivery log, fallback lead selector, run lock, and machine-readable `/run` result. The backend should own "which one lead is eligible" and "has this cadence already delivered"; n8n should own the Sunday/Wednesday schedule and failure routing.
 
 ## Step 6 — Migrate Data (SQLite to Postgres)
 

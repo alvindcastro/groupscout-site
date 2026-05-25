@@ -1,3 +1,15 @@
+## 2026-05-25 - Documentation consolidation
+
+### groupscout-site-fjy - Consolidate backend UI-testing runbook routing
+
+- **What:** Trimmed duplicate backend-plus-UI Docker smoke commands from the local backend-for-UI testing runbook.
+- **Where:** `docs/planning/ui/BACKEND_FOR_UI_TESTING.md`.
+- **When:** 2026-05-25.
+- **Why:** The same Compose override, UI dev-server, D4 production proxy, health curl, and troubleshooting expectations were duplicated between the local backend startup guide and the full backend-plus-frontend Docker E2E runbook.
+- **How:** Kept `BACKEND_FOR_UI_TESTING.md` focused on starting a backend for UI work and linked the Docker smoke section to `BACKEND_FRONTEND_DOCKER_E2E.md` as the canonical runbook.
+
+---
+
 ## 2026-05-09 - Admin token flow documentation
 
 ### groupscout-site-0o7 - Document admin token login flow

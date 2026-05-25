@@ -5,7 +5,7 @@
 ## Companion Docs
 
 - [Web App Brainstorm](./docs/web-app-brainstorm.md)
-- [Phase Prompt Pack](./docs/web-app-phase-prompts.md)
+- [UI TDD Phases 0-15 Implementation Status](./docs/ui-tdd-phase-0-15-implementation.md)
 
 ## Global Rules
 
@@ -44,6 +44,34 @@
 ## Implementation Status
 
 Completed on 2026-05-09 in the current canonical phase order. See [UI TDD Phases 0-15 Implementation Status](./docs/ui-tdd-phase-0-15-implementation.md) for the phase map, red/green evidence, residual risk, and the restored-baseline decision.
+
+## Parallel Agent Starters
+
+Use these read-only prompts when a phase needs investigation before the main implementation.
+
+### Backend/API Agent
+
+```text
+Read-only. Inspect /mnt/c/Users/alvin/GolandProjects/groupscout Markdown, Docker, and API route files relevant to the requested phase. Identify current backend contracts, live route drift, required env vars, Docker service names, and tests that should fail first. Do not edit files. Return concise findings with file paths and line references.
+```
+
+### UI Baseline Agent
+
+```text
+Read-only. Inspect /mnt/c/Users/alvin/WebstormProjects/groupscout-ui current worktree and origin/main for the requested phase. Identify existing implementation, deleted/local changes, package scripts, tests, runtime files, docs, and likely conflicts. Do not edit files. Return concise findings with file paths and line references.
+```
+
+### UX Agent
+
+```text
+Read-only. Inspect DESIGN.md and the requested phase. Translate the design system into concrete UI constraints: layout, typography, controls, color usage, state badges, responsive behavior, accessibility, and tests that should fail before implementation. Do not edit files.
+```
+
+### Docker/Ops Agent
+
+```text
+Read-only. Inspect backend Docker files, UI Docker files if present, Compose ports, networks, env vars, healthchecks, and smoke docs. Identify the smallest Docker/runtime contract tests for the requested phase and any secret exposure risks. Do not edit files.
+```
 
 ## Phase 0 - Baseline Reconciliation And Harness
 

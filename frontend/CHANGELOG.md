@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Documentation Consolidation
+
+- What: Consolidated duplicate agent and phase prompt documentation in the centralized frontend docs.
+- Where: Updated `CLAUDE.md`, `UI_TDD_PHASE_PROMPTS.md`, `docs/phase-13-product-renderer-runtime.md`, and `docs/ui-tdd-phase-0-15-implementation.md`; removed the retired supporting phase prompt file after merging its useful parallel-agent starters into the canonical prompt archive.
+- When: Updated on 2026-05-25 during coordinator task `groupscout-site-fjy`.
+- Why: The frontend docs had duplicate Beads instructions, two Phase 0-15 prompt records, and repeated Phase 13 parallel-agent prompts.
+- How: Kept `AGENTS.md` canonical for agent workflow, kept `UI_TDD_PHASE_PROMPTS.md` canonical for prompts, kept the Phase 13 prompt pack as the detailed history, and shortened the Phase 13 runtime record to implementation evidence.
+
 ### Admin Token Flow Documentation
 
 - What: Added a dedicated admin-token flow doc and expanded UI docs for setup-token login, `groupscout_session`, logout, token rotation, Docker smoke, and stale browser assets.
@@ -44,8 +52,8 @@
 
 ### Phase Prompt Completion Verification
 
-- What: Rechecked `docs/web-app-phase-prompts.md` Phase 0-15 in sequential order, confirmed the implemented UI baseline still covers every phase through tests and runtime/docs artifacts, closed the production `/api/*` session-gate gap, strengthened deterministic Phase 15 route evidence, corrected Phase 1 token drift, and marked the older supporting prompt checklist as complete.
-- Where: Updated `docs/web-app-phase-prompts.md`, `docs/ui-tdd-phase-0-15-implementation.md`, `docs/phase-9-session-auth-wrapper-same-origin-deployment.md`, `docs/phase-15-browser-ux-hardening.md`, `docs/docker-runtime-matrix.md`, `docs/testing.md`, `README.md`, `test/session-deployment.test.js`, `test/browser-ux-hardening.test.js`, `test/app-shell.test.js`, `test/design-tokens.test.js`, `web/src/server/productionServer.js`, `web/src/renderer/domRenderer.js`, `web/src/renderer/browserUxHardening.js`, `web/src/app/shell.js`, and `web/src/design/tokens.js`.
+- What: Rechecked the retired supporting Phase 0-15 prompt checklist in sequential order, confirmed the implemented UI baseline still covers every phase through tests and runtime/docs artifacts, closed the production `/api/*` session-gate gap, strengthened deterministic Phase 15 route evidence, corrected Phase 1 token drift, and marked the older supporting checklist as complete.
+- Where: Updated the retired supporting phase prompt checklist, `docs/ui-tdd-phase-0-15-implementation.md`, `docs/phase-9-session-auth-wrapper-same-origin-deployment.md`, `docs/phase-15-browser-ux-hardening.md`, `docs/docker-runtime-matrix.md`, `docs/testing.md`, `README.md`, `test/session-deployment.test.js`, `test/browser-ux-hardening.test.js`, `test/app-shell.test.js`, `test/design-tokens.test.js`, `web/src/server/productionServer.js`, `web/src/renderer/domRenderer.js`, `web/src/renderer/browserUxHardening.js`, `web/src/app/shell.js`, and `web/src/design/tokens.js`.
 - When: Verified on 2026-05-09 during beads task `groupscout-ui-561`.
 - Why: The phase prompt pack still displayed unchecked supporting checklist items even though the canonical Phase 0-15 implementation and documentation were already present, and the audits found that production proxying needed to enforce the documented session boundary while Phase 15 route evidence could pass too much through navigation-only rendering.
 - How: Claimed a beads issue, ran parallel read-only agent audits, added red-first tests for production request-handler session gating/security headers, route-specific Phase 15 evidence, and token drift, implemented the smallest server/renderer/token updates, reran focused tests, reran `npm test` and `npm run build`, confirmed `web/dist` had no tracked diff after build, updated Markdown status, and preserved the documented Phase 15 residual risk around real-browser screenshot/pixel checks.
@@ -53,7 +61,7 @@
 ### Phases 0-15 - GroupScout Web App Baseline And Browser Hardening
 
 - What: Reconciled the checkout to the tracked UI baseline, completed the canonical Phase 0-15 prompt order, added backend compatibility coverage for `/api/leads/{id}/raw`, added the read-only lead detail client contract, and added deterministic Phase 15 browser UX hardening metadata for focus labels, accessible names, responsive variants, stable states, text containment, and same-origin API calls.
-- Where: Added `test/baseline-reconciliation.test.js`, `test/browser-ux-hardening.test.js`, `web/src/renderer/browserUxHardening.js`, `docs/ui-tdd-phase-0-15-implementation.md`, and `docs/phase-15-browser-ux-hardening.md`; updated `web/src/api/leads.js`, `web/src/server/backendCompatibilitySmoke.js`, `test/api-boundary.test.js`, `test/lead-inbox-client.test.js`, `test/phase-13-renderer-runtime.test.js`, `README.md`, `UI_TDD_PHASE_PROMPTS.md`, `docs/testing.md`, `docs/developer-guide.md`, `docs/web-app-phase-prompts.md`, and `docs/web-app-brainstorm.md`.
+- Where: Added `test/baseline-reconciliation.test.js`, `test/browser-ux-hardening.test.js`, `web/src/renderer/browserUxHardening.js`, `docs/ui-tdd-phase-0-15-implementation.md`, and `docs/phase-15-browser-ux-hardening.md`; updated `web/src/api/leads.js`, `web/src/server/backendCompatibilitySmoke.js`, `test/api-boundary.test.js`, `test/lead-inbox-client.test.js`, `test/phase-13-renderer-runtime.test.js`, `README.md`, `UI_TDD_PHASE_PROMPTS.md`, `docs/testing.md`, `docs/developer-guide.md`, the retired supporting phase prompt checklist, and `docs/web-app-brainstorm.md`.
 - When: Completed on 2026-05-09 after restoring the Phase 13 UI baseline and checking the canonical Phase 0-15 prompt pack.
 - Why: The operator workbench needed a runnable baseline plus evidence that every requested UI TDD phase is represented by tests, implementation, docs, same-origin API boundaries, and server-side secret handling.
 - How: Followed strict TDD with red runs for the absent baseline, missing raw-audit smoke route, missing `getLead` client, and missing Phase 15 hardening module; implemented the smallest contract changes; then reran focused tests, `npm run build`, `npm test`, Docker test-image build/run, production image build, and production-container smoke checks for `/healthz`, `/`, and `/assets/app.js`.

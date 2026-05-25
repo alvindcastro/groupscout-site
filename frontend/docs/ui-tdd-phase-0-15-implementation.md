@@ -38,9 +38,9 @@ The checkout was reconciled to the tracked Phase 13 UI baseline rather than rebu
 
 ## Verification Refresh
 
-- 2026-05-09: `npm test` passed 26/26 suites after rechecking the Phase 0-15 implementation against `docs/web-app-phase-prompts.md`.
+- 2026-05-09: `npm test` passed 26/26 suites after rechecking the Phase 0-15 implementation against the canonical phase prompt archive.
 - 2026-05-09: `npm run build` regenerated the static app successfully with no tracked `web/dist` diff.
-- 2026-05-09: `docs/web-app-phase-prompts.md` was updated so its older supporting checklist reflects the completed Phase 0-15 implementation status recorded here.
+- 2026-05-09: The older supporting checklist was reconciled into `UI_TDD_PHASE_PROMPTS.md` and this implementation status record.
 - 2026-05-09: production request-handler coverage now proves `/api/*` session gating and baseline browser security headers before backend proxying.
 - 2026-05-09: Phase 15 renderer evidence now requires route-specific focus labels and rendered desktop/tablet/mobile modes for all primary routes.
 - 2026-05-09: Phase 1 token guardrails now cover `text-input-focused` and the `property-row` background contract from `DESIGN.md`.

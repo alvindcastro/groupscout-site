@@ -114,44 +114,7 @@ http://localhost:3001/admin/login
 
 For a single backend-plus-frontend Docker smoke path, see [BACKEND_FRONTEND_DOCKER_E2E.md](./BACKEND_FRONTEND_DOCKER_E2E.md).
 
-Short version from the UI repo:
-
-```bash
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-
-docker compose -p groupscout \
-  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
-  -f compose.dev.yml \
-  up -d --build groupscout groupscout-ui
-
-curl -i http://localhost:8080/health
-curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-```
-
-The `groupscout-ui` Compose service is the D3 product dev server. It proves the UI container can build, join the backend network, serve product assets, and expose `/healthz`. Use the D4 production container for the same-origin production proxy smoke.
-
-For the current same-origin UI runtime, build and run the D4 production image on the backend Compose network:
-
-```bash
-docker build --target production -t groupscout-ui-production .
-
-docker run --rm -d \
-  --name groupscout-ui-production-smoke \
-  --network groupscout_groupscout_net \
-  -p 3002:3000 \
-  -e UI_API_PROXY_TARGET=http://groupscout:8080 \
-  groupscout-ui-production
-
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/system
-curl -i http://localhost:3002/api/alerts?limit=1
-
-docker stop groupscout-ui-production-smoke
-```
-
-`GET /healthz`, `GET /`, `GET /assets/app.js`, `GET /api/system`, and `GET /api/alerts?limit=1` should return `200` through the UI container. A `502` means the UI container could not reach `UI_API_PROXY_TARGET`.
+Keep this file focused on starting a backend for UI work. The Docker E2E runbook owns the Compose override, UI dev-server, D4 production proxy, health curls, and troubleshooting expectations.
 
 ## API Calls Useful During UI Work
 

@@ -140,20 +140,7 @@ docker compose ps
 
 ## Run Backend With UI Docker
 
-From the UI repo, merge the backend Compose file with the UI development override:
-
-```sh
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui groupscout
-curl -i http://localhost:8080/health
-curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-```
-
-For a stable Docker network name used by the production UI smoke container, prefer pinning the Compose project:
-
-```sh
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui groupscout
-```
+From the UI repo, choose the current D3 development product server or D4 production static/proxy smoke path in [Docker Runtime Matrix](./docker-runtime-matrix.md). That matrix owns the merged Compose command, `-p groupscout` network convention, D4 production-container command, expected `/api/*` smoke statuses, and cleanup steps.
 
 Expected endpoints:
 
@@ -163,33 +150,13 @@ Expected endpoints:
 - UI product dev server health: `http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz`
 - UI admin login: `http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/admin/login`
 
-The UI service in `compose.dev.yml` is now the Phase 13 product dev server. It serves generated `web/dist` assets, healthchecks `/healthz`, and keeps `http://groupscout:8080` backend discovery server-side. In the current prepared test stack, `http://localhost:3001/healthz` and `http://localhost:3001/` both return `200`.
+The UI service in `compose.dev.yml` is now the Phase 13 product dev server. It serves generated `web/dist` assets, healthchecks `/healthz`, and keeps `http://groupscout:8080` backend discovery server-side.
 
 Current smoke note: `GET http://localhost:8080/health` returns `200` with `"database":"ok"`. It may also report `"ollama":"unavailable"` even when the `groupscout_ollama` container is healthy. That is acceptable for UI/API smoke and Postgres tests, but resolve it before testing LLM enrichment or model-dependent pipeline behavior.
 
 When testing the admin flow through the UI service, `/admin/login` should show a compact floating setup-token window. If it shows a wide embedded panel, rebuild from the UI repo with `npm run build` and restart `groupscout-ui` with `--build`.
 
-For a same-origin UI runtime against the backend container, build and run the D4 production image on the backend Compose network:
-
-```sh
-docker build --target production -t groupscout-ui-production .
-docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_groupscout_net -p 3002:3000 -e UI_API_PROXY_TARGET=http://groupscout:8080 groupscout-ui-production
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/leads?limit=1
-curl -i http://localhost:3002/api/system
-curl -i http://localhost:3002/api/alerts?limit=1
-docker stop groupscout-ui-production-smoke
-```
-
-Current backend plus UI smoke expectations:
-
-- Backend `GET /health` returns `200`.
-- UI D3 `GET /healthz` on port `3001` returns `200`.
-- UI D4 `GET /healthz`, `GET /`, and `GET /assets/app.js` on port `3002` return `200`.
-- UI D4 `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` should reach the backend and return `200`.
-- A `502` from `/api/*` means proxy or Docker-network reachability failed.
+For a same-origin UI runtime against the backend container, use the D4 production image command in [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
 ## Alertd
 
@@ -214,18 +181,7 @@ curl -X POST -d "command=/inventory&text=34" http://localhost:8081/slack/invento
 curl -i http://localhost:8080/health
 ```
 
-Admin auth status and token flow:
-
-```sh
-curl -i http://localhost:8080/api/auth/status
-SETUP_TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
-curl -i -c /tmp/groupscout-admin.cookies \
-  -H "Content-Type: application/json" \
-  -d "{\"token\":\"${SETUP_TOKEN}\"}" \
-  http://localhost:8080/api/auth/login
-```
-
-The setup-token file is `/app/data/admin-setup-token` inside `groupscout_app`; the `docker exec` command reads it from the container working directory. Use `http://localhost:3001/admin/login` for browser login when the UI Docker service is running. File-backed setup tokens rotate after successful login, so read the file again for the next setup login.
+Admin auth status, setup-token login, token rotation, logout, and stale asset recovery are covered in [Admin Token Flow](./admin-token-flow.md).
 
 ```sh
 curl -i -X POST \

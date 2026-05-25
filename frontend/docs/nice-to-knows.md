@@ -85,7 +85,7 @@ Use `docker compose -p groupscout` when combining backend and UI Compose files i
 
 There is now a dependency-free product renderer, but not a dedicated production Compose override for the D4 runtime. The current backend exposes the UI smoke routes `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1`; a `404` through D4 means the backend route set or proxy path drifted.
 
-For the 2026-05-09 testing prep, the necessary lightweight containers are already spun up: `groupscout_postgres`, `groupscout_app`, and `groupscout-groupscout-ui-1`. `groupscout_n8n` is also running for workflow checks. `groupscout_ollama` is container-healthy, but backend `/health` can still report Ollama unavailable; treat that as an LLM/enrichment-specific follow-up, not a blocker for UI/API smoke.
+For current Docker mode commands and expected smoke results, use [Docker Runtime Matrix](./docker-runtime-matrix.md). If backend `/health` reports Ollama unavailable while the UI and Postgres-backed API checks pass, treat that as an LLM/enrichment-specific follow-up, not a blocker for UI/API smoke.
 
 ## Backend Docker Service Names
 

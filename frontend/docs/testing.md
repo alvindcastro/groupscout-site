@@ -18,67 +18,11 @@ node --test
 
 There is still no package install requirement.
 
-## Current Docker Test Prep
+## Docker And Admin Smoke
 
-As of 2026-05-09, the local Docker stack is ready for UI smoke and backend integration testing:
-
-```sh
-cd /mnt/c/Users/alvin/GolandProjects/groupscout
-docker compose up -d postgres
-
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-docker compose -p groupscout \
-  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
-  -f compose.dev.yml \
-  ps
-```
-
-Current expected containers:
-
-- `groupscout_postgres`: healthy on `localhost:5432`.
-- `groupscout_app`: backend API on `localhost:8080`.
-- `groupscout-groupscout-ui-1`: UI product dev server on `localhost:3001`, healthy.
-- `groupscout_n8n`: available on `localhost:5678` if workflow testing is needed.
-- `groupscout_ollama`: container-healthy, but backend `/health` can still report `"ollama":"unavailable"` until API-to-Ollama connectivity/model readiness is fixed.
-
-Smoke before testing:
-
-```sh
-curl -i --max-time 5 http://localhost:8080/health
-curl -i --max-time 5 http://localhost:3001/healthz
-curl -i --max-time 5 http://localhost:3001/
-```
-
-Expected current prep result: backend `/health` returns `200` with `"database":"ok"`, UI `/healthz` returns `200`, and the UI shell responds. The Ollama health caveat does not block ordinary UI tests, static/proxy checks, or Postgres-backed API tests; it does block confidence in LLM/enrichment behavior.
-
-Admin login Docker smoke refresh on 2026-05-09:
-
-```sh
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-npm run build
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui
-curl -i --max-time 5 http://localhost:3001/api/auth/status
-curl -i --max-time 5 http://localhost:3001/
-```
-
-Expected: `/api/auth/status` returns `auth_required:true` and `authenticated:false`, and `/` references `/assets/app.js?v=admin-login-2`. If the browser still shows the old app without login, hard-refresh or open `/admin/login` directly so the immutable old `pipeline-output-4` asset is not reused from browser cache.
+Use [Docker Runtime Matrix](./docker-runtime-matrix.md) for current Docker mode selection, backend-network smoke commands, expected `/api/*` status codes, and CI image checks. Use [Admin Token Flow](./admin-token-flow.md) for setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands.
 
 The UI Docker test image no longer copies `DESIGN.md` or `docs/` from the UI repo because long-lived markdown lives in `/mnt/c/Users/alvin/groupscout-site/frontend`. In an isolated container without that mount, centralized-doc-only assertions are skipped while runtime/code assertions still run. To force doc assertions inside the container, mount the coordinator docs and set `GROUPSCOUT_UI_DOCS_ROOT`.
-
-Admin token flow smoke:
-
-```sh
-TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
-curl -i -c /tmp/groupscout-admin.cookies \
-  -H "Content-Type: application/json" \
-  -d "{\"token\":\"${TOKEN}\"}" \
-  http://localhost:3001/api/auth/login
-curl -i -b /tmp/groupscout-admin.cookies http://localhost:3001/api/auth/me
-curl -i -b /tmp/groupscout-admin.cookies -c /tmp/groupscout-admin.cookies \
-  -X POST http://localhost:3001/api/auth/logout
-```
-
-The token file is `/app/data/admin-setup-token` inside the `groupscout_app` container; the host command above reads it through `docker exec`. File-backed setup tokens rotate after successful login. Read the file again if another login is needed. Env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically.
 
 Current verification refresh on 2026-05-09: `npm test` passed all 26 test files after the renderer runtime review fixes for raw-audit-safe SPA navigation, `/src/*` cache policy, and mobile Verification Queue rendering.
 
@@ -129,61 +73,7 @@ docker build --target test -t groupscout-ui-test .
 docker run --rm groupscout-ui-test
 ```
 
-The D2 browser runtime contract reserved a lightweight Node server with `npm run start:ui`, container port `3000`, and `/healthz`. D3 added the initial development Compose health harness. D4 implements production static serving and same-origin `/api/*` proxying. Phase 13 adds the dependency-free product renderer, static build, product dev server, and backend compatibility classifier. See [Phase 12 UI Dockerization Prompt Pack](./phase-12-ui-dockerization.md), [UI Dockerization Contract](./ui-dockerization-contract.md), and [Phase 13 Product Renderer Runtime](./phase-13-product-renderer-runtime.md).
-
-Development Compose config validation from the UI source repo:
-
-```sh
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet
-```
-
-`compose.dev.yml` must be merged with the backend Compose file. It is intentionally not standalone because backend service `groupscout` and network `groupscout_net` come from `/mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml`.
-
-Development Compose startup and teardown:
-
-```sh
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout
-curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml down
-```
-
-The Phase 13 UI service is `groupscout-ui`. It joins the backend `groupscout_net`, targets `http://groupscout:8080` server-side, exposes container port `3000` on host `${GROUPSCOUT_UI_HOST_PORT:-3001}`, serves `web/dist`, and healthchecks `/healthz`. A targeted smoke run should start `groupscout-ui` with backend service `groupscout`; the current backend dependency chain also starts `postgres`, `ollama`, and `ollama-init`.
-
-Use `-p groupscout` when the D3 run will be followed by a D4 production-container smoke that attaches to `groupscout_groupscout_net`.
-
-Production UI runtime smoke commands from the UI source repo:
-
-```sh
-docker build --target production -t groupscout-ui-production .
-docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/system
-```
-
-Split these checks by dependency:
-
-- Backend-independent UI runtime checks: `GET /healthz`, `GET /`, and `GET /assets/app.js`.
-- Backend-dependent proxy checks: `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` should reach the backend and return `200` when `UI_SESSION_SECRET` is not configured for Docker smoke. When `UI_SESSION_SECRET` is configured, unauthenticated `/api/*` requests should return `401` from the UI session gate.
-
-Backend plus UI Docker smoke run on 2026-05-08:
-
-```sh
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui groupscout
-curl -i http://localhost:8080/health
-curl -i http://localhost:3001/healthz
-docker build --target production -t groupscout-ui-production .
-docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_groupscout_net -p 3002:3000 -e UI_API_PROXY_TARGET=http://groupscout:8080 groupscout-ui-production
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/leads?limit=1
-curl -i http://localhost:3002/api/system
-curl -i http://localhost:3002/api/alerts?limit=1
-```
-
-Expected results: backend `/health` returns `200`; D3 UI `/healthz` returns `200`; D4 `/healthz`, `/`, and `/assets/app.js` return `200`; D4 `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` reach the backend and return `200`. Treat `502` as Docker/proxy reachability failure.
+The D2 browser runtime contract reserved a lightweight Node server with `npm run start:ui`, container port `3000`, and `/healthz`. D3 added the initial development Compose health harness. D4 implements production static serving and same-origin `/api/*` proxying. Phase 13 adds the dependency-free product renderer, static build, product dev server, and backend compatibility classifier. See [Docker Runtime Matrix](./docker-runtime-matrix.md) for current D3/D4 commands and expected smoke results.
 
 Docker operations docs check:
 

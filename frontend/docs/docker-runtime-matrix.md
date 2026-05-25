@@ -64,11 +64,13 @@ docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_gr
 curl -i http://localhost:3002/healthz
 curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
+curl -i http://localhost:3002/api/leads?limit=1
 curl -i http://localhost:3002/api/system
+curl -i http://localhost:3002/api/alerts?limit=1
 docker stop groupscout-ui-production-smoke
 ```
 
-This is the closest current backend plus frontend Docker path. It remains manual because `compose.dev.yml` runs the development product server, while D4 production is still a separate image target. The current backend smoke contract expects `/api/leads?limit=1` to return `200`, `/api/system` to return backend `200` or `404`, and an intentionally bad proxy target to return `502`.
+This is the closest current backend plus frontend Docker path. It remains manual because `compose.dev.yml` runs the development product server, while D4 production is still a separate image target. The current backend smoke contract expects `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` to return `200`, and an intentionally bad proxy target to return `502`.
 
 ## Stable Boundaries
 

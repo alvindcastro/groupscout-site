@@ -53,23 +53,6 @@ Local UI tests:
 npm test
 ```
 
-Current Docker prep for manual testing:
-
-```sh
-cd /mnt/c/Users/alvin/GolandProjects/groupscout
-docker compose up -d postgres
-
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-docker compose -p groupscout \
-  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
-  -f compose.dev.yml \
-  ps
-curl -i --max-time 5 http://localhost:8080/health
-curl -i --max-time 5 http://localhost:3001/healthz
-```
-
-On 2026-05-09 this prep showed Postgres healthy, backend `/health` returning `200` with database OK, and the UI product dev server healthy on port `3001`. Backend `/health` also reported Ollama unavailable, so do not use this state as proof for LLM/enrichment testing.
-
 Containerized test-image run:
 
 ```sh
@@ -77,43 +60,12 @@ docker build --target test -t groupscout-ui-test .
 docker run --rm groupscout-ui-test
 ```
 
-Development Compose lifecycle against the backend stack:
+Use [Docker Runtime Matrix](./docker-runtime-matrix.md) to choose between the D1 test image, Phase 13 development Compose product server, and D4 production static/proxy server. It owns current Compose commands, backend-network smoke checks, expected `/api/*` statuses, port rules, and secret boundaries.
 
-```sh
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout
-curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml down
-```
-
-`compose.dev.yml` is intentionally an override, not a standalone Compose file. Use it with the backend Compose file because backend service `groupscout` and network `groupscout_net` are defined in the sibling backend repo.
-
-Choosing a backend plus UI Docker workflow:
-
-- Use Phase 13 development Compose when you want to prove that the UI container can build, join `groupscout_groupscout_net`, depend on backend service `groupscout`, expose `/healthz` on `localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}`, and serve generated product assets from `web/dist`.
-- Use D4 production runtime when you want an actual browser origin that serves `web/dist` and forwards same-origin `/api/*` requests from the UI container to the backend container.
-- There is not yet a dedicated Compose override that runs the D4 production target beside the backend. For now, run the production container manually on the backend Compose network:
-
-```sh
-docker build --target production -t groupscout-ui-production .
-docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_groupscout_net -p 3002:3000 -e UI_API_PROXY_TARGET=http://groupscout:8080 groupscout-ui-production
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/leads?limit=1
-curl -i http://localhost:3002/api/system
-curl -i http://localhost:3002/api/alerts?limit=1
-docker stop groupscout-ui-production-smoke
-```
-
-Interpret the checks separately. `GET /healthz`, `GET /`, and `GET /assets/app.js` prove the production UI container. With `UI_SESSION_SECRET` unset for Docker smoke, `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` should reach the backend and return `200`. A `502` means the UI container could not reach `UI_API_PROXY_TARGET`.
-
-Production same-origin server: `npm run start:ui`
+Production same-origin server:
 
 ```sh
 npm run start:ui
-docker build --target production -t groupscout-ui-production .
-docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production
 ```
 
 Production cache and navigation rules:
@@ -181,7 +133,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Keep same-origin `/api/*` links outside SPA route interception so raw audit and other API links reach the production proxy normally.
 - Keep browser auth session-based. Do not repurpose automation credentials for operator browser sessions.
 - Keep protected app routes behind `/api/auth/status` checks and redirect unauthenticated users to `/admin/login` when auth is required.
-- Keep setup-token handling server-owned: default token file is backend `data/admin-setup-token`, which is `/app/data/admin-setup-token` inside the `groupscout_app` container; file-backed tokens rotate after successful login, env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically, and browser code never sees `API_TOKEN`.
+- Keep setup-token handling server-owned; see [Admin Token Flow](./admin-token-flow.md) for token source, rotation, logout, stale asset recovery, and direct curl smoke commands.
 - Keep the admin login UI as a compact `admin-login-window` form inside the `admin-login` centering stage; do not move setup-token entry into a generic full-width screen panel.
 - Keep logout wired through `createApiClient().logout()` and `/api/auth/logout`; do not clear cookies from browser JavaScript directly.
 - Keep `API_TOKEN` out of browser runtime/config modules.
@@ -204,19 +156,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 
 ## Docker Operations
 
-Required UI Docker env vars:
-
-- `GROUPSCOUT_UI_HOST_PORT` optionally changes the development Compose host port from `3001`. The container still listens on `3000`.
-- `GROUPSCOUT_UI_REPO` optionally changes the Compose build context when the UI repo is not at `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
-- `UI_API_PROXY_TARGET` is server-only. Use `http://groupscout:8080` inside Compose and `http://host.docker.internal:8080` for a standalone production-container smoke against a backend running on the host.
-
-Backend dependency expectations:
-
-- The backend Compose file is expected at `/mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml`.
-- The UI dev service is `groupscout-ui`; the backend service is `groupscout`; both run on `groupscout_net`.
-- Starting `groupscout` also starts `postgres`, `ollama`, and `ollama-init` because of the backend dependency chain.
-- The UI product dev-server smoke does not require `alertd`, `n8n`, Grafana, Prometheus, Loki, Promtail, or a lead pipeline run. For most UI/API smoke, Postgres plus backend plus `groupscout-ui` are enough.
-- If backend `/health` says `"ollama":"unavailable"`, continue with UI/API smoke but pause LLM or enrichment testing until API-to-Ollama connectivity and model readiness are fixed.
+Docker operation mode selection, required env vars, backend dependency expectations, and D3/D4 smoke commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
 CI hook order:
 
@@ -303,19 +243,7 @@ Static product build:
 npm run build
 ```
 
-Development Compose override: `compose.dev.yml`. Use it beside the backend Compose file so the UI service joins the backend `groupscout_net` network and can target backend service `groupscout` at `http://groupscout:8080`:
-
-```sh
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet
-```
-
-Use `-p groupscout` on backend-plus-UI Compose runs when you also plan to attach the D4 production container to `groupscout_groupscout_net`.
-
-The development service is `groupscout-ui`. It builds the existing D1 `test` target, overrides the command with `node web/src/server/productDevServer.js`, maps `${GROUPSCOUT_UI_HOST_PORT:-3001}` to container port `3000`, serves the generated `web/dist` product assets, and healthchecks `/healthz`. The default host port is `3001` because the backend full stack already uses host port `3000` for Grafana.
-
-For a targeted development smoke path, bring up `groupscout-ui` with backend service `groupscout`; the backend Compose dependency chain also starts `postgres`, `ollama`, and `ollama-init`. The UI product dev server does not require `alertd`, `n8n`, Grafana, Prometheus, Loki, Promtail, or a lead pipeline run.
-
-D4 production smoke checks should cover `/healthz`, `/`, `/assets/app.js`, one app fallback route such as `/leads/lead_hotel_001`, and `/api/system` from one host origin when a backend or stub is reachable.
+Development Compose and D4 production smoke details live in [Docker Runtime Matrix](./docker-runtime-matrix.md). The matrix owns the current command blocks, the `-p groupscout` network convention, the `${GROUPSCOUT_UI_HOST_PORT:-3001}` default, backend dependency expectations, and the D4 `/api/leads`, `/api/system`, and `/api/alerts` smoke checks.
 
 ## Current Limitations
 

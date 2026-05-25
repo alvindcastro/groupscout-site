@@ -67,45 +67,7 @@ docker build --target test -t groupscout-ui-test .
 docker run --rm groupscout-ui-test
 ```
 
-Docker operations:
-
-```sh
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout
-curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml down
-```
-
-Backend plus UI Docker smoke:
-
-```sh
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui groupscout
-curl -i http://localhost:8080/health
-curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-docker build --target production -t groupscout-ui-production .
-docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_groupscout_net -p 3002:3000 -e UI_API_PROXY_TARGET=http://groupscout:8080 groupscout-ui-production
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/system
-docker stop groupscout-ui-production-smoke
-```
-
-The merged Compose service on port `3001` now runs the Phase 13 product dev server. It proves backend-network wiring, serves the static product assets, and preserves server-side backend discovery. The production container on port `3002` remains the same-origin static/proxy runtime. Current backend docs and smoke scripts expect `/api/leads?limit=1` to reach the backend through the UI production proxy when `UI_SESSION_SECRET` is not configured. When `UI_SESSION_SECRET` is configured for a real operator deployment, unauthenticated `/api/*` requests return `401` before proxying.
-
-Production UI runtime:
-
-```sh
-npm run start:ui
-docker build --target production -t groupscout-ui-production .
-docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/system
-```
-
-The default development UI host port is `3001` because the backend stack publishes Grafana on `3000`; set `GROUPSCOUT_UI_HOST_PORT` to use another host port. The D3 Compose smoke path starts `groupscout-ui` with backend service `groupscout`; the backend dependency chain also starts `postgres`, `ollama`, and `ollama-init`. Do not run UI Docker containers with backend `.env` or `--env-file`, and do not pass `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.
+Docker/runtime mode selection is centralized in [Docker Runtime Matrix](./docs/docker-runtime-matrix.md). Use it for the D1 test image, Phase 13 development product server, D4 production static/proxy server, backend-network smoke commands, expected `/api/*` status codes, and secret-boundary rules.
 
 ## Developer Docs
 
@@ -225,9 +187,7 @@ The default development UI host port is `3001` because the backend stack publish
 - Deployment helper: `createUiDeploymentConfig(...)`, `assertUiDeploymentReady(...)`, `resolveUiMount(...)`, and `authorizeUiApiRequest(...)`.
 - Session cookie: `groupscout_session` is required for browser `/api/*` access when the UI is enabled and `UI_SESSION_SECRET` is configured.
 - Admin login route: `/admin/login` submits the backend setup token to `/api/auth/login`, verifies the new session, and redirects to `/`.
-- Setup-token source: backend `data/admin-setup-token` by default, or `ADMIN_SETUP_TOKEN` when explicitly configured.
-- Token rotation: file-backed setup tokens rotate after successful login; env-backed setup tokens do not rotate automatically.
-- Logout route: the topbar logout control calls `/api/auth/logout`, revokes the session, expires `groupscout_session`, and returns to `/admin/login`.
+- Setup-token source, token rotation, logout behavior, stale Docker asset recovery, and direct curl smoke commands live in [Admin Token Flow](./docs/admin-token-flow.md).
 - Settings: `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, and development-only `CORS_ALLOWED_ORIGINS`.
 - Mounted shell: `createMountedRouteShell(...)` maps URLs under `UI_BASE_PATH` to internal routes and emits base-path-aware hrefs.
 - Out of scope: role matrices, identity-provider UI, production proxy config, and repurposing `API_TOKEN` for browser sessions.

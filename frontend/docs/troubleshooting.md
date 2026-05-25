@@ -98,19 +98,9 @@ Note: D2 originally reserved `npm run start:ui`, port `3000`, and `/healthz` as 
 
 ## UI Development Compose Fails
 
-D3 adds `compose.dev.yml` as a UI-repo override for the backend Compose file. Validate the merged config from the UI repo:
-
-```sh
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet
-```
+D3 adds `compose.dev.yml` as a UI-repo override for the backend Compose file. Use [Docker Runtime Matrix](./docker-runtime-matrix.md) for the current validation, startup, smoke, and teardown commands.
 
 Do not validate or start `compose.dev.yml` by itself. It depends on backend-defined service `groupscout` and network `groupscout_net`.
-
-Use `-p groupscout` when you need the generated network name to be `groupscout_groupscout_net` for the D4 production smoke container:
-
-```sh
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout
-```
 
 Inspect service state and UI logs:
 
@@ -141,9 +131,9 @@ docker compose version
 
 Do not pass the backend `.env` file into UI containers with `--env-file`. UI Docker operations should not receive `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET`.
 
-## Current Testing Stack Looks Partially Unhealthy
+## Testing Stack Looks Partially Unhealthy
 
-For the 2026-05-09 testing prep, these checks are enough for ordinary UI/API smoke:
+For ordinary UI/API smoke, these checks are enough before deeper debugging:
 
 ```sh
 curl -i --max-time 5 http://localhost:8080/health
@@ -200,15 +190,7 @@ If `UI_SESSION_SECRET` is configured, `/api/*` requests without a valid cookie r
 
 ## Admin Login Does Not Appear In Docker
 
-First verify the running containers are not stale:
-
-```sh
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-npm run build
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui
-curl -i --max-time 5 http://localhost:3001/api/auth/status
-curl -i --max-time 5 http://localhost:3001/
-```
+First verify the running containers are not stale using [Admin Token Flow](./admin-token-flow.md), which owns the current auth-status, token, logout, and stale asset recovery commands.
 
 Expected auth status:
 
@@ -226,28 +208,15 @@ If auth status is `404`, the backend container is old and must be rebuilt from t
 
 ## Admin Login Is Still Full Width
 
-The current `/admin/login` screen should render the token form as a compact floating window. If it still appears as a wide embedded panel:
-
-```sh
-cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
-npm run build
-node --test test/phase-13-renderer-runtime.test.js
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui
-curl -i --max-time 5 http://localhost:3001/
-```
+The current `/admin/login` screen should render the token form as a compact floating window. If it still appears as a wide embedded panel, use [Admin Token Flow](./admin-token-flow.md) for the current rebuild and stale asset recovery commands.
 
 Check that `web/src/renderer/domRenderer.js` renders `class="admin-login-window"` on the login form and that `web/src/renderer/staticStyles.css` makes `.admin-login` a transparent centering stage while `.admin-login-window` owns the border, background, and shadow. If source is correct but Docker is stale, rebuild the UI service and hard-refresh the browser.
 
 ## Setup Token Is Rejected
 
-Check the active token source:
+Check the active token source with the commands in [Admin Token Flow](./admin-token-flow.md).
 
-```sh
-curl -i --max-time 5 http://localhost:3001/api/auth/status
-docker exec groupscout_app sh -lc 'cat data/admin-setup-token'
-```
-
-The setup-token file is `/app/data/admin-setup-token` inside the backend container. The `docker exec` command above reads it from the container's `/app` working directory.
+The setup-token file is `/app/data/admin-setup-token` inside the backend container. [Admin Token Flow](./admin-token-flow.md) shows the current `docker exec` command for reading it from the container's `/app` working directory.
 
 Common causes:
 
@@ -256,16 +225,7 @@ Common causes:
 - The backend restarted, which clears in-memory sessions and requires another login.
 - The session expired after `ADMIN_SESSION_TTL_HOURS`, default `24`.
 
-For direct API smoke, keep cookies in a jar:
-
-```sh
-TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"
-curl -i -c /tmp/groupscout-admin.cookies \
-  -H "Content-Type: application/json" \
-  -d "{\"token\":\"${TOKEN}\"}" \
-  http://localhost:3001/api/auth/login
-curl -i -b /tmp/groupscout-admin.cookies http://localhost:3001/api/auth/me
-```
+For direct API smoke, keep cookies in a jar as shown in [Admin Token Flow](./admin-token-flow.md).
 
 ## Logout Does Not End Session
 
@@ -280,17 +240,7 @@ D3/Phase 13 and D4 are different modes:
 
 If `http://localhost:3001/api/system` fails with backend route drift, classify it the same way as D4 proxy smoke: `502` is proxy/backend reachability, `404` is missing backend route or wrong path, `401`/`403` is auth, and a `200` with missing fields is schema drift.
 
-If D4 is run with standalone `docker run`, use a host backend target:
-
-```sh
-docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production
-```
-
-If D4 is run on the backend Compose network, use the backend service name:
-
-```sh
-docker run --rm -d --name groupscout-ui-production-smoke --network groupscout_groupscout_net -p 3002:3000 -e UI_API_PROXY_TARGET=http://groupscout:8080 groupscout-ui-production
-```
+If D4 is run with standalone `docker run`, use a host backend target. If D4 is run on the backend Compose network, use the backend service name. The exact commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
 The current backend smoke contract expects `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` to return `200` through the D4 proxy. A `404` is no longer a passing compatibility result for those routes; it means the backend route set or proxy path has drifted.
 
@@ -302,12 +252,7 @@ D4 adds the production same-origin server:
 npm run start:ui
 ```
 
-For Docker:
-
-```sh
-docker build --target production -t groupscout-ui-production .
-docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production
-```
+For Docker startup and smoke commands, use [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
 Common causes:
 
@@ -318,14 +263,7 @@ Common causes:
 - Browser code references `http://groupscout:8080` directly instead of a relative `/api/*` path.
 - Public config or static assets include blocked names such as `API_TOKEN`, `CLAUDE_API_KEY`, Slack tokens, Resend/SendGrid keys, database URLs, or `UI_SESSION_SECRET`.
 
-Smoke the runtime from one origin:
-
-```sh
-curl -i http://localhost:3002/healthz
-curl -i http://localhost:3002/
-curl -i http://localhost:3002/assets/app.js
-curl -i http://localhost:3002/api/system
-```
+Smoke the runtime from one origin with the checks listed in [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
 ## Backend Health Check Fails
 

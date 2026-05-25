@@ -239,6 +239,8 @@ The `EmbeddingStore` interface means only the implementation swaps — `enricher
 
 ## Implementation Status
 
+Current Beads: Phase A AI-ready SQL, Langfuse/noop tracing, and runtime `EvalLead` validation are tracked in `groupscout-site-48g`; the Phase 16 provider abstraction is tracked in `groupscout-site-vud`.
+
 ### Phase A — AI-Ready SQL only (no embeddings yet)
 > Coding prompts: [PROMPTS_AI_READY_SQL.md](./PROMPTS_AI_READY_SQL.md)
 - [ ] `migrations/004_lead_context_view.up.sql` — `v_lead_context` view

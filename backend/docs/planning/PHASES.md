@@ -242,6 +242,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 ## Phase 7 — User Requests & Refinements 🔄
 **Goal:** Address specific user feedback and small UX improvements.
 
+> Current Beads: remaining lead/outreach API work overlaps the planned operator UI API implementation in `groupscout-site-eqm`; generated frontend types are tracked by `groupscout-site-29q`.
+
 - [x] **7.1** `internal/notify/slack.go` — Identify lead source in Slack notifications.
 - [x] **7.2** `PHASES.md` — Add tick-off tasks for user requests.
 - [x] **7.3** `CHANGELOG.md` — Document source identification and documentation updates.
@@ -267,6 +269,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 ## Phase 9 — Architecture & Scaling (Planned)
 **Goal:** Optimize for speed, efficiency, and manageability.
 
+> Historical backlog. Split focused Beads before implementation; only broad cleanup/refactor overlap is currently tracked in `groupscout-site-2h1`.
+
 - [ ] **9.1** Collector Registry — Centralized registry for all collectors to simplify pipeline orchestration.
 - [ ] **9.2** Parallel Execution — Run collectors concurrently using worker pools.
 - [ ] **9.3** Dynamic Parameters — Support for passing scraper overrides (keywords/dates) via `/run` endpoint.
@@ -279,6 +283,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 **Goal:** Improve user interaction and external integrations.
 
 > Historical broad checklist. Backend-owned UI API contracts and smoke paths are tracked more precisely in `docs/planning/ui/UI_TDD_PHASE_PLAN.md` Phases 31-38.
+> Current Beads: `groupscout-site-eqm` for backend UI API routes, `groupscout-site-29q` for generated frontend API types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-kb4` for browser harness coverage, `groupscout-site-0m0` for UI checkout reconciliation, and `groupscout-site-3gq` for alert state.
 
 - [x] **10.0** `docs/planning/ui/UI_STRATEGY.md` — Define operator UI strategy, information architecture, status model, API boundaries, and MVP sequence.
 - [ ] **10.1** `internal/storage/leads.go` — Add filtered `List` with status/source/min-score/search/pagination support.
@@ -308,6 +313,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 
 ## Phase 12 — Source Expansion (Metro Vancouver)
 **Goal:** Broaden lead capture across other major municipalities.
+
+> Current Beads: `groupscout-site-aaj` selects and scopes the next source-expansion collector slice.
 
 - [ ] **12.1** Burnaby Permits — Scraper for Burnaby daily/weekly permit PDFs.
 - [ ] **12.2** Vancouver Open Data — Integration for City of Vancouver building permits (API/CSV).
@@ -584,6 +591,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 ## Phase 18 — Contact Enrichment 📋
 **Goal:** Auto-surface a decision-maker contact alongside each lead — project manager, production coordinator, travel manager — using Hunter.io (v1). Biggest current gap vs. competitors.
 
+> Current source reconciliation: `HUNTER_API_KEY` config exists, but the inspected backend source snapshot does not include a live Hunter client, contact-field migration, or Slack contact block. No open implementation bead currently owns Phase 18; create a focused bead before coding this checklist.
+
 > **TDD rule for this phase:** T tasks first. All unit tests use mock HTTP; no real Hunter.io calls in test suite.
 
 - [ ] **18-T** `internal/enrichment/hunter_test.go` — `TestHunterDomainLookup` with mock HTTP server: domain → contact list → ranked result; `TestRankContactByTitle` table-driven (PM beats accountant); `TestHunterRateLimit` (429 handling); all fail first
@@ -606,6 +615,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 
 ## Phase 19 — Slack Actions & Lead Feedback 📋
 **Goal:** Reps act on leads without leaving Slack. Track outcomes. Resurface aging leads.
+
+> Current Beads: overlapping lead-state API work belongs to `groupscout-site-eqm`. Slack-specific action-button and signature-verification work does not currently have a dedicated open bead in this pass.
 
 > **TDD rule for this phase:** T tasks first. Slack action handler is pure logic — test it with fixture payloads before wiring the HTTP endpoint.
 
@@ -860,6 +871,8 @@ Postgres integration follow-up: `groupscout-site-wda` tracks the raw-input forei
 ## Phase 28 — Analytics & Source Attribution 📋
 **Goal:** Weekly digest that shows which signal sources are generating closed business, enabling the sales team to prioritize outreach.
 
+> No active implementation bead currently owns Phase 28; create a focused bead before coding this checklist.
+
 > **TDD rule for this phase:** T tasks first. Aggregate queries tested against in-memory SQLite fixture data.
 
 - [ ] **28-T** `internal/storage/analytics_test.go` — seed test DB; `TestSourceAttribution` asserts correct grouped counts + hit rate %; `TestDemandDensityByWeek` asserts bucketing by arrival week; all fail first
@@ -873,6 +886,8 @@ Postgres integration follow-up: `groupscout-site-wda` tracks the raw-input forei
 
 ## Phase 29 — Prompt Engineering & Strict TDD 📋
 **Goal:** Transition prompts into a formal library with evaluation metrics and strict Test-Driven Development.
+
+> Current Beads: AI-ready SQL, LLM observability, and runtime eval work are tracked in `groupscout-site-48g`; broader enrichment prompt/provider cleanup smells are tracked in `groupscout-site-2h1`.
 
 > **TDD rule:** All prompt changes must be preceded by an "Expected AI Score" test case. No prompt modification without a passing regression suite.
 
@@ -892,6 +907,8 @@ Postgres integration follow-up: `groupscout-site-wda` tracks the raw-input forei
 
 ## Phase 30 — Advanced Audit & Verification 📋
 **Goal:** Transform the raw audit trail into a proactive verification and quality assurance system.
+
+> Current Beads: sanitized raw preview is tracked in `groupscout-site-4cv`; AI-ready SQL, LLM observability, and runtime eval work are tracked in `groupscout-site-48g`.
 
 > **TDD rule for this phase:** Verification logic tested by mocking misaligned lead/raw data and asserting AI flags.
 

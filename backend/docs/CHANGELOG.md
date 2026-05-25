@@ -1,5 +1,15 @@
 ## 2026-05-25 - Missed task markdown reconciliation
 
+### groupscout-site-9fy - Audit backend markdown for missed task drift
+
+- **What:** Reconciled backend markdown that still presented planned contact enrichment, health/OpenAPI follow-ups, and older strategic checklists as live or unowned work.
+- **Where:** Backend architecture/data-flow docs, roadmap and phase planning docs, UI API endpoint notes, AI/Ollama planning docs, and this changelog.
+- **When:** 2026-05-25.
+- **Why:** The checked backend source and centralized docs contradicted each other around Hunter.io contact enrichment, smoke-artifact branch history, health OpenAPI drift, and unchecked follow-up ownership.
+- **How:** Cross-checked existing open Beads, current backend source filenames, and backend markdown references; added factual source-snapshot caveats and existing bead IDs without changing source code or closing work.
+
+---
+
 ### groupscout-site-cw2 - Review MD files for missed task drift
 
 - **What:** Updated markdown task state around the completed `/ingest` work, live missed-task follow-ups, and UI-planning endpoint inventories.

@@ -9,18 +9,18 @@
 
 ## Global Rules
 
-- [ ] Use beads for task tracking before code changes.
-- [ ] Check current repo state before edits; do not revert user changes.
-- [ ] Start every phase by restating goal, workflow, out-of-scope items, and acceptance criteria.
-- [ ] Write tests before implementation.
-- [ ] Confirm the red failure is for the expected missing behavior.
-- [ ] Implement only enough code/docs/runtime behavior to pass.
-- [ ] Rerun the narrow test and then the relevant broader suite.
-- [ ] Preserve browser-only access through same-origin `/api/*` contracts.
-- [ ] Keep secrets server-side: no `API_TOKEN`, provider keys, Slack tokens, Resend keys, database URLs, `OLLAMA_ENDPOINT`, or `UI_SESSION_SECRET` in browser-visible code/assets/config.
-- [ ] Use `DESIGN.md` tokens and UX direction: dense operator surfaces, Inter prose, Geist Mono for structured values, hairline borders, compact controls, black primary buttons, mint only for active/confirmation accents.
-- [ ] Treat raw source evidence, AI enrichment, reviewer corrections, outreach logs, and status history as distinct audit concepts.
-- [ ] Add follow-up beads issues for known gaps instead of hiding them in comments or unchecked assumptions.
+- Use beads for task tracking before code changes.
+- Check current repo state before edits; do not revert user changes.
+- Start every phase by restating goal, workflow, out-of-scope items, and acceptance criteria.
+- Write tests before implementation.
+- Confirm the red failure is for the expected missing behavior.
+- Implement only enough code/docs/runtime behavior to pass.
+- Rerun the narrow test and then the relevant broader suite.
+- Preserve browser-only access through same-origin `/api/*` contracts.
+- Keep secrets server-side: no `API_TOKEN`, provider keys, Slack tokens, Resend keys, database URLs, `OLLAMA_ENDPOINT`, or `UI_SESSION_SECRET` in browser-visible code/assets/config.
+- Use `DESIGN.md` tokens and UX direction: dense operator surfaces, Inter prose, Geist Mono for structured values, hairline borders, compact controls, black primary buttons, mint only for active/confirmation accents.
+- Treat raw source evidence, AI enrichment, reviewer corrections, outreach logs, and status history as distinct audit concepts.
+- Add follow-up beads issues for known gaps instead of hiding them in comments or unchecked assumptions.
 
 ## Suggested Phase Order
 
@@ -44,6 +44,8 @@
 ## Implementation Status
 
 Completed on 2026-05-09 in the current canonical phase order. See [UI TDD Phases 0-15 Implementation Status](./docs/ui-tdd-phase-0-15-implementation.md) for the phase map, red/green evidence, residual risk, and the restored-baseline decision.
+
+Unchecked task boxes are intentionally avoided in the prompt sections below: those bullets are reusable TDD prompt steps, not open repository task status. Current residual work must be tracked in beads instead of this prompt archive.
 
 Phase 15 is complete at deterministic renderer/model level only. Real-browser focus traversal, screenshots, pixel checks, computed layout, and overlap detection remain open in bd issue `groupscout-site-kb4` until the repo accepts a browser harness dependency.
 
@@ -101,13 +103,13 @@ Do not build new product features in this phase.
 
 ### Tasks
 
-- [ ] Record current `git status` and identify user-owned changes.
-- [ ] Decide whether to restore Phase 13 files from `origin/main` or continue from a minimal docs-first baseline.
-- [ ] Add a failing baseline smoke for package scripts, route shell, renderer runtime, and secret guardrails.
-- [ ] Run the focused red command.
-- [ ] Restore or recreate the minimum harness.
-- [ ] Rerun focused tests.
-- [ ] Update docs with the chosen baseline decision.
+- Record current `git status` and identify user-owned changes.
+- Decide whether to restore Phase 13 files from `origin/main` or continue from a minimal docs-first baseline.
+- Add a failing baseline smoke for package scripts, route shell, renderer runtime, and secret guardrails.
+- Run the focused red command.
+- Restore or recreate the minimum harness.
+- Rerun focused tests.
+- Update docs with the chosen baseline decision.
 
 ## Phase 1 - Product Contract, IA, And UX Guardrails
 
@@ -135,12 +137,12 @@ Do not implement feature screens or live API calls in this phase.
 
 ### Tasks
 
-- [ ] Test route list and default route.
-- [ ] Test `DESIGN.md` token mapping for colors, typography, spacing, radius, and key components.
-- [ ] Test no browser-facing secret names.
-- [ ] Test shell reserves command center, leads, verification, outreach, pipeline, analytics, alerts, and settings.
-- [ ] Implement shell placeholders only after tests fail.
-- [ ] Document UX guardrails.
+- Test route list and default route.
+- Test `DESIGN.md` token mapping for colors, typography, spacing, radius, and key components.
+- Test no browser-facing secret names.
+- Test shell reserves command center, leads, verification, outreach, pipeline, analytics, alerts, and settings.
+- Implement shell placeholders only after tests fail.
+- Document UX guardrails.
 
 ## Phase 2 - Backend Compatibility Smoke
 
@@ -168,12 +170,12 @@ Do not hide route drift behind fixtures.
 
 ### Tasks
 
-- [ ] Inventory backend live routes.
-- [ ] Test compatibility classification categories.
-- [ ] Test same-origin UI routes map to server-side `http://groupscout:8080`.
-- [ ] Test auth/session failures separately from automation `API_TOKEN`.
-- [ ] File backend follow-up issues for missing routes.
-- [ ] Document current compatible and incompatible endpoints.
+- Inventory backend live routes.
+- Test compatibility classification categories.
+- Test same-origin UI routes map to server-side `http://groupscout:8080`.
+- Test auth/session failures separately from automation `API_TOKEN`.
+- File backend follow-up issues for missing routes.
+- Document current compatible and incompatible endpoints.
 
 ## Phase 3 - API Client Contracts
 
@@ -198,14 +200,14 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test `GET /api/leads` filters and pagination.
-- [ ] Test `GET /api/leads/{id}` detail shape.
-- [ ] Test `PATCH /api/leads/{id}` mutation payload validation.
-- [ ] Test `GET /api/leads/{id}/raw` raw audit alias.
-- [ ] Test `GET/POST /api/leads/{id}/outreach`.
-- [ ] Test `GET/POST /api/pipeline/runs`.
-- [ ] Test `GET /api/stats`, `GET /api/alerts`, and `GET /api/system`.
-- [ ] Implement one centralized API boundary.
+- Test `GET /api/leads` filters and pagination.
+- Test `GET /api/leads/{id}` detail shape.
+- Test `PATCH /api/leads/{id}` mutation payload validation.
+- Test `GET /api/leads/{id}/raw` raw audit alias.
+- Test `GET/POST /api/leads/{id}/outreach`.
+- Test `GET/POST /api/pipeline/runs`.
+- Test `GET /api/stats`, `GET /api/alerts`, and `GET /api/system`.
+- Implement one centralized API boundary.
 
 ## Phase 4 - Today Command Center
 
@@ -225,13 +227,13 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test summary counts and generated timestamp.
-- [ ] Test high-score new lead rows.
-- [ ] Test aging claimed work.
-- [ ] Test active alert and failed job cards.
-- [ ] Test system health via `/api/system`.
-- [ ] Test responsive layout and token use.
-- [ ] Implement Today screen.
+- Test summary counts and generated timestamp.
+- Test high-score new lead rows.
+- Test aging claimed work.
+- Test active alert and failed job cards.
+- Test system health via `/api/system`.
+- Test responsive layout and token use.
+- Implement Today screen.
 
 ## Phase 5 - Lead Inbox
 
@@ -250,12 +252,12 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test search, status, source, score, owner, property, verification, and date filters.
-- [ ] Test score, title, segment, location/property fit, source, crew/duration, timing, status, owner, created, and evidence columns.
-- [ ] Test clear filters.
-- [ ] Test keyboard row activation.
-- [ ] Test mocked and API-backed data paths separately.
-- [ ] Implement inbox screen.
+- Test search, status, source, score, owner, property, verification, and date filters.
+- Test score, title, segment, location/property fit, source, crew/duration, timing, status, owner, created, and evidence columns.
+- Test clear filters.
+- Test keyboard row activation.
+- Test mocked and API-backed data paths separately.
+- Implement inbox screen.
 
 ## Phase 6 - Lead Detail Evidence Workspace
 
@@ -275,13 +277,13 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test summary fields.
-- [ ] Test source URL, source name, raw audit link, collected timestamp.
-- [ ] Test AI rationale, uncertainty, crew, duration, project type, and evidence references.
-- [ ] Test activity timeline.
-- [ ] Test not found, loading, and error states.
-- [ ] Test responsive detail layout.
-- [ ] Implement read-only detail workspace.
+- Test summary fields.
+- Test source URL, source name, raw audit link, collected timestamp.
+- Test AI rationale, uncertainty, crew, duration, project type, and evidence references.
+- Test activity timeline.
+- Test not found, loading, and error states.
+- Test responsive detail layout.
+- Implement read-only detail workspace.
 
 ## Phase 7 - Lead Status, Ownership, And Corrections
 
@@ -301,12 +303,12 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Define and test status model.
-- [ ] Test claim, snooze, flag, verify, dismiss, contacted, won, lost, no response, reopen, and correct.
-- [ ] Test required notes/reasons.
-- [ ] Test invalid transitions never call the API client.
-- [ ] Test corrections preserve original source/AI values.
-- [ ] Implement action controls and helpers.
+- Define and test status model.
+- Test claim, snooze, flag, verify, dismiss, contacted, won, lost, no response, reopen, and correct.
+- Test required notes/reasons.
+- Test invalid transitions never call the API client.
+- Test corrections preserve original source/AI values.
+- Implement action controls and helpers.
 
 ## Phase 8 - Verification Queue And Raw Audit Review
 
@@ -327,13 +329,13 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test missing source/raw audit trigger.
-- [ ] Test high score with weak rationale trigger.
-- [ ] Test raw/enriched contradiction trigger.
-- [ ] Test low-confidence parse trigger.
-- [ ] Test manual flag trigger.
-- [ ] Test redaction policy as blocked until defined.
-- [ ] Implement queue.
+- Test missing source/raw audit trigger.
+- Test high score with weak rationale trigger.
+- Test raw/enriched contradiction trigger.
+- Test low-confidence parse trigger.
+- Test manual flag trigger.
+- Test redaction policy as blocked until defined.
+- Implement queue.
 
 ## Phase 9 - Outreach Workspace And Activity Log
 
@@ -353,12 +355,12 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test channel, contact, message, notes, and outcome fields.
-- [ ] Test manual copied/sent/logged states.
-- [ ] Test contacted, won, lost, and no-response outcomes.
-- [ ] Test activity timeline entries.
-- [ ] Test no auto-send behavior.
-- [ ] Implement outreach workspace.
+- Test channel, contact, message, notes, and outcome fields.
+- Test manual copied/sent/logged states.
+- Test contacted, won, lost, and no-response outcomes.
+- Test activity timeline entries.
+- Test no auto-send behavior.
+- Implement outreach workspace.
 
 ## Phase 10 - Pipeline Monitor And Run Controls
 
@@ -377,12 +379,12 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test recent run rows.
-- [ ] Test collector collected/skipped/enriched counts.
-- [ ] Test LLM provider, latency, and errors.
-- [ ] Test Slack/email/webhook delivery failures.
-- [ ] Test manual run request payload.
-- [ ] Implement pipeline monitor.
+- Test recent run rows.
+- Test collector collected/skipped/enriched counts.
+- Test LLM provider, latency, and errors.
+- Test Slack/email/webhook delivery failures.
+- Test manual run request payload.
+- Implement pipeline monitor.
 
 ## Phase 11 - Analytics And Demand Signals
 
@@ -401,12 +403,12 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test status distribution.
-- [ ] Test source yield and denominators.
-- [ ] Test score bands and owner load.
-- [ ] Test lead aging and verification quality.
-- [ ] Test demand by week/property/segment.
-- [ ] Implement analytics dashboard.
+- Test status distribution.
+- Test source yield and denominators.
+- Test score bands and owner load.
+- Test lead aging and verification quality.
+- Test demand by week/property/segment.
+- Implement analytics dashboard.
 
 ## Phase 12 - Alertd Read-Only Console
 
@@ -425,12 +427,12 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test alert list and summary.
-- [ ] Test highest SPS and room impact.
-- [ ] Test evidence rows.
-- [ ] Test action history.
-- [ ] Test no acknowledge/resolve/suppress mutation client exists.
-- [ ] Implement read-only alert console.
+- Test alert list and summary.
+- Test highest SPS and room impact.
+- Test evidence rows.
+- Test action history.
+- Test no acknowledge/resolve/suppress mutation client exists.
+- Implement read-only alert console.
 
 ## Phase 13 - Session/Auth And Same-Origin Runtime
 
@@ -449,12 +451,12 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test `UI_ENABLED`.
-- [ ] Test `UI_BASE_PATH`.
-- [ ] Test `UI_SESSION_SECRET` readiness.
-- [ ] Test session-cookie authorization for `/api/*`.
-- [ ] Test browser bundle secret scans.
-- [ ] Implement runtime/session helpers.
+- Test `UI_ENABLED`.
+- Test `UI_BASE_PATH`.
+- Test `UI_SESSION_SECRET` readiness.
+- Test session-cookie authorization for `/api/*`.
+- Test browser bundle secret scans.
+- Implement runtime/session helpers.
 
 ## Phase 14 - Docker Integration And E2E Smoke
 
@@ -474,13 +476,13 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test `docker build --target test` contract.
-- [ ] Test dev UI service host port defaults to `3001`.
-- [ ] Test production smoke can run on `3002`.
-- [ ] Test server-side target `http://groupscout:8080`.
-- [ ] Test `/healthz`, `/`, `/assets/app.js`, and one `/api/*` classification.
-- [ ] Test Compose/static assets are secret-free.
-- [ ] Implement Docker integration.
+- Test `docker build --target test` contract.
+- Test dev UI service host port defaults to `3001`.
+- Test production smoke can run on `3002`.
+- Test server-side target `http://groupscout:8080`.
+- Test `/healthz`, `/`, `/assets/app.js`, and one `/api/*` classification.
+- Test Compose/static assets are secret-free.
+- Implement Docker integration.
 
 ## Phase 15 - Browser UX Hardening
 
@@ -499,10 +501,10 @@ TDD requirements:
 
 ### Tasks
 
-- [ ] Test keyboard navigation through shell, filters, rows, tabs, and actions.
-- [ ] Test accessible names for icon/action controls.
-- [ ] Test desktop, tablet, and mobile layouts.
-- [ ] Test no text overflow in buttons, badges, filters, and table/card cells.
-- [ ] Test loading and error states do not shift layout incoherently.
-- [ ] Test screenshots for primary routes once browser harness exists.
-- [ ] Implement UX hardening fixes.
+- Test keyboard navigation through shell, filters, rows, tabs, and actions.
+- Test accessible names for icon/action controls.
+- Test desktop, tablet, and mobile layouts.
+- Test no text overflow in buttons, badges, filters, and table/card cells.
+- Test loading and error states do not shift layout incoherently.
+- Test screenshots for primary routes once browser harness exists.
+- Implement UX hardening fixes.

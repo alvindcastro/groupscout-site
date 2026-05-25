@@ -11,7 +11,7 @@ This document outlines potential technical enhancements and a roadmap for the fu
 #### 1. System Reliability & Observability
 - [x] **Structured Logging** — Standardize all logs into JSON format using `slog` for log aggregators like ELK or Grafana Loki.
 - [x] **Sentry Integration** — Automated error reporting to catch and alert on scraper failures or API timeouts in real-time.
-- [x] **Advanced Health Checks** — `/health` endpoint checking DB connectivity and last successful run times per collector.
+- [x] **Basic Health Check** — `/health` endpoint reports database/API connectivity. Collector freshness remains open under `groupscout-site-yyj`.
 - [ ] **Distributed Tracing (OpenTelemetry)** — Implement tracing to visualize lead flow from collection to notification, making it easier to identify bottlenecks or failures in the enrichment pipeline. Beads: `groupscout-site-yyj`.
 
 #### 2. Intelligence & Enrichment
@@ -125,7 +125,7 @@ This document outlines potential technical enhancements and a roadmap for the fu
 - [x] Add Sentry for error tracking.
 - [x] Create `TESTING.md` and define testing strategy.
 - [x] Implement basic lead deduplication (exact match on URL/Title).
-- [x] Add `/health` and `/metrics` (Prometheus) endpoints.
+- [x] Add `/health` and the currently wired `/metrics` endpoint; lead-delivery counters and collector freshness remain open under `groupscout-site-yyj`.
 - [x] Testing Documentation — Create `TESTING.md`.
 - [x] Integrated n8n for orchestration.
 

@@ -32,17 +32,17 @@
 
 ## Global TDD Rules For Phase 13
 
-- [ ] Read the relevant docs and current tests before changing files.
-- [ ] Write the smallest failing test or failing docs-contract assertion first.
-- [ ] Run the narrow command and confirm the expected red failure.
-- [ ] Implement only enough code or documentation to pass.
-- [ ] Rerun the narrow command and confirm green.
-- [ ] Run `npm test` after UI source, runtime contract, or docs-guardrail changes.
-- [ ] Run Docker validation only after Docker, Compose, or runtime behavior changes.
-- [ ] Add dependencies and a lockfile only after a failing test proves they are required.
-- [ ] Keep the D4 production static/proxy server as the default production boundary unless a later tested contract replaces it.
-- [ ] Keep browser API calls same-origin and keep generated public config whitelist-only.
-- [ ] Record red evidence, green evidence, broader command, files changed, and residual risk in the task summary.
+- Read the relevant docs and current tests before changing files.
+- Write the smallest failing test or failing docs-contract assertion first.
+- Run the narrow command and confirm the expected red failure.
+- Implement only enough code or documentation to pass.
+- Rerun the narrow command and confirm green.
+- Run `npm test` after UI source, runtime contract, or docs-guardrail changes.
+- Run Docker validation only after Docker, Compose, or runtime behavior changes.
+- Add dependencies and a lockfile only after a failing test proves they are required.
+- Keep the D4 production static/proxy server as the default production boundary unless a later tested contract replaces it.
+- Keep browser API calls same-origin and keep generated public config whitelist-only.
+- Record red evidence, green evidence, broader command, files changed, and residual risk in the task summary.
 
 ## Parallel Agent Prompts
 
@@ -306,9 +306,9 @@ Do not change backend code during this planning-only pass.
 
 ## Explicit Non-Goals
 
-- [ ] Do not add production UI code in this planning pass.
-- [ ] Do not install dependencies in this planning pass.
-- [ ] Do not choose a framework by preference alone.
-- [ ] Do not replace D4 production serving without a tested contract.
-- [ ] Do not expose automation credentials to browser-visible config or assets.
-- [ ] Do not treat model-level tests as sufficient for DOM focus, layout, or accessibility once a renderer exists.
+- Do not add production UI code in this planning pass.
+- Do not install dependencies in this planning pass.
+- Do not choose a framework by preference alone.
+- Do not replace D4 production serving without a tested contract.
+- Do not expose automation credentials to browser-visible config or assets.
+- Do not treat model-level tests as sufficient for DOM focus, layout, or accessibility once a renderer exists.

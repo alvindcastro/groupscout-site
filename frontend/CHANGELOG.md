@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Markdown Task-Drift Audit
+
+- What: Converted prompt-only unchecked checklist items to plain bullets, routed open product/smell/redaction follow-ups to existing bead IDs, and narrowed current-test language where the inspected checkout lacks the referenced artifacts.
+- Where: Updated `README.md`, `UI_TDD_PHASE_PROMPTS.md`, `docs/web-app-brainstorm.md`, `docs/code-smells.md`, `docs/code-smell-transformation-prompts.md`, `docs/testing.md`, `docs/developer-guide.md`, `docs/troubleshooting.md`, and related phase records.
+- When: Updated on 2026-05-25 during coordinator task `groupscout-site-9fy`.
+- Why: The frontend markdown still had prompt checkboxes that looked like live task tracking, follow-up text without bead IDs, and a few current-source claims contradicted by nearby reconciliation notes.
+
 ### Current Source Reconciliation
 
 - What: Keep the historical 2026-05-09 UI/admin/session, Phase 15 hardening, and backend API smoke entries scoped as branch-history where the inspected UI/backend checkouts no longer contain the referenced files or routes.
@@ -228,7 +235,7 @@
 ### Phase 5 - Verification Queue And Raw Audit Review
 
 - Added failing-first Phase 5 tests for verification trigger classification, queue filters/actions, `/verification` route integration, raw audit API alias use, responsive metadata, and `DESIGN.md` token usage.
-- Added `web/src/app/verificationQueue.js` with trigger classification, mocked queue data, dense row models, mobile card metadata, row actions, raw audit link intent, and an explicit blocked redaction-policy TODO.
+- Added `web/src/app/verificationQueue.js` with trigger classification, mocked queue data, dense row models, mobile card metadata, row actions, raw audit link intent, and an explicit blocked redaction-policy TODO now tracked by `groupscout-site-4cv`.
 - Added `createApiClient().getLeadRawAudit(...)` for same-origin `GET /api/leads/{id}/raw` access and updated Lead Detail raw audit links to use the UI-safe alias.
 - Mounted the Verification Queue from `createRouteShell("/verification")`.
 - Added Phase 5 implementation notes in `docs/phase-5-verification-queue-raw-audit-review.md`, `README.md`, and `UI_TDD_PHASE_PROMPTS.md`.

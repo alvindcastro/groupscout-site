@@ -19,8 +19,9 @@ graph TD
     RawStorage --> PreScorer[Pre-Scorer: Rule-based Filtering]
     PreScorer -- Low Value --> Archive[Archive]
     PreScorer -- High Value --> Enrichment[AI Enrichment: Claude/Gemini]
-    Enrichment --> Hunter[Contact Discovery: Hunter.io]
-    Hunter --> LeadStore[(DB: leads)]
+    Enrichment --> LeadStore[(DB: leads)]
+    Enrichment -. Planned Phase 18 .-> Hunter[Contact Discovery: Hunter.io]
+    Hunter -. Planned .-> LeadStore
     LeadStore --> Embedding[Vector Embeddings: pgvector/SQLite]
     LeadStore --> Notifier[Notification Layer: Slack/Email]
     LeadStore --> AdminUI[Planned Operator UI: Lead Inbox/Detail]
@@ -38,12 +39,12 @@ graph TD
 3.  **Deduplication**: A SHA-256 hash of the raw payload is checked against the `raw_projects` table. If the project has been seen before, it is skipped to save on processing costs.
 4.  **Cost-Effective Pre-Scoring**: Before calling expensive AI APIs, a rule-based "Pre-Scorer" filters out low-value items (e.g., residential bathroom renovations or projects with budgets below a specific threshold).
 5.  **AI Enrichment**: High-value projects are sent through the current Claude/Gemini enrichment path. Unified provider selection for OpenAI-compatible providers, Azure, Ollama, and fallback behavior remains open in `groupscout-site-vud`.
-6.  **Contact Discovery**: The system uses Hunter.io to find decision-maker contacts for the organization identified by the AI.
+6.  **Contact Discovery**: Hunter.io contact lookup is a planned Phase 18 enhancement. The inspected backend source snapshot has `HUNTER_API_KEY` config, but no live Hunter client wired into enrichment.
 7.  **Persistence**: Enriched `Lead` objects are saved to the `leads` table. Vector embeddings are generated and stored in `lead_embeddings` to enable similarity-based search (RAG).
-8.  **Notification & Action**: 
+8.  **Notification & Action**:
     -   **Real-time**: High-priority leads are sent immediately to Slack.
     -   **Digest**: Lower-priority leads are aggregated into a daily or weekly email summary via Resend.
-    -   **Interaction**: Users can interact with leads (e.g., Claim/Dismiss) directly from Slack, which updates the lead status and logs the interaction in `outreach_log`.
+    -   **Interaction**: Slack claim/dismiss/snooze actions remain planned Phase 19 work. Overlapping lead-state API implementation is tracked by `groupscout-site-eqm`.
 9.  **Planned Operator Review Loop**:
     -   **Lead inbox**: The future UI should expose sortable/filterable lead triage backed by UI-specific `/api/*` endpoints.
     -   **Evidence review**: Operators should be able to open the raw audit payload for uncertain leads, starting with the implemented `GET /leads/{id}/raw` endpoint and later an authenticated UI alias.

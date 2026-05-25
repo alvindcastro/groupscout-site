@@ -21,7 +21,7 @@ The first durable workspace will support operators moving through lead triage, r
 - Stable design-token location: covered by `test/design-tokens.test.js`.
 - Browser API boundary: covered by `test/api-boundary.test.js`.
 - Planned IA shell: covered by `test/app-shell.test.js`.
-- No feature workflow implementation: the shell returns placeholder content only.
+- Phase 0 had no feature workflow implementation: the shell returned placeholder content only until later phase screen models replaced the route placeholders.
 
 ## Red-Green Notes
 

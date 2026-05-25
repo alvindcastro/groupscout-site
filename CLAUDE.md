@@ -52,13 +52,12 @@ bd close <id>         # Complete work
 
 ## Build & Test
 
-_Add your build and test commands here_
+This coordination repo has no root build. Run quality gates from the owning source repository when code changes:
 
-```bash
-# Example:
-# npm install
-# npm test
-```
+- Backend source: `/mnt/c/Users/alvin/GolandProjects/groupscout`
+- Frontend source: `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`
+
+For markdown-only changes in this repo, run focused checks such as `git diff --check` and relevant `rg` audits for task-tracking drift.
 
 ## Architecture Overview
 

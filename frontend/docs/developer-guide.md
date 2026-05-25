@@ -12,7 +12,7 @@ Status reconciliation, 2026-05-25: the inspected UI checkout does not currently 
 - `web/src/app/shell.js` owns route-shell selection.
 - Planned `web/src/app/adminLogin.js` owns the setup-token login screen model once restored.
 - `web/src/server/uiDeployment.js` owns model-level UI deployment settings, base-path mounting, session-cookie API authorization, and development-only CORS metadata.
-- `web/src/server/browserRuntimeContract.js` owns the D2 browser runtime contract metadata for the future lightweight Node server, reserved port, health path, static asset boundary, `/api/*` routing expectation, and forbidden browser public config keys.
+- `web/src/server/browserRuntimeContract.js` owns the D2 browser runtime contract metadata for the lightweight Node server, reserved port, health path, static asset boundary, `/api/*` routing expectation, and forbidden browser public config keys.
 - `web/src/server/productRendererRuntime.js` owns the Phase 13 renderer/runtime contract.
 - `web/src/server/productDevServer.js` owns the Phase 13 product dev server for the `groupscout-ui` Compose service.
 - `web/src/server/productionServer.js` owns the D4 production same-origin server for `web/dist` static assets, `/healthz`, whitelist-only public config, and server-side `/api/*` proxying.
@@ -84,6 +84,8 @@ npx @google/design.md lint DESIGN.md
 ```
 
 Useful focused runs:
+
+The commands below include historical/restoration targets. In the inspected UI checkout, runs that require planned admin auth files, `createApiClient().getLead(...)`, production session-gate wiring, or `test/browser-ux-hardening.test.js` belong to `groupscout-site-0m0` until those artifacts are restored or reconciled.
 
 ```sh
 node --test test/api-boundary.test.js

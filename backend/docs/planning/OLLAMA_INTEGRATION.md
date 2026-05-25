@@ -225,7 +225,7 @@ Do not make real HTTP calls in tests.
 - [x] Inject `Scorer` into existing Slack notification builder — append rationale to Block Kit message
 - [x] Cap rationale at 280 characters before sending to Slack (prevents overflow)
 - [x] Add `OLLAMA_SCORING_ENABLED` toggle
-- [ ] Add `ollama_rationale_latency_ms` to Prometheus metrics if metrics are wired
+- [ ] Add `ollama_rationale_latency_ms` to Prometheus metrics if metrics are wired. Beads: `groupscout-site-yyj`.
 
 ---
 

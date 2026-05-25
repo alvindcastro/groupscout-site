@@ -9,7 +9,7 @@ Status reconciliation, 2026-05-25: backend `main` currently exposes the automati
 
 | Endpoint | Status | UI note |
 |---|---|---|
-| `GET /health` | Implemented | Returns JSON with `status`, `database`, and `ollama`. Swagger currently describes a plain-text response, so contract docs need correction before generated clients rely on it. |
+| `GET /health` | Implemented | Returns JSON with `status`, `database`, and `ollama`. Backend OpenAPI health contract correction is tracked by `groupscout-site-a50` before generated clients rely on it. |
 | `GET /metrics` | Implemented | Prometheus output. Useful for observability, not a direct UI data source. |
 | `POST /run` | Implemented | Bearer-token protected when `API_TOKEN` is set. Blocking pipeline trigger. |
 | `POST /digest?to=` | Implemented | Bearer-token protected when `API_TOKEN` is set. Sends email digest. |

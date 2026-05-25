@@ -42,16 +42,16 @@ Preferred end state:
 
 ## Global TDD Rules
 
-- [ ] Read the relevant UI docs, backend Docker docs, and current tests before editing files.
-- [ ] Write or update the smallest failing test before adding Docker or runtime behavior.
-- [ ] Run the narrow command and record the expected red failure.
-- [ ] Implement only enough Docker/runtime/config to pass the failing test.
-- [ ] Rerun the narrow command and record the green result.
-- [ ] Run `npm test` after UI source or contract changes.
-- [ ] Run Docker validation commands only after a Docker file or Compose file exists.
-- [ ] Keep `/api/*` browser calls same-origin.
-- [ ] Keep `API_TOKEN` out of browser code, images, static assets, and generated config.
-- [ ] Update Markdown docs only when behavior, commands, ports, or acceptance criteria change.
+- Read the relevant UI docs, backend Docker docs, and current tests before editing files.
+- Write or update the smallest failing test before adding Docker or runtime behavior.
+- Run the narrow command and record the expected red failure.
+- Implement only enough Docker/runtime/config to pass the failing test.
+- Rerun the narrow command and record the green result.
+- Run `npm test` after UI source or contract changes.
+- Run Docker validation commands only after a Docker file or Compose file exists.
+- Keep `/api/*` browser calls same-origin.
+- Keep `API_TOKEN` out of browser code, images, static assets, and generated config.
+- Update Markdown docs only when behavior, commands, ports, or acceptance criteria change.
 
 ## Phase D0 - Dockerization Contract And Decision Record
 
@@ -188,7 +188,7 @@ Do not build product UI screens beyond the existing phase scope. Do not choose a
 
 ### Acceptance Criteria
 
-- [x] A future UI server has a tested contract before Docker Compose wiring.
+- [x] The UI server path has a tested contract before Docker Compose wiring.
 - [x] `/api/*` remains same-origin from the browser perspective.
 - [x] The selected runtime does not weaken Phase 9 auth/session boundaries.
 

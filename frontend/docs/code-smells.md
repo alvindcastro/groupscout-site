@@ -12,7 +12,7 @@ H1 split `web/src/api/client.js` into a stable facade plus focused API modules u
 
 Remaining risk: each new browser API method should still land in the focused adapter that owns its feature area, otherwise the facade or shared helpers can start growing again.
 
-Suggested follow-up: keep `createApiClient(...)` as the public entry point, keep transport behavior centralized, and add or update focused adapter tests when new API surfaces land.
+Tracked follow-up: keep `createApiClient(...)` as the public entry point, keep transport behavior centralized, and add or update focused adapter tests when new API surfaces land. Use `groupscout-site-2h1` for smell-refactor hygiene and `groupscout-site-29q` for generated client/type work.
 
 ### Mock Fixture Coupling
 
@@ -20,7 +20,7 @@ Production screen modules export and default to mock data such as lead rows, det
 
 Impact: demo/test data is coupled to runtime factories, which can blur the line between fixture behavior and production behavior once live data is introduced.
 
-Suggested follow-up: move fixtures behind explicit test/demo inputs before a renderer or live backend wiring ships.
+Tracked follow-up: move fixtures behind explicit test/demo inputs before a renderer or live backend wiring ships under `groupscout-site-2h1`.
 
 ### Duplicated Domain Constants
 
@@ -28,7 +28,7 @@ Some domain rules exist in both app model modules and the API client layer. Exam
 
 Impact: UI display rules and serialized payload validation can drift independently.
 
-Suggested follow-up: centralize shared constants or document one source of truth before adding more mutation-heavy flows.
+Tracked follow-up: centralize shared constants or document one source of truth before adding more mutation-heavy flows under `groupscout-site-2h1`.
 
 ### Partial Design Token Mapping
 
@@ -36,7 +36,7 @@ Suggested follow-up: centralize shared constants or document one source of truth
 
 Impact: future rendered CSS could rely on unresolved token references even while current model tests pass.
 
-Suggested follow-up: add token parity or resolver tests before introducing real CSS rendering.
+Tracked follow-up: add token parity or resolver tests before introducing real CSS rendering under `groupscout-site-2h1`.
 
 ### Recursive Credential Guard Boundary
 
@@ -44,7 +44,7 @@ Suggested follow-up: add token parity or resolver tests before introducing real 
 
 Impact: the old file-list risk is reduced, but files placed under `web/src/server` are treated as server-only and are excluded from browser credential checks.
 
-Suggested follow-up: keep browser modules out of `web/src/server`, or make the server/browser boundary explicit when a real bundler exists.
+Tracked follow-up: keep browser modules out of `web/src/server`, or make the server/browser boundary explicit when a real bundler exists under `groupscout-site-2h1`.
 
 ### Mutation Metadata Is Not A Full Payload Schema
 
@@ -52,7 +52,7 @@ Suggested follow-up: keep browser modules out of `web/src/server`, or make the s
 
 Impact: treating `mutationFields` as the complete PATCH schema would miss `correctionReason`.
 
-Suggested follow-up: either document `mutationFields` as display metadata only or include all serialized fields in the metadata.
+Tracked follow-up: either document `mutationFields` as display metadata only or include all serialized fields in the metadata under `groupscout-site-2h1`.
 
 ### Mock Route Parsing
 
@@ -60,7 +60,7 @@ Suggested follow-up: either document `mutationFields` as display metadata only o
 
 Impact: query strings, trailing slashes, and encoded route params will be treated as literal IDs.
 
-Suggested follow-up: normalize route params when a real router is introduced.
+Tracked follow-up: normalize route params when a real router is introduced under `groupscout-site-2h1`.
 
 ### Repeated Screen Scaffolding
 
@@ -68,7 +68,7 @@ Screen factories repeat similar state, layout, control, token, loading, empty, a
 
 Impact: this is manageable at the current model level, but broad behavior changes could become noisy as more screens are added.
 
-Suggested follow-up: wait for a repeated behavior change before extracting shared helpers; avoid premature framework-like abstractions.
+Tracked follow-up: wait for a repeated behavior change before extracting shared helpers; avoid premature framework-like abstractions under `groupscout-site-2h1`.
 
 ### Brittle Large-Shape Tests
 
@@ -76,7 +76,7 @@ Some tests assert large object shapes and exact display strings.
 
 Impact: refactors that preserve behavior can still require many assertion updates.
 
-Suggested follow-up: keep high-signal contract assertions, but prefer focused assertions when adding new tests for copy-heavy screen models.
+Tracked follow-up: keep high-signal contract assertions, but prefer focused assertions when adding new tests for copy-heavy screen models under `groupscout-site-2h1`.
 
 ### Model-Level Test Coverage Only
 
@@ -84,7 +84,7 @@ The current tests assert JavaScript objects and metadata, not browser-rendered U
 
 Impact: green tests do not prove keyboard behavior, visual layout, focus handling, or responsive rendering.
 
-Suggested follow-up: add browser/component coverage when a renderer exists.
+Tracked follow-up: add browser/component coverage when a renderer exists under `groupscout-site-kb4`.
 
 ### Missing Runtime Contract
 
@@ -92,7 +92,7 @@ The tests use modern Node and web APIs, but `package.json` does not declare an `
 
 Impact: developers on older Node versions can see confusing failures.
 
-Suggested follow-up: standardize Node version in docs first, then add an `engines` field when package policy is ready.
+Tracked follow-up: standardize Node version in docs first, then add an `engines` field when package policy is ready under `groupscout-site-2h1`.
 
 ## Backend Repo Documentation Drift
 
@@ -103,4 +103,4 @@ The backend repo was inspected as a source for startup and testing instructions.
 - Some docs reference `docs/API_TESTING.md`, but that file was not present during inspection.
 - Email provider docs mention `SENDGRID_API_KEY`, while `.env.example` and config use `RESEND_API_KEY`.
 
-Suggested follow-up: update backend docs in `/mnt/c/Users/alvin/GolandProjects/groupscout` in a separate backend-docs pass.
+Tracked follow-up: update backend docs in `/mnt/c/Users/alvin/GolandProjects/groupscout` in a separate backend-docs pass under `groupscout-site-2h1`.

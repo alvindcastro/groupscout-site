@@ -16,6 +16,7 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 - `groupscout-site-yyj` — ops metrics and collector freshness observability.
 - `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
 - `groupscout-site-crz` — restore or reconcile backend EvalOps and UI Docker smoke artifacts that docs reference but the inspected backend source snapshot lacks.
+- `groupscout-site-a50` — correct backend OpenAPI health response contract before frontend client generation relies on it.
 - `groupscout-site-wda` — investigate the Postgres enrichment raw-input FK integration failure found after `/ingest` landed.
 - `groupscout-site-39g` — home-deploy runbook execution and restore smoke. Coolify guide was added in `backend/docs/guides/COOLIFY.md`.
 - `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-0m0` — planned operator UI API routes, generated UI API client, sanitized raw preview, real-browser Phase 15 harness, and current UI checkout admin/session/detail-client hardening reconciliation.
@@ -29,7 +30,7 @@ Recently completed:
 - `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n and tracked under `backend/docs/workflows/n8n/`.
 - `groupscout-site-j73` — opt-in raw audit retention worker, manual purge command, Docker env, and Postgres purge-safety coverage.
 - `groupscout-site-dxq` — UI schema/API roadmap documentation cleanup.
-- `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and the backend plus UI Docker E2E gate are implemented.
+- `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and the backend plus UI Docker E2E gate were implemented in branch history; `groupscout-site-crz` owns restoring or reconciling missing backend smoke artifacts in the inspected source snapshot.
 
 ---
 
@@ -41,19 +42,19 @@ Recently completed:
 - [x] **Phase 4** — Creative BC, VCC, Eventbrite, news, announcements, instant alert, email digest ✅
 - [ ] **Phase 5** — Smart refresh: avoid redundant PDF fetches *(deferred)*
 - [x] **Phase 6** — Productionize: Docker, Postgres, VPS deploy ✅
-- [ ] **Phase 7** — User requests & API refinements *(in progress)*
+- [ ] **Phase 7** — User requests & API refinements *(remaining lead/outreach API work overlaps `groupscout-site-eqm`)*
 - [ ] **Phase 8** — System reliability & observability *(in progress; `groupscout-site-yyj`)*
-- [ ] **Phase 9** — Architecture & scaling: concurrency, caching
+- [ ] **Phase 9** — Architecture & scaling: concurrency, caching *(split focused beads before implementation; related broad cleanup is `groupscout-site-2h1`)*
 - [ ] **Phase 10** — Ecosystem & UI: dashboard, CRM, extensions (`groupscout-site-3gq`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, `groupscout-site-0m0`)
 - [ ] **Phase 11** — CRM direct integration: HubSpot, Salesforce
 - [ ] **Phase 12** — Source expansion: Metro Vancouver municipalities (`groupscout-site-aaj` selects the next slice)
 - [ ] **Phase 13** — Public tenders & utilities: BC Hydro, FortisBC (`groupscout-site-aaj` selects the next slice)
-- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem
+- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem (`groupscout-site-39g`, `groupscout-site-yyj`, `groupscout-site-48g`)
 - [x] **Phase 15** — PostgreSQL + pgvector migration: production storage + RAG foundation ✅
 - [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄 (`groupscout-site-vud`)
 - [x] **Phase 17** — Airport Disruption Alert System (`alertd`): YVR real-time monitoring ✅
-- [ ] **Phase 18** — Contact Enrichment: Hunter.io integration & budget tiers 📋
-- [ ] **Phase 19** — Slack Actions & Lead Feedback: claim/dismiss/snooze buttons 📋
+- [ ] **Phase 18** — Contact Enrichment: Hunter.io integration & budget tiers 📋 *(not live in the inspected backend source snapshot; create a focused bead before implementation)*
+- [ ] **Phase 19** — Slack Actions & Lead Feedback: claim/dismiss/snooze buttons 📋 (`groupscout-site-eqm` covers overlapping lead-state API work)
 - [ ] **Phase 20** — Housekeeping & Developer Experience ◐ baseline complete; remaining smell refactors open (`groupscout-site-2h1`)
 - [x] **Phase 21** — Ollama Prod Hardening ✅
 - [ ] **Phase 22** — Multi-Property Support: portfolio routing & YAML config 📋 (`groupscout-site-1ee`)
@@ -62,9 +63,9 @@ Recently completed:
 - [ ] **Phase 25** — AI Observability & Quality: Langfuse + AI-Ready SQL + eval harness 📋 (`groupscout-site-48g`)
 - [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), home deploy/restore smoke open (`groupscout-site-39g`; event-driven `/ingest` complete in `groupscout-site-b25`)
 - [x] **Phase 27** — Input Audit & Verification Trail ✅ raw audit/redaction/retention complete; sanitized preview remains separate (`groupscout-site-4cv`)
-- [ ] **Phase 28** — Analytics & Source Attribution 📋
-- [ ] **Phase 29** — Prompt Engineering & Strict TDD 📋
-- [ ] **Phase 30** — Advanced Audit & Verification 📋
+- [ ] **Phase 28** — Analytics & Source Attribution 📋 *(no active implementation bead in this pass)*
+- [ ] **Phase 29** — Prompt Engineering & Strict TDD 📋 (`groupscout-site-48g`, `groupscout-site-2h1`)
+- [ ] **Phase 30** — Advanced Audit & Verification 📋 (`groupscout-site-4cv`, `groupscout-site-48g`)
 
 ---
 

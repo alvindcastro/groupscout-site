@@ -137,7 +137,7 @@ Common causes:
 - The reserved UI port, health path, or same-origin `/api/*` routing target no longer matches `docs/ui-dockerization-contract.md`.
 - Browser public config includes automation credentials, provider keys, database URLs, or `UI_SESSION_SECRET`.
 
-Note: D2 originally reserved `npm run start:ui`, port `3000`, and `/healthz` as contract metadata. D4 now provides the runnable production static/proxy server for those values. Phase 13 adds the dependency-free vanilla DOM renderer, static build, and product dev server; a browser framework remains future work.
+Note: D2 originally reserved `npm run start:ui`, port `3000`, and `/healthz` as contract metadata. D4 now provides the runnable production static/proxy server for those values. Phase 13 adds the dependency-free vanilla DOM renderer, static build, and product dev server; real-browser harness work remains tracked by `groupscout-site-kb4`.
 
 ## UI Development Compose Fails
 
@@ -287,7 +287,7 @@ If D4 is run with standalone `docker run`, use a host backend target. If D4 is r
 
 The current backend smoke contract expects `/api/system` to return the backend's current status through the D4 proxy. On backend `main`, that is `404`; once protected UI API routes are present, expect `401` without a browser session. A `502` means the UI proxy could not reach the backend target.
 
-The production UI Compose profile and repeatable backend plus UI Docker E2E gate are implemented.
+The production UI Compose profile is implemented in the UI source repo. The backend-owned repeatable UI Docker E2E gate is reconciliation work tracked by `groupscout-site-crz` in the inspected backend checkout.
 
 ## Production UI Runtime Fails
 

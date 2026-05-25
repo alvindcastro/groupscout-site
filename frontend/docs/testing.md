@@ -120,11 +120,13 @@ node --test test/dockerization-contract.test.js
 
 CI should run `npm test`, build and run the D1 test image, then build the production image. If the backend Compose file is available, CI can also run the merged Compose config validation command or the backend-owned `make smoke-ui-docker-e2e` gate. Smoke `/healthz`, `/`, and `/assets/app.js` against the production UI container without backend secrets; smoke `/api/system` through the D4 proxy and accept the current backend status (`404` on backend `main`, or `401` once protected UI API routes are present).
 
-The production UI Compose profile and repeatable backend plus UI Docker E2E gate are implemented.
+The production UI Compose profile is implemented in the UI source repo. The backend-owned repeatable UI Docker E2E gate is reconciliation work tracked by `groupscout-site-crz` in the inspected backend checkout.
 
 Do not run CI UI containers with backend `.env` or `--env-file`. Do not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.
 
 ## Focused UI Tests
+
+The list below includes historical/restoration targets. In the inspected UI checkout, commands that require the missing admin auth files, `createApiClient().getLead(...)`, production session-gate wiring, or `test/browser-ux-hardening.test.js` should be treated as `groupscout-site-0m0` restoration checks rather than current-source proof.
 
 ```sh
 node --test test/api-boundary.test.js
@@ -161,27 +163,27 @@ API-client focused run for smell phases:
 node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-status-mutation-client.test.js test/raw-audit-client.test.js test/outreach-client.test.js test/pipeline-client.test.js test/stats-client.test.js test/alert-client.test.js test/system-client.test.js
 ```
 
-## What The Current UI Tests Cover
+## What Current Or Historical UI Tests Cover
 
 - Same-origin `/api/*` browser request boundary, public API-client facade shape, split adapter module ownership, request defaults, and invalid-route pre-fetch rejection.
 - Session-cookie enforcement metadata for UI `/api/*` access.
-- Production request-handler enforcement that rejects missing/invalid `groupscout_session` before `/api/*` proxying when `UI_SESSION_SECRET` is configured, allows the no-secret backend Docker smoke proxy path, and applies baseline browser security headers.
-- Admin setup-token login route rendering, protected-route redirect metadata, login verification through auth status/current-admin calls, and logout routing through `/api/auth/logout`.
-- Admin login floating-window renderer contract through the `admin-login-window` form class.
+- Historical/restoration target under `groupscout-site-0m0`: production request-handler enforcement that rejects missing/invalid `groupscout_session` before `/api/*` proxying when `UI_SESSION_SECRET` is configured, allows the no-secret backend Docker smoke proxy path, and applies baseline browser security headers.
+- Historical/restoration target under `groupscout-site-0m0`: admin setup-token login route rendering, protected-route redirect metadata, login verification through auth status/current-admin calls, and logout routing through `/api/auth/logout`.
+- Historical/restoration target under `groupscout-site-0m0`: admin login floating-window renderer contract through the `admin-login-window` form class.
 - `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, and development-only `CORS_ALLOWED_ORIGINS` deployment behavior.
 - D2 browser runtime contract metadata for the reserved start command, port, health path, static asset boundary, `/api/*` server/proxy target, and forbidden browser public config keys.
 - D3/Phase 13 development Compose metadata for the UI service, backend network attachment, backend service dependency, port mapping, healthcheck command, no-secret Compose boundary, and product dev-server health payload.
 - D4 production same-origin server metadata, static asset presence, app-route fallback, server-side `/api/*` proxy request construction, public-config secret rejection, and production Docker target.
 - Phase 13 renderer/runtime contract, rendered route smoke for Today/Leads/Lead Detail/Pipeline/mobile Verification, static product build output, app-route-only SPA navigation, public asset secret scans, copied `/src/*` module cache policy, product dev server metadata, and backend compatibility smoke classification.
-- Phase 15 deterministic browser UX hardening for primary navigation, main landmarks, route-specific focus labels, accessible-name metadata, rendered desktop/tablet/mobile modes, stable loading/error/empty states, text-containment policy, and same-origin API metadata.
+- Historical/restoration target under `groupscout-site-0m0`: Phase 15 deterministic browser UX hardening for primary navigation, main landmarks, route-specific focus labels, accessible-name metadata, rendered desktop/tablet/mobile modes, stable loading/error/empty states, text-containment policy, and same-origin API metadata. Real browser verification remains tracked by `groupscout-site-kb4`.
 - Recursive browser-source checks that `API_TOKEN` is not referenced in browser-facing `web/src/**/*.js` modules outside `web/src/server`.
 - Lead inbox query serialization, blank-filter elision, sort overrides, and response adaptation.
-- Lead detail client access through same-origin `GET /api/leads/{id}`, encoded lead IDs, evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows.
+- Historical/restoration target under `groupscout-site-0m0`: lead detail client access through same-origin `GET /api/leads/{id}`, encoded lead IDs, evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows.
 - Lead inbox mocked table, filters, states, responsive metadata, and accessibility metadata.
 - Lead detail sections, source evidence, raw audit link intent, AI enrichment metadata, corrections, timeline, and states.
 - Verification Queue desktop/tablet table models, mobile card rendering, raw audit links, and review actions.
 - Lead status transition rules, invalid transition blocking, validation, and PATCH mutation intent.
-- Verification queue trigger classification, filters, row actions, raw audit alias links, responsive metadata, and defined redaction-policy metadata for future inline previews.
+- Verification queue trigger classification, filters, row actions, raw audit alias links, responsive metadata, and defined redaction-policy metadata for future inline previews tracked by `groupscout-site-4cv`.
 - Raw audit client access through same-origin `GET /api/leads/{id}/raw`, encoded lead IDs, and raw policy defaults.
 - Outreach client access through same-origin `GET/POST /api/leads/{id}/outreach`, encoded lead IDs, optional draft logging, and manual logging validation.
 - Outreach workspace editable drafts, contact validation, manual copied/sent/logged states, outcome capture, activity timelines, responsive metadata, and route mounting.
@@ -207,7 +209,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Real cookie signing, browser session issuance, reverse-proxy behavior, and production CORS headers.
 - A production CLI session store or login flow for creating valid `groupscout_session` cookies.
 - Product browser runtime container smoke tests beyond the D4 health/static/proxy path and Phase 13 dependency-free rendered HTML smoke.
-- Raw audit payload redaction behavior beyond the explicit blocked TODO.
+- Raw audit payload redaction behavior beyond the explicit blocked TODO tracked by `groupscout-site-4cv`.
 - Real email sending, clipboard behavior, or CRM sync for outreach.
 - Real pipeline execution, worker polling, Grafana rendering, or log viewer integration.
 - Live analytics aggregation accuracy against backend storage.

@@ -35,8 +35,8 @@ Handles data persistence and deduplication with dual-driver support (**PostgreSQ
 #### 3. Enrichment & Scoping Layer (`internal/enrichment`)
 Responsible for identifying high-value leads and preparing them for outreach.
 - **LLM Providers**: Current enrichment uses the existing Claude/Gemini path plus the separate Ollama runtime. The unified `LLMClient` interface, `LLM_PROVIDER` factory, OpenAI-compatible providers, Azure/Ollama routing, and fallback behavior remain open in `groupscout-site-vud`.
-- **Pre-Scorer**: Applies rule-based Go logic to filter out low-value projects (e.g., small renovations) before calling the AI API, significantly reducing costs. `BudgetTier()` helper classifies project spend (Phase 18).
-- **Contact Enrichment**: `hunter.go` looks up decision-maker contacts via Hunter.io (Phase 18). `repeat.go` flags organizations with prior winning outreach history (Phase 22).
+- **Pre-Scorer**: Applies rule-based Go logic to filter out low-value projects (e.g., small renovations) before calling the AI API, significantly reducing costs. The `BudgetTier()` helper remains planned in Phase 18, not live in the inspected backend source snapshot.
+- **Contact Enrichment**: Hunter.io contact lookup and repeat-win detection remain planned roadmap items. The inspected backend source snapshot has `HUNTER_API_KEY` config, but not a live `hunter.go` enrichment client or `repeat.go` detector.
 - **Deduplication**: Ensures that only new, unique projects are sent for AI enrichment via SHA-256 hash checks.
 - **Outreach Drafting**: Generates personalized cold email drafts for each lead using the active LLM provider.
 
@@ -81,7 +81,7 @@ For a detailed end-to-end breakdown of these processes, including architecture d
 -   **Language**: Go (Golang)
 -   **Database**: PostgreSQL (with `pgvector`) and SQLite (local-first, easily portable). Includes a one-way migration script (`cmd/tools/migrate_db/main.go`).
 -   **AI / LLM**: Claude (Anthropic Messages API) + Gemini (Google) — both implemented. Phase 16 adds OpenAI-compatible client (OpenAI, Groq, Mistral, Azure, Ollama) and `FallbackClient`.
--   **Integrations**: Slack Webhooks + Interactive Actions, Resend API, Hunter.io (Phase 18), Sentry, **n8n**, Prometheus, Grafana Loki
+-   **Integrations**: Slack Webhooks, Resend API, Sentry, **n8n**, Prometheus, Grafana Loki. Slack interactive actions and Hunter.io contact enrichment remain planned roadmap items.
 -   **Configuration**: Environment variables (supporting `.env` files); `config/properties.yaml` for multi-property (Phase 21)
 -   **Observability**: Structured JSON logging (slog), Sentry Error Tracking
 

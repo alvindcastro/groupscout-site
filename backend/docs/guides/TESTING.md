@@ -316,6 +316,13 @@ Verify that old records are deleted, but referenced ones are kept:
 ```bash
 # This test verifies that PurgeOlderThan ignores referenced records
 go test -v ./internal/storage -run TestAuditStore_PurgeOlderThan
+
+# This test verifies the retention worker cutoff/result behavior
+go test -v ./internal/auditretention
+
+# This test verifies Postgres preserves referenced raw inputs during purge
+TEST_POSTGRES_URL="postgres://groupscout:groupscout@localhost:5432/groupscout?sslmode=disable" \
+  go test -v -tags integration ./internal/storage -run TestAuditStore_PurgeOlderThan_PostgresPreservesReferencedRawInputs
 ```
 
 #### Manual Verification via SQL

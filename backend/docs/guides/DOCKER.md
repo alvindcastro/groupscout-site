@@ -22,6 +22,10 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/XXX/YYY/ZZZ
 SLACK_BOT_TOKEN=xoxb-...
 API_TOKEN=your_secure_token_here
 DATABASE_URL=postgres://groupscout:groupscout@postgres:5432/groupscout
+AUDIT_RETENTION_ENABLED=false
+AUDIT_RETENTION_DAYS=30
+AUDIT_RETENTION_INTERVAL_HOURS=24
+AUDIT_RETENTION_RUN_ON_START=true
 ```
 
 ### 3. Start the Stack
@@ -67,6 +71,22 @@ If you change the Go code, you must rebuild the containers:
 ```bash
 docker compose up -d --build
 ```
+
+### Raw Audit Retention
+The `groupscout` service passes the raw audit retention environment through to the backend container. Keep `AUDIT_RETENTION_ENABLED=false` unless you want the server to purge unreferenced `raw_inputs` automatically.
+
+```bash
+AUDIT_RETENTION_ENABLED=true docker compose up -d --build groupscout
+docker compose logs groupscout --tail=50
+```
+
+For a one-time purge from the running container:
+
+```bash
+docker compose exec groupscout ./groupscout audit-retention purge --days 30
+```
+
+The purge preserves every `raw_inputs` row referenced by `leads.raw_input_id`.
 
 ### Teardown
 ```bash

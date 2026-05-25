@@ -49,12 +49,12 @@
     - [x] Flag `--meta` to show source URL, collector, and fetch time.
 - [x] Update Slack notifications to include a link to the raw data (if exposed via internal reference).
 
-### Part E — Retention & Privacy ◐ PARTIAL
-- [ ] Implement a scheduled cleanup worker that invokes retention policy for old raw inputs. Beads: `groupscout-site-j73`.
+### Part E — Retention & Privacy ✅ COMPLETE
+- [x] Implement a scheduled cleanup worker that invokes retention policy for old raw inputs. Beads: `groupscout-site-j73`.
 - [x] Add `PII_STRIP` option to remove sensitive info before storage if required.
 - [x] Implement hashing logic to ensure we don't store identical payloads multiple times.
 
-Raw audit storage and redaction policy are documented. Automated cleanup scheduling remains open and should be tracked through Beads before implementation.
+Raw audit storage, redaction policy, and opt-in automated cleanup scheduling are documented.
 
 ## Operations & Maintenance
 
@@ -76,9 +76,9 @@ Storage redaction and UI preview redaction are separate controls.
 - Tests for any preview implementation must fail on unredacted secrets or contact data, unsupported payload types rendered inline, raw body fields in default lead/detail responses, and browser-visible automation tokens.
 
 ### Data Retention (Purging)
-Use the `PurgeOlderThan(ctx, time)` method in the storage layer to clean up old audit records.
+Use `AUDIT_RETENTION_ENABLED=true` to start the server-mode retention worker, or run `groupscout audit-retention purge --days 30` for a one-time purge.
 -   **Safety Guarantee**: Records referenced by a lead in the `leads.raw_input_id` column are NEVER purged.
--   **Recommended usage**: Run a weekly cron job to purge records older than 30 or 60 days.
+-   **Recommended usage**: Enable the worker in Docker with a 30- or 60-day retention window and keep `AUDIT_RETENTION_RUN_ON_START=true` so missed downtime windows are caught on boot.
 
 ---
 

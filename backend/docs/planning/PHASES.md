@@ -827,10 +827,10 @@ This older workflow is retained for context only. Current sessions use Beads and
 
 ---
 
-## Phase 27 — Input Audit & Verification Trail ◐
+## Phase 27 — Input Audit & Verification Trail ✅
 **Goal:** Implement a system to store and track all raw inputs (PDFs, API responses, etc.) to allow for verification of the lead enrichment and scoring process.
 
-> Storage, collector integration, raw access, and raw audit redaction policy are complete. Part D cleanup/retention worker remains open in Beads and in item 27.11 below.
+> Storage, collector integration, raw access, raw audit redaction policy, and opt-in retention cleanup are complete. Browser-safe sanitized preview remains a separate follow-up tracked by `groupscout-site-4cv`.
 
 > **TDD rule:** Raw storage interfaces and retrieval logic tested with failing tests first. Collector integration verified by checking `raw_inputs` table after a run.
 
@@ -852,7 +852,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [x] **27.10** CLI Tool: `groupscout audit <lead_id>` — dumps metadata and provides `--save` flag for raw payload.
 
 ### Part D — Retention & Privacy
-- [ ] **27.11** Implement cleanup worker for old raw inputs and hashing logic for de-duplication. Beads: `groupscout-site-j73`.
+- [x] **27.11** Implement cleanup worker for old raw inputs and hashing logic for de-duplication. Beads: `groupscout-site-j73`.
 
 ---
 

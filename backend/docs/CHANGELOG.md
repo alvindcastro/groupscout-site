@@ -1,3 +1,15 @@
+## 2026-05-25 - Raw audit retention worker
+
+### groupscout-site-j73 - Implement raw audit retention purge worker
+
+- **What:** Added the opt-in backend raw audit retention worker, manual purge command, Docker environment controls, and Postgres purge-safety coverage.
+- **Where:** Backend source `internal/auditretention`, `cmd/server`, `config`, Docker env, and centralized backend setup/testing/Postgres/audit roadmap docs.
+- **When:** 2026-05-25.
+- **Why:** Raw audit payloads need bounded storage growth without deleting evidence still referenced by leads.
+- **How:** Reused `AuditStore.PurgeOlderThan`, preserved every `leads.raw_input_id` reference, exposed `AUDIT_RETENTION_*` configuration, and documented the Docker/operator flow.
+
+---
+
 ## 2026-05-25 - Documentation consolidation
 
 ### groupscout-site-fjy - Consolidate backend UI-testing runbook routing

@@ -57,7 +57,7 @@ Recently completed:
 - [ ] **Phase 24** — Agentic Reasoning & Tool-Calling: ReAct loop + BC Registry / LinkedIn tools 📋
 - [ ] **Phase 25** — AI Observability & Quality: Langfuse + AI-Ready SQL + eval harness 📋 (`groupscout-site-48g`)
 - [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), event-driven `/ingest` endpoint 📋 (`groupscout-site-39g`, `groupscout-site-b25`; Coolify guide complete)
-- [ ] **Phase 27** — Input Audit & Verification Trail ◐ raw audit/redaction complete; retention cleanup remains open (`groupscout-site-j73`; sanitized preview: `groupscout-site-4cv`)
+- [x] **Phase 27** — Input Audit & Verification Trail ✅ raw audit/redaction/retention complete; sanitized preview remains separate (`groupscout-site-4cv`)
 - [ ] **Phase 28** — Analytics & Source Attribution 📋
 - [ ] **Phase 29** — Prompt Engineering & Strict TDD 📋
 - [ ] **Phase 30** — Advanced Audit & Verification 📋
@@ -436,14 +436,14 @@ Tracked follow-up: `groupscout-site-yyj` owns Prometheus metrics, collector fres
 
 ---
 
-## Phase 27 — Input Audit & Verification Trail ◐
+## Phase 27 — Input Audit & Verification Trail ✅
 
 **Goal:** Implement a system to store and track all raw inputs (PDFs, API responses, etc.) to allow for verification of the lead enrichment and scoring process.
 
 - [x] **Part A** — Storage Architecture: `raw_inputs` table + `AuditStore` interface
 - [x] **Part B** — Collector Integration: save raw PDF/API content before parsing
 - [x] **Part C** — Verification Tools: `GET /leads/{id}/raw` + CLI audit tool
-- [ ] **Part D** — Retention & Privacy: cleanup worker remains open in [PHASES.md](./PHASES.md) and `groupscout-site-j73`; raw audit redaction policy is documented separately and complete.
+- [x] **Part D** — Retention & Privacy: opt-in cleanup worker, manual purge command, Docker env, and raw audit redaction policy are complete. Sanitized inline preview remains separate in `groupscout-site-4cv`.
 
 ---
 

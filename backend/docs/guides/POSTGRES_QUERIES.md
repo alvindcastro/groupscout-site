@@ -179,9 +179,22 @@ WHERE ri.created_at < NOW() - INTERVAL '30 days'
 AND NOT EXISTS (SELECT 1 FROM leads l WHERE l.raw_input_id = ri.id);
 ```
 
-#### Manually trigger a purge
+#### Trigger a purge through the backend CLI
+```bash
+go run cmd/server/main.go audit-retention purge --days 30
+```
+
+For Docker:
+
+```bash
+docker compose exec groupscout ./groupscout audit-retention purge --days 30
+```
+
+The command prints JSON with the cutoff and deleted row count. The server can also run the same purge automatically when `AUDIT_RETENTION_ENABLED=true`.
+
+#### Manual SQL purge
 ```sql
-DELETE FROM raw_inputs 
+DELETE FROM raw_inputs ri
 WHERE created_at < NOW() - INTERVAL '30 days'
 AND NOT EXISTS (SELECT 1 FROM leads l WHERE l.raw_input_id = ri.id);
 ```

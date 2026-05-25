@@ -279,6 +279,7 @@
 ## Phase 16 — LLM Provider Abstraction 🔭
 
 > Remove vendor lock-in from `internal/enrichment`. All LLM calls go through a `LLMClient` interface. Provider is config-driven — switch between Claude, OpenAI, Azure OpenAI, Groq, Mistral, Ollama, or Gemini without touching pipeline code.
+> This is separate from the implemented `internal/ollama` operational runtime documented in [OLLAMA_INTEGRATION.md](./OLLAMA_INTEGRATION.md) and [OLLAMA_SETUP.md](../guides/OLLAMA_SETUP.md). Phase 16 is about routing enrichment through a provider abstraction such as `LLM_PROVIDER=ollama`.
 
 - [ ] **Part A** — Interface Extraction: refactor `ClaudeEnricher` to `ClaudeClient` implementing `LLMClient`.
 - [ ] **Part B** — OpenAI-Compatible Client: covers OpenAI, Groq, and Mistral.

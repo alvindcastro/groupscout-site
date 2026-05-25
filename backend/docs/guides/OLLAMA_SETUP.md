@@ -1,7 +1,9 @@
 # GroupScout — Ollama Docker Setup & Infrastructure
 
-> How Ollama runs, where it lives, how it talks to GroupScout, and how to keep it working.  
+> How Ollama runs, where it lives, how it talks to GroupScout, and how to keep it working.
 > Covers: Docker Compose wiring, model persistence, networking, dev vs. prod, health checks, and first-boot model pull.
+
+> **Operational source of truth:** this guide covers the implemented Ollama runtime, `OLLAMA_*` environment variables, Docker service names, model volume, model pull/list/push commands, and troubleshooting. The broader Phase 16 `LLM_PROVIDER=ollama` provider-abstraction plan is separate and remains tracked in [PHASES.md](../planning/PHASES.md).
 
 > **Your machine:** Windows 11 + WSL2 · Intel i5-13400F · **32 GB RAM** · **NVIDIA RTX 4060 Ti (16 GB VRAM)**  
 > Mistral 7B (~4 GB) and Llama 3.1 8B (~5 GB) both fit in VRAM simultaneously with headroom to spare. Inference is ~1–2s per call with GPU, vs 8–15s CPU-only. **GPU passthrough is strongly recommended on this machine.**

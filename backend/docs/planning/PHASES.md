@@ -444,7 +444,8 @@
 
 ### Part D — Ollama (local / Docker)
 > Free, private, no external API calls. Good for dev, testing, and air-gapped environments.
-> Ollama is OpenAI-compatible — reuses `OpenAICompatibleClient` from Part B. No new client struct needed.
+> Planned provider-abstraction work. This is separate from the implemented `internal/ollama` operational path documented in `docs/planning/OLLAMA_INTEGRATION.md` and `docs/guides/OLLAMA_SETUP.md`.
+> Ollama is OpenAI-compatible — this planned path should reuse `OpenAICompatibleClient` from Part B rather than replacing the existing operational runtime.
 > **Depends on Part A + Part B being complete first.**
 
 - [ ] **D-T** `internal/enrichment/openai_compat_test.go` — add Ollama-specific cases:
@@ -463,7 +464,7 @@
   - `JSONOutput`: `true` (Ollama supports `response_format`)
 - [ ] **D3** `internal/enrichment/ollama_health.go` — `CheckOllamaHealth(ctx, baseURL string) error`:
   - GET `{baseURL}/api/tags` — returns list of pulled models
-  - If `cfg.LLMModel` not in the list → return error: `"model llama3.2 not pulled — run: docker exec groupscout-ollama-1 ollama pull llama3.2"`
+  - If `cfg.LLMModel` not in the list → return error: `"model llama3.2 not pulled — run: docker exec groupscout_ollama ollama pull llama3.2"`
   - Called at startup when `LLM_PROVIDER=ollama`
 - [ ] **D4** `docker-compose.yml` — add `ollama` service (opt-in via Docker profile):
   ```yaml
@@ -472,17 +473,17 @@
     volumes:
       - ollama_data:/root/.ollama
     profiles: ["ollama"]
-    # After first start: docker exec groupscout-ollama-1 ollama pull llama3.2
+    # After first start: docker exec groupscout_ollama ollama pull llama3.2
   ```
   Add `ollama_data` to top-level `volumes:` block.
-- [ ] **D5** `scripts/ollama_pull.sh` — one-liner helper: `docker exec groupscout-ollama-1 ollama pull ${MODEL:-llama3.2}`
+- [ ] **D5** `scripts/ollama_pull.sh` — one-liner helper: `docker exec groupscout_ollama ollama pull ${MODEL:-llama3.2}`
 - [ ] **D6** `.env.example` — document Ollama section:
   ```
   # LLM_PROVIDER=ollama
   # LLM_MODEL=llama3.2         # or mistral, llama3.1:8b, phi3:mini
   # LLM_BASE_URL=http://ollama:11434
   ```
-- [ ] **D7** `docs/SETUP.md` — add Ollama setup section (see SETUP.md update below)
+- [ ] **D7** `docs/guides/SETUP.md` — add provider-abstraction setup notes that link to `docs/guides/OLLAMA_SETUP.md` for current operations
 - [ ] **D8** Verify: `docker compose --profile ollama up -d`; pull `llama3.2`; set `LLM_PROVIDER=ollama`; full pipeline runs; zero external API calls in logs
 
 ### Part G — Ollama Modelfile & Persona Tuning
@@ -501,7 +502,7 @@
   PARAMETER temperature 0.1
   PARAMETER num_predict 512
   ```
-- [ ] **G2** `scripts/ollama_create_model.sh` — `docker exec groupscout-ollama-1 ollama create groupscout -f /config/Modelfile.groupscout`
+- [ ] **G2** `scripts/ollama_create_model.sh` — `docker exec groupscout_ollama ollama create groupscout -f /config/Modelfile.groupscout`
 - [ ] **G3** `docker-compose.yml` — mount `./config` into `ollama` container as `/config:ro` so the Modelfile is accessible
 - [ ] **G4** `docs/AI_DATA_STRATEGY.md` — add Ollama model recommendation table (see AI_DATA_STRATEGY update)
 - [ ] **G5** Verify: create `groupscout` model; set `LLM_MODEL=groupscout`; run pipeline; compare JSON output quality vs `llama3.2`

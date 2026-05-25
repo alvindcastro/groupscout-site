@@ -68,7 +68,7 @@ go run cmd/alertd/main.go
 Alertd requires a configuration file at `config/airports.yaml` to define hotels and their monitored airports.
 
 ### 3. Ollama Modelfile Management
-GroupScout uses local Ollama models for enrichment and alert copy. Modelfiles define the personas and instructions for these models.
+GroupScout uses local Ollama models for enrichment and alert copy through the implemented `internal/ollama` runtime. Modelfiles define the personas and instructions for these models. The future Phase 16 `LLM_PROVIDER=ollama` provider-abstraction path is tracked separately in planning docs.
 
 **Push Modelfiles:**
 To update or create the personas on your local Ollama server without restarting the main server:

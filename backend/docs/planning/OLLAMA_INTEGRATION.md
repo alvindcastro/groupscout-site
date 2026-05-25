@@ -1,8 +1,10 @@
 # GroupScout — Ollama Integration Plan
 
-> Local LLM enrichment for lead extraction, scoring rationale, and disruption alert copy.  
-> All processing stays on-server. No lead data leaves the host.  
+> Local LLM enrichment for lead extraction, scoring rationale, and disruption alert copy.
+> All processing stays on-server. No lead data leaves the host.
 > Repository: github.com/alvindcastro/groupscout
+
+> **Implementation status:** this plan describes the implemented dedicated `internal/ollama` runtime path, including `OLLAMA_*` toggles, extraction, scoring rationale, alert copy, Modelfile management, and operational fallback behavior. It is not the Phase 16 provider-abstraction plan; Phase 16 still tracks a future `LLM_PROVIDER=ollama` path through an OpenAI-compatible enrichment provider.
 
 ---
 

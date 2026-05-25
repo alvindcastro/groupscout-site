@@ -356,6 +356,8 @@ For a true guaranteed one-lead cadence, plan backend work for a delivery log, fa
 
 Tracked follow-ups: `groupscout-site-yfl` owns the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence idempotency key, and no-leads/failure Slack branch. `groupscout-site-fuc` owns the backend delivery guarantee: delivery log, fallback selector, machine-readable run/delivery result, and run lock.
 
+Workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
+
 ## Step 6 — Migrate Data (SQLite to Postgres)
 
 If you've been using SQLite (`groupscout.db`) and want to move your data to a new PostgreSQL instance:

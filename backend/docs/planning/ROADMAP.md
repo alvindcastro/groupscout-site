@@ -13,14 +13,14 @@
 Roadmap checkboxes are historical/strategic context. The missed-task audit on 2026-05-25 filed the concrete follow-up work in Beads:
 
 - `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery.
-- `groupscout-site-yfl` — export and smoke-test the Sunday/Wednesday n8n workflow asset.
+- `groupscout-site-yfl` — export and smoke-test the Sunday/Wednesday n8n workflow asset. Asset added under `backend/docs/workflows/n8n/`.
 - `groupscout-site-j73` — raw audit retention purge worker.
 - `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and backend plus UI Docker E2E gate.
 - `groupscout-site-3gq` — shared `alertd` state for `/api/alerts`.
 - `groupscout-site-yyj` — ops metrics and collector freshness observability.
 - `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
 - `groupscout-site-b25` — event-driven `POST /ingest` and `EnrichOne`.
-- `groupscout-site-06a` and `groupscout-site-39g` — Coolify/home-deploy runbooks and restore smoke.
+- `groupscout-site-39g` — home-deploy runbook execution and restore smoke. Coolify guide was added in `backend/docs/guides/COOLIFY.md`.
 - `groupscout-site-29q`, `groupscout-site-4cv`, and `groupscout-site-dxq` — generated UI API client, sanitized raw preview, and UI roadmap schema cleanup.
 - `groupscout-site-aaj`, `groupscout-site-1ee`, and `groupscout-site-a1h` — next source-expansion slice, multi-property design, and Codex plugin skill drift.
 
@@ -53,7 +53,7 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 - [ ] **Phase 23** — Advanced Intelligence: Repeat Detection & Signal Quality 📋
 - [ ] **Phase 24** — Agentic Reasoning & Tool-Calling: ReAct loop + BC Registry / LinkedIn tools 📋
 - [ ] **Phase 25** — AI Observability & Quality: Langfuse + AI-Ready SQL + eval harness 📋 (`groupscout-site-48g`)
-- [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), event-driven `/ingest` endpoint 📋 (`groupscout-site-06a`, `groupscout-site-39g`, `groupscout-site-b25`)
+- [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), event-driven `/ingest` endpoint 📋 (`groupscout-site-39g`, `groupscout-site-b25`; Coolify guide complete)
 - [ ] **Phase 27** — Input Audit & Verification Trail ◐ raw audit/redaction complete; retention cleanup remains open (`groupscout-site-j73`; sanitized preview: `groupscout-site-4cv`)
 - [ ] **Phase 28** — Analytics & Source Attribution 📋
 - [ ] **Phase 29** — Prompt Engineering & Strict TDD 📋
@@ -424,10 +424,10 @@ Tracked follow-up: `groupscout-site-yyj` owns Prometheus metrics, collector fres
 > Deploy the full stack to production. **Hetzner CX32 + Coolify (~$10/month) is the primary recommendation** — it runs both binaries as persistent containers, deploys your existing `docker-compose.yml` directly, and includes n8n/Prometheus/Loki at no extra cost. Railway is the managed-PaaS alternative (~$10–18/month). GCP Cloud Run is **incompatible with `alertd`** (scales to zero; daemon needs persistent compute). See `docs/planning/DEPLOYMENT_OPTIONS.md` for the full analysis.
 >
 > See `PHASES.md` Phase 26 for atomic tasks.
-> Beads follow-ups: `groupscout-site-39g` for home deploy, `groupscout-site-06a` for Coolify guidance, and `groupscout-site-b25` for event-driven ingestion.
+> Beads follow-ups: `groupscout-site-39g` for home deploy and `groupscout-site-b25` for event-driven ingestion. Coolify guidance now lives in `docs/guides/COOLIFY.md`.
 
 - [ ] **Part A** — Home server: No-IP/DuckDNS DDNS + port forwarding → Traefik + Let's Encrypt → optional Cloudflare Tunnel; `docs/guides/HOME_DEPLOY.md` (`groupscout-site-39g`)
-- [ ] **Part B** — Hetzner + Coolify cloud deploy (if uptime SLA matters): VPS provision, Coolify setup, backup config, `docs/guides/COOLIFY.md` (`groupscout-site-06a`)
+- [ ] **Part B** — Hetzner + Coolify cloud deploy (if uptime SLA matters): VPS provision, Coolify setup, backup config; guide complete in `docs/guides/COOLIFY.md`
 - [ ] **Part C** — Event-driven ingestion: `POST /ingest` + `EnrichOne()` (platform-agnostic) (`groupscout-site-b25`)
 - [ ] **Part D** — Terraform IaC for GCP (optional; alertd needs Compute Engine VM — Cloud Run won't work)
 

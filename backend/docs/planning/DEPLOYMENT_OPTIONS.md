@@ -21,7 +21,7 @@
 
 ---
 
-Current deployment follow-ups: `groupscout-site-39g` owns executing the home deploy path and restore smoke. `groupscout-site-06a` owns the missing Coolify deployment guide and backup setup.
+Current deployment follow-ups: `groupscout-site-39g` owns executing the home deploy path and restore smoke. Coolify deployment guidance now lives in [COOLIFY.md](../guides/COOLIFY.md).
 
 ---
 
@@ -171,7 +171,8 @@ Cloudflare Tunnel is strictly better than raw port forwarding on every security 
 2. SSH in → `curl -fsSL https://cdn.coolify.io/install.sh | bash`
 3. Visit `http://<server-ip>:8000` → complete Coolify setup
 4. Add GitHub repo → deploy from `docker-compose.yml`
-5. Set env vars in Coolify UI → done
+5. Set env vars in Coolify UI.
+6. Follow the deploy, domain, pgvector, and backup runbook in [COOLIFY.md](../guides/COOLIFY.md).
 
 ---
 

@@ -775,7 +775,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **B3** Verify: `server` and `alertd` running as persistent containers; Postgres+pgvector up; `/health` returns 200
 - [ ] **B4** Configure Coolify automatic deploys on `git push main`
 - [ ] **B5** Set up Coolify scheduled backup for the Postgres volume (weekly, to Hetzner Object Storage or S3-compatible)
-- [ ] **B6** `docs/guides/COOLIFY.md` — deploy guide: VPS setup, Coolify install, service mapping, env vars, backup config, custom domain + SSL. Beads: `groupscout-site-06a`.
+- [x] **B6** `docs/guides/COOLIFY.md` — deploy guide: VPS setup, Coolify install, service mapping, env vars, backup config, custom domain + SSL. Beads: `groupscout-site-06a`.
 
 ### Part C — Event-Driven Ingestion (opt-in, platform-agnostic)
 > Complements the existing cron/n8n trigger. A webhook push can trigger per-project enrichment without a full pipeline run — useful for n8n pipelines that discover leads from external sources.

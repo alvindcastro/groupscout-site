@@ -138,7 +138,7 @@ Use this when the goal is a dependable internal lead prompt without changing bac
 
 This MVP is safe because n8n only uses server-to-server `API_TOKEN` credentials and GroupScout remains the source of truth. It does not guarantee a real lead when no eligible lead exists.
 
-Tracked follow-up: `groupscout-site-yfl` owns exporting and smoke-testing the importable n8n workflow JSON for this MVP.
+Importable workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 
 #### Robust guaranteed-lead design
 

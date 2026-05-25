@@ -56,7 +56,7 @@
 | AIaaS API Layer: expose enrichment as standalone service | 📋 future | Phase 10 |
 | CRM/ERP Integration: HubSpot, Salesforce, SAP | 📋 future | Phase 11 |
 
-**Next concrete task (Phase 26-A/B/C):** Home deploy smoke and restore are tracked in `groupscout-site-39g`; Coolify guide/backup setup in `groupscout-site-06a`; event-driven `/ingest` in `groupscout-site-b25`.
+**Next concrete task (Phase 26-A/B/C):** Home deploy smoke and restore are tracked in `groupscout-site-39g`; Coolify guide/backup setup is documented in `docs/guides/COOLIFY.md`; event-driven `/ingest` is tracked in `groupscout-site-b25`.
 
 ---
 

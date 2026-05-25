@@ -410,7 +410,7 @@ curl ifconfig.me
 ## Reference
 
 - Deployment options comparison: `docs/planning/DEPLOYMENT_OPTIONS.md`
-- Moving to cloud with Hetzner + Coolify: tracked by `groupscout-site-06a`, which should create `docs/guides/COOLIFY.md` with VPS setup, service mapping, env vars, pgvector health, domain SSL, and scheduled Postgres/volume backup.
+- Moving to cloud with Hetzner + Coolify: [COOLIFY.md](./COOLIFY.md)
 - Architecture overview: `docs/ARCHITECTURE.md`
 - DuckDNS setup guide: https://www.duckdns.org/install.jsp
 

@@ -4,11 +4,13 @@ This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/group
 
 The UI source repo is currently a plain JavaScript UI workspace for GroupScout operator screens. It has model-level screen factories, a dependency-free vanilla DOM renderer, a static build script, and Node's built-in test runner.
 
+Status reconciliation, 2026-05-25: the inspected UI checkout does not currently contain `web/src/app/adminLogin.js`, `web/src/api/auth.js`, `web/src/renderer/browserUxHardening.js`, `test/browser-ux-hardening.test.js`, or `createApiClient().getLead(...)`; `productionServer.js` proxies `/api/*` directly instead of applying the documented session gate. Restore or reconcile those artifacts under `groupscout-site-0m0`.
+
 ## Current Shape
 
 - `web/src/api/client.js` is the stable browser API facade. Focused adapters live under `web/src/api/*`, and `web/src/api/transport.js` owns the shared same-origin `/api/*` request guard.
 - `web/src/app/shell.js` owns route-shell selection.
-- `web/src/app/adminLogin.js` owns the setup-token login screen model.
+- Planned `web/src/app/adminLogin.js` owns the setup-token login screen model once restored.
 - `web/src/server/uiDeployment.js` owns model-level UI deployment settings, base-path mounting, session-cookie API authorization, and development-only CORS metadata.
 - `web/src/server/browserRuntimeContract.js` owns the D2 browser runtime contract metadata for the future lightweight Node server, reserved port, health path, static asset boundary, `/api/*` routing expectation, and forbidden browser public config keys.
 - `web/src/server/productRendererRuntime.js` owns the Phase 13 renderer/runtime contract.
@@ -16,7 +18,7 @@ The UI source repo is currently a plain JavaScript UI workspace for GroupScout o
 - `web/src/server/productionServer.js` owns the D4 production same-origin server for `web/dist` static assets, `/healthz`, whitelist-only public config, and server-side `/api/*` proxying.
 - `web/src/renderer/domRenderer.js` owns the first dependency-free rendered route mapping.
 - `web/src/renderer/staticAppEntry.js` owns the browser static entrypoint, app-route-only click interception, and dynamic loading of copied renderer modules.
-- `web/src/renderer/browserUxHardening.js` owns the Phase 15 deterministic browser UX hardening report until a real browser harness is added.
+- Planned `web/src/renderer/browserUxHardening.js` owns the Phase 15 deterministic browser UX hardening report until a real browser harness is added.
 - `web/src/renderer/buildStaticApp.js` owns the static product build into `web/dist`.
 - `web/src/app/todayCommandCenter.js` owns the mocked Today command center, operational priority summaries, system health metadata, and read-only routing policy.
 - `web/src/app/leadInbox.js` owns the mocked Lead Inbox screen model.
@@ -119,7 +121,7 @@ npm run build
 npm test
 ```
 
-Manual Docker/browser smoke should open `http://localhost:3001/admin/login` and confirm the login form appears as a compact floating window, not as a full-width page panel. The automated renderer test asserts the `admin-login-window` class contract; it is not a visual regression test.
+Manual Docker/browser smoke should open `http://localhost:3001/admin/login` and confirm the login form appears as a compact floating window after `groupscout-site-0m0` restores the admin login route. The automated renderer test asserts the `admin-login-window` class contract when that test exists; it is not a visual regression test.
 
 API-client smell-phase baseline:
 
@@ -132,7 +134,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Keep browser requests behind same-origin `/api/*` paths.
 - Keep same-origin `/api/*` links outside SPA route interception so raw audit and other API links reach the production proxy normally.
 - Keep browser auth session-based. Do not repurpose automation credentials for operator browser sessions.
-- Keep protected app routes behind `/api/auth/status` checks and redirect unauthenticated users to `/admin/login` when auth is required.
+- Planned protected app routes stay behind `/api/auth/status` checks and redirect unauthenticated users to `/admin/login` when auth is required.
 - Keep setup-token handling server-owned; see [Admin Token Flow](./admin-token-flow.md) for token source, rotation, logout, stale asset recovery, and direct curl smoke commands.
 - Keep the admin login UI as a compact `admin-login-window` form inside the `admin-login` centering stage; do not move setup-token entry into a generic full-width screen panel.
 - Keep logout wired through `createApiClient().logout()` and `/api/auth/logout`; do not clear cookies from browser JavaScript directly.
@@ -143,7 +145,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Use `UI_ENABLED` to disable the UI, `UI_BASE_PATH` for subpath mounting, and `UI_SESSION_SECRET` for session readiness.
 - Keep `CORS_ALLOWED_ORIGINS` development-only; same-origin deployment is the default production posture.
 - Add API access through `createApiClient(...)`; do not fetch backend URLs directly from app modules.
-- Use `createApiClient().getLead(...)` for browser-facing `GET /api/leads/{id}` detail reads; keep source evidence, AI enrichment, reviewer corrections, and activity distinct.
+- Use `createApiClient().getLead(...)` for browser-facing `GET /api/leads/{id}` detail reads after the missing detail client is restored; keep source evidence, AI enrichment, reviewer corrections, and activity distinct.
 - Use `GET /api/leads/{id}/raw` for browser-facing raw audit access; do not link older raw audit endpoints from UI screens.
 - Use `GET/POST /api/pipeline/runs` for pipeline history and manual run creation; do not call worker, scheduler, or one-shot automation endpoints directly from app modules.
 - Use `GET /api/stats` for browser-facing analytics; keep denominators, date ranges, and outcome definitions visible when adding metrics.
@@ -158,7 +160,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 
 Docker operation mode selection, required env vars, backend dependency expectations, and D3/D4 smoke commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
-The production UI Compose profile and repeatable backend plus UI Docker E2E gate are implemented; run `make smoke-ui-docker-e2e` from the backend repo.
+The UI production Compose profile exists in the UI repo. The inspected backend source snapshot does not currently expose `make smoke-ui-docker-e2e`, so run that backend-owned E2E gate only after the Phase 38 smoke target is restored or merged.
 
 CI hook order:
 
@@ -184,10 +186,10 @@ For the exact operator login, setup-token rotation, API smoke, and stale-asset r
 
 Backend markdown references are centralized under `/mnt/c/Users/alvin/groupscout-site/backend`; do not expect backend docs to exist in the backend source checkout after the doc move.
 
-Current UI client contracts:
+Planned/current UI client contracts:
 
 - `GET /api/leads`
-- `GET /api/leads/{id}`
+- `GET /api/leads/{id}` (planned in the inspected UI checkout until `createApiClient().getLead(...)` is restored)
 - `PATCH /api/leads/{id}`
 - `GET /api/leads/{id}/raw`
 - `GET /api/leads/{id}/outreach`
@@ -201,7 +203,7 @@ Current UI client contracts:
 ## API Module Map
 
 - `web/src/api/client.js`: public facade for `createApiClient(...)` and exported constants.
-- `web/src/api/auth.js`: admin auth status, setup-token login, current-admin lookup, and logout methods.
+- Planned `web/src/api/auth.js`: admin auth status, setup-token login, current-admin lookup, and logout methods.
 - `web/src/api/transport.js`: centralized same-origin `/api/*` request validation, JSON defaults, session credentials, non-2xx errors, and non-JSON success behavior.
 - `web/src/api/shared.js`: small helpers shared by adapters.
 - `web/src/api/leads.js`: lead inbox reads, lead detail reads, and lead PATCH writes.

@@ -2,7 +2,7 @@
 
 > Temporary TypeScript contract for the future GroupScout frontend package.
 > When a frontend package exists, these interfaces should move into generated or checked client types derived from `api/swagger.yaml`.
-> This Phase 35 snapshot is behind the live Phase 36/37 API surface; generated or checked replacement types are tracked by `groupscout-site-29q`.
+> This Phase 35 snapshot is behind the later Phase 36/37 planned API contracts; generated or checked replacement types are tracked by `groupscout-site-29q` after the backend UI API surface lands in `groupscout-site-eqm`.
 
 ```ts
 export interface LeadSummary {
@@ -96,4 +96,4 @@ export interface APIError {
 }
 ```
 
-Unsafe edit fields must not be added here until storage migrations and failing tests exist for them. Historical note: Phase 36 added schema-backed owner, snooze, and verification fields after this temporary contract was written.
+Unsafe edit fields must not be added here until storage migrations and failing tests exist for them. Historical note: Phase 36 planned schema-backed owner, snooze, and verification fields after this temporary contract was written; the current backend source snapshot does not expose them through `/api/leads`.

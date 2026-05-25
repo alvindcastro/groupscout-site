@@ -17,12 +17,12 @@ Default port: `8080` (Configurable via `PORT`)
 | `/metrics` | `GET` | Prometheus endpoint for currently wired runtime metrics; collected/enriched/notified/failure counters, collector freshness, and dashboard docs remain open in `groupscout-site-yyj`. | No |
 | `/run` | `POST` | Manually triggers the collect-enrich-notify pipeline. | Yes (Bearer Token) |
 | `/digest` | `POST` | Sends a weekly email summary of leads via Resend. | Yes (Bearer Token) |
-| `/n8n/webhook` | `POST` | Receives raw lead data from n8n for storage and enrichment. | Yes (Bearer Token) |
-| `/leads/{id}/raw` | `GET` | Legacy raw audit payload route. | Yes when `API_TOKEN` or admin auth is configured |
-| `/api/auth/status` | `GET` | Reports admin auth requirement and current session status. | No |
-| `/api/auth/login` | `POST` | Exchanges the current admin setup token for a `groupscout_session` cookie. File-backed setup tokens rotate after successful login. | Setup token |
-| `/api/auth/logout` | `POST` | Revokes the current admin session and clears the browser cookie. | No; revokes when a session is present |
-| `/api/auth/me` | `GET` | Returns the current admin user for a valid session cookie or bearer session token. | Yes (admin session) |
+| `/n8n/webhook` | `POST` | Receives a lead-shaped JSON payload from n8n, inserts it directly, and optionally notifies Slack. Raw single-item enrichment is planned separately in `groupscout-site-b25`. | Yes (Bearer Token) |
+| `/leads/{id}/raw` | `GET` | Current legacy raw audit payload route. The inspected backend source snapshot does not enforce bearer or admin-session auth here; do not expose this route to browser UI until auth/sanitized preview work lands. | No in current snapshot |
+| `/api/auth/status` | `GET` | Planned admin auth status endpoint; not live in the inspected backend source snapshot. | Planned |
+| `/api/auth/login` | `POST` | Planned setup-token login for a `groupscout_session` cookie; not live in the inspected backend source snapshot. | Planned |
+| `/api/auth/logout` | `POST` | Planned admin-session revoke endpoint; not live in the inspected backend source snapshot. | Planned |
+| `/api/auth/me` | `GET` | Planned current-admin endpoint; not live in the inspected backend source snapshot. | Planned |
 
 #### Alertd Binary (`cmd/alertd`)
 Default port: `8081` (Configurable via `ALERTD_PORT`)
@@ -87,7 +87,9 @@ Status reconciliation, 2026-05-25: the current backend source snapshot does not 
 
 ### Admin Auth And Setup Token Flow
 
-Admin auth defaults to enabled through `ADMIN_AUTH_ENABLED=true`. If `ADMIN_SETUP_TOKEN` is absent, the server reads or creates `ADMIN_SETUP_TOKEN_FILE`, default `data/admin-setup-token`. Use that setup token at `/admin/login` or `POST /api/auth/login`.
+Status reconciliation, 2026-05-25: admin auth/session is a planned UI contract under `groupscout-site-eqm`; the inspected backend source snapshot has no `ADMIN_AUTH_*` config, setup-token file handling, `groupscout_session`, or `/api/auth/*` routes.
+
+The planned admin auth flow defaults to enabled through `ADMIN_AUTH_ENABLED=true`. If `ADMIN_SETUP_TOKEN` is absent, the server should read or create `ADMIN_SETUP_TOKEN_FILE`, default `data/admin-setup-token`. Use that setup token at `/admin/login` or `POST /api/auth/login` after the backend implementation lands.
 
 Successful login creates a short-lived in-memory admin session, sets the HttpOnly `groupscout_session` cookie, and returns a `session_token` for non-browser smoke clients. File-backed setup tokens rotate after successful login; read `data/admin-setup-token` again before another setup login. Env-backed `ADMIN_SETUP_TOKEN` values cannot rotate automatically, so rotate them by changing the env var and restarting the backend.
 
@@ -111,4 +113,4 @@ Session lifetime is controlled by `ADMIN_SESSION_TTL_HOURS`, default `24`. `POST
 | `/api/system` | `GET` | Planned | UI-friendly health and integration summary without browser-side Prometheus parsing. |
 | `/api/alerts` | `GET` | Planned | Read-only alert-console compatibility endpoint. Returns an empty collection until `alertd` has a shared persistent alert store. |
 
-See [UI_PHASE35_API_CONTRACT.md](./planning/ui/UI_PHASE35_API_CONTRACT.md) for the implemented lead API response shapes and [UI_STRATEGY.md](./planning/ui/UI_STRATEGY.md) for the product flow and implementation sequence.
+See [UI_PHASE35_API_CONTRACT.md](./planning/ui/UI_PHASE35_API_CONTRACT.md) for the planned lead API response shapes and [UI_STRATEGY.md](./planning/ui/UI_STRATEGY.md) for the product flow and implementation sequence.

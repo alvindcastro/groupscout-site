@@ -1,13 +1,13 @@
 # Phase 33 Mocked Lead Inbox Contract
 
 > Historical implementation contract for the first mocked GroupScout lead inbox.
-> Phase 35 later implemented the backend `GET /api/leads` contract, and the frontend repo now contains the dependency-free renderer/runtime. Use `UI_API_ENDPOINTS.md`, `UI_PHASE35_API_CONTRACT.md`, and `UI_TDD_PHASE_PLAN.md` for current live API status.
+> Phase 35 later defined the backend `GET /api/leads` contract, and the frontend repo now contains a dependency-free renderer/runtime. Use `UI_API_ENDPOINTS.md`, `UI_PHASE35_API_CONTRACT.md`, and `UI_TDD_PHASE_PLAN.md` for current live-vs-planned API status.
 
 ## Current Scope
 
 Phase 33 defines the `/leads` route behavior after the Phase 32 app shell exists and before the Phase 35 live `/api/leads` contract existed.
 
-Do not add production UI code that silently calls existing automation endpoints or reads the database. This historical contract required deterministic fixture data until Phase 35 implemented the UI API.
+Do not add production UI code that silently calls existing automation endpoints or reads the database. This historical contract required deterministic fixture data until the Phase 35 UI API contract is implemented on the current backend.
 
 ## Mock Data Boundary
 

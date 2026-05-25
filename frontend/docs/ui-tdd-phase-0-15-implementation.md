@@ -4,6 +4,8 @@
 
 This document records the canonical `UI_TDD_PHASE_PROMPTS.md` Phase 0-15 order completed on 2026-05-09.
 
+Status reconciliation, 2026-05-25: the inspected UI checkout no longer contains several artifacts cited below, including `web/src/renderer/browserUxHardening.js`, `test/browser-ux-hardening.test.js`, and `createApiClient().getLead(...)`. Treat this file as implementation history until `groupscout-site-0m0` restores the missing artifacts or narrows the docs to the current checkout.
+
 The checkout was reconciled to the tracked Phase 13 UI baseline rather than rebuilt from a docs-only reset. That baseline already included the vanilla DOM renderer, `node:test` harness, screen models, static build, product dev server, production static/proxy server, Docker contracts, and same-origin `/api/*` browser boundary.
 
 ## Phase Map

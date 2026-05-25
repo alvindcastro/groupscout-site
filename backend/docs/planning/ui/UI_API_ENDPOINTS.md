@@ -14,7 +14,7 @@ Status reconciliation, 2026-05-25: backend `main` currently exposes the automati
 | `POST /run` | Implemented | Bearer-token protected when `API_TOKEN` is set. Blocking pipeline trigger. |
 | `POST /digest?to=` | Implemented | Bearer-token protected when `API_TOKEN` is set. Sends email digest. |
 | `POST /n8n/webhook` | Implemented | Bearer-token protected when `API_TOKEN` is set. Accepts a lead-shaped payload. |
-| `GET /leads/{id}/raw` | Implemented | Legacy raw audit payload lookup. Now requires `API_TOKEN` or admin session when either auth mode is configured. |
+| `GET /leads/{id}/raw` | Implemented legacy route | Raw audit payload lookup. The inspected backend source snapshot does not enforce bearer or admin-session auth here; do not expose it directly to browser UI. Sanitized/authenticated preview remains tracked by `groupscout-site-4cv`. |
 | `POST /slack/inventory` | Implemented in `alertd` | Slack slash-command endpoint, separate from the lead UI MVP. |
 
 ## Contract Principles

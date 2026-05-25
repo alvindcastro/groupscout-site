@@ -10,7 +10,7 @@ This folder groups planning documents for the future GroupScout operator UI.
 - [UI_PHASE32_APP_SHELL_ROUTING_CONTRACT.md](./UI_PHASE32_APP_SHELL_ROUTING_CONTRACT.md) - Phase 32 app shell, route, responsive layout, build, and component-test implementation contract.
 - [UI_PHASE33_MOCKED_LEAD_INBOX_CONTRACT.md](./UI_PHASE33_MOCKED_LEAD_INBOX_CONTRACT.md) - Phase 33 mocked lead inbox fixture, table, interaction, accessibility, responsive, and replaceable API-boundary implementation contract.
 - [UI_PHASE34_LEAD_DETAIL_EVIDENCE_CONTRACT.md](./UI_PHASE34_LEAD_DETAIL_EVIDENCE_CONTRACT.md) - Phase 34 lead detail, evidence review, raw audit safety, outreach/activity, status action, and correction-control implementation contract.
-- [UI_PHASE35_API_CONTRACT.md](./UI_PHASE35_API_CONTRACT.md) - Phase 35 implemented `/api/leads` list, detail, patch, raw evidence, auth, and schema-gap contract.
+- [UI_PHASE35_API_CONTRACT.md](./UI_PHASE35_API_CONTRACT.md) - Phase 35 planned `/api/leads` list, detail, patch, raw evidence, auth, and schema-gap contract.
 - [UI_PHASE35_FRONTEND_TYPES.md](./UI_PHASE35_FRONTEND_TYPES.md) - Temporary TypeScript type contract for the Phase 35 API until generated frontend client types exist.
 - [UI_PHASE36_OUTREACH_STATE_CONTRACT.md](./UI_PHASE36_OUTREACH_STATE_CONTRACT.md) - Phase 36 outreach log, lead action, transition validation, and workflow-field contract.
 - [UI_PHASE37_PIPELINE_STATS_SYSTEM_CONTRACT.md](./UI_PHASE37_PIPELINE_STATS_SYSTEM_CONTRACT.md) - Phase 37 pipeline run, stats, and system-health API contract.

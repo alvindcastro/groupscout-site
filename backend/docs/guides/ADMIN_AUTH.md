@@ -2,9 +2,11 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/ADMIN_AUTH.md`. Run backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`; run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
 
-## Runtime Defaults
+Status reconciliation, 2026-05-25: this is the planned admin auth/session runbook. The inspected backend source snapshot does not currently expose `ADMIN_AUTH_*` config, setup-token file creation, `groupscout_session`, or `/api/auth/*` routes, and the inspected UI checkout does not currently expose `/admin/login`. Backend implementation is tracked by `groupscout-site-eqm`; UI restoration/reconciliation is tracked by `groupscout-site-0m0`.
 
-Admin auth is enabled by default:
+## Planned Runtime Defaults
+
+Admin auth should be enabled by default when this contract is implemented:
 
 ```env
 ADMIN_AUTH_ENABLED=true
@@ -41,7 +43,7 @@ Login URL:
 http://localhost:3001/admin/login
 ```
 
-After successful login, the backend sets an HttpOnly `groupscout_session` cookie. Browser JavaScript cannot read or clear this cookie directly; logout must call `POST /api/auth/logout`.
+After successful login, the planned backend sets an HttpOnly `groupscout_session` cookie. Browser JavaScript cannot read or clear this cookie directly; logout must call `POST /api/auth/logout`.
 
 ## Token Rotation
 

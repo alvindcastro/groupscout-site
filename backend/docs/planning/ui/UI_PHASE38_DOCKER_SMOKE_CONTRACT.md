@@ -2,6 +2,8 @@
 
 Phase 38 adds a backend-owned smoke script for the split backend plus external UI Docker runtime.
 
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include this script, `internal/smoke`, or the `make smoke-ui-docker-e2e` target. Restore or reconcile the backend-owned smoke artifact in `groupscout-site-crz` before treating this as a runnable gate.
+
 Script:
 
 - `scripts/smoke-ui-docker-e2e.sh`
@@ -26,7 +28,7 @@ Red evidence:
 
 - `go test ./internal/smoke` failed because `scripts/smoke-ui-docker-e2e.sh` did not exist.
 
-Green evidence:
+Historical green evidence:
 
 - `go test ./internal/smoke`
 - `make smoke-ui-docker-e2e`

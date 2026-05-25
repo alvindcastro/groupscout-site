@@ -2,6 +2,8 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/testing.md`. Run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui` and backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 
+Status reconciliation, 2026-05-25: the inspected UI checkout is missing the documented admin login/auth client, `createApiClient().getLead(...)`, and Phase 15 hardening module/test; the inspected backend source snapshot is also missing planned `/api/*` UI routes, admin auth, EvalOps targets, and `make smoke-ui-docker-e2e`. Treat historical green runs below as branch-history until `groupscout-site-0m0`, `groupscout-site-eqm`, and `groupscout-site-crz` land or the docs are further narrowed.
+
 ## Run This Now
 
 Use this current verification path before digging into historical phase evidence.
@@ -31,7 +33,7 @@ curl -i --max-time 5 http://localhost:3001/api/system
 curl -i --max-time 5 http://localhost:3001/api/alerts?limit=1
 ```
 
-Expected: backend `/health` is HTTP `200` with `"database":"ok"`, UI `/healthz` and `/` are HTTP `200`, and the three `/api/*` routes return HTTP `200` when the backend is compatible and auth is satisfied. Treat `502` as backend/proxy reachability, `404` as route drift, and `401`/`403` as auth/session configuration.
+Expected: backend `/health` is HTTP `200` with `"database":"ok"`, UI `/healthz` and `/` are HTTP `200`, and the three `/api/*` routes return HTTP `200` only when a compatible backend is present and auth is satisfied. With the current backend source snapshot, planned UI API routes may return `404`. Treat `502` as backend/proxy reachability and `401`/`403` as auth/session configuration once that boundary exists.
 
 ## UI Repo
 
@@ -262,13 +264,15 @@ TEST_POSTGRES_URL="postgres://groupscout:groupscout@localhost:5432/groupscout?ss
   go test -v -tags integration ./internal/storage/...
 ```
 
-EvalOps:
+Planned EvalOps:
 
 ```sh
 make eval-quality
 make eval-gate
 make eval-target
 ```
+
+These EvalOps targets are not present in the inspected backend source snapshot; restoration/reconciliation is tracked by `groupscout-site-crz`.
 
 ## Manual API Checks
 

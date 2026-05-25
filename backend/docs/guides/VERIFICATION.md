@@ -2,6 +2,8 @@
 
 This guide provides steps to verify that the pipeline is running correctly and that the data in the database is accurate and enriched.
 
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `internal/evalops` or the EvalOps Makefile targets. Sections 6 and 7 are planned/branch-history guidance until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
+
 ---
 
 ## 1. Quick Verification (Start-to-Finish)

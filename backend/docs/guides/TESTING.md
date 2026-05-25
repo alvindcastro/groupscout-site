@@ -22,19 +22,21 @@ make test
 go test -v ./internal/enrichment/...
 ```
 
-#### Run UI API Contract Tests
+#### Planned UI API Contract Tests
 ```bash
 go test ./internal/storage
 go test ./cmd/server
 ```
 
-These cover the Phase 35 filtered lead listing storage contract and the `/api/leads`, `/api/leads/{id}`, `PATCH /api/leads/{id}`, and authenticated `/api/leads/{id}/raw` HTTP contracts.
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include the planned UI API handlers or admin auth/session tests. The package commands above are still useful for current storage/server coverage, but they do not prove `/api/leads`, `/api/leads/{id}`, `PATCH /api/leads/{id}`, or authenticated `/api/leads/{id}/raw` behavior until `groupscout-site-eqm` lands.
 
-Phase 36 and 37 extend the same package tests with outreach logging, lead actions, pipeline run persistence, stats, `/api/system`, and the read-only `/api/alerts` compatibility route.
+Phase 36 and 37 should extend the same package tests with outreach logging, lead actions, pipeline run persistence, stats, `/api/system`, and the read-only `/api/alerts` compatibility route.
 
-The admin-login completion tests also live in `cmd/server`: invalid setup-token login, file-backed setup-token rotation, bearer session-token access, `/api/auth/me`, session expiry, `/api/auth/logout` revocation, and legacy `/leads/{id}/raw` auth coverage.
+The planned admin-login completion tests should also live in `cmd/server`: invalid setup-token login, file-backed setup-token rotation, bearer session-token access, `/api/auth/me`, session expiry, `/api/auth/logout` revocation, and legacy `/leads/{id}/raw` auth coverage.
 
-#### Run Admin Auth Token Flow Smoke
+#### Planned Admin Auth Token Flow Smoke
+
+The current backend source snapshot does not expose `/api/auth/*`; run this smoke only after the admin auth/session implementation lands.
 
 Local backend:
 
@@ -64,12 +66,12 @@ curl -i -b /tmp/groupscout-admin.cookies http://localhost:3001/api/auth/me
 
 File-backed setup tokens rotate after successful login. If a setup token is rejected after a successful login, read `data/admin-setup-token` again. Env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically.
 
-#### Run UI Docker Smoke Contract Tests
+#### Planned UI Docker Smoke Contract Tests
 ```bash
 go test ./internal/smoke
 ```
 
-This verifies the backend-owned Phase 38 smoke script contract. To run the full Docker smoke against the external UI repo:
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `internal/smoke` or `make smoke-ui-docker-e2e`. Use this once the Phase 38 smoke contract is restored or merged in `groupscout-site-crz`. To run the full Docker smoke against the external UI repo after that:
 
 ```bash
 make smoke-ui-docker-e2e
@@ -80,15 +82,17 @@ make smoke-ui-docker-e2e
 go test ./cmd/alertd/... ./internal/alert/...
 ```
 
-#### Run AI Quality EvalOps Tests
+#### Planned AI Quality EvalOps Tests
 ```bash
 go test -v ./internal/evalops
 ```
 
-#### Run GQ5 Draft-Case Helper Tests
+#### Planned GQ5 Draft-Case Helper Tests
 ```bash
 go test -v ./internal/evalops -run 'TestDraftCasesFromReviewSamples|TestWriteDraftCasesJSONL'
 ```
+
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `internal/evalops` or the EvalOps Makefile targets. Treat this section as branch-history/planned guidance until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
 
 These tests verify that redacted review samples become review-only draft cases with trace IDs, TODO expected fields, deterministic duplicate IDs, and a loader rejection until human review is complete.
 
@@ -204,7 +208,7 @@ docker compose logs -f groupscout
 
 ### Backend Plus UI Docker Smoke Checks
 
-Use this when you want to verify that the backend Compose stack and the separate UI Docker image can run together:
+Use this when the Phase 38 smoke target exists and you want to verify that the backend Compose stack and the separate UI Docker image can run together:
 
 ```bash
 make smoke-ui-docker-e2e
@@ -306,7 +310,7 @@ go test -v ./internal/storage -run TestAuditStore_StripPII
 Raw audit preview is stricter than authenticated raw access. Before any inline raw-payload display ships, tests must prove:
 
 - Default lead list, lead detail, and verification queue responses do not contain raw body fields or raw audit IDs.
-- `GET /api/leads/{id}/raw` remains authenticated and returns stored bytes only after explicit raw-route access.
+- The planned `GET /api/leads/{id}/raw` alias remains authenticated and returns stored bytes only after explicit raw-route access. The current legacy `GET /leads/{id}/raw` route in the inspected backend source snapshot is not browser-safe and does not enforce the planned admin/session boundary.
 - Preview rendering redacts secrets, credentials, cookies, signed URLs, database URLs, webhook URLs, emails, phones, and individual contact names.
 - JSON/XML/plain text/sanitized HTML are the only inline-preview payload classes; PDFs, images, archives, office documents, unknown binary, and oversized payloads stay download/open-only.
 - Browser/static asset scans still reject `API_TOKEN`, provider keys, database URLs, Slack/email secrets, session secrets, and literal bearer tokens.

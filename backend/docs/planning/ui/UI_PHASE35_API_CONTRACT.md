@@ -1,6 +1,6 @@
 # Phase 35 UI API Contract
 
-> Implemented backend contract for the first same-origin GroupScout operator UI endpoints.
+> Target backend contract for the first same-origin GroupScout operator UI endpoints.
 
 > Status reconciliation, 2026-05-25: this file is a contract target, not current backend-main behavior. The current backend source snapshot does not expose the `/api/leads` UI routes described here; use `UI_API_ENDPOINTS.md` and `BACKEND_FOR_UI_TESTING.md` for live-vs-planned status.
 > The current repository still has no checked-in frontend package, so frontend types are maintained in `UI_PHASE35_FRONTEND_TYPES.md` until a generated client exists. Generated client/types work is tracked by `groupscout-site-29q`.
@@ -9,7 +9,7 @@
 
 Phase 35 turns the Phase 33 and Phase 34 fixture boundaries into live `/api/*` backend contracts backed by the current lead and raw-audit schema.
 
-Implemented:
+Planned endpoints:
 
 - `GET /api/leads`
 - `GET /api/leads/{id}`

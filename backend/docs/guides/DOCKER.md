@@ -120,7 +120,7 @@ Key points:
 
 Keep the full command sequence in the E2E runbook so D3/D4 smoke expectations do not drift across docs.
 
-Completed UI Docker gate: the UI repo has a `smoke-ui-e2e` production profile, and the backend repo exposes `make smoke-ui-docker-e2e`. Open follow-up: `groupscout-site-yyj` tracks Prometheus metrics, collector freshness, and dashboard documentation for collected/enriched/notified/failure counts.
+UI Docker gate status, 2026-05-25: the UI repo has a `smoke-ui-e2e` production profile, but the inspected backend source snapshot does not currently expose `make smoke-ui-docker-e2e` or `internal/smoke`. Restore or merge the backend-owned Phase 38 smoke target in `groupscout-site-crz` before treating the E2E gate as runnable. Open follow-up: `groupscout-site-yyj` tracks Prometheus metrics, collector freshness, and dashboard documentation for collected/enriched/notified/failure counts.
 
 ## 🧠 Ollama Model Management
 

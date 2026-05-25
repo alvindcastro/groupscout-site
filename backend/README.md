@@ -150,7 +150,7 @@ Runs a persistent HTTP server that listens for remote triggers (ideal for n8n/cr
 - `GET /health`: Health check.
 - `POST /run`: Trigger the full collect→enrich→notify pipeline.
 - `POST /digest?to=email@example.com`: Send a weekly summary digest.
-- `POST /n8n/webhook`: Receive a lead manually from external automation.
+- `POST /n8n/webhook`: Receive a lead-shaped JSON payload from external automation and insert it directly. Raw single-item enrichment remains planned under `groupscout-site-b25`.
 
 See `/mnt/c/Users/alvin/GolandProjects/groupscout/api/swagger.yaml` in the backend source repo for the full OpenAPI specification.
 
@@ -172,13 +172,15 @@ docker compose up -d
 ```
 
 #### 4. AI Quality EvalOps
-Run the deterministic GroupScout quality evals and release gate without live provider keys:
+Planned AI quality EvalOps commands:
 ```bash
 make eval-quality
 make eval-gate
 ```
 
-To drive the same cases through Promptfoo, run the local Go target first:
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include the EvalOps Makefile targets or `internal/evalops` runtime. Treat the commands below as the planned/branch-history gate until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
+
+To drive the same cases through Promptfoo after that runtime exists, run the local Go target first:
 ```bash
 make eval-target
 promptfoo eval -c evals/promptfoo/groupscout.yaml
@@ -193,7 +195,7 @@ GQ5 review samples can be converted into review-only draft cases with the evalop
 *   [CHANGELOG.md](./docs/CHANGELOG.md) - Plain-English record of all changes.
 *   [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System design and data flow.
 *   [SETUP.md](./docs/guides/SETUP.md) - Installation and configuration guide.
-*   [ADMIN_AUTH.md](./docs/guides/ADMIN_AUTH.md) - Admin setup-token login, session cookie, logout, and token rotation.
+*   [ADMIN_AUTH.md](./docs/guides/ADMIN_AUTH.md) - Planned admin setup-token login, session cookie, logout, and token rotation.
 *   [DOCKER.md](./docs/guides/DOCKER.md) - Running and troubleshooting Docker.
 *   [TESTING.md](./docs/guides/TESTING.md) - Comprehensive testing guide (unit, integration, Ollama).
 *   [VERIFICATION.md](./docs/guides/VERIFICATION.md) - Runtime and EvalOps verification checklist.
@@ -211,7 +213,7 @@ GQ5 review samples can be converted into review-only draft cases with the evalop
 *   [UI_PHASE32_APP_SHELL_ROUTING_CONTRACT.md](./docs/planning/ui/UI_PHASE32_APP_SHELL_ROUTING_CONTRACT.md) - Phase 32 operator shell, routes, responsive behavior, and build/component-test contract.
 *   [UI_PHASE33_MOCKED_LEAD_INBOX_CONTRACT.md](./docs/planning/ui/UI_PHASE33_MOCKED_LEAD_INBOX_CONTRACT.md) - Phase 33 mocked lead inbox fixture, table, interaction, accessibility, and API-boundary contract.
 *   [UI_PHASE34_LEAD_DETAIL_EVIDENCE_CONTRACT.md](./docs/planning/ui/UI_PHASE34_LEAD_DETAIL_EVIDENCE_CONTRACT.md) - Phase 34 lead detail, evidence review, raw audit safety, outreach/activity, status action, and correction-control contract.
-*   [UI_PHASE35_API_CONTRACT.md](./docs/planning/ui/UI_PHASE35_API_CONTRACT.md) - Phase 35 implemented `/api/leads` list, detail, patch, raw evidence, and schema-gap contract.
+*   [UI_PHASE35_API_CONTRACT.md](./docs/planning/ui/UI_PHASE35_API_CONTRACT.md) - Phase 35 planned `/api/leads` list, detail, patch, raw evidence, and schema-gap contract.
 *   [UI_PHASE35_FRONTEND_TYPES.md](./docs/planning/ui/UI_PHASE35_FRONTEND_TYPES.md) - Temporary frontend type contract for the Phase 35 UI API responses.
 *   [UI_PHASE36_OUTREACH_STATE_CONTRACT.md](./docs/planning/ui/UI_PHASE36_OUTREACH_STATE_CONTRACT.md) - Phase 36 outreach logging and lead state action contract.
 *   [UI_PHASE37_PIPELINE_STATS_SYSTEM_CONTRACT.md](./docs/planning/ui/UI_PHASE37_PIPELINE_STATS_SYSTEM_CONTRACT.md) - Phase 37 pipeline run, stats, and system API contract.

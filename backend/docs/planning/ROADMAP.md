@@ -16,9 +16,10 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 - `groupscout-site-3gq` — shared `alertd` state for `/api/alerts`.
 - `groupscout-site-yyj` — ops metrics and collector freshness observability.
 - `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
+- `groupscout-site-crz` — restore or reconcile backend EvalOps and UI Docker smoke artifacts that docs reference but the inspected backend source snapshot lacks.
 - `groupscout-site-b25` — event-driven `POST /ingest` and `EnrichOne`.
 - `groupscout-site-39g` — home-deploy runbook execution and restore smoke. Coolify guide was added in `backend/docs/guides/COOLIFY.md`.
-- `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-dxq`, and `groupscout-site-kb4` — planned operator UI API routes, generated UI API client, sanitized raw preview, UI roadmap schema cleanup, and real-browser Phase 15 harness.
+- `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-0m0` — planned operator UI API routes, generated UI API client, sanitized raw preview, real-browser Phase 15 harness, and current UI checkout admin/session/detail-client hardening reconciliation.
 - `groupscout-site-2h1` — remaining backend/frontend smell refactors.
 - `groupscout-site-aaj`, `groupscout-site-1ee`, and `groupscout-site-a1h` — next source-expansion slice, multi-property design, and Codex plugin skill drift.
 
@@ -26,6 +27,7 @@ Recently completed:
 
 - `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n and tracked under `backend/docs/workflows/n8n/`.
 - `groupscout-site-j73` — opt-in raw audit retention worker, manual purge command, Docker env, and Postgres purge-safety coverage.
+- `groupscout-site-dxq` — UI schema/API roadmap documentation cleanup.
 - `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and the backend plus UI Docker E2E gate are implemented.
 
 ---
@@ -41,7 +43,7 @@ Recently completed:
 - [ ] **Phase 7** — User requests & API refinements *(in progress)*
 - [ ] **Phase 8** — System reliability & observability *(in progress; `groupscout-site-yyj`)*
 - [ ] **Phase 9** — Architecture & scaling: concurrency, caching
-- [ ] **Phase 10** — Ecosystem & UI: dashboard, CRM, extensions (`groupscout-site-3gq`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-dxq`, `groupscout-site-kb4`)
+- [ ] **Phase 10** — Ecosystem & UI: dashboard, CRM, extensions (`groupscout-site-3gq`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, `groupscout-site-0m0`)
 - [ ] **Phase 11** — CRM direct integration: HubSpot, Salesforce
 - [ ] **Phase 12** — Source expansion: Metro Vancouver municipalities (`groupscout-site-aaj` selects the next slice)
 - [ ] **Phase 13** — Public tenders & utilities: BC Hydro, FortisBC (`groupscout-site-aaj` selects the next slice)

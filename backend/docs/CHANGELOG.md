@@ -1,3 +1,15 @@
+## 2026-05-25 - Source snapshot reconciliation
+
+### groupscout-site-6s9 - Review missed task documentation drift
+
+- **What:** Marked several backend/UI API, admin auth, smoke, EvalOps, and frontend hardening entries as planned or branch-history where the inspected source checkouts do not currently contain the referenced implementation files.
+- **Where:** Centralized backend and frontend Markdown docs in `backend/` and `frontend/`.
+- **When:** 2026-05-25.
+- **Why:** The current backend source snapshot exposes only the automation/server routes plus the legacy raw-audit route, and the current UI checkout lacks several admin/session, detail-client, and Phase 15 hardening artifacts described by the docs.
+- **How:** Cross-checked Beads, backend source, frontend source, and docs with parallel agents; kept historical changelog entries intact but added current-source caveats and follow-up links.
+
+---
+
 ## 2026-05-25 - Raw audit retention worker
 
 ### groupscout-site-j73 - Implement raw audit retention purge worker

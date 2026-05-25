@@ -118,7 +118,7 @@ make test
 ```
 See [TESTING.md](./guides/TESTING.md) for details on running specific tests and Postgres integration.
 
-Admin/operator login uses a setup-token flow, not `API_TOKEN`. See [ADMIN_AUTH.md](./guides/ADMIN_AUTH.md) for `ADMIN_AUTH_ENABLED`, `ADMIN_SETUP_TOKEN`, setup-token rotation, `groupscout_session`, logout, and Docker smoke details.
+Planned admin/operator login uses a setup-token flow, not `API_TOKEN`. The inspected backend source snapshot does not currently expose the `/api/auth/*` routes; see [ADMIN_AUTH.md](./guides/ADMIN_AUTH.md) for the target `ADMIN_AUTH_ENABLED`, `ADMIN_SETUP_TOKEN`, setup-token rotation, `groupscout_session`, logout, and Docker smoke details.
 
 ### 2. Ollama & LLM Testing
 A dedicated script verifies Ollama connectivity and model availability:

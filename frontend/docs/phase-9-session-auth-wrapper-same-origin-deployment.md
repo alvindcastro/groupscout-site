@@ -2,6 +2,8 @@
 
 Phase 9 adds the minimum deployment and session model needed to keep the operator workspace behind browser sessions while preserving automation-only credentials for non-browser clients.
 
+Status reconciliation, 2026-05-25: the inspected UI checkout has `uiDeployment.js` helper logic, but `productionServer.js` currently proxies `/api/*` directly and the checkout lacks the documented `/admin/login` route/auth client wiring. Treat this file as the planned session/auth contract until `groupscout-site-0m0` restores or reconciles the implementation.
+
 ## Scope
 
 - `web/src/server/uiDeployment.js` owns UI deployment config parsing, readiness validation, base-path mount resolution, development-only CORS metadata, and session-cookie API authorization.
@@ -20,15 +22,15 @@ Phase 9 adds the minimum deployment and session model needed to keep the operato
 
 - Browser access to `/api/*` requires the `groupscout_session` cookie to match a server-side session store when `UI_SESSION_SECRET` is configured.
 - Missing or invalid sessions return `401` with a `GroupScoutSession` challenge when session auth is configured.
-- Browser route rendering now checks `/api/auth/status` before protected app routes and redirects unauthenticated users to `/admin/login` when admin auth is required.
-- `/admin/login` posts a setup token to `/api/auth/login`, verifies the resulting admin session, and then navigates to `/`.
-- Protected app chrome includes a logout control that posts `/api/auth/logout`, clears local route state, and returns to `/admin/login`.
+- Planned browser route rendering checks `/api/auth/status` before protected app routes and redirects unauthenticated users to `/admin/login` when admin auth is required.
+- Planned `/admin/login` posts a setup token to `/api/auth/login`, verifies the resulting admin session, and then navigates to `/`.
+- Planned protected app chrome includes a logout control that posts `/api/auth/logout`, clears local route state, and returns to `/admin/login`.
 - The backend setup token is file-backed by default at `data/admin-setup-token`. It rotates after every successful login, so a second setup login needs the new file value.
 - If the backend uses `ADMIN_SETUP_TOKEN`, that env-backed setup token is active and does not rotate automatically.
 - The backend response includes a bearer `session_token` for non-browser smoke clients, but browser code relies on the HttpOnly `groupscout_session` cookie.
 - Admin sessions are in-memory and expire after `ADMIN_SESSION_TTL_HOURS`, default `24`; backend restarts invalidate active browser sessions.
-- The production request handler applies this authorization check before proxying `/api/*` to `UI_API_PROXY_TARGET`; with no session secret configured, the backend Docker smoke path can proxy `/api/*` without a browser login flow.
-- Health, static, JSON, and proxied responses include baseline browser security headers: CSP, `x-content-type-options`, `x-frame-options`, and `referrer-policy`.
+- The planned production request handler applies this authorization check before proxying `/api/*` to `UI_API_PROXY_TARGET`; with no session secret configured, the backend Docker smoke path can proxy `/api/*` without a browser login flow.
+- Planned health, static, JSON, and proxied responses include baseline browser security headers: CSP, `x-content-type-options`, `x-frame-options`, and `referrer-policy`.
 - Disabled UI access returns `404` so the operator UI is not mounted.
 - `API_TOKEN` remains reserved for automation clients such as n8n and is not injected into browser requests.
 

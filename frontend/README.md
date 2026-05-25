@@ -2,22 +2,24 @@
 
 Phase 0-15 now follows the canonical `UI_TDD_PHASE_PROMPTS.md` order: baseline reconciliation, product IA/UX guardrails, backend compatibility smoke, API client contracts, Today, Leads, Lead Detail, status/corrections, verification, outreach, pipeline, analytics, read-only alerts, session/runtime, Docker E2E, and browser UX hardening. The restored baseline includes the dependency-free vanilla DOM product renderer/runtime, static build, product dev server, production static/proxy server, and same-origin `/api/*` contracts.
 
+Status reconciliation, 2026-05-25: the inspected UI checkout does not currently contain `web/src/renderer/browserUxHardening.js`, `test/browser-ux-hardening.test.js`, the `/admin/login` route/auth client wiring, production-server session gating, or `createApiClient().getLead(...)`. Restore or reconcile those artifacts under `groupscout-site-0m0`. Until then, the affected sections below are planned/canonical contract language, not proof of current checkout behavior.
+
 ## Current Scope
 
 - Design tokens live in `web/src/design/tokens.js` and are mapped from `DESIGN.md`.
 - The route shell lives in `web/src/app/shell.js` and mounts Today, Leads, Verification, Outreach, Pipeline, Analytics, Alerts, and a Settings placeholder.
 - Browser API access still enters through `web/src/api/client.js`, with same-origin `/api/*` transport centralized in `web/src/api/transport.js` and feature adapters split across focused `web/src/api/*` modules.
-- UI deployment/session rules live in `web/src/server/uiDeployment.js` and cover `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, development-only `CORS_ALLOWED_ORIGINS`, session-cookie `/api/*` access when configured, and a no-secret Docker smoke mode.
+- UI deployment/session helper rules live in `web/src/server/uiDeployment.js` and cover `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, development-only `CORS_ALLOWED_ORIGINS`, session-cookie `/api/*` access when configured, and a no-secret Docker smoke mode. The inspected production server does not currently wire that session gate before proxying `/api/*`.
 - Browser runtime contract metadata lives in `web/src/server/browserRuntimeContract.js`; D4 now implements the lightweight production Node server on port `3000` with `/healthz` and same-origin `/api/*` routing to server-side `http://groupscout:8080` without exposing automation credentials.
 - Phase 13 renderer/runtime metadata lives in `web/src/server/productRendererRuntime.js`; the first rendered-route smoke coverage lives in `test/phase-13-renderer-runtime.test.js`.
-- Phase 15 browser UX hardening metadata lives in `web/src/renderer/browserUxHardening.js`; deterministic route-specific focus, accessible-name, rendered responsive-mode, state-region, text-containment, and same-origin checks live in `test/browser-ux-hardening.test.js`.
+- Phase 15 browser UX hardening metadata is planned to live in `web/src/renderer/browserUxHardening.js` with deterministic route-specific focus, accessible-name, rendered responsive-mode, state-region, text-containment, and same-origin checks in `test/browser-ux-hardening.test.js`; those files were absent from the inspected UI checkout.
 - Handoff: real-browser Phase 15 verification remains open in bd issue `groupscout-site-kb4`; current coverage is deterministic/model-level and has no Playwright/Puppeteer dependency, package lock, or local Chromium binary.
-- Production same-origin serving lives in `web/src/server/productionServer.js`; `npm run start:ui` serves `web/dist`, falls back to `index.html` for app routes, applies browser security headers, gates `/api/*` with `groupscout_session` when `UI_SESSION_SECRET` is configured, and otherwise forwards Docker-smoke API requests server-side to `UI_API_PROXY_TARGET` or `http://groupscout:8080`.
+- Production same-origin serving lives in `web/src/server/productionServer.js`; in the inspected UI checkout, `npm run start:ui` serves `web/dist`, falls back to `index.html` for app routes, and forwards `/api/*` server-side to `UI_API_PROXY_TARGET` or `http://groupscout:8080` without the documented session gate.
 - Static product assets are generated with `npm run build` from `web/src/renderer/buildStaticApp.js`; the first renderer mapping lives in `web/src/renderer/domRenderer.js`.
 - Product dev serving lives in `web/src/server/productDevServer.js`; `compose.dev.yml` runs that server on container port `3000` and host `${GROUPSCOUT_UI_HOST_PORT:-3001}`.
 - Backend compatibility smoke classification lives in `web/src/server/backendCompatibilitySmoke.js` and distinguishes proxy failure, backend route drift, auth, schema drift, compatible responses, and backend errors.
 - Lead inbox reads use `createApiClient().listLeads(...)` for `GET /api/leads` query serialization, pagination cursors, default priority ordering, and response field adaptation.
-- Lead detail reads use `createApiClient().getLead(...)` for `GET /api/leads/{id}` evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows.
+- Lead detail reads should use `createApiClient().getLead(...)` for `GET /api/leads/{id}` evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows after `groupscout-site-0m0` restores or reconciles the missing client method.
 - Lead status writes use `createApiClient().patchLead(...)` for `PATCH /api/leads/{id}` payloads covering status, owner, notes, snooze date, correction reason, and safe field corrections.
 - Raw audit reads use `createApiClient().getLeadRawAudit(...)` for the UI-safe `GET /api/leads/{id}/raw` alias.
 - Outreach history reads and manual attempt logs use `createApiClient().listLeadOutreach(...)` and `createApiClient().logLeadOutreach(...)` for `GET/POST /api/leads/{id}/outreach`.
@@ -76,12 +78,12 @@ Expected:
 Route smoke:
 
 ```sh
-for path in / /admin/login /leads /leads/lead_hotel_001 /verification /outreach /pipeline /analytics /alerts; do
+for path in / /leads /leads/lead_hotel_001 /verification /outreach /pipeline /analytics /alerts; do
   curl -i --max-time 5 "http://localhost:3001$path" | head -n 1
 done
 ```
 
-Expected: app routes return HTTP `200` from the UI shell, or redirect to `/admin/login` when session auth is enabled and the user is unauthenticated. A `404` means the static route fallback or container is stale.
+Expected: app routes return HTTP `200` from the UI shell. `/admin/login` and unauthenticated redirects are planned but absent from the inspected UI checkout.
 
 API proxy smoke:
 
@@ -91,7 +93,7 @@ curl -i --max-time 5 http://localhost:3001/api/system
 curl -i --max-time 5 http://localhost:3001/api/alerts?limit=1
 ```
 
-Expected: HTTP `200` when the UI proxy can reach a compatible backend and auth is satisfied. `502` means backend/proxy reachability, `404` means route drift, and `401`/`403` means session/backend auth.
+Expected: HTTP `200` when the UI proxy can reach a compatible backend and auth is satisfied. With the current backend source snapshot, planned `/api/*` UI routes may return `404`; `502` means backend/proxy reachability, and `401`/`403` means session/backend auth once that boundary exists.
 
 Static product build:
 
@@ -108,7 +110,7 @@ docker run --rm groupscout-ui-test
 
 Docker/runtime mode selection is centralized in [Docker Runtime Matrix](./docs/docker-runtime-matrix.md). Use it for the D1 test image, Phase 13 development product server, D4 production static/proxy server, backend-network smoke commands, expected `/api/*` status codes, and secret-boundary rules.
 
-Current tracked follow-ups: `groupscout-site-kb4` for real-browser Phase 15 verification, `groupscout-site-29q` for generated API client/types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-3gq` for shared alert state, `groupscout-site-yyj` for ops metrics/freshness, and `groupscout-site-2h1` for broader smell refactors.
+Current tracked follow-ups: `groupscout-site-0m0` for current UI checkout admin/session/detail-client/hardening reconciliation, `groupscout-site-kb4` for real-browser Phase 15 verification, `groupscout-site-29q` for generated API client/types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-3gq` for shared alert state, `groupscout-site-yyj` for ops metrics/freshness, and `groupscout-site-2h1` for broader smell refactors.
 
 ## Developer Docs
 
@@ -146,7 +148,7 @@ Current tracked follow-ups: `groupscout-site-kb4` for real-browser Phase 15 veri
 
 - Browser-facing source must not reference automation credentials.
 - Browser requests must stay behind explicit `/api/*` contracts.
-- Production `/api/*` proxy requests require a valid `groupscout_session` before the backend is contacted when `UI_SESSION_SECRET` is configured; the backend Docker smoke path intentionally leaves the session secret unset so proxy reachability can be checked without browser credentials.
+- Production `/api/*` proxy requests should require a valid `groupscout_session` before the backend is contacted when `UI_SESSION_SECRET` is configured; this is planned/reconciliation work under `groupscout-site-0m0` for the inspected UI checkout.
 - The shell reserves navigation for Today, Leads, Verification, Outreach, Pipeline, Analytics, Alerts, and Settings.
 - Historically, Phase 0 kept feature screens, real API calls, auth, analytics, and deployment behavior out of scope. Later phases now add model-level screens, browser API clients, analytics, session/deployment metadata, and read-only system surfaces.
 
@@ -226,8 +228,8 @@ Current tracked follow-ups: `groupscout-site-kb4` for real-browser Phase 15 veri
 ## Phase 9 Session/Auth Wrapper And Same-Origin Deployment
 
 - Deployment helper: `createUiDeploymentConfig(...)`, `assertUiDeploymentReady(...)`, `resolveUiMount(...)`, and `authorizeUiApiRequest(...)`.
-- Session cookie: `groupscout_session` is required for browser `/api/*` access when the UI is enabled and `UI_SESSION_SECRET` is configured.
-- Admin login route: `/admin/login` submits the backend setup token to `/api/auth/login`, verifies the new session, and redirects to `/`.
+- Planned session cookie: `groupscout_session` is required for browser `/api/*` access when the UI is enabled and `UI_SESSION_SECRET` is configured.
+- Planned admin login route: `/admin/login` submits the backend setup token to `/api/auth/login`, verifies the new session, and redirects to `/`.
 - Setup-token source, token rotation, logout behavior, stale Docker asset recovery, and direct curl smoke commands live in [Admin Token Flow](./docs/admin-token-flow.md).
 - Settings: `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, and development-only `CORS_ALLOWED_ORIGINS`.
 - Mounted shell: `createMountedRouteShell(...)` maps URLs under `UI_BASE_PATH` to internal routes and emits base-path-aware hrefs.

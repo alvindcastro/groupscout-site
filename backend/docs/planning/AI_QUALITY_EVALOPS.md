@@ -2,6 +2,8 @@
 
 This plan extends `groupscout` with a Go-first quality layer for AI enrichment, lead scoring, outreach drafts, source collection, and airport disruption alerts.
 
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include the `internal/evalops` package, EvalOps commands, or Makefile targets cited later in this plan. Treat the implementation checklist as branch-history/planned context until the EvalOps runtime is restored or merged in `groupscout-site-crz`; related runtime AI/observability work remains tracked by `groupscout-site-48g`.
+
 The intended open-source integration path is:
 
 ```text

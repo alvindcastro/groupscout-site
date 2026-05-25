@@ -2,7 +2,9 @@
 
 Use this runbook when you want the current GroupScout backend and the separate UI Docker image running together on one Docker network.
 
-This is a smoke path, not a full product UI acceptance test. The backend is live, the UI production container serves static assets and forwards `/api/*`, and the backend implements the core UI smoke routes used here.
+This is a smoke path, not a full product UI acceptance test. The backend is live, and the UI production container serves static assets and forwards `/api/*`.
+
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `make smoke-ui-docker-e2e`, `scripts/smoke-ui-docker-e2e.sh`, or `internal/smoke`, and it does not implement the planned UI API routes. Treat the executable gate as planned/branch-history until `groupscout-site-crz` restores or reconciles the backend-owned smoke artifact.
 
 Executable form from the backend repo:
 
@@ -27,7 +29,7 @@ make smoke-ui-docker-e2e
 | UI D4 bad-proxy container | `3003` in this runbook | Uses an intentionally invalid upstream so `/api/*` must return `502`. |
 | Grafana | `3000` | Backend observability stack, so the UI examples avoid host port `3000`. |
 
-The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compose profile. The backend repo owns the repeatable gate through `scripts/smoke-ui-docker-e2e.sh` and `make smoke-ui-docker-e2e`.
+The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compose profile. The backend-owned repeatable gate is tracked by `groupscout-site-crz`.
 
 ## Prerequisites
 

@@ -12,7 +12,6 @@
 
 Roadmap checkboxes are historical/strategic context. The missed-task audit on 2026-05-25 filed the concrete follow-up work in Beads:
 
-- `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery.
 - `groupscout-site-3gq` — shared `alertd` state for `/api/alerts`.
 - `groupscout-site-yyj` — ops metrics and collector freshness observability.
 - `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
@@ -25,6 +24,7 @@ Roadmap checkboxes are historical/strategic context. The missed-task audit on 20
 
 Recently completed:
 
+- `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery with a delivery log, run lock, fallback selector, and JSON `/run` result.
 - `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n and tracked under `backend/docs/workflows/n8n/`.
 - `groupscout-site-j73` — opt-in raw audit retention worker, manual purge command, Docker env, and Postgres purge-safety coverage.
 - `groupscout-site-dxq` — UI schema/API roadmap documentation cleanup.
@@ -47,7 +47,7 @@ Recently completed:
 - [ ] **Phase 11** — CRM direct integration: HubSpot, Salesforce
 - [ ] **Phase 12** — Source expansion: Metro Vancouver municipalities (`groupscout-site-aaj` selects the next slice)
 - [ ] **Phase 13** — Public tenders & utilities: BC Hydro, FortisBC (`groupscout-site-aaj` selects the next slice)
-- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem *(in progress; `groupscout-site-fuc`)*
+- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem
 - [x] **Phase 15** — PostgreSQL + pgvector migration: production storage + RAG foundation ✅
 - [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄 (`groupscout-site-vud`)
 - [x] **Phase 17** — Airport Disruption Alert System (`alertd`): YVR real-time monitoring ✅

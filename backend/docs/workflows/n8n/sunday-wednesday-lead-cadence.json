@@ -145,6 +145,9 @@
             }
           ]
         },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"guarantee_one_lead\":true,\"delivery_mode\":\"exactly_one\",\"cadence_key\":\" + JSON.stringify($node['Build Cadence Key'].json.cadence_key) + \",\"idempotency_key\":\" + JSON.stringify($node['Build Cadence Key'].json.cadence_key) + \"}",
         "options": {
           "response": {
             "response": {
@@ -170,7 +173,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const statusCode = Number($json.statusCode || $json.status || 0);\nconst body = $json.body || $json.data || $json;\nconst bodyText = typeof body === 'string' ? body : JSON.stringify(body);\nconst httpOK = statusCode >= 200 && statusCode < 300;\nconst noLead = /no new leads|no qualified lead|0 leads|zero leads|nothing to notify/i.test(bodyText);\nconst delivered = httpOK && !noLead;\nreturn [{ json: { run_ok: httpOK, delivered, no_lead: httpOK && noLead, status_code: statusCode, body_text: bodyText.slice(0, 1500) } }];"
+        "jsCode": "const statusCode = Number($json.statusCode || $json.status || 0);\nconst body = $json.body || $json.data || $json;\nconst bodyText = typeof body === 'string' ? body : JSON.stringify(body);\nlet parsed = {};\ntry { parsed = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) { parsed = {}; }\nconst httpOK = statusCode >= 200 && statusCode < 300;\nconst deliveryStatus = parsed.delivery_status || '';\nconst deliveredLeadId = parsed.delivered_lead_id || '';\nconst delivered = httpOK && (deliveryStatus === 'sent' || deliveryStatus === 'duplicate' || Number(parsed.notified_leads || 0) > 0);\nconst noLead = httpOK && (deliveryStatus === 'no_eligible_lead' || /no new leads|no qualified lead|0 leads|zero leads|nothing to notify/i.test(bodyText));\nreturn [{ json: { run_ok: httpOK, delivered, no_lead: noLead, delivery_status: deliveryStatus, delivered_lead_id: deliveredLeadId, status_code: statusCode, body_text: bodyText.slice(0, 1500) } }];"
       },
       "id": "7bedb357-94d9-4ca9-a60d-aa801fb8f455",
       "name": "Classify Run Result",

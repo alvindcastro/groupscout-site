@@ -121,38 +121,46 @@ You can use the **Schedule** node in n8n to automate GroupScout runs at specific
 
 ### 7. Sunday/Wednesday One-Lead Send
 
-The current backend can run the pipeline and notify all newly collected leads, but "always send one lead" is stronger than "run the pipeline." A normal run can produce zero fresh leads because GroupScout deduplicates source records, filters low-value records, and marks notified leads so they do not repeat as new.
+The backend can run the pipeline and notify all newly collected leads. For the Sunday/Wednesday cadence, use the guaranteed delivery mode so the backend sends exactly one eligible lead, records the cadence result, and returns a machine-readable status.
 
-#### n8n-only MVP
+#### n8n workflow
 
-Use this when the goal is a dependable internal lead prompt without changing backend code:
+Use this when the goal is a dependable internal lead prompt:
 
 1.  **Schedule**: run every `Sunday` and `Wednesday` at `09:00` in `America/Vancouver`.
 2.  **Preflight**: call `GET http://groupscout:8080/health`. Stop and notify operations if the database is unavailable.
-3.  **Trigger collection**: call `POST http://groupscout:8080/run` with the `GroupScout API` bearer credential.
+3.  **Trigger collection and delivery**: call `POST http://groupscout:8080/run` with the `GroupScout API` bearer credential and a JSON body:
+    ```json
+    {
+      "guarantee_one_lead": true,
+      "delivery_mode": "exactly_one",
+      "cadence_key": "lead-cadence:YYYY-MM-DD:wednesday",
+      "idempotency_key": "lead-cadence:YYYY-MM-DD:wednesday"
+    }
+    ```
 4.  **Branch on result**:
-    - If `/run` succeeds and Slack receives leads, treat the cadence as delivered.
-    - Current `/run` returns plain success text, not a structured lead count. To check whether the run found leads, inspect GroupScout logs for `sent leads to Slack`, `no new leads to notify`, or pipeline errors.
-    - If logs show no new leads, send an operational Slack note such as "No qualified GroupScout lead was available for the Wednesday cadence."
-5.  **Retry policy**: let n8n retry transient HTTP failures, but keep a workflow variable or data-store key such as `lead-cadence:YYYY-MM-DD:sunday` so a retry does not send duplicate operational messages.
+    - `delivery_status:"sent"`: one lead was delivered and logged.
+    - `delivery_status:"duplicate"`: the cadence key had already delivered; stop without another Slack send.
+    - `delivery_status:"no_eligible_lead"`: no fresh or backlog lead is eligible; send an operational Slack note.
+    - `delivery_status:"locked"`: another run is active; retry later.
+5.  **Retry policy**: let n8n retry transient HTTP failures, but keep a workflow variable or data-store key such as `lead-cadence:YYYY-MM-DD:sunday` so n8n can stop early after a delivered cadence.
 
-This MVP is safe because n8n only uses server-to-server `API_TOKEN` credentials and GroupScout remains the source of truth. It does not guarantee a real lead when no eligible lead exists.
+This flow is safe because n8n only uses server-to-server `API_TOKEN` credentials and GroupScout remains the source of truth. It cannot fabricate a lead when no eligible lead exists; that condition returns `no_eligible_lead` for the ops branch.
 
 Importable workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 
-#### Robust guaranteed-lead design
+#### Backend delivery guarantee
 
-For a true "send exactly one lead every Sunday and Wednesday" guarantee, add backend support instead of encoding selection rules in n8n:
+The backend guarantee uses:
 
-- A machine-readable `/run` response with counts such as `new_leads`, `notified_leads`, `fallback_lead_id`, and delivery status.
-- A `lead_delivery_log` table with `lead_id`, `channel`, `schedule_key`, `sent_at`, `idempotency_key`, and `result`.
-- A fallback selector that can resurface the best eligible backlog lead when no fresh lead exists. Prefer high-score leads, exclude `contacted`, `won`, `lost`, and `dismissed`, and exclude leads delivered by the scheduled cadence in the last 14-30 days.
-- A run lock, preferably a Postgres advisory lock or `pipeline_locks` row, so n8n retries and manual pipeline starts cannot race each other.
-- UI/system visibility for the next scheduled send, last sent lead, failed cadence reason, retry count, and n8n execution link.
+- A machine-readable `/run` response with `new_leads`, `notified_leads`, `delivered_lead_id`, `idempotency_key`, `schedule_key`, and `delivery_status`.
+- A `lead_deliveries` table with `lead_id`, `channel`, `schedule_key`, `sent_at`, `idempotency_key`, `status`, and `result`.
+- A fallback selector that prefers fresh `new` leads, then resurfaces the best eligible `notified` backlog lead that has not already been delivered by the cadence.
+- A `delivery_locks` row so n8n retries and manual pipeline starts cannot race each other.
 
-With those pieces in place, n8n should orchestrate the cadence while the backend owns selection, idempotency, delivery state, and auditability.
+Future UI/system visibility for next scheduled send, last sent lead, failed cadence reason, retry count, and n8n execution link remains part of the operator UI/API roadmap.
 
-Tracked follow-up: `groupscout-site-fuc`.
+Implemented under `groupscout-site-fuc`.
 
 ---
 
@@ -166,8 +174,8 @@ Tracked follow-up: `groupscout-site-fuc`.
     - From host n8n to a host backend, use `http://localhost:8080`.
     - From containerized n8n to a host backend, use `http://host.docker.internal:8080` on Docker Desktop.
     - Check if the GroupScout server is actually running (`docker compose ps` or `go run cmd/server/main.go`).
-- **No lead sent on Sunday/Wednesday**: A successful `/run` can still produce zero fresh leads. For the MVP, send an operational "no qualified lead" notice; for the robust version, implement the fallback selector and delivery log above.
-- **Duplicate lead sent after retry**: Add a cadence idempotency key in n8n now, and move that guard into a backend `lead_delivery_log` before enabling automatic fallback delivery.
+- **No lead sent on Sunday/Wednesday**: Check `/run` JSON. `delivery_status:"no_eligible_lead"` means neither fresh nor backlog candidates are available; send an operational "no qualified lead" notice.
+- **Duplicate lead sent after retry**: Use the same `idempotency_key` for all retries of the cadence. The backend returns `delivery_status:"duplicate"` after a cadence has already sent.
 
 #### Advanced Workflow Example
 1.  **RSS Read**: Check for new construction news.

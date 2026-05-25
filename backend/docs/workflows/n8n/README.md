@@ -2,15 +2,15 @@
 
 ## Sunday/Wednesday Lead Cadence
 
-Import `sunday-wednesday-lead-cadence.json` into n8n for the current n8n-only MVP of the Sunday/Wednesday internal lead send.
+Import `sunday-wednesday-lead-cadence.json` into n8n for the Sunday/Wednesday internal lead send.
 
 The workflow:
 
 - runs every Sunday and Wednesday at 09:00 in `America/Vancouver`;
 - writes an idempotency key such as `lead-cadence:2026-05-27:wednesday` in workflow static data and stops duplicate runs only after a cadence is marked delivered;
 - calls `GET /health` before running the pipeline;
-- calls `POST /run` with a bearer token;
-- sends an operational Slack message when health fails, the run fails, or the run output looks like a no-leads result;
+- calls `POST /run` with a bearer token plus `guarantee_one_lead`, `delivery_mode:"exactly_one"`, and the cadence idempotency key;
+- sends an operational Slack message when health fails, the run fails, or the backend returns `delivery_status:"no_eligible_lead"`;
 - retries transient HTTP node failures up to three times;
 - stops silently on duplicate cadence-key runs after delivery.
 
@@ -40,6 +40,6 @@ Expected health output includes `"database":"ok"`.
 
 Then open n8n at `http://localhost:5678`, confirm the workflow is inactive after import, set any missing env-backed values or credentials, run **Test Workflow**, and activate it only after the health and `/run` nodes return the expected status.
 
-### Known Limit
+### Backend Contract
 
-This workflow cannot prove a real lead was delivered because the current backend `/run` response is plain text and does not include structured lead counts. It uses a conservative text classifier and sends an operational Slack message when the response looks like no leads were available. Backend support for true exactly-one delivery remains tracked separately in `groupscout-site-fuc`.
+The backend `/run` guarantee mode returns JSON with `delivery_status`. The workflow treats `sent` and `duplicate` as delivered cadence outcomes, treats `no_eligible_lead` as an operational no-lead outcome, and preserves the cadence key so n8n retries do not trigger duplicate sends.

@@ -269,7 +269,11 @@ curl -X POST http://localhost:8080/run \
   -H "Authorization: Bearer YOUR_API_TOKEN"
 ```
 
-Expected response: HTTP `200` with `Pipeline completed successfully`. That confirms the run finished; it does not prove that new leads were found.
+Expected response: HTTP `200` with JSON similar to:
+
+```json
+{"status":"success","new_leads":1,"notified_leads":1}
+```
 
 Check the run result in logs:
 
@@ -346,17 +350,18 @@ Check:
 
 The workflow above reliably runs GroupScout, but it does not by itself guarantee one lead every Sunday and Wednesday. GroupScout may return zero new leads after deduplication, low-value filtering, or previous notification.
 
-For the current n8n-only MVP:
+For the Sunday/Wednesday cadence:
 
 1. Add a preflight HTTP Request node for `GET http://groupscout:8080/health`.
 2. Keep the scheduled `POST /run` node as the source-of-truth pipeline trigger.
-3. For now, use a log check or manual database check to distinguish `sent leads to Slack` from `no new leads to notify`; the current `/run` response is plain text and does not include lead counts.
+3. Send a JSON body that asks the backend to guarantee one cadence lead:
+   `{"guarantee_one_lead":true,"delivery_mode":"exactly_one","cadence_key":"lead-cadence:YYYY-MM-DD:wednesday","idempotency_key":"lead-cadence:YYYY-MM-DD:wednesday"}`
 4. Add an error/no-leads branch that sends an operational Slack message when no qualified lead is available.
-5. Store a cadence key such as `lead-cadence:YYYY-MM-DD:sunday` in n8n's data store so retries do not duplicate the same cadence notification.
+5. Store the same cadence key in n8n's data store so workflow-level retries can stop early after the backend reports `delivery_status:"sent"` or `delivery_status:"duplicate"`.
 
-For a true guaranteed one-lead cadence, plan backend work for a delivery log, fallback lead selector, run lock, and machine-readable `/run` result. The backend should own "which one lead is eligible" and "has this cadence already delivered"; n8n should own the Sunday/Wednesday schedule and failure routing.
+The backend now owns "which one lead is eligible" and "has this cadence already delivered" through a `lead_deliveries` table, a `delivery_locks` run lock, backlog fallback selection, and machine-readable `/run` results. n8n owns the Sunday/Wednesday schedule and failure routing.
 
-Completed workflow asset: `groupscout-site-yfl` added the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence idempotency key, and no-leads/failure Slack branch. Tracked follow-up: `groupscout-site-fuc` owns the backend delivery guarantee: delivery log, fallback selector, machine-readable run/delivery result, and run lock.
+Completed workflow asset: `groupscout-site-yfl` added the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence idempotency key, and no-leads/failure Slack branch. `groupscout-site-fuc` adds the backend delivery guarantee: delivery log, fallback selector, machine-readable run/delivery result, and run lock.
 
 Workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 

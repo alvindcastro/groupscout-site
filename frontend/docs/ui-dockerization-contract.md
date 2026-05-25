@@ -108,7 +108,9 @@ Smoke checks:
 curl -i http://localhost:3002/healthz
 curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
+curl -i "http://localhost:3002/api/leads?limit=1"
 curl -i http://localhost:3002/api/system
+curl -i "http://localhost:3002/api/alerts?limit=1"
 ```
 
 Browser JavaScript still sees only relative `/api/*` paths. `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, and `UI_SESSION_SECRET` remain server-side and must not enter static assets or public config.
@@ -136,7 +138,7 @@ The development smoke path requires the sibling backend repo at `/mnt/c/Users/al
 
 For a concise comparison of the D1 test image, Phase 13 development product server, and D4 production server, see [Docker Runtime Matrix](./docker-runtime-matrix.md).
 
-CI order: local Node tests, Docker test-image build/run, production image build, then optional smoke checks. CI can validate merged Compose config when the backend Compose file is available. Production `/api/system` smoke needs a reachable backend or a CI stub; `/healthz`, `/`, and `/assets/app.js` can run against the UI container alone.
+CI order: local Node tests, Docker test-image build/run, production image build, then optional smoke checks. CI can validate merged Compose config when the backend Compose file is available. Production `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` smoke checks need a reachable backend or CI stub and should return `200`; `/healthz`, `/`, and `/assets/app.js` can run against the UI container alone.
 
 CI must not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config or static assets.
 
@@ -200,7 +202,7 @@ Browser code must not call `http://groupscout:8080` or `http://alertd:8081` dire
 - Docker test build: `docker build --target test -t groupscout-ui-test .`.
 - Containerized test: `docker run --rm groupscout-ui-test`.
 - Docker production build: `docker build --target production -t groupscout-ui-production .`.
-- Smoke checks: `GET /healthz`, `GET /`, `GET /assets/app.js`, and `GET /api/system`.
+- Smoke checks: `GET /healthz`, `GET /`, `GET /assets/app.js`, and backend-dependent `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1`.
 
 ## D5 Evidence
 
@@ -212,7 +214,7 @@ Browser code must not call `http://groupscout:8080` or `http://alertd:8081` dire
 - Docker Compose config: `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet`.
 - Docker production build: `docker build --target production -t groupscout-ui-production .`.
 - Production smoke checks: `GET /healthz`, `GET /`, and `GET /assets/app.js` against the UI production container passed on host port `3006`.
-- Backend-dependent `GET /api/system` smoke was not counted because `GET http://localhost:8080/health` could not connect; it requires a reachable backend or CI stub.
+- Backend-dependent `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` smoke was not counted because `GET http://localhost:8080/health` could not connect; it requires a reachable backend or CI stub.
 
 ## Out Of Scope
 

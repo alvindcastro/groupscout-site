@@ -9,7 +9,7 @@
 
 - **Alvin** — Programmer Analyst at Douglas College. Wife is Hotel Sales Manager at Sandman Hotel Vancouver Airport (Richmond, BC) — he built this tool for her team.
 - Strong Go background, JetBrains GoLand, Bruno for API testing
-- Prefer phased, documented builds — always check docs/PHASES.md before writing code
+- Prefer phased, documented builds. Run `bd ready` / `bd show <id>` for live work, then use `docs/planning/PHASES.md` as phase context before writing code.
 
 ---
 
@@ -19,7 +19,7 @@
 
 It monitors public data sources for signals that indicate incoming groups needing room blocks — starting with construction crews in Richmond, BC, then expanding to sports teams, film productions, government contractors, and touring acts.
 
-Output: a Slack digest of enriched, prioritized leads delivered to the sales team. No UI yet.
+Output: prioritized lead intelligence delivered through Slack/email plus the separate operator UI. Backend/API work belongs in `/mnt/c/Users/alvin/GolandProjects/groupscout`; UI work belongs in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
 
 ---
 
@@ -36,7 +36,7 @@ Output: a Slack digest of enriched, prioritized leads delivered to the sales tea
 
 | Layer | Technology | Status |
 |---|---|---|
-| Language | Go 1.23 | ✅ |
+| Language | Go 1.26 | ✅ |
 | Database | Postgres (`pgx`) / SQLite (`modernc.org/sqlite`) | ✅ |
 | Vector DB | `pgvector` (Postgres) / Go-native (SQLite) | ✅ |
 | AI enrichment | Claude Messages API / Gemini / Ollama (local LLMs) | ✅ |
@@ -46,7 +46,7 @@ Output: a Slack digest of enriched, prioritized leads delivered to the sales tea
 | RSS parsing | `github.com/mmcdole/gofeed` | ✅ |
 | Scheduler | n8n / HTTP trigger | ✅ |
 | Migrations | `golang-migrate/migrate` | ✅ |
-| Email | SendGrid | ✅ |
+| Email | Resend | ✅ |
 | Monitoring | Sentry | ✅ |
 | Deployment | Docker, VPS or Railway | ✅ |
 
@@ -218,17 +218,17 @@ type RawProject struct {
 - **Collector interface** — adding a new source = new struct, core pipeline unchanged
 - **Claude for enrichment only** — scraping stays deterministic Go; AI only for interpretation
 - **Rule-based pre-scorer** — filter noise in Go before spending Claude API tokens
-- **Slack as UI for now** — no dashboard until a later phase
+- **Slack/email remain notification channels** — the operator UI is developed separately from backend pipeline code
 - **Outreach stays manual** — Claude drafts the email, human sends it. No auto-send.
 - **12-factor config** — all secrets and config via env vars
 - **SQLite first** — zero-ops for local dev; swap to Postgres for deployment
-- **No UI in this phase** — UI is explicitly a separate future phase
+- **UI is a sibling implementation track** — coordinate backend `/api/*` contracts here, but implement UI code in the frontend repo
 
 ---
 
 ## Build Progress
 
-See `docs/planning/PHASES.md` for the full task tracker with checkboxes.
+Use `bd` for live task state. `docs/planning/PHASES.md` is retained as the phase-reference checklist and historical build context.
 
 ### GroupScout Core Pipeline
 
@@ -244,12 +244,12 @@ See `docs/planning/PHASES.md` for the full task tracker with checkboxes.
 | Phase 8 | Observability — structured logging, Sentry, health checks | 🔄 in progress |
 | Phase 14 | Infrastructure — Docker Compose, n8n, Prometheus, Loki | 🔄 in progress |
 | Phase 15 | PostgreSQL + pgvector migration | ✅ complete |
-| Phase 16 | LLM provider abstraction (Claude / Gemini / Ollama) | ✅ complete |
+| Phase 16 | LLM provider abstraction (Claude / Gemini / Ollama) | 📋 planned; current Ollama runtime is separate |
 | Phase 17 | Airport disruption alert system (`cmd/alertd/`) | ✅ complete |
 | Phase 20 | Housekeeping & developer experience | ✅ complete |
 | Phase 21 | Ollama prod hardening | ✅ complete |
 | Phase 13.1 | BC Hydro & FortisBC utility collectors | 🔄 in progress |
-| Phase 27 | Input audit & verification trail | ✅ complete |
+| Phase 27 | Input audit & verification trail | ◐ raw audit/redaction complete; retention cleanup open |
 | Phase 22 | Multi-property support — config-driven portfolio routing | 📋 planned |
 | Phase 23 | Advanced intelligence — repeat detection + signal quality scoring | 📋 planned |
 

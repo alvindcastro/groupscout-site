@@ -160,7 +160,7 @@ After implementing Tasks 1–4:
 docker compose up -d --build
 
 # 2. Verify the view was created
-docker exec -it groupscout-postgres-1 psql -U groupscout -d groupscout \
+docker exec -it groupscout_postgres psql -U groupscout -d groupscout \
   -c "SELECT id, source, LEFT(context_text, 120) FROM v_lead_context LIMIT 5;"
 
 # 3. Trigger a pipeline run to generate leads

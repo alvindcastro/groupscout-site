@@ -11,6 +11,7 @@ Phase 0-15 now follows the canonical `UI_TDD_PHASE_PROMPTS.md` order: baseline r
 - Browser runtime contract metadata lives in `web/src/server/browserRuntimeContract.js`; D4 now implements the lightweight production Node server on port `3000` with `/healthz` and same-origin `/api/*` routing to server-side `http://groupscout:8080` without exposing automation credentials.
 - Phase 13 renderer/runtime metadata lives in `web/src/server/productRendererRuntime.js`; the first rendered-route smoke coverage lives in `test/phase-13-renderer-runtime.test.js`.
 - Phase 15 browser UX hardening metadata lives in `web/src/renderer/browserUxHardening.js`; deterministic route-specific focus, accessible-name, rendered responsive-mode, state-region, text-containment, and same-origin checks live in `test/browser-ux-hardening.test.js`.
+- Handoff: real-browser Phase 15 verification remains open in bd issue `groupscout-site-kb4`; current coverage is deterministic/model-level and has no Playwright/Puppeteer dependency, package lock, or local Chromium binary.
 - Production same-origin serving lives in `web/src/server/productionServer.js`; `npm run start:ui` serves `web/dist`, falls back to `index.html` for app routes, applies browser security headers, gates `/api/*` with `groupscout_session` when `UI_SESSION_SECRET` is configured, and otherwise forwards Docker-smoke API requests server-side to `UI_API_PROXY_TARGET` or `http://groupscout:8080`.
 - Static product assets are generated with `npm run build` from `web/src/renderer/buildStaticApp.js`; the first renderer mapping lives in `web/src/renderer/domRenderer.js`.
 - Product dev serving lives in `web/src/server/productDevServer.js`; `compose.dev.yml` runs that server on container port `3000` and host `${GROUPSCOUT_UI_HOST_PORT:-3001}`.
@@ -151,7 +152,7 @@ Docker/runtime mode selection is centralized in [Docker Runtime Matrix](./docs/d
 - Controls: trigger, source, owner, minimum score, and clear filters.
 - Row actions: verify, correct, dismiss, and return to lead.
 - Raw audit review links and client reads use `GET /api/leads/{id}/raw`.
-- Redaction policy remains explicitly blocked until raw payload redaction rules are defined.
+- Raw payload redaction rules are now documented; inline browser preview remains out of scope until a sanitized preview layer is implemented.
 
 ## Phase 6 Outreach Workspace And Activity Log
 

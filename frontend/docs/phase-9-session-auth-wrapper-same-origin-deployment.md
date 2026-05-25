@@ -32,6 +32,8 @@ Phase 9 adds the minimum deployment and session model needed to keep the operato
 - Disabled UI access returns `404` so the operator UI is not mounted.
 - `API_TOKEN` remains reserved for automation clients such as n8n and is not injected into browser requests.
 
+For current setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands, use [Admin Token Flow](./admin-token-flow.md) as the canonical runbook.
+
 ## Design Tokens
 
 Phase 9 does not add a new visual surface and does not require new `DESIGN.md` token names.
@@ -44,7 +46,7 @@ Phase 9 does not add a new visual surface and does not require new `DESIGN.md` t
 - Refresh red run on 2026-05-09: `node --test test/session-deployment.test.js` failed because the production request handler did not expose session-gated `/api/*` behavior.
 - Refresh green run on 2026-05-09: `node --test test/session-deployment.test.js` passed after `createProductionRequestHandler(...)` gated `/api/*` with `authorizeUiApiRequest(...)` and added browser security headers.
 - Admin completion green run on 2026-05-09: `node --test test/app-shell.test.js test/api-boundary.test.js test/phase-13-renderer-runtime.test.js test/session-deployment.test.js` and `npm test` passed after adding route auth checks, logout, login verification, and production readiness enforcement.
-- Admin Docker smoke refresh on 2026-05-09: rebuilt backend/UI containers, verified `GET /api/auth/status` through the UI proxy returns `auth_required:true`, and bumped the immutable static asset query to `admin-login-1`.
+- Admin Docker smoke refresh on 2026-05-09: rebuilt backend/UI containers, verified `GET /api/auth/status` through the UI proxy returns `auth_required:true`, and bumped the immutable static asset query. The current asset/cache recovery value is maintained in [Admin Token Flow](./admin-token-flow.md).
 
 ## Out Of Scope
 

@@ -33,7 +33,7 @@ Key selling points for construction crews:
 
 > **Historical Status:** Phase 3 completed; this section predates the current Phase 16+ and UI/API roadmap.
 > For the live big-picture roadmap, see [ROADMAP.md](./ROADMAP.md).
-> For atomic task tracking, see [PHASES.md](./PHASES.md).
+> For historical phase context, see [PHASES.md](./PHASES.md). Live task tracking belongs in Beads.
 
 - [x] **Phase 1** — Manual Intelligence (Concept Validated)
 - [x] **Phase 2** — Lightweight Automation (Concept Validated)
@@ -50,7 +50,7 @@ Key selling points for construction crews:
 
 Build a Go backend that runs on a schedule, collects raw project data from public sources, enriches each project via Claude API, stores structured leads in a database, and delivers a Slack digest to the sales team.
 
-**No UI in this phase. Slack is the interface.**
+**Historical Phase 3 scope:** Slack was the interface; later UI/API work is tracked in the current roadmap and frontend docs.
 
 ---
 

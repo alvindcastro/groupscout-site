@@ -156,12 +156,12 @@ The actual `lead` object in the response uses the full safe detail shape from `G
 
 ## `GET /api/leads/{id}/raw`
 
-Returns raw audit bytes for a lead. This endpoint is authenticated when `API_TOKEN` is configured and returns `401` for missing or incorrect bearer tokens.
+Returns raw audit bytes for a lead. This endpoint is authenticated when admin session auth or `API_TOKEN` is configured and returns `401` for missing or incorrect credentials.
 
 Responses:
 
 - `200`: raw bytes with the stored `Content-Type`.
-- `401`: missing or invalid bearer token when `API_TOKEN` is configured.
+- `401`: missing or invalid admin session or bearer token when auth is configured.
 - `404`: lead not found, lead has no raw input, or the audit row is missing.
 - `500`: internal storage inconsistency, such as an invalid stored raw input ID.
 
@@ -204,5 +204,4 @@ Green evidence:
 
 Residual risk and follow-up:
 
-- `groupscout-bxt`: migration-backed UI workflow fields for owner, snooze, verification, corrections, and pipeline run history.
-- `groupscout-al3`: Phase 36 outreach and lead state API contracts.
+- Later Phase 36 and Phase 37 contracts cover outreach, lead state, pipeline, stats, and system APIs; use their docs for current status.

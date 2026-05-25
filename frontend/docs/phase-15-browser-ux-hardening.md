@@ -4,6 +4,8 @@
 
 Phase 15 adds deterministic UX hardening evidence for the current dependency-free renderer. It verifies primary routes expose route-specific keyboard-focus labels, accessible names, rendered desktop/tablet/mobile modes, stable state regions, same-origin API metadata, and a text-containment policy without adding a browser dependency.
 
+Real-browser verification remains open in bd issue `groupscout-site-kb4`. The current UI repo has no Playwright/Puppeteer dependency, no package lock, and no local Chromium binary, so this phase is complete only at deterministic renderer/model level.
+
 ## UI Behavior
 
 - Primary routes covered: Today, Leads, Lead Detail, Verification, Outreach, Pipeline, Analytics, and Alerts.

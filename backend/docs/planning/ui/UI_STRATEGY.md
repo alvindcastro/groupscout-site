@@ -181,7 +181,7 @@ Recommended implementation:
 - Keep all database access behind Go storage APIs. The browser never queries Postgres/SQLite directly.
 - Do not expose `API_TOKEN` to browser JavaScript. It is for automation clients such as n8n, not end-user sessions.
 
-Current separate UI repo note: `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui` now has a D4 lightweight Node production server that serves `web/dist` and proxies `/api/*` server-side to `http://groupscout:8080`. The product renderer and backend `/api/*` implementations are still planned, so this is a same-origin runtime boundary, not a completed operator UI.
+Current separate UI repo note: `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui` now has a D4 lightweight Node production server that serves `web/dist` and proxies `/api/*` server-side to `http://groupscout:8080`. Core backend `/api/*` contracts from Phases 35-38 are implemented; remaining frontend work should treat the product renderer, real-browser harness, and broader smell refactors as the active gaps.
 
 Suggested config when implemented:
 

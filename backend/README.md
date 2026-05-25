@@ -33,6 +33,8 @@
 
 ### 🏗 Setup & Installation
 
+> This coordination repo stores centralized Markdown docs. Run commands and inspect non-Markdown runtime files from the backend source repo at `/mnt/c/Users/alvin/GolandProjects/groupscout`.
+
 1.  **Install Prerequisites:**
     *   [Go 1.26+](https://go.dev/dl/)
     *   [Docker & Docker Compose](https://docs.docker.com/get-docker/) (Optional, for simplified deployment)
@@ -130,7 +132,7 @@ Runs a persistent HTTP server that listens for remote triggers (ideal for n8n/cr
 - `POST /digest?to=email@example.com`: Send a weekly summary digest.
 - `POST /n8n/webhook`: Receive a lead manually from external automation.
 
-See [swagger.yaml](./api/swagger.yaml) for the full OpenAPI specification.
+See `/mnt/c/Users/alvin/GolandProjects/groupscout/api/swagger.yaml` in the backend source repo for the full OpenAPI specification.
 
 ```bash
 go run cmd/server/main.go
@@ -167,7 +169,7 @@ GQ5 review samples can be converted into review-only draft cases with the evalop
 ### 📄 Documentation
 
 *   [DEVELOPER.md](./docs/DEVELOPER.md) - Developer's guide for running and testing the system.
-*   [PHASES.md](./docs/planning/PHASES.md) - Living task tracker and build progress.
+*   [PHASES.md](./docs/planning/PHASES.md) - Historical phase reference and build progress. Use Beads for live work state.
 *   [CHANGELOG.md](./docs/CHANGELOG.md) - Plain-English record of all changes.
 *   [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System design and data flow.
 *   [SETUP.md](./docs/guides/SETUP.md) - Installation and configuration guide.
@@ -205,4 +207,4 @@ GQ5 review samples can be converted into review-only draft cases with the evalop
 *   [groupscout-case-schema.md](./docs/evals/groupscout-case-schema.md) - GQ1 schema for reusable JSONL eval fixtures in `data/evals/groupscout/`.
 *   [TDD_AI_QUALITY.md](./docs/guides/TDD_AI_QUALITY.md) - Strict TDD policy for AI quality work.
 *   [PROMPTS_AI_QUALITY.md](./docs/prompts/PROMPTS_AI_QUALITY.md) - Task prompts for AI quality implementation phases.
-*   [evals/promptfoo/groupscout.yaml](./evals/promptfoo/groupscout.yaml) - GQ3 Promptfoo config for the local Go eval target.
+*   `/mnt/c/Users/alvin/GolandProjects/groupscout/evals/promptfoo/groupscout.yaml` - GQ3 Promptfoo config for the local Go eval target.

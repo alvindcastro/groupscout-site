@@ -2,7 +2,7 @@
 
 > **Master roadmap** consolidating `PHASES.md`, `AI.md`, `FUTURE_INTEGRATION.md`, `TECH_IDEAS.md`, and `PLANNING.md` into one strategic view.
 >
-> - `PHASES.md` remains the **atomic task tracker** (checkboxes + commit workflow).
+> - Live work is tracked in Beads. `PHASES.md` remains the **historical phase reference** (checkboxes + acceptance context).
 > - This file is the **big-picture list** — what's done, what's next, what's future.
 > - Source docs are preserved as-is; this is a read-only synthesis for navigation.
 
@@ -36,7 +36,7 @@
 - [ ] **Phase 24** — Agentic Reasoning & Tool-Calling: ReAct loop + BC Registry / LinkedIn tools 📋
 - [ ] **Phase 25** — AI Observability & Quality: Langfuse + AI-Ready SQL + eval harness 📋
 - [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), event-driven `/ingest` endpoint 📋
-- [x] **Phase 27** — Input Audit & Verification Trail ✅
+- [ ] **Phase 27** — Input Audit & Verification Trail ◐ raw audit/redaction complete; retention cleanup remains open
 - [ ] **Phase 28** — Analytics & Source Attribution 📋
 - [ ] **Phase 29** — Prompt Engineering & Strict TDD 📋
 - [ ] **Phase 30** — Advanced Audit & Verification 📋
@@ -198,7 +198,7 @@
 
 ## Phase 14 — Infrastructure & Self-Hosting 🔄
 
-> Full tool options (Docker vs cloud) for embeddings, vector stores, and observability: see [AI_DATA_STRATEGY.md](./AI_DATA_STRATEGY.md).
+> Full tool options (Docker vs cloud) for embeddings, vector stores, and observability: see [AI_DATA_STRATEGY.md](../prompts/AI_DATA_STRATEGY.md).
 
 **Automation (existing):**
 - [x] Docker Compose — GroupScout + n8n + Redis
@@ -410,14 +410,14 @@
 
 ---
 
-## Phase 27 — Input Audit & Verification Trail ✅
+## Phase 27 — Input Audit & Verification Trail ◐
 
 **Goal:** Implement a system to store and track all raw inputs (PDFs, API responses, etc.) to allow for verification of the lead enrichment and scoring process.
 
 - [x] **Part A** — Storage Architecture: `raw_inputs` table + `AuditStore` interface
 - [x] **Part B** — Collector Integration: save raw PDF/API content before parsing
 - [x] **Part C** — Verification Tools: `GET /leads/{id}/raw` + CLI audit tool
-- [ ] **Part D** — Retention & Privacy: cleanup worker remains open in [PHASES.md](./PHASES.md); raw audit redaction policy is documented separately.
+- [ ] **Part D** — Retention & Privacy: cleanup worker remains open in [PHASES.md](./PHASES.md); raw audit redaction policy is documented separately and complete.
 
 ---
 

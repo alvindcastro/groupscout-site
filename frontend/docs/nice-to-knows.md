@@ -40,6 +40,12 @@ Use them before changing scope:
 - `docs/phase-9-session-auth-wrapper-same-origin-deployment.md`
 - `docs/phase-10-later-alertd-read-only-console.md`
 - `docs/phase-11-today-command-center-system-health.md`
+- `docs/phase-12-ui-dockerization.md`
+- `docs/ui-dockerization-contract.md`
+- `docs/docker-runtime-matrix.md`
+- `docs/phase-13-product-renderer-runtime.md`
+- `docs/ui-tdd-phase-0-15-implementation.md`
+- `docs/phase-15-browser-ux-hardening.md`
 
 ## Design Tokens Are Partial
 
@@ -53,7 +59,7 @@ Use `createApiClient(...)` for API access. It enforces same-origin `/api/*` path
 
 Avoid direct external backend URLs in browser-facing modules.
 
-Admin login uses the same boundary. The browser submits the setup token to `/api/auth/login`, receives an HttpOnly `groupscout_session`, and never receives the automation `API_TOKEN`. File-backed setup tokens rotate after a successful login, so a rejected setup token often means the token file was already used once.
+Admin login uses the same boundary. The browser submits the setup token to `/api/auth/login`, receives an HttpOnly `groupscout_session`, and never receives the automation `API_TOKEN`. File-backed setup tokens rotate after a successful login, so a rejected setup token often means the token file was already used once. Use [Admin Token Flow](./admin-token-flow.md) for current setup-token, login, logout, and stale asset recovery commands.
 
 ## Mocked Data Is Intentional
 

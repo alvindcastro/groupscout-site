@@ -214,7 +214,7 @@ Task C4 — update .env.example:
 Context:
 - Ollama exposes OpenAI-compatible API at http://ollama:11434 (Docker) or http://localhost:11434 (local)
 - No API key required — skip the Authorization header entirely
-- Models must be pulled before use: docker exec groupscout-ollama-1 ollama pull llama3.2
+- Models must be pulled before use: docker exec groupscout_ollama ollama pull llama3.2
 - Ollama supports response_format: {"type": "json_object"} with llama3.2, mistral, llama3.1 models
 - Without response_format, local models often wrap JSON in ```json ... ``` — stripMarkdown() handles this fallback
 
@@ -306,7 +306,7 @@ func CheckOllamaHealth(ctx context.Context, baseURL, model string) error:
   Parse response: {"models": [{"name": "llama3.2:latest"}, ...]}
   Check if any model name has model as a prefix (e.g. "llama3.2" matches "llama3.2:latest")
   If not found:
-    return fmt.Errorf("model %q not pulled in Ollama — run: docker exec groupscout-ollama-1 ollama pull %s", model, model)
+    return fmt.Errorf("model %q not pulled in Ollama — run: docker exec groupscout_ollama ollama pull %s", model, model)
   Return nil if found or if request fails with connection refused (Ollama not running — caller decides)
 
 Write test: TestCheckOllamaHealth_ModelFound, TestCheckOllamaHealth_ModelMissing (httptest)
@@ -321,8 +321,8 @@ Add after the postgres service:
       - ollama_data:/root/.ollama
       - ./config:/config:ro   # for Modelfile access (Phase 16-G)
     profiles: ["ollama"]
-    # First-time setup: docker exec groupscout-ollama-1 ollama pull llama3.2
-    # Custom persona:   docker exec groupscout-ollama-1 ollama create groupscout -f /config/Modelfile.groupscout
+    # First-time setup: docker exec groupscout_ollama ollama pull llama3.2
+    # Custom persona:   docker exec groupscout_ollama ollama create groupscout -f /config/Modelfile.groupscout
 
 Add to volumes section:
   ollama_data:
@@ -332,7 +332,7 @@ Add to volumes section:
   #!/bin/bash
   MODEL=${1:-llama3.2}
   echo "Pulling $MODEL into Ollama container..."
-  docker exec groupscout-ollama-1 ollama pull "$MODEL"
+  docker exec groupscout_ollama ollama pull "$MODEL"
   echo "Done. Set LLM_MODEL=$MODEL in .env"
 
 chmod +x scripts/ollama_pull.sh
@@ -398,7 +398,7 @@ PARAMETER stop "```"
 
   #!/bin/bash
   echo "Creating groupscout model from Modelfile..."
-  docker exec groupscout-ollama-1 ollama create groupscout -f /config/Modelfile.groupscout
+  docker exec groupscout_ollama ollama create groupscout -f /config/Modelfile.groupscout
   echo "Done. Set LLM_MODEL=groupscout in .env"
 
 chmod +x scripts/ollama_create_model.sh

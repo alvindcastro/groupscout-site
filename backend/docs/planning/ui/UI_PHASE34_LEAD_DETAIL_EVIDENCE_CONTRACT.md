@@ -1,15 +1,15 @@
 # Phase 34 Lead Detail And Evidence Review Contract
 
-> Implementation contract for the future GroupScout lead detail route.
-> This repository still has no checked-in frontend package, UI test harness, static UI build directory, or UI-facing `GET /api/leads/{id}` backend route. Phase 34 is complete here as a lead detail and evidence review contract. The first frontend package must convert this contract into failing detail, evidence, activity, accessibility, responsive, API-boundary, and static-asset safety tests before production UI code.
+> Historical implementation contract for the first GroupScout lead detail route.
+> Phase 35 later implemented the backend `GET /api/leads/{id}` contract, and later phases added outreach/state/system API contracts. Use `UI_API_ENDPOINTS.md`, `UI_PHASE35_API_CONTRACT.md`, and `UI_TDD_PHASE_PLAN.md` for current live API status.
 
 ## Current Scope
 
 Phase 34 defines `/leads/:leadId` behavior after the Phase 32 shell exists and after the Phase 33 mocked inbox can link to a lead detail route.
 
-Do not wire the detail view to direct database reads, `POST /run`, `POST /n8n/webhook`, or the implemented raw-payload endpoint as the default data source. Until Phase 35 implements `GET /api/leads/{id}`, lead detail must use deterministic fixtures behind a replaceable adapter such as `getLeadDetail(id)`.
+Do not wire the detail view to direct database reads, `POST /run`, `POST /n8n/webhook`, or the implemented raw-payload endpoint as the default data source. This historical contract required deterministic fixtures until Phase 35 implemented `GET /api/leads/{id}`.
 
-The backend currently has lead storage fields and `GET /leads/{id}/raw`, but it does not have structured evidence records, verification state persistence, correction storage, status transition validation, owner/snooze fields, or outreach HTTP APIs. Phase 34 UI controls must represent those gaps explicitly.
+At the time of Phase 34, the backend had lead storage fields and `GET /leads/{id}/raw`, but did not yet have the later UI-facing detail, outreach, and workflow APIs. Current status lives in the Phase 35-38 API contracts.
 
 ## Detail Fixture Boundary
 
@@ -141,9 +141,9 @@ Phase 34 must not implement the live `/api/leads/{id}` backend. It should prepar
 | Response envelope | Use `{lead, audit, outreach_summary, activity}` and exclude raw payload bodies. |
 | Raw audit | Use `has_raw`, `payload_type`, `source_url`, `collector_name`, `collected_at`, and `raw_link` metadata only. |
 | Raw body access | Reserve raw bytes or previews for future authenticated `GET /api/leads/{id}/raw`; do not fetch by default. |
-| Status actions | Keep mutation actions mocked or disabled until `PATCH /api/leads/{id}` and Phase 36 transitions exist. |
-| Corrections | Keep correction controls disabled or mocked until migration-backed correction storage exists. |
-| Outreach activity | Use fixture activity until `GET/POST /api/leads/{id}/outreach` exists. |
+| Status actions | Historical note: keep mutation actions mocked or disabled until `PATCH /api/leads/{id}` and Phase 36 transitions exist. |
+| Corrections | Historical note: keep correction controls disabled or mocked until migration-backed correction storage exists. |
+| Outreach activity | Historical note: use fixture activity until `GET/POST /api/leads/{id}/outreach` exists. |
 | Auth/session | Do not introduce browser-visible `API_TOKEN`. Future UI auth/session work must be explicit. |
 
 ## Static Asset Safety
@@ -167,4 +167,4 @@ Phase 34 is complete for this repository when:
 | Missing evidence, weak confidence, and contradictory data states are represented. | Covered by the fixture, layout, and state contracts. |
 | Correction controls stay disabled or mocked until backend correction storage exists. | Covered by the layout and replaceable API contracts. |
 | No raw payload body loads into the default detail response. | Covered by the fixture boundary, raw audit link, replaceable API, and static safety contracts. |
-| Current backend limitations are explicit. | This repository has `GET /leads/{id}/raw`, lead storage, and raw audit storage, but no `GET /api/leads/{id}`, no structured evidence model, no correction storage, and no outreach HTTP API today. |
+| Current backend limitations are explicit. | Historical note: this was true before Phase 35-37. Current status lives in `UI_PHASE35_API_CONTRACT.md`, `UI_PHASE36_OUTREACH_STATE_CONTRACT.md`, `UI_PHASE37_PIPELINE_STATS_SYSTEM_CONTRACT.md`, and `UI_API_ENDPOINTS.md`. |

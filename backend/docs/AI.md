@@ -138,7 +138,7 @@ Future: Claude tailors the digest based on what the sales manager cares about th
 
 ### 13. AI-Ready SQL + RAG (Local-First, No New Infrastructure)
 
-> Full exploration: see [AI_DATA_STRATEGY.md](./AI_DATA_STRATEGY.md).
+> Full exploration: see [AI_DATA_STRATEGY.md](./prompts/AI_DATA_STRATEGY.md).
 
 These two ideas from `FUTURE_INTEGRATION.md` directly enable each other and are the highest-leverage near-term AI upgrade.
 
@@ -166,7 +166,7 @@ New permit → AI-Ready SQL builds context_text
 
 ## Model & Provider Selection Guide
 
-> Current implementation is hardcoded to Anthropic. For provider abstraction (no lock-in), see [AI_DATA_STRATEGY.md — LLM Provider Abstraction](./AI_DATA_STRATEGY.md).
+> Current implementation is hardcoded to Anthropic. For provider abstraction (no lock-in), see [AI_DATA_STRATEGY.md — LLM Provider Abstraction](./prompts/AI_DATA_STRATEGY.md).
 > Short version: one `LLMClient` interface, two concrete impls (Claude + OpenAI-compatible), config-driven.
 
 ### By use case (Claude defaults)

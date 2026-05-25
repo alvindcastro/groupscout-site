@@ -1,10 +1,10 @@
 # PHASES.md — Build Tracker Index
 
-This page is now a thin index. The canonical build tracker lives at [docs/planning/PHASES.md](./planning/PHASES.md).
+This page is now a thin index. Live work is tracked in Beads; [docs/planning/PHASES.md](./planning/PHASES.md) is the historical phase reference.
 
 ## Canonical Tracker
 
-- Atomic task tracker and commit workflow: [planning/PHASES.md](./planning/PHASES.md)
+- Historical phase reference: [planning/PHASES.md](./planning/PHASES.md)
 
 ## Related Planning Docs
 

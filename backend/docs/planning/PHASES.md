@@ -1,10 +1,12 @@
-# PHASES.md — groupscout build tracker
+# PHASES.md — groupscout phase reference
 
-> Living task tracker. Each checkbox = one atomic commit.
+> Historical phase reference. Use `bd ready`, `bd show <id>`, and `bd update <id> --claim` for live work state; checkboxes here preserve phase context and acceptance history.
 
-## Commit Workflow (follow this every task)
+## Historical Commit Workflow
 
-**Claude does:**
+This older workflow is retained for context only. Current sessions use Beads and must follow the root `AGENTS.md` session close protocol.
+
+**Claude used to do:**
 1. Builds the task (one file or one logical unit)
 2. Ticks the checkbox in this file
 3. Adds a `CHANGELOG.md` entry explaining what was built and why
@@ -823,8 +825,10 @@
 
 ---
 
-## Phase 27 — Input Audit & Verification Trail ✅
+## Phase 27 — Input Audit & Verification Trail ◐
 **Goal:** Implement a system to store and track all raw inputs (PDFs, API responses, etc.) to allow for verification of the lead enrichment and scoring process.
+
+> Storage, collector integration, raw access, and raw audit redaction policy are complete. Part D cleanup/retention worker remains open in Beads and in item 27.11 below.
 
 > **TDD rule:** Raw storage interfaces and retrieval logic tested with failing tests first. Collector integration verified by checking `raw_inputs` table after a run.
 

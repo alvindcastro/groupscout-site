@@ -10,7 +10,7 @@ These JSONL files are the golden fixture set for AI quality work. GQ1 defines th
 
 Total: 22 synthetic cases.
 
-The schema is documented in `docs/evals/groupscout-case-schema.md`.
+The schema is documented in [groupscout-case-schema.md](../../../docs/evals/groupscout-case-schema.md). Canonical eval planning and verification live in [AI_QUALITY_EVALOPS.md](../../../docs/planning/AI_QUALITY_EVALOPS.md) and [VERIFICATION.md](../../../docs/guides/VERIFICATION.md).
 
 Fixture rules:
 
@@ -19,4 +19,4 @@ Fixture rules:
 - Keep case IDs stable because future reports and changelogs will cite them.
 - Add a changelog entry whenever cases are added, removed, renamed, or materially re-scoped.
 
-GQ5 draft cases generated from review samples are not golden fixtures yet. Keep draft JSONL outside this directory until a human reviewer replaces all `TODO_REVIEW_*` fields, confirms the synthetic source text is safe, chooses whether the case is release-blocking, updates this README's counts, and records the promotion in `docs/CHANGELOG.md`.
+GQ5 draft cases generated from review samples are not golden fixtures yet. Keep draft JSONL outside this directory until a human reviewer replaces all `TODO_REVIEW_*` fields, confirms the synthetic source text is safe, chooses whether the case is release-blocking, updates this README's counts, and records the promotion in [CHANGELOG.md](../../../docs/CHANGELOG.md).

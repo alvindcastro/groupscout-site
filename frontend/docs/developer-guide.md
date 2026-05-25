@@ -164,7 +164,7 @@ CI hook order:
 2. `docker build --target test -t groupscout-ui-test .`
 3. `docker run --rm groupscout-ui-test`
 4. `docker build --target production -t groupscout-ui-production .`
-5. Optional smoke checks for `/healthz`, `/`, and `/assets/app.js`; smoke `/api/leads?limit=1` or `/api/system` only when a backend or CI stub is reachable.
+5. Optional smoke checks for `/healthz`, `/`, and `/assets/app.js`; smoke `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` only when a backend or CI stub is reachable, and expect `200`.
 
 Do not run UI Docker containers with backend `.env` or `--env-file`. Do not pass `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts. Browser-visible config may only expose relative `/api/*`.
 

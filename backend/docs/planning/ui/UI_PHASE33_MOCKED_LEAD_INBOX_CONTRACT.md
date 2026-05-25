@@ -1,13 +1,13 @@
 # Phase 33 Mocked Lead Inbox Contract
 
-> Implementation contract for the future GroupScout lead inbox.
-> This repository still has no checked-in frontend package, UI test harness, or static UI build directory, and the backend does not expose `GET /api/leads` today. Phase 33 is complete here as a mocked-inbox contract. The first frontend package must convert this contract into failing table, fixture, interaction, accessibility, and API-boundary tests before production UI code.
+> Historical implementation contract for the first mocked GroupScout lead inbox.
+> Phase 35 later implemented the backend `GET /api/leads` contract, and the frontend repo now contains the dependency-free renderer/runtime. Use `UI_API_ENDPOINTS.md`, `UI_PHASE35_API_CONTRACT.md`, and `UI_TDD_PHASE_PLAN.md` for current live API status.
 
 ## Current Scope
 
-Phase 33 defines the `/leads` route behavior after the Phase 32 app shell exists and before the Phase 35 live `/api/leads` contract exists.
+Phase 33 defines the `/leads` route behavior after the Phase 32 app shell exists and before the Phase 35 live `/api/leads` contract existed.
 
-Do not add production UI code that silently calls existing automation endpoints, reads the database, or depends on `GET /api/leads`. Until Phase 35 implements the UI API, the lead inbox must use deterministic fixture data behind a replaceable data boundary.
+Do not add production UI code that silently calls existing automation endpoints or reads the database. This historical contract required deterministic fixture data until Phase 35 implemented the UI API.
 
 ## Mock Data Boundary
 
@@ -134,8 +134,8 @@ Phase 33 is complete for this repository when:
 | Criterion | Current result |
 |---|---|
 | Failing-test requirements exist for table rendering, sorting, searching, filtering, loading, empty, and error states. | Covered by the table, interaction, and accessibility contracts above. |
-| Mocked fixture-only behavior is required until `/api/leads` exists. | Covered by the current scope, mock data boundary, and replaceable API contract. |
+| Mocked fixture-only behavior was required until `/api/leads` existed. | Covered by the current scope, mock data boundary, and replaceable API contract. |
 | Required columns are specified. | Covered by the table contract: status, score, source, owner, verification, created date, and timing are required. |
 | Keyboard navigation and accessible filter controls are specified. | Covered by the accessibility contract. |
 | API boundary is replaceable with generated or typed clients. | Covered by the mock data boundary and replaceable API contract. |
-| Current backend limitations are explicit. | This repository has `GET /leads/{id}/raw` but no `GET /api/leads` route or frontend package today. |
+| Current backend limitations are explicit. | Historical note: this was true before Phase 35. Current status lives in `UI_PHASE35_API_CONTRACT.md` and `UI_API_ENDPOINTS.md`. |

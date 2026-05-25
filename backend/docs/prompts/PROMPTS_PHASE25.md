@@ -1,6 +1,8 @@
-# PROMPTS_PHASE25.md — Production Deployment & Event-Driven Ingestion
+# PROMPTS_PHASE25.md — Legacy Production Deployment Prompt Archive
 
-> Copy-paste prompts for each part of Phase 25.
+> Legacy archive: deployment is now canonical Phase 26 in `docs/planning/PHASES.md` and `docs/planning/ROADMAP.md`. Keep this file for historical prompt context only; new deployment work should use a Beads issue and Phase 26 wording.
+>
+> Original copy-paste prompts for each part of the former Phase 25.
 > Parts must be done in order: A → B → C → D.
 >
 > **Goal:** Ship the full stack to production. Home server first (free, immediate). Hetzner + Coolify as the cloud upgrade path. Event-driven `/ingest` endpoint for single-lead enrichment without a full batch run.

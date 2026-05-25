@@ -9,6 +9,7 @@
 - When: Updated on 2026-05-25 during coordinator task `groupscout-site-fjy`.
 - Why: The frontend docs had duplicate Beads instructions, two Phase 0-15 prompt records, and repeated Phase 13 parallel-agent prompts.
 - How: Kept `AGENTS.md` canonical for agent workflow, kept `UI_TDD_PHASE_PROMPTS.md` canonical for prompts, kept the Phase 13 prompt pack as the detailed history, and shortened the Phase 13 runtime record to implementation evidence.
+- Handoff: remaining open work is `groupscout-site-kb4` for the real browser Phase 15 harness and `groupscout-site-2h1` for broader smell refactors.
 
 ### Admin Token Flow Documentation
 

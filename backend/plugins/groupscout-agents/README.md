@@ -1,6 +1,6 @@
 # GroupScout Codex Agents
 
-This plugin is a repo-local Codex skill bundle derived from the existing markdown agent specs in `.claude/agents/`.
+This plugin is a repo-local Codex skill bundle derived from the existing markdown agent specs in `backend/.claude/agents/` in the backend source repository.
 
 ## What it contains
 
@@ -26,6 +26,5 @@ This plugin is a repo-local Codex skill bundle derived from the existing markdow
 
 ## Notes
 
-- The source of truth for the role boundaries remains `.claude/agents/`.
-- This repo's `.agents/` directory is currently not writable, so I did not add a marketplace entry automatically.
-- If you want this plugin indexed in a local Codex marketplace, add `plugins/groupscout-agents` to `.agents/plugins/marketplace.json` once that directory is writable.
+- The source of truth for role boundaries remains the backend source repo's `.claude/agents/` specs unless a later plugin migration explicitly supersedes them.
+- Marketplace registration is environment-specific. To index this plugin locally, add `plugins/groupscout-agents` to the active Codex marketplace configuration for the workspace.

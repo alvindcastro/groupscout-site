@@ -49,10 +49,12 @@
     - [x] Flag `--meta` to show source URL, collector, and fetch time.
 - [x] Update Slack notifications to include a link to the raw data (if exposed via internal reference).
 
-### Part E — Retention & Privacy ✅ COMPLETE
-- [x] Implement a cleanup worker logic (`PurgeOlderThan`) to purge raw inputs older than X days.
+### Part E — Retention & Privacy ◐ PARTIAL
+- [ ] Implement a scheduled cleanup worker that invokes retention policy for old raw inputs.
 - [x] Add `PII_STRIP` option to remove sensitive info before storage if required.
 - [x] Implement hashing logic to ensure we don't store identical payloads multiple times.
+
+Raw audit storage and redaction policy are documented. Automated cleanup scheduling remains open and should be tracked through Beads before implementation.
 
 ## Operations & Maintenance
 

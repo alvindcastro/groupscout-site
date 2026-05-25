@@ -109,5 +109,5 @@ For a detailed end-to-end breakdown of these processes, including architecture d
 ### Running Modes
 
 -   **Server Mode**: Runs as a long-lived process listening on a port (default: 8080), providing an API for external triggers (e.g., n8n, Zapier).
-    -   See [swagger.yaml](./api/swagger.yaml) for API documentation.
+    -   See `/mnt/c/Users/alvin/GolandProjects/groupscout/api/swagger.yaml` in the backend source repo for API documentation.
 -   **Run-Once Mode**: Executes the pipeline once and exits (`--run-once`). Ideal for simple cron jobs.

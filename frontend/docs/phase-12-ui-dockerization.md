@@ -315,7 +315,7 @@ Do not add role matrices, production identity-provider UI, or direct database ac
 - Smoke health: `GET /healthz`.
 - Smoke root: `GET /`.
 - Smoke static asset: `GET /assets/app.js`.
-- Smoke API proxy: `GET /api/system`.
+- Smoke API proxy: `GET /api/leads?limit=1`, `GET /api/system`, and `GET /api/alerts?limit=1` when a backend or CI stub is reachable.
 - D4 did not add role matrices, production identity-provider UI, direct database access, a browser framework, or a product renderer.
 
 ## Phase D5 - Docker Operations Docs And CI Hooks
@@ -367,7 +367,7 @@ Do not add new runtime behavior in this phase unless a failing operations test r
 - Docker Compose teardown: `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml down`.
 - Backend dependency notes: D3 development smoke starts `groupscout-ui` with backend service `groupscout`; backend Compose also starts `postgres`, `ollama`, and `ollama-init`. UI health does not require `alertd`, `n8n`, Grafana, Prometheus, Loki, Promtail, or a pipeline run.
 - Required UI Docker env vars: `GROUPSCOUT_UI_HOST_PORT`, optional `GROUPSCOUT_UI_REPO`, and server-only `UI_API_PROXY_TARGET`.
-- CI hook order: `npm test`, Docker test-image build/run, production image build, then optional smoke checks for `/healthz`, `/`, `/assets/app.js`, and `/api/system` when a backend or CI stub is reachable.
+- CI hook order: `npm test`, Docker test-image build/run, production image build, then optional smoke checks for `/healthz`, `/`, `/assets/app.js`, and backend-dependent `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` when a backend or CI stub is reachable.
 - D5 docs explicitly prohibit running UI containers with backend `.env` or `--env-file`, and prohibit injecting `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.
 - Red run: `node test/dockerization-contract.test.js` failed because the D5 operations docs, CI notes, and troubleshooting entries did not exist.
 - Green run: `node --test test/dockerization-contract.test.js`.
@@ -376,7 +376,7 @@ Do not add new runtime behavior in this phase unless a failing operations test r
 - Containerized test: `docker run --rm groupscout-ui-test`.
 - Docker production build: `docker build --target production -t groupscout-ui-production .`.
 - Production smoke checks: `GET /healthz`, `GET /`, and `GET /assets/app.js` against the UI production container passed on host port `3006`.
-- Backend-dependent `GET /api/system` smoke was not counted because `GET http://localhost:8080/health` could not connect; it requires a reachable backend or CI stub.
+- Backend-dependent `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` smoke was not counted because `GET http://localhost:8080/health` could not connect; it requires a reachable backend or CI stub.
 
 ## Suggested Parallel Agent Prompts
 

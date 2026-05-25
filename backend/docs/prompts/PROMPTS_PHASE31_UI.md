@@ -78,7 +78,7 @@ Acceptance:
 Task 33-A1 - Lead inbox with fixture data
 
 Context:
-- `/api/leads` is planned but not implemented yet.
+- Historical prompt note: `/api/leads` was planned but not implemented when this prompt was written. Phase 35 later implemented the core lead APIs.
 - The lead inbox can be designed against typed fixtures first.
 - The implementation contract is `docs/planning/ui/UI_PHASE33_MOCKED_LEAD_INBOX_CONTRACT.md`.
 
@@ -126,7 +126,7 @@ Acceptance:
 Task 35-A1 - Lead read API
 
 Context:
-- Current backend has `GET /leads/{id}/raw` but no UI-facing `/api/leads`.
+- Historical prompt note: the backend had `GET /leads/{id}/raw` but no UI-facing `/api/leads` when this prompt was written. Phase 35 later implemented UI-facing lead APIs.
 - Browser routes should use same-origin `/api/*`.
 
 TDD steps:
@@ -187,7 +187,7 @@ Acceptance:
 Task 36-A1 - Outreach log API
 
 Context:
-- The database has `outreach_log`, but UI storage and HTTP methods are not complete.
+- Historical prompt note: the database had `outreach_log`, but UI storage and HTTP methods were not complete when this prompt was written. Phase 36 later covered outreach and lead state API contracts.
 
 TDD steps:
 1. Write failing storage tests for inserting and listing outreach events.

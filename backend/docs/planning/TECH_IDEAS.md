@@ -83,7 +83,7 @@ This document outlines potential technical enhancements and a roadmap for the fu
 
 #### 8. Docker Ecosystem (Self-hosted Infrastructure)
 
-> Full tool comparison (embedding providers, vector stores, observability) with cloud alternatives: see [AI_DATA_STRATEGY.md](./AI_DATA_STRATEGY.md).
+> Full tool comparison (embedding providers, vector stores, observability) with cloud alternatives: see [AI_DATA_STRATEGY.md](../prompts/AI_DATA_STRATEGY.md).
 
 **Automation & Orchestration:**
 - [x] **n8n** — Workflow automation to trigger `/run` and `/digest`. Also used for "Active Collection" (n8n scrapes → pushes to `/n8n/webhook`).

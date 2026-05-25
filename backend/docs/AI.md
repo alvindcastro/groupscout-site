@@ -142,7 +142,7 @@ Future: Claude tailors the digest based on what the sales manager cares about th
 
 These two ideas from `FUTURE_INTEGRATION.md` directly enable each other and are the highest-leverage near-term AI upgrade.
 
-**AI-Ready SQL** replaces hand-crafted prompt strings in `claude.go` with a `v_lead_context` SQLite view — one place builds the LLM context, used everywhere.
+**AI-Ready SQL** is planned, not implemented. `groupscout-site-48g` owns `v_lead_context`, `GetContext()`, prompt-builder refactors, Langfuse/noop tracing, and runtime `EvalLead` validation.
 
 **RAG** embeds each lead's context string, stores it in `lead_embeddings`, and retrieves the top-3 most similar past leads before every Claude call. Claude then enriches with historical intelligence instead of guessing from scratch.
 

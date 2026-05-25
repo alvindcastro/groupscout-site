@@ -14,7 +14,7 @@ Default port: `8080` (Configurable via `PORT`)
 | Endpoint | Method | Description | Auth Required |
 |---|---|---|---|
 | `/health` | `GET` | System health check (DB + API connectivity). | No |
-| `/metrics` | `GET` | Prometheus metrics for runtime monitoring. | No |
+| `/metrics` | `GET` | Prometheus endpoint for currently wired runtime metrics; collected/enriched/notified/failure counters, collector freshness, and dashboard docs remain open in `groupscout-site-yyj`. | No |
 | `/run` | `POST` | Manually triggers the collect-enrich-notify pipeline. | Yes (Bearer Token) |
 | `/digest` | `POST` | Sends a weekly email summary of leads via Resend. | Yes (Bearer Token) |
 | `/n8n/webhook` | `POST` | Receives raw lead data from n8n for storage and enrichment. | Yes (Bearer Token) |
@@ -83,6 +83,8 @@ The automation API remains optimized for n8n and server-to-server triggers. The 
 
 Do **not** expose `API_TOKEN` to browser JavaScript. It is intended for server-to-server automation. Use a cookie session, an auth proxy, or another server-side session boundary for the admin UI.
 
+Status reconciliation, 2026-05-25: the current backend source snapshot does not expose the planned `/api/*` operator UI routes below. Treat them as planned contracts until `groupscout-site-eqm` updates the backend source and OpenAPI, then `groupscout-site-29q` regenerates frontend client/types. The current Docker UI smoke may therefore see `/api/system` return `404` from backend `main`.
+
 ### Admin Auth And Setup Token Flow
 
 Admin auth defaults to enabled through `ADMIN_AUTH_ENABLED=true`. If `ADMIN_SETUP_TOKEN` is absent, the server reads or creates `ADMIN_SETUP_TOKEN_FILE`, default `data/admin-setup-token`. Use that setup token at `/admin/login` or `POST /api/auth/login`.
@@ -93,20 +95,20 @@ Session lifetime is controlled by `ADMIN_SESSION_TTL_HOURS`, default `24`. `POST
 
 | Endpoint | Method | Status | Purpose |
 |---|---|---|---|
-| `/api/auth/status` | `GET` | Implemented | Public auth status endpoint used by the browser before rendering protected routes. |
-| `/api/auth/login` | `POST` | Implemented | Setup-token login that creates a short-lived admin session and rotates file-backed setup tokens. |
-| `/api/auth/logout` | `POST` | Implemented | Revokes the current session and clears `groupscout_session`. |
-| `/api/auth/me` | `GET` | Implemented | Session-backed current-admin lookup. |
-| `/api/leads` | `GET` | Implemented | List leads with filters such as `status`, `source`, `min_score`, `q`, `limit`, and `cursor`. |
-| `/api/leads/{id}` | `GET` | Implemented | Return lead detail, enrichment fields, status, notes, and audit metadata without raw payload bodies. |
-| `/api/leads/{id}` | `PATCH` | Implemented | Update safe fields and apply validated actions: claim, dismiss, snooze, flag, contacted, won, lost, no-response, and reopen. |
-| `/api/leads/{id}/raw` | `GET` | Implemented | Authenticated UI alias for raw audit evidence. Requires admin session when admin auth is enabled, or bearer `API_TOKEN` when configured. |
-| `/api/leads/{id}/outreach` | `GET` | Implemented | List outreach attempts and outcomes for the lead. |
-| `/api/leads/{id}/outreach` | `POST` | Implemented | Log an outreach attempt, channel, contact, notes, and outcome. |
-| `/api/pipeline/runs` | `POST` | Implemented | Start a pipeline run asynchronously instead of blocking the browser for the full run. |
-| `/api/pipeline/runs` | `GET` | Implemented | Show recent run history, status, counts, and failures. |
-| `/api/stats` | `GET` | Implemented | Summaries by status, source, score band, owner, week, and outcome. |
-| `/api/system` | `GET` | Implemented | UI-friendly health and integration summary without browser-side Prometheus parsing. |
-| `/api/alerts` | `GET` | Implemented | Read-only alert-console compatibility endpoint. Returns an empty collection until `alertd` has a shared persistent alert store. |
+| `/api/auth/status` | `GET` | Planned | Public auth status endpoint used by the browser before rendering protected routes. |
+| `/api/auth/login` | `POST` | Planned | Setup-token login that creates a short-lived admin session and rotates file-backed setup tokens. |
+| `/api/auth/logout` | `POST` | Planned | Revokes the current session and clears `groupscout_session`. |
+| `/api/auth/me` | `GET` | Planned | Session-backed current-admin lookup. |
+| `/api/leads` | `GET` | Planned | List leads with filters such as `status`, `source`, `min_score`, `q`, `limit`, and `cursor`. |
+| `/api/leads/{id}` | `GET` | Planned | Return lead detail, enrichment fields, status, notes, and audit metadata without raw payload bodies. |
+| `/api/leads/{id}` | `PATCH` | Planned | Update safe fields and apply validated actions: claim, dismiss, snooze, flag, contacted, won, lost, no-response, and reopen. |
+| `/api/leads/{id}/raw` | `GET` | Planned | Authenticated UI alias for raw audit evidence. Requires admin session when admin auth is enabled, or bearer `API_TOKEN` when configured. |
+| `/api/leads/{id}/outreach` | `GET` | Planned | List outreach attempts and outcomes for the lead. |
+| `/api/leads/{id}/outreach` | `POST` | Planned | Log an outreach attempt, channel, contact, notes, and outcome. |
+| `/api/pipeline/runs` | `POST` | Planned | Start a pipeline run asynchronously instead of blocking the browser for the full run. |
+| `/api/pipeline/runs` | `GET` | Planned | Show recent run history, status, counts, and failures. |
+| `/api/stats` | `GET` | Planned | Summaries by status, source, score band, owner, week, and outcome. |
+| `/api/system` | `GET` | Planned | UI-friendly health and integration summary without browser-side Prometheus parsing. |
+| `/api/alerts` | `GET` | Planned | Read-only alert-console compatibility endpoint. Returns an empty collection until `alertd` has a shared persistent alert store. |
 
 See [UI_PHASE35_API_CONTRACT.md](./planning/ui/UI_PHASE35_API_CONTRACT.md) for the implemented lead API response shapes and [UI_STRATEGY.md](./planning/ui/UI_STRATEGY.md) for the product flow and implementation sequence.

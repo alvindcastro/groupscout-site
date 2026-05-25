@@ -1,8 +1,10 @@
 # Phase 37 Pipeline Runs, Stats, And System Contract
 
-Phase 37 adds UI-safe operational endpoints without requiring the browser to parse Prometheus `/metrics`.
+Phase 37 defines UI-safe operational endpoints without requiring the browser to parse Prometheus `/metrics`.
 
-Implemented endpoints:
+Status reconciliation, 2026-05-25: this is a contract target, not current backend-main behavior. The current backend source snapshot has migration coverage for `pipeline_runs`, but no live pipeline run store, stats store, `/api/pipeline/runs`, `/api/stats`, or `/api/system` handlers.
+
+Planned endpoints:
 
 - `POST /api/pipeline/runs`
 - `GET /api/pipeline/runs`
@@ -65,4 +67,3 @@ Green evidence:
 
 - `go test ./internal/storage`
 - `go test ./cmd/server`
-

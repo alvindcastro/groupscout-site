@@ -34,7 +34,7 @@ Handles data persistence and deduplication with dual-driver support (**PostgreSQ
 
 #### 3. Enrichment & Scoping Layer (`internal/enrichment`)
 Responsible for identifying high-value leads and preparing them for outreach.
-- **LLM Providers**: `ClaudeClient` (Anthropic Messages API) and `GeminiClient` (Google Gemini API) both implement the `LLMClient` interface. Provider selected via `LLM_PROVIDER` env var. Phase 16 adds OpenAI-compatible client (OpenAI, Groq, Mistral, Azure, Ollama) and a `FallbackClient`.
+- **LLM Providers**: Current enrichment uses the existing Claude/Gemini path plus the separate Ollama runtime. The unified `LLMClient` interface, `LLM_PROVIDER` factory, OpenAI-compatible providers, Azure/Ollama routing, and fallback behavior remain open in `groupscout-site-vud`.
 - **Pre-Scorer**: Applies rule-based Go logic to filter out low-value projects (e.g., small renovations) before calling the AI API, significantly reducing costs. `BudgetTier()` helper classifies project spend (Phase 18).
 - **Contact Enrichment**: `hunter.go` looks up decision-maker contacts via Hunter.io (Phase 18). `repeat.go` flags organizations with prior winning outreach history (Phase 22).
 - **Deduplication**: Ensures that only new, unique projects are sent for AI enrichment via SHA-256 hash checks.

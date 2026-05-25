@@ -1,6 +1,8 @@
 # Phase 35 UI API Contract
 
 > Implemented backend contract for the first same-origin GroupScout operator UI endpoints.
+
+> Status reconciliation, 2026-05-25: this file is a contract target, not current backend-main behavior. The current backend source snapshot does not expose the `/api/leads` UI routes described here; use `UI_API_ENDPOINTS.md` and `BACKEND_FOR_UI_TESTING.md` for live-vs-planned status.
 > The current repository still has no checked-in frontend package, so frontend types are maintained in `UI_PHASE35_FRONTEND_TYPES.md` until a generated client exists. Generated client/types work is tracked by `groupscout-site-29q`.
 
 ## Scope
@@ -155,7 +157,7 @@ Response:
 
 The actual `lead` object in the response uses the full safe detail shape from `GET /api/leads/{id}`.
 
-Historical note: Phase 36 later added migration-backed support for `owner`, `snoozed_until`, and `verification_state`; `corrections` remains unsupported.
+Historical note: Phase 36 later planned migration-backed support for `owner`, `snoozed_until`, and `verification_state`; the current backend source snapshot does not expose those fields through the lead model/API, and `corrections` remains unsupported.
 
 ## `GET /api/leads/{id}/raw`
 

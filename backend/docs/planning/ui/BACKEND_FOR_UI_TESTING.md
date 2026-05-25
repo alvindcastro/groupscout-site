@@ -2,7 +2,7 @@
 
 Use this runbook when a frontend developer needs a GroupScout backend available while building or testing the operator UI.
 
-The current backend is ready for health checks, pipeline triggers, metrics, admin setup-token login, session-gated `/api/*` UI routes, and raw audit lookup. The UI-specific lead list/detail, outreach, pipeline, stats, system, and alert compatibility endpoints are implemented for local UI testing.
+The current backend is ready for health checks, pipeline triggers, metrics, and legacy raw audit lookup. The UI-specific lead list/detail, outreach, pipeline, stats, system, auth/session, and alert compatibility endpoints are planning contracts, not live routes on backend `main`; implementation or merge work is tracked by `groupscout-site-eqm`.
 
 ## Quick Start: Local Backend
 
@@ -25,7 +25,9 @@ Verify it:
 curl -i http://localhost:8080/health
 ```
 
-If `ADMIN_SETUP_TOKEN` is not set, the backend writes a first-run setup token to `data/admin-setup-token`. Use that value at `/admin/login` in the UI, or call the auth API directly:
+The planned admin setup-token flow is not available on the current backend source snapshot. Until the auth/session routes land, use mocked UI auth, a dev proxy, or server-to-server `API_TOKEN` calls outside browser JavaScript.
+
+Planned auth smoke, once implemented:
 
 ```bash
 curl -i http://localhost:8080/api/auth/status
@@ -37,7 +39,7 @@ curl -i -c /tmp/groupscout-admin.cookies \
 curl -i -b /tmp/groupscout-admin.cookies http://localhost:8080/api/auth/me
 ```
 
-Successful login sets an HttpOnly `groupscout_session` cookie and returns a `session_token` for non-browser smoke clients. File-backed setup tokens rotate after login, so read the token file again if another setup login is needed. Env-backed `ADMIN_SETUP_TOKEN` values do not rotate automatically.
+Successful login should set an HttpOnly `groupscout_session` cookie and return a `session_token` for non-browser smoke clients. File-backed setup tokens should rotate after login, so read the token file again if another setup login is needed. Env-backed `ADMIN_SETUP_TOKEN` values cannot rotate automatically.
 
 Logout revokes the current session and expires the cookie:
 
@@ -159,7 +161,7 @@ Example Vite-style proxy target:
 /api/* -> http://localhost:8080/api/*
 ```
 
-The `/api/*` routes above are the live UI contract. They stay separate from the automation endpoints so browser response shapes and session boundaries can evolve without exposing `API_TOKEN`.
+The `/api/*` routes above are the planned UI contract. They stay separate from the automation endpoints so browser response shapes and session boundaries can evolve without exposing `API_TOKEN`.
 
 ## Current UI Contract Status
 
@@ -172,9 +174,15 @@ Implemented today:
 | `POST /run` | Manual pipeline trigger behind Bearer auth. |
 | `POST /digest` | Manual digest trigger behind Bearer auth. |
 | `POST /n8n/webhook` | External lead ingestion behind Bearer auth. |
+
+Planned UI contract, not live on backend `main`:
+
+| Endpoint | UI testing use |
+|---|---|
+| `GET /api/auth/status`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` | Admin setup-token/session flow. |
 | `GET /api/leads` | Lead inbox with filters and pagination. |
 | `GET /api/leads/{id}` | Lead detail. |
-| `PATCH /api/leads/{id}` | Status, owner, notes, snooze, and safe corrections. |
+| `PATCH /api/leads/{id}` | Planned status, owner, notes, snooze, and workflow actions. Audit-safe corrections remain unsupported. |
 | `GET /api/leads/{id}/raw` | Authenticated UI alias for raw audit evidence. |
 | `GET/POST /api/leads/{id}/outreach` | Outreach activity history and logging. |
 | `GET/POST /api/pipeline/runs` | Run history and async pipeline controls. |
@@ -191,4 +199,4 @@ Implemented today:
 | `/health` returns database error | Check `DATABASE_URL`; for local SQLite use a writable `.db` path, for Postgres verify `docker compose ps postgres`. |
 | Docker startup is slow | `ollama-init` is likely pulling models. Use the local backend path for UI-only work. |
 | Browser requests fail from a UI dev server | Add a dev proxy or same-origin wrapper; do not rely on CORS being enabled in the Go server. |
-| D4 `/api/system` or `/api/alerts` returns `404` | Check that the backend image includes the current UI API routes and was rebuilt before starting the smoke. |
+| D4 `/api/system` or `/api/alerts` returns `404` | Expected on backend `main` until protected UI API routes land; a `502` from the intentionally bad proxy target is the proxy-failure signal. |

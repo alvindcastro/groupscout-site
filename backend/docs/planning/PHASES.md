@@ -799,7 +799,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 
 ---
 
-## Phase 20 — Housekeeping & Developer Experience ✅
+## Phase 20 — Housekeeping & Developer Experience ◐
 **Goal:** Improve local development workflow and project documentation.
 
 - [x] **20.1** `Makefile` — Central hub for build, test, lint, and Docker tasks.

@@ -37,7 +37,7 @@ graph TD
 2.  **Normalization**: Diverse data sources are converted into a standardized `RawProject` struct, ensuring consistency for downstream processing.
 3.  **Deduplication**: A SHA-256 hash of the raw payload is checked against the `raw_projects` table. If the project has been seen before, it is skipped to save on processing costs.
 4.  **Cost-Effective Pre-Scoring**: Before calling expensive AI APIs, a rule-based "Pre-Scorer" filters out low-value items (e.g., residential bathroom renovations or projects with budgets below a specific threshold).
-5.  **AI Enrichment**: High-value projects are sent to an LLM (Claude, Gemini, or OpenAI). The AI extracts structured data such as project type, estimated crew size, duration, and a priority score.
+5.  **AI Enrichment**: High-value projects are sent through the current Claude/Gemini enrichment path. Unified provider selection for OpenAI-compatible providers, Azure, Ollama, and fallback behavior remains open in `groupscout-site-vud`.
 6.  **Contact Discovery**: The system uses Hunter.io to find decision-maker contacts for the organization identified by the AI.
 7.  **Persistence**: Enriched `Lead` objects are saved to the `leads` table. Vector embeddings are generated and stored in `lead_embeddings` to enable similarity-based search (RAG).
 8.  **Notification & Action**: 

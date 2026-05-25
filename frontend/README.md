@@ -108,7 +108,7 @@ docker run --rm groupscout-ui-test
 
 Docker/runtime mode selection is centralized in [Docker Runtime Matrix](./docs/docker-runtime-matrix.md). Use it for the D1 test image, Phase 13 development product server, D4 production static/proxy server, backend-network smoke commands, expected `/api/*` status codes, and secret-boundary rules.
 
-Tracked follow-ups: `groupscout-site-mt5` owns first-class production UI Compose wiring, and `groupscout-site-e5a` owns the repeatable backend plus production UI Docker E2E gate.
+Current tracked follow-ups: `groupscout-site-kb4` for real-browser Phase 15 verification, `groupscout-site-29q` for generated API client/types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-3gq` for shared alert state, `groupscout-site-yyj` for ops metrics/freshness, and `groupscout-site-2h1` for broader smell refactors.
 
 ## Developer Docs
 

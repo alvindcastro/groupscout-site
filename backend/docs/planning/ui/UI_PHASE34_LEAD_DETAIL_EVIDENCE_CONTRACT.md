@@ -1,13 +1,13 @@
 # Phase 34 Lead Detail And Evidence Review Contract
 
 > Historical implementation contract for the first GroupScout lead detail route.
-> Phase 35 later implemented the backend `GET /api/leads/{id}` contract, and later phases added outreach/state/system API contracts. Use `UI_API_ENDPOINTS.md`, `UI_PHASE35_API_CONTRACT.md`, and `UI_TDD_PHASE_PLAN.md` for current live API status.
+> Phase 35 later defined the backend `GET /api/leads/{id}` contract, and later phases defined outreach/state/system API contracts. Use `UI_API_ENDPOINTS.md`, `UI_PHASE35_API_CONTRACT.md`, and `UI_TDD_PHASE_PLAN.md` for current live-vs-planned API status.
 
 ## Current Scope
 
 Phase 34 defines `/leads/:leadId` behavior after the Phase 32 shell exists and after the Phase 33 mocked inbox can link to a lead detail route.
 
-Do not wire the detail view to direct database reads, `POST /run`, `POST /n8n/webhook`, or the implemented raw-payload endpoint as the default data source. This historical contract required deterministic fixtures until Phase 35 implemented `GET /api/leads/{id}`.
+Do not wire the detail view to direct database reads, `POST /run`, `POST /n8n/webhook`, or the implemented raw-payload endpoint as the default data source. This historical contract requires deterministic fixtures until a live `GET /api/leads/{id}` route exists.
 
 At the time of Phase 34, the backend had lead storage fields and `GET /leads/{id}/raw`, but did not yet have the later UI-facing detail, outreach, and workflow APIs. Current status lives in the Phase 35-38 API contracts.
 
@@ -55,9 +55,9 @@ Fixtures should mirror current storage fields where possible and use documented 
 | `audit.collector_name` | Recommended | Collector metadata when known. |
 | `audit.collected_at` | Recommended | Collected timestamp when known. |
 | `audit.payload_type` | Recommended | Metadata only, not body content. |
-| `verification_state` | Yes | Historical note: fixture-only in Phase 34; Phase 36 later persisted verification state separately from commercial status. |
+| `verification_state` | Yes | Historical note: fixture-only in Phase 34; Phase 36 later planned verification state separately from commercial status. |
 | `evidence_items` | Yes | Fixture-only claim/evidence pairs for UI tests. |
-| `outreach_summary` | Yes | Historical note: fixture-only in Phase 34; Phase 36 later added outreach APIs. |
+| `outreach_summary` | Yes | Historical note: fixture-only in Phase 34; Phase 36 later planned outreach APIs. |
 | `activity` | Yes | Fixture-backed status, note, correction, and outreach events; corrections remain disabled unless separately implemented. |
 
 Fixtures must include at least:

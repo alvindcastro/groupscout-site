@@ -3,7 +3,9 @@
 > Brainstormed API contracts for the future GroupScout operator UI.
 > This is not an implementation record. Production code must be built through the strict TDD prompt pack in `../../prompts/PROMPTS_PHASE31_UI.md`.
 
-## Current Backend Endpoints
+## Current Backend Snapshot
+
+Status reconciliation, 2026-05-25: backend `main` currently exposes the automation/server routes listed below and the legacy raw-audit route. The UI-specific `/api/*` lead, outreach, pipeline, stats, system, auth, and alert routes are product/API contracts in this planning pack, not live routes on backend `main`. The Docker UI smoke intentionally accepts `/api/system` returning `404` from backend `main`; generated frontend clients must not treat these `/api/*` contracts as live until `groupscout-site-eqm` implements or merges the backend API surface and `groupscout-site-29q` regenerates frontend client/types.
 
 | Endpoint | Status | UI note |
 |---|---|---|
@@ -13,21 +15,6 @@
 | `POST /digest?to=` | Implemented | Bearer-token protected when `API_TOKEN` is set. Sends email digest. |
 | `POST /n8n/webhook` | Implemented | Bearer-token protected when `API_TOKEN` is set. Accepts a lead-shaped payload. |
 | `GET /leads/{id}/raw` | Implemented | Legacy raw audit payload lookup. Now requires `API_TOKEN` or admin session when either auth mode is configured. |
-| `GET /api/auth/status` | Implemented | Public admin auth status and session check. |
-| `POST /api/auth/login` | Implemented | Setup-token login. File-backed setup tokens rotate after successful login. |
-| `POST /api/auth/logout` | Implemented | Session revocation and cookie clearing. |
-| `GET /api/auth/me` | Implemented | Current admin lookup for valid session cookie or bearer session token. |
-| `GET /api/leads` | Implemented Phase 35 | Filtered lead inbox list with `status`, `source`, `min_score`, `q`, `limit`, and `cursor`. |
-| `GET /api/leads/{id}` | Implemented Phase 35 | Lead detail with safe audit metadata and no raw payload body. |
-| `PATCH /api/leads/{id}` | Implemented Phase 35 | Updates `status` and `notes`; rejects unsafe or not-yet-schema-backed fields. |
-| `GET /api/leads/{id}/raw` | Implemented Phase 35 | Raw audit evidence alias requiring admin session when admin auth is enabled, or bearer auth when `API_TOKEN` is configured. |
-| `GET /api/leads/{id}/outreach` | Implemented Phase 36 | Lists outreach history newest-first. |
-| `POST /api/leads/{id}/outreach` | Implemented Phase 36 | Logs outreach attempts. |
-| `POST /api/pipeline/runs` | Implemented Phase 37 | Starts a persisted asynchronous pipeline run. |
-| `GET /api/pipeline/runs` | Implemented Phase 37 | Lists persisted run history with status, counts, and errors. |
-| `GET /api/stats` | Implemented Phase 37 | Returns status, source, score band, owner, week, and outreach outcome summaries. |
-| `GET /api/system` | Implemented Phase 37 | Returns UI-safe system health without browser-side `/metrics` parsing. |
-| `GET /api/alerts` | Implemented compatibility route | Read-only alert-console endpoint; returns an empty collection until `alertd` writes alert state to shared storage. |
 | `POST /slack/inventory` | Implemented in `alertd` | Slack slash-command endpoint, separate from the lead UI MVP. |
 
 ## Contract Principles
@@ -84,7 +71,7 @@ Admin setup-token notes:
 - `has_raw`
 - `audit_source_url`
 
-Historical note: Phase 35 implemented `lead_summary` without `owner` or `verification_state`; Phase 36 schema-backed those fields. `groupscout-site-dxq` tracks reconciling any remaining stale Phase 35-era schema notes.
+Historical note: Phase 35 planned `lead_summary` without `owner` or `verification_state`; Phase 36 later planned schema-backed workflow fields. The current backend source snapshot does not yet expose these fields through `/api/leads`.
 
 `lead` should include full current storage fields plus UI-safe audit metadata. Do not include raw payload bodies by default. Phase 34 detail fixtures should mirror this as `{lead, audit, outreach_summary, activity}` where `audit` contains metadata such as `has_raw`, `raw_link`, `payload_type`, `source_url`, `collector_name`, and `collected_at`, never the raw `payload` body.
 
@@ -122,14 +109,15 @@ Historical note: Phase 35 implemented `lead_summary` without `owner` or `verific
 
 The current backend compatibility route returns empty `alerts` and `items` arrays because `alertd` still keeps runtime alert state outside the lead API database. Tracked follow-up: `groupscout-site-3gq`.
 
-## Schema Gaps To Handle Explicitly
+## Live Schema And API Gaps To Handle Explicitly
 
-The current database schema supports core lead fields, status, notes, raw input IDs, owner/snooze/flag workflow fields, `verification_state`, `outreach_log`, and persisted `pipeline_runs`. Some older Phase 35 notes predate Phase 36/37; `groupscout-site-dxq` tracks reconciling any remaining stale roadmap/schema notes.
+The current backend source snapshot supports core lead fields, status, notes, raw input IDs, and the legacy `outreach_log` table. Migration files exist for owner/snooze/flag workflow fields and `pipeline_runs`, but the current `Lead` model, lead store methods, `/api/*` handlers, stats queries, auth/session routes, and OpenAPI source are not live on backend `main`.
 
 | Planned UI field | Current status | Planning action |
 |---|---|---|
-| `owner` | Implemented Phase 36 | Keep list/detail/UI docs aligned with live API responses. |
-| `snoozed_until` | Implemented Phase 36 | Keep list/detail/UI docs aligned with live API responses. |
-| `verification_state` | Implemented Phase 36 | Stored separately from commercial workflow status. |
+| `owner` | Migration planned/present; not exposed by current lead model/API | Implement with lead store, action validation, tests, and OpenAPI before UI relies on it. |
+| `snoozed_until` | Migration planned/present; not exposed by current lead model/API | Implement with lead store, action validation, tests, and OpenAPI before UI relies on it. |
+| `flagged` | Migration planned/present; not exposed by current lead model/API | Implement with lead store, action validation, tests, and OpenAPI before UI relies on it. |
+| `verification_state` | Migration planned/present; not exposed by current lead model/API | Keep separate from commercial workflow status when implementation lands. |
 | `corrections` | Missing | Needs audit-safe correction model before UI edit controls are live. |
-| `pipeline_runs` | Implemented Phase 37 | Keep smoke/docs aligned with persisted run history. |
+| `pipeline_runs` | Migration planned/present; no current store/API route | Implement persisted run store, async trigger, stats/system routes, tests, and OpenAPI before UI relies on it. |

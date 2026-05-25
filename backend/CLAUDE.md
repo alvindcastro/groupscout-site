@@ -246,10 +246,10 @@ Use `bd` for live task state. `docs/planning/PHASES.md` is retained as the phase
 | Phase 15 | PostgreSQL + pgvector migration | ✅ complete |
 | Phase 16 | LLM provider abstraction (Claude / Gemini / Ollama) | 📋 planned; current Ollama runtime is separate |
 | Phase 17 | Airport disruption alert system (`cmd/alertd/`) | ✅ complete |
-| Phase 20 | Housekeeping & developer experience | ✅ complete |
+| Phase 20 | Housekeeping & developer experience | ◐ baseline complete; broader smell refactors open in `groupscout-site-2h1` |
 | Phase 21 | Ollama prod hardening | ✅ complete |
 | Phase 13.1 | BC Hydro & FortisBC utility collectors | 🔄 in progress |
-| Phase 27 | Input audit & verification trail | ◐ raw audit/redaction complete; retention cleanup open |
+| Phase 27 | Input audit & verification trail | ✅ raw audit/redaction/retention complete; sanitized preview open in `groupscout-site-4cv` |
 | Phase 22 | Multi-property support — config-driven portfolio routing | 📋 planned |
 | Phase 23 | Advanced intelligence — repeat detection + signal quality scoring | 📋 planned |
 

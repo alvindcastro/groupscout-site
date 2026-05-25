@@ -13,18 +13,19 @@
 Roadmap checkboxes are historical/strategic context. The missed-task audit on 2026-05-25 filed the concrete follow-up work in Beads:
 
 - `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery.
-- `groupscout-site-j73` — raw audit retention purge worker.
 - `groupscout-site-3gq` — shared `alertd` state for `/api/alerts`.
 - `groupscout-site-yyj` — ops metrics and collector freshness observability.
 - `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
 - `groupscout-site-b25` — event-driven `POST /ingest` and `EnrichOne`.
 - `groupscout-site-39g` — home-deploy runbook execution and restore smoke. Coolify guide was added in `backend/docs/guides/COOLIFY.md`.
-- `groupscout-site-29q`, `groupscout-site-4cv`, and `groupscout-site-dxq` — generated UI API client, sanitized raw preview, and UI roadmap schema cleanup.
+- `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-dxq`, and `groupscout-site-kb4` — planned operator UI API routes, generated UI API client, sanitized raw preview, UI roadmap schema cleanup, and real-browser Phase 15 harness.
+- `groupscout-site-2h1` — remaining backend/frontend smell refactors.
 - `groupscout-site-aaj`, `groupscout-site-1ee`, and `groupscout-site-a1h` — next source-expansion slice, multi-property design, and Codex plugin skill drift.
 
 Recently completed:
 
 - `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n and tracked under `backend/docs/workflows/n8n/`.
+- `groupscout-site-j73` — opt-in raw audit retention worker, manual purge command, Docker env, and Postgres purge-safety coverage.
 - `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and the backend plus UI Docker E2E gate are implemented.
 
 ---
@@ -50,7 +51,7 @@ Recently completed:
 - [x] **Phase 17** — Airport Disruption Alert System (`alertd`): YVR real-time monitoring ✅
 - [ ] **Phase 18** — Contact Enrichment: Hunter.io integration & budget tiers 📋
 - [ ] **Phase 19** — Slack Actions & Lead Feedback: claim/dismiss/snooze buttons 📋
-- [x] **Phase 20** — Housekeeping & Developer Experience ✅ (`groupscout-site-a1h`, `groupscout-site-2h1`)
+- [ ] **Phase 20** — Housekeeping & Developer Experience ◐ baseline complete; remaining smell refactors open (`groupscout-site-2h1`)
 - [x] **Phase 21** — Ollama Prod Hardening ✅
 - [ ] **Phase 22** — Multi-Property Support: portfolio routing & YAML config 📋 (`groupscout-site-1ee`)
 - [ ] **Phase 23** — Advanced Intelligence: Repeat Detection & Signal Quality 📋
@@ -358,7 +359,7 @@ Tracked follow-up: `groupscout-site-yyj` owns Prometheus metrics, collector fres
 
 ---
 
-## Phase 20 — Housekeeping & Developer Experience ✅
+## Phase 20 — Housekeeping & Developer Experience ◐
 
 **Goal:** Improve local development workflow and project documentation.
 

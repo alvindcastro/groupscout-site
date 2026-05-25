@@ -3,6 +3,8 @@
 > Tickable planning checklist for the future GroupScout operator UI and its `/api/*` backend contracts.
 > Beads remains the canonical task tracker. These checkboxes are prompt scaffolding and acceptance planning only.
 
+Status reconciliation, 2026-05-25: Phase 35-37 rows below describe TDD contract targets and historical implementation notes from planning/branch work. They are not proof that the routes are live on backend `main`. Current backend `main` does not expose the planned `/api/leads`, `/api/leads/{id}/outreach`, `/api/pipeline/runs`, `/api/stats`, `/api/system`, admin auth, or `/api/alerts` routes; implementation or merge work is tracked by `groupscout-site-eqm`, and Docker smoke docs therefore still accept backend `404` for `/api/system`.
+
 ## Non-Negotiable TDD Loop
 
 - [ ] Read the relevant docs, tests, routes, storage code, and UI design guidance first.
@@ -64,7 +66,7 @@ Phase 34 implementation note: this repository still has no checked-in frontend p
 - [x] Update OpenAPI only after the expected failing tests define the contract.
 - [x] Generate or maintain frontend types from the contract.
 
-Phase 35 implementation note: `/api/leads`, `/api/leads/{id}`, `PATCH /api/leads/{id}`, and authenticated `/api/leads/{id}/raw` are implemented against the then-current lead and raw-audit schema. Phase 36/37 later implemented owner, snooze, verification, outreach, and pipeline persistence; remaining stale schema-doc reconciliation is tracked by `groupscout-site-dxq`, and generated frontend client/types are tracked by `groupscout-site-29q`.
+Phase 35 contract note: `/api/leads`, `/api/leads/{id}`, `PATCH /api/leads/{id}`, and authenticated `/api/leads/{id}/raw` define the desired lead/raw-audit API surface. The current backend source snapshot does not expose these routes. Generated frontend client/types are tracked by `groupscout-site-29q`.
 
 ## Phase 36 - Outreach And Lead State Actions
 
@@ -75,7 +77,7 @@ Phase 35 implementation note: `/api/leads`, `/api/leads/{id}`, `PATCH /api/leads
 - [x] Reject invalid transitions with specific errors.
 - [x] Keep verification status separable from commercial workflow status unless a design decision says otherwise.
 
-Phase 36 implementation note: outreach logging is implemented with `OutreachStore`, `/api/leads/{id}/outreach`, and validated lead actions on `PATCH /api/leads/{id}`. Commercial workflow fields `owner`, `snoozed_until`, and `flagged` are schema-backed, and `verification_state` remains separate from commercial status.
+Phase 36 contract note: outreach logging should use `OutreachStore`, `/api/leads/{id}/outreach`, and validated lead actions on `PATCH /api/leads/{id}`. Commercial workflow fields `owner`, `snoozed_until`, and `flagged` have migration coverage but are not exposed by the current lead model/API; `verification_state` should remain separate from commercial status when implemented.
 
 ## Phase 37 - Pipeline Runs, Stats, And System Health
 
@@ -86,7 +88,7 @@ Phase 36 implementation note: outreach logging is implemented with `OutreachStor
 - [x] Write failing tests for `GET /api/system` healthy and degraded states.
 - [x] Do not parse Prometheus `/metrics` directly in browser UI.
 
-Phase 37 implementation note: pipeline runs are persisted in `pipeline_runs`, `/api/pipeline/runs` starts the real pipeline asynchronously in production, `/api/stats` summarizes supported schema fields, and `/api/system` exposes UI health without requiring browser-side Prometheus parsing.
+Phase 37 contract note: pipeline runs should be persisted in `pipeline_runs`, `/api/pipeline/runs` should start the real pipeline asynchronously in production, `/api/stats` should summarize supported schema fields, and `/api/system` should expose UI health without requiring browser-side Prometheus parsing. The current backend source snapshot has migration coverage for `pipeline_runs` but no live store or route handlers.
 
 ## Phase 38 - Docker Runtime And End-To-End Smoke
 
@@ -94,7 +96,7 @@ Phase 37 implementation note: pipeline runs are persisted in `pipeline_runs`, `/
 - [x] Verify the production UI container serves `/`, `/healthz`, and static assets.
 - [x] Verify same-origin `/api/*` proxy behavior.
 - [x] Distinguish backend `404` from proxy `502` in smoke expectations.
-- [x] Add Playwright smoke for lead inbox, lead detail, and responsive navigation.
+- [x] Add available route/responsive smoke coverage for lead inbox, lead detail, and navigation; real browser-engine coverage remains tracked by `groupscout-site-kb4`.
 - [x] Verify static assets contain no `API_TOKEN`, database URL, Slack token, email token, LLM key, or session secret.
 
 Phase 38 implementation note: this backend repo does not own the production UI app, so the executable contract lives in `scripts/smoke-ui-docker-e2e.sh` and targets the external `groupscout-ui` production container. Until that UI has a real browser renderer for inbox/detail, route and responsive smoke uses the UI repo's Node model-level tests as the Playwright-equivalent gate.

@@ -1,8 +1,10 @@
 # Phase 36 Outreach And Lead State Contract
 
-Phase 36 adds schema-backed outreach logging and validated operator lead actions to the UI API.
+Phase 36 defines schema-backed outreach logging and validated operator lead actions for the UI API.
 
-Implemented endpoints:
+Status reconciliation, 2026-05-25: this is a contract target, not current backend-main behavior. The current backend source snapshot has the legacy `outreach_log` table and migration coverage for workflow fields, but no live `OutreachStore`, `/api/leads/{id}/outreach` routes, or validated action handler.
+
+Planned endpoints:
 
 - `GET /api/leads/{id}/outreach`
 - `POST /api/leads/{id}/outreach`
@@ -71,4 +73,3 @@ Green evidence:
 
 - `go test ./internal/storage`
 - `go test ./cmd/server`
-

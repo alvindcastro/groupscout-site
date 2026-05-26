@@ -1,5 +1,15 @@
 ## 2026-05-25 - Missed task markdown reconciliation
 
+### groupscout-site-bv7 - Update build log for n8n verification docs
+
+- **What:** Updated the historical build log to reflect the current n8n cadence send path and local recovery runbooks.
+- **Where:** `backend/docs/prompts/groupscout-build-log.md` and this changelog.
+- **When:** 2026-05-25.
+- **Why:** The build log still described n8n as a plain twice-weekly `/run` scheduler and did not mention active workflow verification, guaranteed cadence payloads, or local sign-in recovery.
+- **How:** Added the n8n cadence runbook update, changed the current-state trigger description to the guaranteed Sunday/Wednesday cadence, and clarified n8n's operational role in the Docker stack.
+
+---
+
 ### groupscout-site-uod - Document n8n local access and cadence verification
 
 - **What:** Added operator and developer runbooks for local n8n access, password recovery, UI verification, and cadence smoke checks.

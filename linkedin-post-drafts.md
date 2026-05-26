@@ -1,7 +1,9 @@
-# GroupScout LinkedIn Post Drafts
+# LinkedIn Post Drafts
 
 These drafts use the prior LinkedIn posts as the baseline voice:
 
+- introduce the work as "my side project, GroupScout" when the name helps
+- use "the system," "the project," or "this side project" after the first reference
 - first person where the post is about build judgment
 - concrete system details before broad claims
 - one engineering lesson per post
@@ -10,7 +12,7 @@ These drafts use the prior LinkedIn posts as the baseline voice:
 
 ## Draft 1: First End-to-End Pipeline
 
-I built the first end-to-end pipeline for GroupScout.
+I built the first end-to-end pipeline for my side project, GroupScout.
 
 The first version was intentionally narrow:
 
@@ -32,7 +34,7 @@ Engineering breakdown: https://lnkd.in/gb6Eqxhq
 
 ## Draft 2: Where Uncertainty Belongs
 
-A follow-up to my earlier GroupScout posts.
+A follow-up to my earlier posts about this side project.
 
 Once the basic pipeline worked, the hard part changed. The problem was no longer whether public data could become a lead. It was where uncertainty should live.
 
@@ -54,7 +56,7 @@ Public data does not create value by itself.
 
 Richmond building permits, Creative BC production lists, CivicInfo bid feeds, event calendars, and infrastructure announcements all contain useful hotel sales signals. They are also scattered, inconsistent, and easy to ignore when someone has a full week of real work already.
 
-That was the operating problem behind GroupScout.
+That was the operating problem behind my side project, GroupScout.
 
 The system watches public sources, stores raw records, filters noise, enriches promising leads, and sends the best ones to the sales team. The goal is not to collect more data. The goal is to make public signals usable before they turn into inbound RFPs.
 
@@ -82,7 +84,7 @@ Real-world data does not reward clever assumptions. It rewards boring checks tha
 
 AI calls should not be the first step in a pipeline.
 
-In GroupScout, raw records are stored and checked with a deterministic hash before enrichment runs. That sounds like plumbing, but it changes how calm the system feels.
+In this side project, raw records are stored and checked with a deterministic hash before enrichment runs. That sounds like plumbing, but it changes how calm the system feels.
 
 If a run fails halfway through, the raw input still exists. If the collector runs again, duplicate records do not become duplicate leads. If the LLM provider is slow or unavailable, the source evidence is not lost.
 
@@ -96,7 +98,7 @@ That order is easy to skip in a prototype. It is also the difference between a d
 
 ## Draft 6: Rules Before AI
 
-GroupScout does not send every public record to an LLM.
+The system does not send every public record to an LLM.
 
 A Go pre-scorer filters small residential renovations, minor repairs, weak permit signals, and obvious non-leads before enrichment starts.
 
@@ -128,7 +130,7 @@ An AI score is not enough for a sales rep.
 
 The rep needs to know which source produced the lead, what the raw evidence said, and why the system thinks timing matters. Without that context, the score becomes another black box to ignore.
 
-That is why the planned GroupScout operator UI puts source evidence beside AI rationale. Reviewer corrections preserve the original AI value instead of silently replacing it.
+That is why the planned operator UI puts source evidence beside AI rationale. Reviewer corrections preserve the original AI value instead of silently replacing it.
 
 The design goal is trust through visibility.
 
@@ -138,7 +140,7 @@ A lead can be promising, uncertain, corrected, or dismissed. The system should s
 
 ## Draft 9: Slack Is An Alert, Not A Workspace
 
-Slack was the right place for the first GroupScout lead to appear.
+Slack was the right place for the first lead from this side project to appear.
 
 It made the pipeline visible. It created momentum. It proved the system could move from public data to a sales action.
 
@@ -158,7 +160,7 @@ Airport disruption monitoring is not only an operations problem.
 
 For an airport hotel, cancellations, weather alerts, ground delays, and NOTAMs can signal sudden room demand. The sales and operations teams need to see those signals before they become scattered updates across multiple sites.
 
-GroupScout's `alertd` watches YVR conditions and computes a Stranded Passenger Score. Urgent alerts can land in Slack, and updates can modify the same message as conditions change.
+The `alertd` service watches YVR conditions and computes a Stranded Passenger Score. Urgent alerts can land in Slack, and updates can modify the same message as conditions change.
 
 The product lesson is broader than aviation.
 
@@ -170,7 +172,7 @@ An alert system should reduce confusion. If it creates more channels to watch, i
 
 AI quality cannot depend on whether a demo looked good.
 
-GroupScout documents release gates for unsupported high-priority claims, fabricated sources, unsafe outreach, stale alert data, and secret leakage. Those gates are not academic. They describe the failures that would make the system less trustworthy in real use.
+The project documents release gates for unsupported high-priority claims, fabricated sources, unsafe outreach, stale alert data, and secret leakage. Those gates are not academic. They describe the failures that would make the system less trustworthy in real use.
 
 The EvalOps plan uses golden cases, deterministic scorers, Promptfoo-compatible checks, and review samples. Production failures can become new fixtures after a human reviews them.
 
@@ -184,7 +186,7 @@ If an AI system can make the same mistake twice, the second failure should becom
 
 A dashboard is tempting because it looks like progress.
 
-For GroupScout, the first UI needs to help people do the work: triage leads, inspect evidence, change status, assign an owner, and log outreach.
+For this side project, the first UI needs to help people do the work: triage leads, inspect evidence, change status, assign an owner, and log outreach.
 
 Analytics still matters. Source yield, aging leads, won and lost outcomes, and demand timing become useful once the workflow captures reliable activity.
 
@@ -200,7 +202,7 @@ A hotel sales lead loses value when every competitor already knows about it.
 
 Construction starts, film productions, conference schedules, bid awards, and infrastructure announcements all appear before many formal buying conversations. Those signals are not clean, but they are early.
 
-GroupScout looks for that early shape of demand. It estimates crew size, lodging need, outreach timing, and property fit before the lead reaches a traditional market report.
+The system looks for that early shape of demand. It estimates crew size, lodging need, outreach timing, and property fit before the lead reaches a traditional market report.
 
 That changes the sales motion.
 
@@ -214,7 +216,7 @@ A film production list is not a hotel lead by default.
 
 Most entries need filtering. A feature film or TV series can imply crew lodging, extended stays, production offices, and changing room blocks. A small or irrelevant listing may not matter at all.
 
-That is why GroupScout treats Creative BC as a signal source, not a finished answer.
+That is why the project treats Creative BC as a signal source, not a finished answer.
 
 The collector can capture the public record. Rules can filter obvious noise. AI can help reason about project type, timing, and likely lodging fit. A human can still decide whether the lead deserves outreach.
 
@@ -228,7 +230,7 @@ Not every event creates group lodging demand.
 
 Some events are local. Some are consumer-facing. Some are too small, too short, or too close to matter for hotel sales. Others are exactly the kind of professional gathering that should trigger timely outreach.
 
-That is the reason GroupScout does not treat event calendars as simple scrape-and-send sources.
+That is the reason the project does not treat event calendars as simple scrape-and-send sources.
 
 The useful work is classification. What type of event is it? Who attends? How far away is it? Does it fit the property? Is there enough lead time for a sales rep to act?
 
@@ -238,7 +240,7 @@ Good automation does not remove judgment. It moves judgment to the places where 
 
 ## Draft 16: Same-Origin Browser Contracts
 
-The frontend plan for GroupScout uses same-origin `/api/*` routes for browser access.
+The frontend plan uses same-origin `/api/*` routes for browser access.
 
 That may sound like infrastructure detail, but it keeps a useful boundary in place. Browser sessions and automation tokens should not be treated as the same thing.
 
@@ -252,7 +254,7 @@ Auth and deployment choices become harder to unwind after the UI grows around th
 
 ## Draft 17: Local LLMs Change The Tradeoff
 
-GroupScout has to balance privacy, cost, latency, and reliability.
+This side project has to balance privacy, cost, latency, and reliability.
 
 That is why provider abstraction matters. Some enrichment tasks may fit a hosted model. Some may be better suited to a local model through Ollama, especially when cost or data sensitivity becomes the constraint.
 
@@ -266,7 +268,7 @@ AI systems need product flexibility as much as prompt quality.
 
 ## Draft 18: The Content Pipeline Needs Judgment Too
 
-I am using the same lesson from GroupScout on the content side.
+I am using the same lesson from building this side project on the content side.
 
 AI can help draft LinkedIn posts, but the system still needs a standard. The draft has to name the problem, include concrete facts, avoid filler, and make one clear point.
 
@@ -280,7 +282,7 @@ Automation should make judgment cheaper to apply. It should not remove judgment 
 
 ## Draft 19: Small Systems Can Be Serious
 
-GroupScout started with one hotel sales workflow.
+My side project, GroupScout, started with one hotel sales workflow.
 
 It now has collectors, scoring, enrichment, Slack delivery, email digests, Postgres storage, audit trails, Docker deployment, and an operator UI plan.
 
@@ -298,7 +300,7 @@ Side projects are useful because weak assumptions surface quickly.
 
 There is no large team to absorb ambiguity. No process to hide behind. No stakeholder meeting that turns a technical risk into someone else's problem.
 
-With GroupScout, the weak assumptions appeared in the boring places: PDF layout stability, missing binaries, malformed model output, duplicate records, and unclear ownership after a Slack alert.
+In this project, the weak assumptions appeared in the boring places: PDF layout stability, missing binaries, malformed model output, duplicate records, and unclear ownership after a Slack alert.
 
 Each one forced a decision.
 

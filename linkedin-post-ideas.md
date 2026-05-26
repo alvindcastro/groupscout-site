@@ -1,10 +1,11 @@
-# GroupScout LinkedIn Post Ideas
+# LinkedIn Post Ideas
 
-These ideas come from the centralized GroupScout documentation, including the backend README, planning docs, build log, UI strategy, EvalOps plan, and frontend workflow docs. They now also reflect the two sample LinkedIn posts used as voice anchors for `linkedin-post-drafts.md`.
+These ideas come from the centralized project documentation, including the backend README, planning docs, build log, UI strategy, EvalOps plan, and frontend workflow docs. They now also reflect the two sample LinkedIn posts used as voice anchors for `linkedin-post-drafts.md`.
 
 ## Voice Anchors
 
 - Start from a concrete build moment, not a broad claim.
+- Use "my side project, GroupScout" for the first full reference when the name helps, then use "the system," "the project," or "this side project."
 - Use first person when the post is about a lesson learned while building.
 - Name specific tools and failure modes: `pdftotext`, malformed JSON, missing PDFs, parser layout drift, duplicate records, Docker runtime packages.
 - Let the lesson come after the detail.
@@ -16,7 +17,7 @@ These ideas come from the centralized GroupScout documentation, including the ba
 - The first end-to-end pipeline fetched a static PDF, extracted text, regexed the first projects, scored them with Claude, and sent JSON to Slack.
 - The first working Slack lead was a visibility milestone, not a scale milestone.
 - Public data was already available. The missing piece was a workflow that read it every week and turned it into sales action.
-- GroupScout started with one hotel, one city permit report, and one practical question: which projects will need rooms?
+- My side project, GroupScout, started with one hotel, one city permit report, and one practical question: which projects will need rooms?
 - A small Go service can replace manual weekly scanning across public sources.
 
 ## Engineering Lessons

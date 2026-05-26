@@ -47,6 +47,18 @@ This starts all services in the background.
 | `loki` | 3100 | Log aggregation |
 | `promtail`| 9080 | Log scraper (internal) |
 
+### n8n Local Access
+
+Open n8n at `http://localhost:5678` after the stack starts.
+
+```bash
+docker compose up -d n8n
+docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | grep groupscout_n8n
+docker logs --tail 40 groupscout_n8n
+```
+
+Expected logs include `Editor is now accessible via: http://localhost:5678`. If the local sign-in password is lost, use the reset and recovery steps in [Troubleshooting](./TROUBLESHOOTING.md#6-recover-local-n8n-sign-in).
+
 ## 🛠 Common Commands
 
 ### Check Container Status

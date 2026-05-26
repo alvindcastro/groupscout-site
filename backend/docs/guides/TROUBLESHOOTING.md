@@ -129,6 +129,71 @@ Expected:
 - a live workflow export shows `"active":true`, `"triggerAtDay":[0,3]`, `"triggerAtHour":9`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`.
 - the same live export contains `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`; missing body fields mean the live workflow is stale and only performs a normal `/run`.
 
+### 6. Recover local n8n sign-in
+
+Use this only for the local Docker n8n instance. Do not run these steps against production n8n without a backup and an approved credential-rotation plan.
+
+First try the built-in reset while n8n is stopped:
+
+```bash
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+docker stop groupscout_n8n
+docker run --rm --volumes-from groupscout_n8n n8nio/n8n:latest user-management:reset
+docker start groupscout_n8n
+```
+
+Then open `http://localhost:5678`. If the setup screen appears, create a new local owner account. If the UI still shows only **Sign In**, inspect the owner row without printing password hashes:
+
+```bash
+docker stop groupscout_n8n
+mkdir -p /tmp/groupscout-n8n-password-reset
+docker cp groupscout_n8n:/home/node/.n8n/database.sqlite /tmp/groupscout-n8n-password-reset/database.sqlite
+python3 - <<'PY'
+import sqlite3
+con = sqlite3.connect('/tmp/groupscout-n8n-password-reset/database.sqlite')
+cur = con.cursor()
+print(cur.execute('select email, firstName, lastName, roleSlug, disabled, mfaEnabled, password is not null from user').fetchall())
+print(cur.execute("select key, value from settings where key='userManagement.isInstanceOwnerSetUp'").fetchall())
+con.close()
+PY
+```
+
+If the owner row has a blank email or unusable login, set a temporary owner email and password hash. Generate the hash inside the n8n image so it uses n8n-compatible `bcryptjs`:
+
+```bash
+TEMP_PASSWORD='replace-with-a-local-temporary-password'
+TEMP_HASH=$(docker run --rm --entrypoint node -e TEMP_PASSWORD="$TEMP_PASSWORD" n8nio/n8n:latest -e "const bcrypt=require('/usr/local/lib/node_modules/n8n/node_modules/bcryptjs'); bcrypt.hash(process.env.TEMP_PASSWORD, 10).then(h=>console.log(h));")
+OWNER_EMAIL='owner@example.local'
+export TEMP_HASH OWNER_EMAIL
+python3 - <<'PY'
+import os
+import sqlite3
+con = sqlite3.connect('/tmp/groupscout-n8n-password-reset/database.sqlite')
+cur = con.cursor()
+cur.execute("""
+update user
+set email=?, firstName='Local', lastName='Owner', password=?, disabled=0,
+    mfaEnabled=0, mfaSecret=NULL, mfaRecoveryCodes=NULL, updatedAt=CURRENT_TIMESTAMP
+where roleSlug='global:owner'
+""", (os.environ['OWNER_EMAIL'], os.environ['TEMP_HASH']))
+print('updated owner rows:', cur.rowcount)
+con.commit()
+cur.execute('pragma wal_checkpoint(TRUNCATE)')
+con.close()
+PY
+docker cp /tmp/groupscout-n8n-password-reset/database.sqlite groupscout_n8n:/home/node/.n8n/database.sqlite
+docker run --rm --volumes-from groupscout_n8n --entrypoint sh n8nio/n8n:latest -lc 'rm -f /home/node/.n8n/database.sqlite-wal /home/node/.n8n/database.sqlite-shm && chown node:node /home/node/.n8n/database.sqlite'
+docker start groupscout_n8n
+```
+
+Sign in with `OWNER_EMAIL` and `TEMP_PASSWORD`, then immediately change the password in n8n user settings. After login, confirm **GroupScout Sunday Wednesday Lead Cadence** is still **Active**.
+
+Clean up the temporary SQLite copy after recovery:
+
+```bash
+rm -f /tmp/groupscout-n8n-password-reset/database.sqlite
+```
+
 ---
 
 ## 🖥 Backend Plus UI Docker Troubleshooting

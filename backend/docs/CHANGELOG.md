@@ -1,5 +1,15 @@
 ## 2026-05-25 - Missed task markdown reconciliation
 
+### groupscout-site-uod - Document n8n local access and cadence verification
+
+- **What:** Added operator and developer runbooks for local n8n access, password recovery, UI verification, and cadence smoke checks.
+- **Where:** Centralized setup, Docker, n8n, testing, troubleshooting, developer, workflow, and changelog docs.
+- **When:** 2026-05-25.
+- **Why:** Operators need to verify the n8n workflow visually and recover local sign-in without deleting workflows or credentials.
+- **How:** Documented the stopped-container `user-management:reset` path, SQLite owner recovery fallback, safe env checks, UI graph expectations, active-schedule verification, and guaranteed `/run` body assertions.
+
+---
+
 ### groupscout-site-1t9 - Enable Sunday Wednesday n8n cadence
 
 - **What:** Wired the Compose n8n service to the GroupScout API and Slack environment variables, re-imported the corrected cadence workflow body, then activated the Sunday/Wednesday cadence workflow in the live n8n container.

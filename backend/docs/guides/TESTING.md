@@ -275,6 +275,8 @@ docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\|delivery_mode\|i
 
 Expected n8n smoke result: every env check prints `SET`, health includes `"database":"ok"`, and the workflow export shows `"active":true`, Sunday/Wednesday days `[0,3]`, hour `9`, minute `0`, timezone `America/Vancouver`, and the guaranteed-cadence body fields.
 
+For UI verification, open `http://localhost:5678`, then open **GroupScout Sunday Wednesday Lead Cadence**. The visible graph should have schedule, cadence key, duplicate guard, health preflight, guaranteed `/run`, result classification, delivered marker, and ops Slack failure/no-lead branches. The workflow toggle must be **Active**. This UI check proves an operator can inspect the send path; the export check above is the repeatable CLI assertion.
+
 **Trigger Weekly Digest**
 ```bash
 curl -i -X POST \

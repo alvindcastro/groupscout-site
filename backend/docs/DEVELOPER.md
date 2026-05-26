@@ -25,6 +25,19 @@ Important distinction: UI port `3001` is the Phase 13 product dev server for gen
 
 Use [BACKEND_FOR_UI_TESTING.md](./planning/ui/BACKEND_FOR_UI_TESTING.md) for local backend startup notes and [TESTING.md](./guides/TESTING.md) for test commands. Backend health may return `200` with database OK while reporting Ollama unavailable; treat that as a blocker only for LLM/enrichment testing.
 
+### Local n8n Developer Checks
+
+The Compose n8n UI is at `http://localhost:5678`. For the Sunday/Wednesday cadence, developers should verify both the CLI export and the visible workflow graph before handing off:
+
+```bash
+docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
+docker exec groupscout_n8n n8n export:workflow --id=groupscout-sunday-wednesday-lead-cadence --output=/tmp/groupscout-cadence-review.json
+docker exec groupscout_n8n sh -lc "grep -o '\"active\":[^,}]*\|\"triggerAtDay\":\[[^]]*\]\|\"triggerAtHour\":[0-9]*\|\"triggerAtMinute\":[0-9]*\|\"timezone\":\"[^\"]*\"' /tmp/groupscout-cadence-review.json"
+docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\|delivery_mode\|idempotency_key' /tmp/groupscout-cadence-review.json"
+```
+
+If local n8n login is unavailable, follow [Recover local n8n sign-in](./guides/TROUBLESHOOTING.md#6-recover-local-n8n-sign-in) instead of deleting the `n8n_data` volume; deleting the volume also deletes imported workflows and credentials.
+
 ## 🏗 Project Architecture
 
 GroupScout consists of two primary Go binaries:

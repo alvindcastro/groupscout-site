@@ -56,6 +56,20 @@ docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\|delivery_mode\|i
 
 Expected export fields are `"active":true`, `"triggerAtDay":[0,3]`, `"triggerAtHour":9`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`. The second grep must find `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`; otherwise the live workflow is only doing a plain `/run` and must be re-imported from the tracked JSON.
 
+### UI Verification
+
+Open `http://localhost:5678`, then open **GroupScout Sunday Wednesday Lead Cadence**.
+
+Verify:
+
+- the workflow toggle is **Active**;
+- the schedule node runs on Sunday and Wednesday at `09:00` in `America/Vancouver`;
+- **Trigger GroupScout Run** uses `POST` to `{{$env.GROUPSCOUT_API_BASE_URL}}/run` or the `http://groupscout:8080/run` fallback;
+- the Authorization header uses `Bearer {{$env.GROUPSCOUT_API_TOKEN}}`;
+- the JSON body includes `guarantee_one_lead`, `delivery_mode:"exactly_one"`, `cadence_key`, and `idempotency_key`;
+- both ops Slack HTTP nodes use `{{$env.GROUPSCOUT_OPS_SLACK_WEBHOOK_URL}}`;
+- the success path is `Delivered?` to `Mark Delivered`, and failure/no-lead paths go to the ops Slack nodes.
+
 ### Backend Contract
 
 The backend `/run` guarantee mode returns JSON with `delivery_status`. The workflow treats `sent` and `duplicate` as delivered cadence outcomes, treats `no_eligible_lead` as an operational no-lead outcome, and preserves the cadence key so n8n retries do not trigger duplicate sends.

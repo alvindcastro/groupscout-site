@@ -186,6 +186,18 @@ For the provided Docker Compose stack, n8n reads the tracked workflow expression
 
 When validating an existing imported workflow, export it and check for both schedule and request body. The schedule must be active for Sunday/Wednesday 09:00 `America/Vancouver`, and the `/run` node must include `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`. If those body fields are missing, re-import the tracked JSON; otherwise n8n will run the normal pipeline but will not use the backend cadence guarantee.
 
+#### Local UI checklist
+
+Use this when an operator wants to visually confirm the workflow before leaving it to the schedule:
+
+1. Open `http://localhost:5678`.
+2. Sign in with the local n8n owner account.
+3. Open **GroupScout Sunday Wednesday Lead Cadence**.
+4. Confirm the top-right workflow toggle is **Active**.
+5. Confirm the graph contains schedule, cadence-key, duplicate guard, health preflight, guaranteed `/run`, run classifier, delivered marker, and ops Slack failure/no-lead branches.
+6. Open **Trigger GroupScout Run** and confirm the body includes `guarantee_one_lead`, `delivery_mode:"exactly_one"`, `cadence_key`, and `idempotency_key`.
+7. Open each ops Slack node and confirm the URL is environment-backed, not the placeholder webhook URL.
+
 #### Backend delivery guarantee
 
 The backend guarantee uses:
@@ -216,6 +228,7 @@ Implemented under `groupscout-site-fuc`.
 - **No lead sent on Sunday/Wednesday**: Check `/run` JSON. `delivery_status:"no_eligible_lead"` means neither fresh nor backlog candidates are available; send an operational "no qualified lead" notice.
 - **Cadence workflow never sends**: Confirm the imported workflow is active, the n8n container was restarted after activation, and the live export still shows `triggerAtDay:[0,3]`, `triggerAtHour:9`, `triggerAtMinute:0`, and `timezone:"America/Vancouver"`.
 - **Cadence sends like a normal run**: Export the workflow and confirm the `/run` HTTP node includes `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`. Re-import the tracked workflow if those fields are missing.
+- **Cannot sign in to local n8n**: Use `n8n user-management:reset` with the container stopped. If sign-in still shows an existing owner account, follow the local SQLite owner recovery steps in [Troubleshooting](./TROUBLESHOOTING.md#6-recover-local-n8n-sign-in).
 - **Duplicate lead sent after retry**: Use the same `idempotency_key` for all retries of the cadence. The backend returns `delivery_status:"duplicate"` after a cadence has already sent.
 
 #### Advanced Workflow Example

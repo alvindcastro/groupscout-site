@@ -300,7 +300,26 @@ Interpret the result:
 - **Docker mode**: http://localhost:5678
 - **Local Go + separate n8n**: install n8n via `npm install -g n8n` and run `n8n start`
 
-Complete the initial account setup on first launch.
+Complete the initial account setup on first launch. For the Docker stack, run these checks before opening the browser:
+
+```bash
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+docker compose up -d n8n
+docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | grep groupscout_n8n
+docker logs --tail 40 groupscout_n8n
+```
+
+Expected: the container is `Up`, port `5678` is published, and logs include `Editor is now accessible via: http://localhost:5678`.
+
+If the local sign-in password is lost, stop the running n8n container before resetting user state so SQLite is not open:
+
+```bash
+docker stop groupscout_n8n
+docker run --rm --volumes-from groupscout_n8n n8nio/n8n:latest user-management:reset
+docker start groupscout_n8n
+```
+
+If the UI still shows only **Sign In** after that reset, the owner row may still exist without a usable local login. Use the recovery procedure in [Troubleshooting](./TROUBLESHOOTING.md#6-recover-local-n8n-sign-in).
 
 ---
 
@@ -338,6 +357,23 @@ docker restart groupscout_n8n
 ```
 
 After restart, export the workflow and confirm it is active with `triggerAtDay:[0,3]`, `triggerAtHour:9`, and `timezone:"America/Vancouver"`. Also confirm the export contains `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`; if those fields are missing, re-import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` before activation because the live workflow is stale.
+
+In the n8n UI, open **GroupScout Sunday Wednesday Lead Cadence** and verify the visible graph is:
+
+```txt
+Schedule Sunday And Wednesday
+  -> Build Cadence Key
+  -> Duplicate Cadence?
+  -> Health Preflight
+  -> Classify Health
+  -> Health OK?
+  -> Trigger GroupScout Run
+  -> Classify Run Result
+  -> Delivered?
+  -> Mark Delivered
+```
+
+The failure branches should lead to **Ops Slack Health Failure** or **Ops Slack No Lead Or Run Failure**. The top-right workflow toggle must be **Active** before the schedule can fire.
 
 Manual fallback:
 

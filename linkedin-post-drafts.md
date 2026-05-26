@@ -1,123 +1,309 @@
 # GroupScout LinkedIn Post Drafts
 
-These drafts use concise, active, concrete writing. They avoid em dashes and avoid one-sentence paragraph style.
+These drafts use the prior LinkedIn posts as the baseline voice:
 
-## Post 1: Public Data Becomes Sales Action
+- first person where the post is about build judgment
+- concrete system details before broad claims
+- one engineering lesson per post
+- short paragraphs that still carry a complete thought
+- no hype, no vague AI language, no fully automated publishing claims
 
-Public data does not create value by itself. Someone still has to read it, filter it, and act before the opportunity gets cold.
+## Draft 1: First End-to-End Pipeline
 
-That was the problem behind GroupScout. Richmond building permits, Creative BC production lists, VCC events, CivicInfo bid feeds, and infrastructure announcements all contain useful hotel sales signals.
+I built the first end-to-end pipeline for GroupScout.
 
-The system watches those sources, deduplicates the raw records, filters out noise, enriches promising leads, and sends the best ones to the sales team. The goal is simple: find group lodging demand before it becomes an inbound RFP.
+The first version was intentionally narrow:
 
-#HotelSales #Automation #BuiltDifferent
+1. Fetch a PDF from a static URL.
+2. Extract text with `pdftotext`.
+3. Regex for the first five projects.
+4. Send the project text to Claude for scoring.
+5. Push a JSON payload to Slack.
 
-## Post 2: The Parser Bug
+It was fragile. It failed when the PDF was missing. It failed when Claude returned malformed JSON. It had no real retry story and no durable state.
 
-One bug made every construction permit look worthless. The parser read a bare `1` as the construction value and missed the real `$300,000.00` line below it.
+But it proved the important thing. A lead could move from a municipal PDF into a channel where a sales team could see it.
 
-The fix was not a better threshold. The fix was reading the raw `pdftotext` output and parsing fields by content: dates looked like dates, dollar values looked like dollar values, and folder names carried addresses.
+That was the milestone. Not scale, not architecture, not elegance. Visibility.
 
-That lesson stuck. Real-world data rewards parsers that understand shape and meaning, not line numbers.
+Once a lead appeared in Slack, the project stopped being an idea and became a system worth hardening.
+
+Engineering breakdown: https://lnkd.in/gb6Eqxhq
+
+## Draft 2: Where Uncertainty Belongs
+
+A follow-up to my earlier GroupScout posts.
+
+Once the basic pipeline worked, the hard part changed. The problem was no longer whether public data could become a lead. It was where uncertainty should live.
+
+Municipal PDFs were less predictable than the demo path suggested. Encodings varied, layouts shifted, and lightweight libraries failed quietly.
+
+The risk was not missing features. The risk was absorbing variability in the wrong layer and paying for it through fragile application code.
+
+Because this was a side project, I had to make that tradeoff early. Which problems belonged in my code? Which belonged in tools that have handled document edge cases for decades? How much instability should the system tolerate by design?
+
+That led to a move away from layout-dependent parsing and toward content-based reasoning. Dates are identified by form, values by behavior, and everything else is treated as noise unless it earns trust.
+
+The system became more resilient by doing less.
+
+Technical note: https://lnkd.in/gTfu57ER
+
+## Draft 3: Public Data Is Not A Workflow
+
+Public data does not create value by itself.
+
+Richmond building permits, Creative BC production lists, CivicInfo bid feeds, event calendars, and infrastructure announcements all contain useful hotel sales signals. They are also scattered, inconsistent, and easy to ignore when someone has a full week of real work already.
+
+That was the operating problem behind GroupScout.
+
+The system watches public sources, stores raw records, filters noise, enriches promising leads, and sends the best ones to the sales team. The goal is not to collect more data. The goal is to make public signals usable before they turn into inbound RFPs.
+
+The distinction matters. A source is only useful if it becomes a timely action.
+
+#HotelSales #Automation #DataEngineering
+
+## Draft 4: The Parser Bug
+
+One bug made every construction permit look worthless.
+
+The parser read a bare `1` as the construction value and missed the real `$300,000.00` line below it. On paper, the scoring logic looked strict. In practice, the input was wrong.
+
+The fix did not come from changing the threshold. It came from reading the raw `pdftotext` output and accepting that the document structure was not stable enough to trust by position.
+
+Dates needed to look like dates. Dollar values needed to behave like dollar values. Folder names carried addresses. The parser had to care about content, not just line numbers.
+
+That lesson shaped the rest of the system.
+
+Real-world data does not reward clever assumptions. It rewards boring checks that keep working after the layout changes.
 
 #DataEngineering #GoLang #Automation
 
-## Post 3: Dedup First, Enrich Second
+## Draft 5: Dedup Before AI
 
-AI calls should not be the first step in a pipeline. GroupScout stores raw records and checks a deterministic hash before it spends money on enrichment.
+AI calls should not be the first step in a pipeline.
 
-That choice makes reruns calm. If the process fails halfway through, the raw input still exists, and the next run can continue without creating duplicates.
+In GroupScout, raw records are stored and checked with a deterministic hash before enrichment runs. That sounds like plumbing, but it changes how calm the system feels.
 
-It also keeps costs honest. The system should know whether a record is new before it asks an LLM to analyze it.
+If a run fails halfway through, the raw input still exists. If the collector runs again, duplicate records do not become duplicate leads. If the LLM provider is slow or unavailable, the source evidence is not lost.
+
+It also keeps cost honest.
+
+The system should know whether a record is new before it asks an LLM to analyze it.
+
+That order is easy to skip in a prototype. It is also the difference between a demo and something you can rerun without worrying about what it will damage.
 
 #AIEngineering #DataPipelines #GoLang
 
-## Post 4: Rules Before AI
+## Draft 6: Rules Before AI
 
-GroupScout does not send every public record to an LLM. A Go pre-scorer filters small residential renovations, minor repairs, and weak signals before enrichment starts.
+GroupScout does not send every public record to an LLM.
 
-That rule-based layer matters. It saves tokens, reduces noise, and makes the AI work on leads that may create real room-night demand.
+A Go pre-scorer filters small residential renovations, minor repairs, weak permit signals, and obvious non-leads before enrichment starts.
 
-The LLM adds judgment after the system has already done basic discipline. Good AI systems often start with ordinary software rules.
+That layer is not glamorous, but it matters. It saves tokens. It reduces noise. It keeps the model focused on records that may actually create room-night demand.
+
+The LLM adds judgment after the system has already done basic discipline.
+
+That has become one of my rules for practical AI systems. Use ordinary software to remove the obvious cases first. Then use AI where the ambiguity is real.
 
 #AI #Automation #HotelSales
 
-## Post 5: Evidence Beside AI
+## Draft 7: Docker Found The Real Dependency
 
-An AI score is not enough for a sales rep. The rep needs to know which source produced the lead, what the raw evidence said, and why the system thinks timing matters.
+Local development made the PDF pipeline look more self-contained than it was.
 
-That is why the planned operator UI puts source evidence beside AI rationale. Reviewer corrections preserve the original AI value instead of silently replacing it.
+Then Docker exposed the truth. The code depended on `pdftotext`, and that meant the runtime image needed the right system package installed, not just the Go binary.
 
-This design keeps trust visible. A lead can be promising, uncertain, corrected, or dismissed, but the system should show how it reached that state.
+That is a small detail, but it is exactly the kind of detail that separates a local script from an operational service.
+
+The fix was simple once the failure was visible. The better lesson was broader: system boundaries should include the tools your code shells out to.
+
+If a parser depends on a binary, the deployment contract depends on that binary too.
+
+#Docker #DataEngineering #GoLang
+
+## Draft 8: Evidence Beside AI
+
+An AI score is not enough for a sales rep.
+
+The rep needs to know which source produced the lead, what the raw evidence said, and why the system thinks timing matters. Without that context, the score becomes another black box to ignore.
+
+That is why the planned GroupScout operator UI puts source evidence beside AI rationale. Reviewer corrections preserve the original AI value instead of silently replacing it.
+
+The design goal is trust through visibility.
+
+A lead can be promising, uncertain, corrected, or dismissed. The system should show how it reached that state and who changed it afterward.
 
 #ProductDesign #AI #SalesOps
 
-## Post 6: Slack Is An Alert, Not A Workspace
+## Draft 9: Slack Is An Alert, Not A Workspace
 
-Slack is useful when something needs attention now. It is weak when a team needs ownership, source review, outreach history, and outcome tracking.
+Slack was the right place for the first GroupScout lead to appear.
 
-GroupScout keeps Slack as the interrupt channel. High-priority leads and airport disruption alerts can still land there first.
+It made the pipeline visible. It created momentum. It proved the system could move from public data to a sales action.
 
-The web UI has a different job. It gives the sales team a durable place to triage leads, review evidence, claim ownership, log outreach, and measure outcomes.
+But Slack is not the right place for everything.
+
+Ownership, evidence review, outreach history, status changes, and outcomes need a durable workspace. A message thread cannot carry the full lifecycle of a lead without becoming noisy or incomplete.
+
+That is how the product boundary became clearer.
+
+Slack is the interrupt channel. The web UI is the operating surface.
 
 #ProductManagement #SalesOps #HotelTech
 
-## Post 7: Airport Disruptions Are Demand Signals
+## Draft 10: Airport Disruptions Are Demand Signals
 
-Airport disruption monitoring is not just an operations problem. For an airport hotel, flight cancellations, weather alerts, and NOTAMs can signal sudden room demand.
+Airport disruption monitoring is not only an operations problem.
 
-GroupScout's `alertd` watches YVR conditions and computes a Stranded Passenger Score. It routes urgent alerts to the right Slack channel and updates the same message as conditions change.
+For an airport hotel, cancellations, weather alerts, ground delays, and NOTAMs can signal sudden room demand. The sales and operations teams need to see those signals before they become scattered updates across multiple sites.
 
-The product lesson is broader than aviation. Alert systems should reduce confusion, not add channel noise.
+GroupScout's `alertd` watches YVR conditions and computes a Stranded Passenger Score. Urgent alerts can land in Slack, and updates can modify the same message as conditions change.
+
+The product lesson is broader than aviation.
+
+An alert system should reduce confusion. If it creates more channels to watch, it is not done yet.
 
 #RevenueOps #Hospitality #Automation
 
-## Post 8: AI Quality Needs Gates
+## Draft 11: AI Quality Needs Release Gates
 
-AI quality cannot depend on vibes. GroupScout documents release gates for unsupported high-priority claims, fabricated sources, unsafe outreach, stale alert data, and secret leakage.
+AI quality cannot depend on whether a demo looked good.
+
+GroupScout documents release gates for unsupported high-priority claims, fabricated sources, unsafe outreach, stale alert data, and secret leakage. Those gates are not academic. They describe the failures that would make the system less trustworthy in real use.
 
 The EvalOps plan uses golden cases, deterministic scorers, Promptfoo-compatible checks, and review samples. Production failures can become new fixtures after a human reviews them.
 
-That feedback loop matters. If an AI system can make the same mistake twice, the second failure should become a test.
+That feedback loop matters.
+
+If an AI system can make the same mistake twice, the second failure should become a test.
 
 #AIEval #QualityEngineering #Automation
 
-## Post 9: Operator UI Before Analytics
+## Draft 12: Operator UI Before Analytics
 
-A dashboard is tempting, but the first UI should help people do the work. For GroupScout, that means lead triage, evidence review, status changes, outreach notes, and owner assignment.
+A dashboard is tempting because it looks like progress.
+
+For GroupScout, the first UI needs to help people do the work: triage leads, inspect evidence, change status, assign an owner, and log outreach.
 
 Analytics still matters. Source yield, aging leads, won and lost outcomes, and demand timing become useful once the workflow captures reliable activity.
 
-The order matters. Build the operating surface first, then measure the work it produces.
+But the order matters.
+
+If the operating surface is weak, the analytics will mostly measure confusion. Build the workflow first, then measure the work it produces.
 
 #UXDesign #ProductStrategy #SalesOps
 
-## Post 10: Content Drafts Still Need Rules
+## Draft 13: The Best Lead Is Early
 
-AI can draft LinkedIn posts, but the draft still needs a standard. The LUX content workflow uses concrete facts, short copy, review in Slack, and a ban on filler openings.
+A hotel sales lead loses value when every competitor already knows about it.
 
-That approach fits GroupScout too. A useful post should name the problem, show the detail, and leave the reader with one clear point.
+Construction starts, film productions, conference schedules, bid awards, and infrastructure announcements all appear before many formal buying conversations. Those signals are not clean, but they are early.
 
-Automation can speed up the first draft. It should not remove judgment from publishing.
+GroupScout looks for that early shape of demand. It estimates crew size, lodging need, outreach timing, and property fit before the lead reaches a traditional market report.
 
-#ContentOps #AI #BuiltDifferent
+That changes the sales motion.
 
-## Post 11: A Small System Can Be Serious
+The team stops waiting for demand to announce itself and starts scouting for it while it is still forming.
 
-GroupScout started as a focused tool for one hotel sales workflow. It now has collectors, scoring, enrichment, Slack delivery, email digests, Postgres storage, audit trails, Docker deployment, and an operator UI plan.
+#HotelSales #MarketIntelligence #Automation
 
-The system grew because the interfaces stayed simple. A source becomes a collector, a record becomes a raw project, a qualified project becomes a lead, and a lead becomes a sales action.
+## Draft 14: Creative BC As A Lodging Signal
 
-That is the kind of architecture I trust. It stays close to the work and earns complexity only when the workflow needs it.
+A film production list is not a hotel lead by default.
+
+Most entries need filtering. A feature film or TV series can imply crew lodging, extended stays, production offices, and changing room blocks. A small or irrelevant listing may not matter at all.
+
+That is why GroupScout treats Creative BC as a signal source, not a finished answer.
+
+The collector can capture the public record. Rules can filter obvious noise. AI can help reason about project type, timing, and likely lodging fit. A human can still decide whether the lead deserves outreach.
+
+The value comes from the chain, not any single step.
+
+#FilmProduction #HotelSales #Automation
+
+## Draft 15: Convention Calendars Need Judgment
+
+Not every event creates group lodging demand.
+
+Some events are local. Some are consumer-facing. Some are too small, too short, or too close to matter for hotel sales. Others are exactly the kind of professional gathering that should trigger timely outreach.
+
+That is the reason GroupScout does not treat event calendars as simple scrape-and-send sources.
+
+The useful work is classification. What type of event is it? Who attends? How far away is it? Does it fit the property? Is there enough lead time for a sales rep to act?
+
+Good automation does not remove judgment. It moves judgment to the places where it creates leverage.
+
+#EventSales #Hospitality #Automation
+
+## Draft 16: Same-Origin Browser Contracts
+
+The frontend plan for GroupScout uses same-origin `/api/*` routes for browser access.
+
+That may sound like infrastructure detail, but it keeps a useful boundary in place. Browser sessions and automation tokens should not be treated as the same thing.
+
+The backend can serve operators, collectors, workflow tools, and integrations. The frontend should get the access pattern meant for humans using the product in a browser.
+
+Small architecture decisions like this reduce future cleanup.
+
+Auth and deployment choices become harder to unwind after the UI grows around them.
+
+#WebArchitecture #Security #ProductEngineering
+
+## Draft 17: Local LLMs Change The Tradeoff
+
+GroupScout has to balance privacy, cost, latency, and reliability.
+
+That is why provider abstraction matters. Some enrichment tasks may fit a hosted model. Some may be better suited to a local model through Ollama, especially when cost or data sensitivity becomes the constraint.
+
+The point is not to make the system model-agnostic for its own sake.
+
+The point is to keep the business workflow from being trapped behind one provider decision. Lead scoring, evidence summaries, outreach drafts, and quality checks should be able to evolve as the model landscape changes.
+
+AI systems need product flexibility as much as prompt quality.
+
+#LLMOps #AIEngineering #Automation
+
+## Draft 18: The Content Pipeline Needs Judgment Too
+
+I am using the same lesson from GroupScout on the content side.
+
+AI can help draft LinkedIn posts, but the system still needs a standard. The draft has to name the problem, include concrete facts, avoid filler, and make one clear point.
+
+That is why the content workflow treats AI output as a draft for review, not a publish button.
+
+Slack review is enough for lightweight approval. A human still decides whether the post says something true and useful.
+
+Automation should make judgment cheaper to apply. It should not remove judgment from the process.
+
+#ContentOps #AI #FounderBuild
+
+## Draft 19: Small Systems Can Be Serious
+
+GroupScout started with one hotel sales workflow.
+
+It now has collectors, scoring, enrichment, Slack delivery, email digests, Postgres storage, audit trails, Docker deployment, and an operator UI plan.
+
+That sounds like a lot, but the core shape stayed simple. A source becomes a collector. A record becomes raw input. A qualified record becomes a lead. A lead becomes a sales action.
+
+That is the kind of architecture I trust.
+
+It stays close to the work and earns complexity only when the workflow needs it.
 
 #SoftwareArchitecture #GoLang #Automation
 
-## Post 12: The Best Lead Is Early
+## Draft 20: Side Projects Expose Weak Assumptions
 
-A hotel sales lead loses value when every competitor already knows about it. Construction starts, film productions, conference schedules, bid awards, and infrastructure announcements all appear before many formal buying conversations.
+Side projects are useful because weak assumptions surface quickly.
 
-GroupScout looks for those signals early. It estimates crew size, lodging need, outreach timing, and property fit before the lead reaches a traditional market report.
+There is no large team to absorb ambiguity. No process to hide behind. No stakeholder meeting that turns a technical risk into someone else's problem.
 
-That shift changes the sales motion. The team stops waiting for demand and starts scouting for it.
+With GroupScout, the weak assumptions appeared in the boring places: PDF layout stability, missing binaries, malformed model output, duplicate records, and unclear ownership after a Slack alert.
 
-#HotelSales #MarketIntelligence #Automation
+Each one forced a decision.
+
+Fix it in application code, move the responsibility to a better tool, add a release gate, or reduce scope until the system is honest again.
+
+That is why I keep building side projects. They make engineering judgment unavoidable while the cost of being wrong is still small.
+
+#SideProjects #Engineering #BuildInPublic

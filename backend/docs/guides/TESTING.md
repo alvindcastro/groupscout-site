@@ -263,6 +263,18 @@ curl -i -X POST \
 
 Expected `delivery_status` values are `sent`, `duplicate`, `no_eligible_lead`, or `locked`.
 
+That curl proves the backend guarantee path only. To prove the n8n scheduled send path, also verify the live n8n container has its environment, can reach the backend, and has the imported cadence workflow activated:
+
+```bash
+docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSCOUT_API_BASE_URL GROUPSCOUT_API_TOKEN GROUPSCOUT_OPS_SLACK_WEBHOOK_URL; do v=$(printenv "$k"); if [ -n "$v" ]; then echo "$k=SET"; else echo "$k=MISSING"; fi; done'
+docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
+docker exec groupscout_n8n n8n export:workflow --id=groupscout-sunday-wednesday-lead-cadence --output=/tmp/groupscout-cadence-review.json
+docker exec groupscout_n8n sh -lc "grep -o '\"active\":[^,}]*\|\"triggerAtDay\":\[[^]]*\]\|\"triggerAtHour\":[0-9]*\|\"triggerAtMinute\":[0-9]*\|\"timezone\":\"[^\"]*\"' /tmp/groupscout-cadence-review.json"
+docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\|delivery_mode\|idempotency_key' /tmp/groupscout-cadence-review.json"
+```
+
+Expected n8n smoke result: every env check prints `SET`, health includes `"database":"ok"`, and the workflow export shows `"active":true`, Sunday/Wednesday days `[0,3]`, hour `9`, minute `0`, timezone `America/Vancouver`, and the guaranteed-cadence body fields.
+
 **Trigger Weekly Digest**
 ```bash
 curl -i -X POST \

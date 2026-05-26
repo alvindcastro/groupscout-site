@@ -147,7 +147,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"guarantee_one_lead\":true,\"delivery_mode\":\"exactly_one\",\"cadence_key\":\" + JSON.stringify($node['Build Cadence Key'].json.cadence_key) + \",\"idempotency_key\":\" + JSON.stringify($node['Build Cadence Key'].json.cadence_key) + \"}",
+        "jsonBody": "={{ JSON.stringify({ guarantee_one_lead: true, delivery_mode: 'exactly_one', cadence_key: $node['Build Cadence Key'].json.cadence_key, idempotency_key: $node['Build Cadence Key'].json.cadence_key }) }}",
         "options": {
           "response": {
             "response": {
@@ -223,7 +223,7 @@
         "url": "={{$env.GROUPSCOUT_OPS_SLACK_WEBHOOK_URL || 'https://hooks.slack.com/services/REPLACE/ME'}}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"text\":\"GroupScout cadence did not deliver a lead for \" + $node['Build Cadence Key'].json.cadence_key + \". run_ok=\" + $json.run_ok + \", no_lead=\" + $json.no_lead + \", status=\" + $json.status_code}",
+        "jsonBody": "={{ JSON.stringify({ text: 'GroupScout cadence did not deliver a lead for ' + $node['Build Cadence Key'].json.cadence_key + '. run_ok=' + $json.run_ok + ', no_lead=' + $json.no_lead + ', status=' + $json.status_code }) }}",
         "options": {}
       },
       "id": "fb634712-13e0-470b-a737-df690df43105",
@@ -245,7 +245,7 @@
         "url": "={{$env.GROUPSCOUT_OPS_SLACK_WEBHOOK_URL || 'https://hooks.slack.com/services/REPLACE/ME'}}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"text\":\"GroupScout cadence health preflight failed for \" + $node['Build Cadence Key'].json.cadence_key + \". status=\" + $json.status_code}",
+        "jsonBody": "={{ JSON.stringify({ text: 'GroupScout cadence health preflight failed for ' + $node['Build Cadence Key'].json.cadence_key + '. status=' + $json.status_code }) }}",
         "options": {}
       },
       "id": "ea648247-4465-46b3-ad4d-e718dfb82833a",

@@ -18,9 +18,12 @@ Required n8n environment variables:
 
 | Variable | Purpose |
 |---|---|
+| `N8N_BLOCK_ENV_ACCESS_IN_NODE` | Must be `false` so workflow expressions can read `$env.*` values. |
 | `GROUPSCOUT_API_BASE_URL` | GroupScout base URL. Use `http://groupscout:8080` from Compose n8n to Compose backend. |
 | `GROUPSCOUT_API_TOKEN` | Bearer token matching backend `API_TOKEN`. |
 | `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` | Slack incoming webhook for operational failures/no-leads notices. |
+
+The backend Docker Compose service injects these values into the `n8n` container from `.env`: `GROUPSCOUT_API_TOKEN` comes from `API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` comes from `SLACK_WEBHOOK_URL`. After editing `.env` or `docker-compose.yml`, recreate n8n with `docker compose up -d n8n` so the live container receives the new environment.
 
 The JSON keeps secrets out of the repository. If these environment variables are not set, imported nodes show placeholder values that must be replaced before activation.
 
@@ -36,11 +39,22 @@ From the coordination repo root:
 docker cp backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json groupscout_n8n:/tmp/sunday-wednesday-lead-cadence.json
 docker exec groupscout_n8n n8n import:workflow --input=/tmp/sunday-wednesday-lead-cadence.json
 docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
+docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSCOUT_API_BASE_URL GROUPSCOUT_API_TOKEN GROUPSCOUT_OPS_SLACK_WEBHOOK_URL; do v=$(printenv "$k"); if [ -n "$v" ]; then echo "$k=SET"; else echo "$k=MISSING"; fi; done'
 ```
 
-Expected health output includes `"database":"ok"`.
+Expected health output includes `"database":"ok"`, and every env check should print `SET` without exposing secret values.
 
-Then open n8n at `http://localhost:5678`, confirm the workflow is inactive after import, set any missing env-backed values or credentials, run **Test Workflow**, and activate it only after the health and `/run` nodes return the expected status.
+Then open n8n at `http://localhost:5678`, confirm the workflow is inactive after import, set any missing env-backed values or credentials, run **Test Workflow**, and activate it only after the health and `/run` nodes return the expected status. CLI activation is:
+
+```sh
+docker exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+docker restart groupscout_n8n
+docker exec groupscout_n8n n8n export:workflow --id=groupscout-sunday-wednesday-lead-cadence --output=/tmp/groupscout-cadence-review.json
+docker exec groupscout_n8n sh -lc "grep -o '\"active\":[^,}]*\|\"triggerAtDay\":\[[^]]*\]\|\"triggerAtHour\":[0-9]*\|\"triggerAtMinute\":[0-9]*\|\"timezone\":\"[^\"]*\"' /tmp/groupscout-cadence-review.json"
+docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\|delivery_mode\|idempotency_key' /tmp/groupscout-cadence-review.json"
+```
+
+Expected export fields are `"active":true`, `"triggerAtDay":[0,3]`, `"triggerAtHour":9`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`. The second grep must find `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`; otherwise the live workflow is only doing a plain `/run` and must be re-imported from the tracked JSON.
 
 ### Backend Contract
 

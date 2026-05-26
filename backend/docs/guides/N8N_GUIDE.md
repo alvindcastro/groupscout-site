@@ -182,6 +182,10 @@ This flow is safe because n8n only uses server-to-server `API_TOKEN` credentials
 
 Importable workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 
+For the provided Docker Compose stack, n8n reads the tracked workflow expressions from container environment variables. Recreate n8n after env changes with `docker compose up -d n8n`, then verify `N8N_BLOCK_ENV_ACCESS_IN_NODE`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` are all present before activating the workflow.
+
+When validating an existing imported workflow, export it and check for both schedule and request body. The schedule must be active for Sunday/Wednesday 09:00 `America/Vancouver`, and the `/run` node must include `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`. If those body fields are missing, re-import the tracked JSON; otherwise n8n will run the normal pipeline but will not use the backend cadence guarantee.
+
 #### Backend delivery guarantee
 
 The backend guarantee uses:
@@ -210,6 +214,8 @@ Implemented under `groupscout-site-fuc`.
     - From containerized n8n to a host backend, use `http://host.docker.internal:8080` on Docker Desktop.
     - Check if the GroupScout server is actually running (`docker compose ps` or `go run cmd/server/main.go`).
 - **No lead sent on Sunday/Wednesday**: Check `/run` JSON. `delivery_status:"no_eligible_lead"` means neither fresh nor backlog candidates are available; send an operational "no qualified lead" notice.
+- **Cadence workflow never sends**: Confirm the imported workflow is active, the n8n container was restarted after activation, and the live export still shows `triggerAtDay:[0,3]`, `triggerAtHour:9`, `triggerAtMinute:0`, and `timezone:"America/Vancouver"`.
+- **Cadence sends like a normal run**: Export the workflow and confirm the `/run` HTTP node includes `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`. Re-import the tracked workflow if those fields are missing.
 - **Duplicate lead sent after retry**: Use the same `idempotency_key` for all retries of the cadence. The backend returns `delivery_status:"duplicate"` after a cadence has already sent.
 
 #### Advanced Workflow Example

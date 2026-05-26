@@ -1,5 +1,15 @@
 ## 2026-05-25 - Missed task markdown reconciliation
 
+### groupscout-site-1t9 - Enable Sunday Wednesday n8n cadence
+
+- **What:** Wired the Compose n8n service to the GroupScout API and Slack environment variables, re-imported the corrected cadence workflow body, then activated the Sunday/Wednesday cadence workflow in the live n8n container.
+- **Where:** Backend `docker-compose.yml`, live `groupscout_n8n`, and centralized n8n setup/troubleshooting docs.
+- **When:** 2026-05-25.
+- **Why:** The workflow schedule was correct, but it could not reliably send while inactive, missing the env values used by `$env.*` expressions, and running a stale plain `/run` body.
+- **How:** Recreated n8n with `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`; re-imported the tracked workflow; verified backend health, secret-safe env presence, live `active:true`, Sunday/Wednesday 09:00 `America/Vancouver` schedule fields, and `guarantee_one_lead`/`delivery_mode`/`idempotency_key` body fields.
+
+---
+
 ### groupscout-site-9fy - Audit backend markdown for missed task drift
 
 - **What:** Reconciled backend markdown that still presented planned contact enrichment, health/OpenAPI follow-ups, and older strategic checklists as live or unowned work.

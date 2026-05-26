@@ -106,6 +106,29 @@ If the filters are too strict, you can relax them in your `.env` file or environ
 - **n8n / API Triggers**: If you are triggering the pipeline via `/run`, ensure your `API_TOKEN` is correct.
 - **n8n direct leads**: If you are posting pre-enriched leads to `/n8n/webhook`, send `PriorityScore` on the `0-10` scale. Legacy `0-100` values are normalized by the backend before storage and Slack/email delivery.
 
+### 5. Verify the Sunday/Wednesday n8n cadence can send
+
+The importable cadence workflow stays inactive after import until an operator activates it. It also needs n8n container environment access so `$env.GROUPSCOUT_API_TOKEN` and `$env.GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` resolve.
+
+Run from `/mnt/c/Users/alvin/GolandProjects/groupscout`:
+
+```bash
+docker compose up -d n8n
+docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSCOUT_API_BASE_URL GROUPSCOUT_API_TOKEN GROUPSCOUT_OPS_SLACK_WEBHOOK_URL; do v=$(printenv "$k"); if [ -n "$v" ]; then echo "$k=SET"; else echo "$k=MISSING"; fi; done'
+docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
+docker exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+docker restart groupscout_n8n
+docker logs --tail 80 groupscout_n8n
+```
+
+Expected:
+
+- every env check prints `SET`;
+- health includes `"database":"ok"`;
+- n8n logs include `Activated workflow "GroupScout Sunday Wednesday Lead Cadence"`;
+- a live workflow export shows `"active":true`, `"triggerAtDay":[0,3]`, `"triggerAtHour":9`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`.
+- the same live export contains `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`; missing body fields mean the live workflow is stale and only performs a normal `/run`.
+
 ---
 
 ## 🖥 Backend Plus UI Docker Troubleshooting

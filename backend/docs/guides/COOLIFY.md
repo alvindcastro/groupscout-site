@@ -144,6 +144,7 @@ OLLAMA_ALERT_COPY_ENABLED=true
 n8n workflow imports:
 
 ```env
+N8N_BLOCK_ENV_ACCESS_IN_NODE=false
 GROUPSCOUT_API_BASE_URL=http://groupscout:8080
 GROUPSCOUT_API_TOKEN=<same-value-as-API_TOKEN>
 GROUPSCOUT_OPS_SLACK_WEBHOOK_URL=<ops-slack-webhook>
@@ -229,7 +230,7 @@ curl -i -X POST https://server.example.com/run \
   -H "Authorization: Bearer $API_TOKEN"
 ```
 
-For cadence delivery, import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` into n8n, confirm it is inactive after import, set `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, then run the health preflight and guaranteed `/run` test. Expected delivery statuses are `sent`, `duplicate`, `no_eligible_lead`, or `locked`.
+For cadence delivery, import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` into n8n, confirm it is inactive after import, set `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, then redeploy or restart n8n so the running container has the new environment. Run the health preflight and guaranteed `/run` test, then activate the workflow. Expected delivery statuses are `sent`, `duplicate`, `no_eligible_lead`, or `locked`. A live workflow export should show both the Sunday/Wednesday 09:00 schedule and the guaranteed body fields: `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`.
 
 Then verify the containers:
 
@@ -274,6 +275,10 @@ Acceptance:
 - From the n8n container, call `http://groupscout:8080/health`.
 - Confirm `GROUPSCOUT_API_BASE_URL=http://groupscout:8080`.
 - Confirm `GROUPSCOUT_API_TOKEN` matches backend `API_TOKEN`.
+- Confirm `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` so `$env.*` workflow expressions can resolve.
+- Confirm `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` is set and not a placeholder.
+- Confirm the imported cadence workflow is active after testing; imports start inactive.
+- Confirm the live workflow export includes `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`; if not, re-import the tracked workflow asset.
 
 **Grafana or n8n is exposed too broadly**
 

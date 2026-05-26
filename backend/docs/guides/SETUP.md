@@ -328,6 +328,17 @@ backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json
 
 Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md). After import, confirm the workflow is inactive, set the `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` environment variables or node values, run **Test Workflow**, then activate it.
 
+In the provided Docker Compose stack, those n8n environment values are injected from backend `.env` when the `n8n` container is created. `GROUPSCOUT_API_TOKEN` maps to `API_TOKEN`, `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` maps to `SLACK_WEBHOOK_URL`, and `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` allows workflow expressions to read `$env.*`. If any of these values change, run `docker compose up -d n8n`, verify they are present without printing secrets, then activate:
+
+```bash
+docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSCOUT_API_BASE_URL GROUPSCOUT_API_TOKEN GROUPSCOUT_OPS_SLACK_WEBHOOK_URL; do v=$(printenv "$k"); if [ -n "$v" ]; then echo "$k=SET"; else echo "$k=MISSING"; fi; done'
+docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
+docker exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+docker restart groupscout_n8n
+```
+
+After restart, export the workflow and confirm it is active with `triggerAtDay:[0,3]`, `triggerAtHour:9`, and `timezone:"America/Vancouver"`. Also confirm the export contains `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`; if those fields are missing, re-import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` before activation because the live workflow is stale.
+
 Manual fallback:
 
 1. Go to **Workflows** → **New Workflow**.

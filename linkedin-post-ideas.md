@@ -70,3 +70,4 @@ These ideas come from the centralized project documentation, including the backe
 - Drafts 16 and 17 cover frontend/API boundaries and model-provider flexibility.
 - Drafts 18 through 20 cover the content workflow, small-system architecture, and side-project judgment.
 - Drafts 21 through 32 use a stricter plain-English style for completed backend and frontend features: event-driven ingest, guaranteed cadence, health preflight, audit retention, admin auth, UI API boundaries, outreach state, pipeline run history, analytics, runtime contracts, API client split, and the command center.
+- Drafts 33 through 40 are aimed at hiring managers as the implied reader, emphasizing engineering judgment, test boundaries, operating discipline, product restraint, refactoring, runbooks, secure defaults, and debugging evidence.

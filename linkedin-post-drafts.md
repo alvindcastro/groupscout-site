@@ -507,3 +507,137 @@ The system already has alerts, analytics, lead detail, verification, and outreac
 The first screen should help the operator start work.
 
 #UXDesign #ProductEngineering #Operations
+
+## Draft 33: The Work Is In The Edges
+
+The happy path rarely proves much.
+
+The useful engineering work showed up in the edges: duplicate cadence runs, stale Docker images, missing migrations, malformed model output, raw evidence retention, session expiry, and browser routes that should never see automation tokens.
+
+None of those problems looks impressive in isolation.
+
+Together, they decide whether a system can run twice without making people nervous.
+
+That is where I try to spend time on this side project.
+
+Make the normal path clear. Make the failure path visible. Make reruns boring.
+
+#SoftwareEngineering #Reliability #BuildInPublic
+
+## Draft 34: Tests Should Guard Decisions, Not Just Code
+
+I do not want tests that only prove a function returns the expected value today.
+
+I want tests that guard a decision.
+
+The UI Docker tests say browser code must not receive backend secrets. The API client tests say browser requests stay same-origin. The cadence tests say one schedule key cannot send the same lead twice. The storage tests say raw evidence referenced by a lead must survive retention cleanup.
+
+Those are product and architecture choices.
+
+The code can change. The boundary should not drift by accident.
+
+Good tests make the important decisions hard to erase.
+
+#Testing #SoftwareDesign #ProductEngineering
+
+## Draft 35: A Small System Still Needs Operating Discipline
+
+GroupScout is a side project, but I do not want it to behave like a script.
+
+A script can fail and ask the operator to remember what happened.
+
+A system should leave evidence.
+
+That is why the project records raw inputs, pipeline runs, delivery status, outreach history, session state, and health responses. Each record answers a question someone will ask later.
+
+Did this run start? Did it send? Did it duplicate? Which source produced this lead? Who changed the status? Can n8n reach the backend?
+
+Operating discipline starts before scale.
+
+#BackendEngineering #Operations #Reliability
+
+## Draft 36: Product Sense Shows Up In What You Refuse To Automate
+
+The project could auto-send outreach.
+
+I chose not to.
+
+A lead can be scored, enriched, summarized, and drafted by software. The final message still needs human review because the cost of a wrong outreach is not just technical.
+
+That choice shapes the product.
+
+The system can prepare context, show evidence, suggest timing, and record actions. It should not pretend that every qualified signal deserves an automatic email.
+
+Useful automation reduces the cost of judgment.
+
+It does not remove judgment where judgment protects trust.
+
+#ProductEngineering #AI #SalesOps
+
+## Draft 37: Refactoring Is Easier When The Contract Is Clear
+
+The frontend API client grew too large.
+
+That was not a reason to rewrite it.
+
+The public contract still worked: `createApiClient(...)`, same-origin requests, feature methods, normalized payloads, and safe response adapters.
+
+So the refactor kept the contract and moved the weight behind it.
+
+Leads, raw audit, outreach, pipeline, stats, alerts, and system calls now live in focused modules. The shared transport guard stayed central.
+
+The lesson is simple.
+
+Do not refactor around irritation. Refactor around a boundary you can name and preserve.
+
+#Refactoring #FrontendEngineering #SoftwareArchitecture
+
+## Draft 38: Documentation Should Reduce The Next Failure
+
+I have been moving GroupScout docs into the coordination repo.
+
+That sounds like cleanup. It is more practical than that.
+
+The n8n cadence runbook now explains the health preflight, required environment variables, workflow activation checks, and guaranteed delivery payload. The Docker docs separate UI-only tests from backend-dependent smoke checks. The troubleshooting notes name current container names and known caveats.
+
+Documentation should not merely describe the system.
+
+It should shorten the next recovery.
+
+When something fails, the runbook should tell you where to look first.
+
+#Documentation #DevOps #SoftwareEngineering
+
+## Draft 39: Secure Defaults Are Product Work
+
+The UI runtime has one rule I care about: browser code does not get server secrets.
+
+That rule affects Docker, the production server, API routing, tests, and docs.
+
+The production server serves static assets and proxies `/api/*` requests server-side. The UI uses same-origin calls. The tests scan for forbidden public config. The docs warn against passing backend `.env` into frontend containers.
+
+This is not security theater.
+
+It is a product boundary.
+
+Once a secret leaks into browser-visible code, every feature built on top inherits the mistake.
+
+#WebSecurity #FrontendEngineering #ProductEngineering
+
+## Draft 40: The Best Debugging Artifact Was The Exact Error
+
+The n8n alert said `status=0`.
+
+That was not enough.
+
+The useful clue came from the backend log: `no migration found for version 10`. Postgres had version `10`; the Docker image only had migration files through `009`.
+
+That narrowed the fix.
+
+No rewrite. No workflow redesign. Rebuild the image, recreate the backend container, verify `/health` from host and from inside n8n.
+
+Good debugging turns a vague symptom into a concrete mismatch.
+
+Then the fix gets smaller.
+
+#Debugging #Docker #Reliability

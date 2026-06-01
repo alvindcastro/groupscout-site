@@ -11,6 +11,7 @@ These ideas come from the centralized project documentation, including the backe
 - Let the lesson come after the detail.
 - Prefer sober product language: visibility, responsibility, uncertainty, evidence, workflow, ownership, review.
 - Treat AI as one part of the system, not the whole system.
+- For the Strunk-style batch, prefer active voice, concrete nouns, short paragraphs, and one emphatic final sentence.
 
 ## Build Story
 
@@ -68,3 +69,4 @@ These ideas come from the centralized project documentation, including the backe
 - Drafts 14 and 15 cover film and event sources.
 - Drafts 16 and 17 cover frontend/API boundaries and model-provider flexibility.
 - Drafts 18 through 20 cover the content workflow, small-system architecture, and side-project judgment.
+- Drafts 21 through 32 use a stricter plain-English style for completed backend and frontend features: event-driven ingest, guaranteed cadence, health preflight, audit retention, admin auth, UI API boundaries, outreach state, pipeline run history, analytics, runtime contracts, API client split, and the command center.

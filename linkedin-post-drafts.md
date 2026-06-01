@@ -309,3 +309,201 @@ Fix it in application code, move the responsibility to a better tool, add a rele
 That is why I keep building side projects. They make engineering judgment unavoidable while the cost of being wrong is still small.
 
 #SideProjects #Engineering #BuildInPublic
+
+## Draft 21: One Raw Item Should Not Start The Whole Machine
+
+The project needed a smaller door into the pipeline.
+
+The full collector run still matters. It scans public sources, filters noise, enriches records, stores leads, and sends alerts.
+
+But n8n sometimes finds one useful item. Starting every collector for one raw project would waste time and blur responsibility.
+
+That is why I added `POST /ingest`.
+
+The endpoint accepts one raw project or event payload. It uses the same audit, dedup, scoring, enrichment, and storage path as the full system. It does not direct-insert a finished lead. It does not skip the evidence trail.
+
+That distinction matters.
+
+A small input path should still obey the same rules as the larger system.
+
+#DataPipelines #Automation #GoLang
+
+## Draft 22: Idempotency Is A Product Feature
+
+The Sunday and Wednesday lead cadence had a simple promise: send one eligible lead.
+
+That promise needed more than a cron schedule.
+
+Retries happen. Containers restart. n8n can run a workflow again. Slack can receive the same alert twice if the backend treats each request as new.
+
+The fix was a cadence key.
+
+`lead-cadence:2026-05-27:wednesday` became both a schedule marker and an idempotency key. The backend records delivery status, protects the run with a lock, and returns `sent`, `duplicate`, `locked`, or `no_eligible_lead`.
+
+The user-facing result is plain.
+
+One cadence should create one send.
+
+#BackendEngineering #Reliability #Automation
+
+## Draft 23: A Health Check Should Fail Before The Real Work
+
+The n8n workflow now checks backend health before it runs the lead cadence.
+
+That saved time during a real failure.
+
+The app had a stale Docker image. Postgres had already reached migration version `10`; the image only contained migrations through `009`. The backend exited before it could serve `/health`.
+
+n8n did the right thing. It stopped before calling `/run` and sent an ops Slack message.
+
+The alert looked small: `status=0`.
+
+The cause was concrete: no HTTP response, because the backend was not running.
+
+Preflight checks are useful when they point at the broken layer before the main workflow does damage.
+
+#DevOps #Reliability #Docker
+
+## Draft 24: Keep The Evidence, Bound The Storage
+
+Raw audit data is useful until it becomes unmanaged storage.
+
+The project stores source payloads because sales leads need evidence. A score without the original PDF, API body, URL, or collector name is hard to trust.
+
+But raw data also grows.
+
+The retention worker solves the narrow problem. It can purge old raw inputs on an opt-in schedule, but it preserves any payload still referenced by a lead.
+
+That rule keeps the system honest.
+
+Delete stale evidence. Keep live evidence. Make the operator choose the policy.
+
+#DataGovernance #BackendEngineering #ProductOps
+
+## Draft 25: Login Is Part Of The Product, Not A Wrapper
+
+The admin login flow needed to do more than accept a token.
+
+A browser user needed a clear path: read the current setup token, submit it, get a session cookie, verify the session, use the app, and log out.
+
+The backend also needed to rotate file-backed setup tokens after use and reject stale tokens.
+
+That work is easy to treat as plumbing. It is not.
+
+Authentication shapes every route that follows it. If protected screens render before the session check, the product teaches the wrong boundary.
+
+The system should make the secure path the ordinary path.
+
+#WebSecurity #ProductEngineering #BackendEngineering
+
+## Draft 26: Browser APIs Need Their Own Boundary
+
+The browser should not know the automation token.
+
+That rule shaped the UI API work.
+
+The backend can expose server-to-server routes for n8n, cron jobs, and operators with bearer tokens. The web UI needs same-origin `/api/*` routes protected by browser sessions.
+
+Those are different clients. They deserve different contracts.
+
+The operator UI now has paths for leads, raw evidence, outreach, pipeline runs, stats, system health, and alerts. The frontend calls them through same-origin adapters instead of passing backend secrets into browser code.
+
+Small boundaries prevent large leaks.
+
+#WebArchitecture #Security #ProductEngineering
+
+## Draft 27: Outreach Needs State, Not A Text Box
+
+A lead workflow breaks down when every update becomes a note.
+
+The operator needs constrained actions: claim, dismiss, snooze, flag, contacted, won, lost, no response, and reopen. The system needs to know which actions are valid from the current state.
+
+That is why outreach moved into storage and API contracts.
+
+The backend records outreach history. It validates status transitions. It returns conflicts when a request asks for an impossible move.
+
+The UI can still feel simple.
+
+The discipline lives under it.
+
+#SalesOps #ProductEngineering #BackendEngineering
+
+## Draft 28: Run History Beats A Spinner
+
+Long-running pipeline work should not trap the browser.
+
+The backend now accepts a pipeline run request, records the run, starts work without blocking the operator, and exposes run history through `/api/pipeline/runs`.
+
+That gives the UI a better contract.
+
+The operator can see whether a run started, failed, or finished. The browser does not need to hold an open request and hope nothing times out.
+
+A spinner explains nothing.
+
+A run record explains what happened.
+
+#BackendEngineering #UX #Automation
+
+## Draft 29: A Dashboard Needs A Denominator
+
+Analytics can mislead when they skip the denominator.
+
+The GroupScout UI models status counts, source yield, score bands, owner workload, lead aging, verification quality, and upcoming demand. Each number needs context: date range, total leads, source count, and what the system excluded.
+
+That work is less flashy than drawing charts.
+
+It matters more.
+
+A chart without a clear denominator invites a false conclusion. A compact table with plain labels can help the operator decide what to do next.
+
+Measure the workflow after the workflow records enough truth.
+
+#Analytics #ProductDesign #SalesOps
+
+## Draft 30: The UI Started As A Runtime Contract
+
+The first production UI did not start with a framework.
+
+It started with a tested runtime contract.
+
+Serve `web/dist`. Expose `/healthz`. Proxy browser `/api/*` requests server-side. Keep provider keys, Slack tokens, database URLs, session secrets, and automation tokens out of browser-visible assets.
+
+That constraint kept the work narrow.
+
+The UI could gain routes, render screens, and join Docker Compose without changing the security posture.
+
+Small runtime rules do not slow a product down. They keep later work from starting in debt.
+
+#FrontendEngineering #WebSecurity #Docker
+
+## Draft 31: Split The Client Before It Becomes A Dumping Ground
+
+The browser API client was starting to carry too much.
+
+Routes, payload builders, response adapters, transport rules, and feature methods all lived too close together.
+
+The refactor kept the public facade and split the internals by feature: leads, raw audit, outreach, pipeline, stats, alerts, and system.
+
+The important part was what did not change.
+
+The browser still imports `createApiClient(...)`. Same-origin transport still rejects unsafe paths. Feature code now changes in the module that owns it.
+
+Good refactors preserve the useful contract and remove the unnecessary crowding.
+
+#Refactoring #FrontendEngineering #SoftwareDesign
+
+## Draft 32: The Command Center Should Show Work, Not Decoration
+
+The Today command center has a simple job.
+
+It should show the operator what needs attention now: priority leads, aging work, active alerts, failed jobs, and system health.
+
+That is different from a landing page.
+
+An operations screen should be dense, quiet, and easy to scan. It should link to the right workspace and avoid pretending that every summary is an action.
+
+The system already has alerts, analytics, lead detail, verification, and outreach screens. The command center should connect those surfaces.
+
+The first screen should help the operator start work.
+
+#UXDesign #ProductEngineering #Operations

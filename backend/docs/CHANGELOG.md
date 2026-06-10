@@ -1,5 +1,12 @@
 ## 2026-05-25 - Missed task markdown reconciliation
 
+### groupscout-site-ar1 - Restore n8n cadence to normal multi-lead run
+
+- **What:** Changed the tracked Sunday/Wednesday n8n cadence workflow from the optional exactly-one backend delivery body back to normal empty-body `/run`.
+- **Where:** `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` plus n8n runbooks and deployment docs.
+- **Why:** The live workflow was working, but it intentionally sent only one lead because it posted `guarantee_one_lead:true` and `delivery_mode:"exactly_one"`; operators now want scheduled n8n runs to match command-line `--run-once` multi-lead Slack fan-out.
+- **How:** Kept health preflight, cadence duplicate guard, and ops Slack branches, but changed the `/run` body to `{}` and result classification to use `notified_leads`/`new_leads`.
+
 ### groupscout-site-bv7 - Update build log for n8n verification docs
 
 - **What:** Updated the historical build log to reflect the current n8n cadence send path and local recovery runbooks.

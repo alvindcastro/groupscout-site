@@ -67,7 +67,7 @@ Actions by marker:
 | `slack notify` | Check `SLACK_WEBHOOK_URL` and Slack webhook status. |
 | collector or `pdftotext` error | Rebuild with `docker compose up -d --build` and confirm `poppler-utils`/`pdftotext` exists in the image. |
 
-Guaranteed cadence runs add a `delivery_status` field to `/run` JSON:
+Normal n8n cadence runs use plain `/run` and return `new_leads` plus `notified_leads`. If `notified_leads` is greater than zero, Slack received the normal multi-lead digest. The optional backend exactly-one guarantee adds a `delivery_status` field to `/run` JSON:
 
 | Status | What to check |
 |---|---|
@@ -127,7 +127,7 @@ Expected:
 - health includes `"database":"ok"`;
 - n8n logs include `Activated workflow "GroupScout Sunday Wednesday Lead Cadence"`;
 - a live workflow export shows `"active":true`, `"triggerAtDay":[0,3]`, `"triggerAtHour":9`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`.
-- the same live export contains `guarantee_one_lead`, `delivery_mode`, and `idempotency_key`; missing body fields mean the live workflow is stale and only performs a normal `/run`.
+- the same live export shows an empty `/run` body and result classification using `notified_leads` and `new_leads`; if it still contains `guarantee_one_lead`, `delivery_mode`, or `idempotency_key`, the live workflow is stale and only sends one lead.
 
 ### 6. Recover local n8n sign-in
 
@@ -286,7 +286,7 @@ Do not pass backend `.env` files into UI containers. The browser-visible UI must
 ## ❓ FAQ
 
 ### Why is there only 1 lead?
-If `/run` was called with `guarantee_one_lead:true` and `delivery_mode:"exactly_one"`, one lead is intentional: the Sunday/Wednesday cadence sends exactly one eligible lead and records it in `lead_deliveries`.
+If `/run` was called with `guarantee_one_lead:true` and `delivery_mode:"exactly_one"`, one lead is intentional: that optional backend mode sends exactly one eligible lead and records it in `lead_deliveries`. The scheduled n8n cadence should not use those fields; re-import the tracked workflow if the live export still contains them.
 
 This usually happens if:
 - You've already run the pipeline today, and all other permits are now **duplicates**.

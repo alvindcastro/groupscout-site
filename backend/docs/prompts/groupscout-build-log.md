@@ -379,9 +379,9 @@ To move from "script running on a laptop" to a "production service," we containe
 
 #### n8n Cadence Runbook Update
 
-The local Docker stack now treats n8n as an operator-owned scheduler with explicit runtime checks. The Sunday/Wednesday workflow is tracked as an importable JSON asset and must be active before it can send on schedule. The workflow now calls `/run` with `guarantee_one_lead`, `delivery_mode:"exactly_one"`, `cadence_key`, and `idempotency_key`, so backend retries and n8n retries cannot create duplicate cadence sends.
+The local Docker stack now treats n8n as an operator-owned scheduler with explicit runtime checks. The Sunday/Wednesday workflow is tracked as an importable JSON asset and must be active before it can send on schedule. The workflow now calls plain `/run` with an empty JSON body so it sends the same multi-lead Slack digest as `--run-once`; n8n keeps a workflow-level cadence key to avoid duplicate scheduled sends.
 
-The n8n container receives `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, and `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` from Docker Compose. The runbook verifies these as `SET` without printing secrets, checks backend health from inside the n8n container, exports the live workflow to confirm Sunday/Wednesday 09:00 `America/Vancouver`, and confirms the guaranteed body fields are still present. Local sign-in recovery is documented with the stopped-container `user-management:reset` path plus a SQLite owner-row fallback that preserves workflows and credentials.
+The n8n container receives `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, and `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` from Docker Compose. The runbook verifies these as `SET` without printing secrets, checks backend health from inside the n8n container, exports the live workflow to confirm Sunday/Wednesday 09:00 `America/Vancouver`, and confirms the `/run` node uses the normal empty-body request. Local sign-in recovery is documented with the stopped-container `user-management:reset` path plus a SQLite owner-row fallback that preserves workflows and credentials.
 
 ---
 
@@ -389,7 +389,7 @@ The n8n container receives `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, `G
 
 The pipeline is a mature, production-ready lead generation engine. The full stack:
 
-1. **Triggers:** n8n schedules a guaranteed `POST /run` twice a week (Wednesday + Sunday, 9am Vancouver time) with a cadence key and idempotency key. It can also be triggered manually via `curl`.
+1. **Triggers:** n8n schedules a normal `POST /run` twice a week (Wednesday + Sunday, 9am Vancouver time) with a workflow-level cadence key. It can also be triggered manually via `curl`.
 2. **Collects:** 8 active collectors — Richmond permits, Delta permits, Creative BC, VCC, BCIB, TransLink/YVR announcements, BC Bid RSS, Eventbrite, and Google News RSS.
 3. **Scores:** A rule-based Go pre-scorer filters out noise before spending any API tokens.
 4. **Enriches:** Claude Haiku analyzes each lead — crew size estimate, GC identification, outreach timing, personalized cold email draft.
@@ -400,7 +400,7 @@ The pipeline is a mature, production-ready lead generation engine. The full stac
 | Service | Purpose |
 |---|---|
 | groupscout | Go HTTP server (`:8080`) |
-| n8n | Workflow scheduler — fires the guaranteed Sunday/Wednesday `/run` cadence and routes health/no-lead failures to ops Slack |
+| n8n | Workflow scheduler — fires the Sunday/Wednesday normal `/run` cadence and routes health/no-lead failures to ops Slack |
 | Prometheus | Metrics scraping |
 | Grafana | Dashboards and log visualization |
 | Loki | Structured log aggregation |

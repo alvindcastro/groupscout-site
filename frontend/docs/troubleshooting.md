@@ -21,12 +21,12 @@ Expected:
 Check app routes:
 
 ```sh
-for path in / /admin/login /leads /leads/lead_hotel_001 /verification /outreach /pipeline /analytics /alerts; do
+for path in / /leads /leads/lead_hotel_001 /verification /outreach /pipeline /analytics /alerts; do
   curl -i --max-time 5 "http://localhost:3001$path" | head -n 1
 done
 ```
 
-Expected: HTTP `200` for app-shell routes, or a login redirect when session auth is enabled. A `404` means the route fallback, static build, or running container is stale.
+For the inspected current checkout, `/admin/login` is intentionally not part of this loop because the admin route is planned but absent. Expected: HTTP `200` for app-shell routes, or a login redirect when session auth is enabled after admin/session reconciliation lands. A `404` on app-shell routes means the route fallback, static build, or running container is stale; a `404` on `/admin/login` alone is expected in the current checkout.
 
 Check API proxy routes:
 
@@ -125,7 +125,7 @@ Common causes:
 
 - `UI_ENABLED` is true but `UI_SESSION_SECRET` is missing or shorter than 32 characters.
 - `CORS_ALLOWED_ORIGINS` is configured for a production environment. CORS allow lists are development-only in the current deployment model.
-- Browser `/api/*` requests lack the `groupscout_session` cookie or present an invalid session value.
+- Helper-level session authorization fails because browser `/api/*` requests lack the `groupscout_session` cookie or present an invalid session value. In the inspected current checkout, `productionServer.js` does not yet apply this helper before proxying.
 
 ## Browser Runtime Contract Fails
 
@@ -220,20 +220,20 @@ Interpret `/api/*` smoke failures by status:
 
 Browser-visible code and config should still show relative `/api/*`, never `http://groupscout:8080` or backend secrets.
 
-## Admin Login Redirects Unexpectedly
+## Planned Admin Login Redirects Unexpectedly
 
-Protected app routes call `/api/auth/status` before rendering. If a route redirects to `/admin/login`, check:
+After the planned admin/session flow lands, protected app routes call `/api/auth/status` before rendering. If a route redirects to `/admin/login`, check:
 
 - The backend is reachable through the UI proxy.
 - `GET /api/auth/status` returns `auth_required: true` and `authenticated: true` after login.
 - The browser received the HttpOnly `groupscout_session` cookie from `POST /api/auth/login`.
 - The setup token was read from the current `ADMIN_SETUP_TOKEN` value or `ADMIN_SETUP_TOKEN_FILE`. File-backed setup tokens rotate after successful login.
 
-If `UI_SESSION_SECRET` is configured, `/api/*` requests without a valid cookie return `401` before proxying. If it is unset for Docker smoke, API requests can proxy without a browser session, but the backend may still require its own admin auth depending on `ADMIN_AUTH_ENABLED`.
+After the planned production session gate lands, `UI_SESSION_SECRET` makes `/api/*` requests without a valid cookie return `401` before proxying. In the inspected current checkout, the production server proxies directly; if `UI_SESSION_SECRET` is unset for Docker smoke, API requests can proxy without a browser session, but the backend may still require its own admin auth depending on `ADMIN_AUTH_ENABLED`.
 
-## Admin Login Does Not Appear In Docker
+## Planned Admin Login Does Not Appear In Docker
 
-First verify the running containers are not stale using [Admin Token Flow](./admin-token-flow.md), which owns the current auth-status, token, logout, and stale asset recovery commands.
+In the inspected current checkout, `/admin/login` is absent and that absence is not stale-asset evidence. After the planned admin route exists, first verify the running containers are not stale using [Admin Token Flow](./admin-token-flow.md), which owns the auth-status, token, logout, and stale asset recovery commands for that flow.
 
 Expected auth status:
 
@@ -247,11 +247,11 @@ Expected HTML asset version:
 <script type="module" src="/assets/app.js?v=admin-login-2"></script>
 ```
 
-If auth status is `404`, the backend container is old and must be rebuilt from the admin-login branch. If `/` still references `pipeline-output-4`, the UI container is old or the static build was not regenerated. If the HTML references `admin-login-2` but the browser still shows the old app, hard-refresh the browser or open `http://localhost:3001/admin/login` directly.
+After the planned auth endpoints exist, if auth status is `404`, the backend container is old and must be rebuilt from the admin-login branch. If `/` still references an older static asset query such as `pipeline-output-4`, the UI container is old or the static build was not regenerated. If the HTML references the expected admin-login asset query but the browser still shows the old app, hard-refresh the browser or open `http://localhost:3001/admin/login` directly.
 
-## Admin Login Is Still Full Width
+## Planned Admin Login Is Still Full Width
 
-The current `/admin/login` screen should render the token form as a compact floating window. If it still appears as a wide embedded panel, use [Admin Token Flow](./admin-token-flow.md) for the current rebuild and stale asset recovery commands.
+After the planned admin login route exists, `/admin/login` should render the token form as a compact floating window. If it still appears as a wide embedded panel, use [Admin Token Flow](./admin-token-flow.md) for rebuild and stale asset recovery commands.
 
 Check that `web/src/renderer/domRenderer.js` renders `class="admin-login-window"` on the login form and that `web/src/renderer/staticStyles.css` makes `.admin-login` a transparent centering stage while `.admin-login-window` owns the border, background, and shadow. If source is correct but Docker is stale, rebuild the UI service and hard-refresh the browser.
 
@@ -272,7 +272,7 @@ For direct API smoke, keep cookies in a jar as shown in [Admin Token Flow](./adm
 
 ## Logout Does Not End Session
 
-The logout control posts `/api/auth/logout`, which revokes the backend session when a token is present and expires `groupscout_session`. If a user remains authenticated, verify that the UI proxy forwards `/api/auth/logout` as a public auth endpoint and that the backend branch includes session revocation support.
+After the planned admin auth flow lands, the logout control posts `/api/auth/logout`, which revokes the backend session when a token is present and expires `groupscout_session`. If a user remains authenticated, verify that the UI proxy forwards `/api/auth/logout` as a public auth endpoint and that the backend branch includes session revocation support.
 
 ## Backend And UI Docker Mode Mismatch
 
@@ -303,7 +303,7 @@ Common causes:
 
 - `GET /` or `GET /assets/app.js` returns 404 because `web/dist/index.html` or `web/dist/assets/app.js` is missing from the image or local checkout.
 - `GET /leads/lead_hotel_001` returns 404 because app-route fallback to `index.html` regressed.
-- `GET /api/*` returns 401 because `UI_SESSION_SECRET` is configured and the request does not have a valid `groupscout_session`.
+- After session-gate reconciliation lands, `GET /api/*` returns 401 because `UI_SESSION_SECRET` is configured and the request does not have a valid `groupscout_session`.
 - `GET /api/*` returns 502 because `UI_API_PROXY_TARGET` is wrong, the backend is down, or a Compose container cannot resolve `groupscout`.
 - Browser code references `http://groupscout:8080` directly instead of a relative `/api/*` path.
 - Public config or static assets include blocked names such as `API_TOKEN`, `CLAUDE_API_KEY`, Slack tokens, Resend/SendGrid keys, database URLs, or `UI_SESSION_SECRET`.

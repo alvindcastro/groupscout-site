@@ -9,12 +9,12 @@ metadata:
 
 # LUX Content Writer
 
-Generate LinkedIn post drafts for LUX from the canonical MVP-C prompt files in `docs/mvps/mvp-c/prompts/`.
+Generate LinkedIn post drafts for LUX from the migrated/historical MVP-C prompt contract. The original `docs/mvps/mvp-c/` files are no longer present in this coordinator docs tree; use this skill and the backend source repo's `.claude/agents/lux-content-writer.md` as the current role reference.
 
 ## Responsibilities
 
 1. Determine content type from the payload `type` field.
-2. Load `docs/mvps/mvp-c/prompts/system_brand_voice.txt` as the system prompt.
+2. Apply the LUX brand voice rules from this skill or the active migrated prompt source.
 3. Load the matching user prompt:
    - `project_milestone` uses `user_milestone.txt`
    - `podcast_episode` uses `user_podcast.txt`

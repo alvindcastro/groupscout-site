@@ -185,7 +185,7 @@ The output is a Slack digest using Block Kit. Each lead gets a card:
 
 The score emoji tiers: 🔥 (9–10), ⚡ (7–8), 👀 (5–6), 📌 (<5). The `📄 View source document` link goes directly to the Richmond PDF the permit came from.
 
-The notifier also has a smoketest flag — `go run ./cmd/smoketest/ -testslack` — that sends two fake leads to the webhook so you can verify the Block Kit layout without running the full pipeline.
+The notifier also has a smoketest flag — `go run ./cmd/tools/smoketest/ -testslack` — that sends two fake leads to the webhook so you can verify the Block Kit layout without running the full pipeline.
 
 ---
 

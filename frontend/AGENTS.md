@@ -12,6 +12,12 @@ bd close <id>         # Complete work
 bd dolt push          # Push beads data to remote
 ```
 
+## Repository Routing
+
+- UI implementation lives in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
+- Long-lived frontend documentation lives here under `/mnt/c/Users/alvin/groupscout-site/frontend`.
+- Start coordination in this repo, then route code changes to the UI source repo and keep documentation updates in this coordinator repo unless a source-repo generated file must stay with the code.
+
 ## Non-Interactive Shell Commands
 
 **ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.

@@ -1,10 +1,10 @@
-# Junie Subagents Guide
+# Backend Agent Guide
 
-This guide explains how to use the specialized Junie subagents in the `groupscout` project. These subagents are designed to handle specific domains of the codebase with tailored instructions and tool sets.
+This guide explains the specialized backend agent roles for the `groupscout` project. The source-of-truth role specs live in the backend source repo under `.claude/agents/`; the coordinator repo also carries a repo-local Codex plugin bundle at `backend/plugins/groupscout-agents/` derived from those specs.
 
-## 🤖 Available Subagents
+## Available Agents
 
-We have defined the following subagents in `.junie/agents/`. Each subagent has specific core responsibilities and a tailored toolset.
+Use these role names when delegating work or selecting the matching Codex skill from `backend/plugins/groupscout-agents/skills/`.
 
 ### 1. TDD Tester (`tdd-tester`)
 - **Focus:** Test-Driven Development and high coverage.
@@ -48,7 +48,7 @@ We have defined the following subagents in `.junie/agents/`. Each subagent has s
 - **Responsibilities:**
   - Implement and maintain API handlers in `internal/api/`.
   - Orchestrate logic between `server` and `alertd` daemons.
-  - Manage notification logic in `internal/notify/` and `internal/alert/`.
+  - Manage lead notification logic in `internal/leadnotify/` and alertd notification logic in `internal/alert/`.
   - Ensure robust request validation, error handling, and Slack command integration.
 
 ### 6. Infrastructure Specialist (`infrastructure-specialist`)
@@ -60,18 +60,15 @@ We have defined the following subagents in `.junie/agents/`. Each subagent has s
   - Automate build and deployment scripts in the `scripts/` directory.
   - Ensure system reliability and scalability across different deployment options.
 
-## 🚀 How to Use
+## How to Use
 
-When using the Junie CLI, you can invoke a specific subagent using the `--agent` (or `-a`) flag.
+When using Claude Code, refer to the relevant `.claude/agents/<agent>.md` spec. When using Codex, use the matching skill in `backend/plugins/groupscout-agents/skills/` when that plugin is installed for the workspace.
 
 ### 1. General Usage
-To start a session with a specific subagent:
-```bash
-junie --agent tdd-tester "Implement a reproduction test for the issue in internal/storage/lead.go"
-```
+Start from the source-of-truth `.claude/agents/` spec or the matching Codex skill, then keep the task scope limited to that agent's area.
 
 ### 2. Delegating Tasks
-If you are already in a Junie session (using the default agent), you can ask Junie to use a subagent for a specific task. Junie will switch its persona and toolset according to the subagent's definition.
+Ask the active coding assistant to use the named agent role for a specific task. For Codex, prefer the repo-local skill name when available, such as `tdd-tester`, `database-architect`, or `api-integrator`.
 
 ### 3. Combining Subagents (Choreography)
 For complex tasks, you might use different subagents sequentially. This is called "Agent Choreography." For example, to implement the Audit Trail feature (Phase 27), you would:
@@ -87,13 +84,13 @@ See [AGENT_CHOREOGRAPHY_PHASE27.md](../planning/AGENT_CHOREOGRAPHY_PHASE27.md) f
 - **Small Contexts:** Only give each agent the information relevant to its specific task.
 - **Explicit Hand-offs:** Define clear deliverables for each agent (e.g., `database-architect` delivers a schema, `api-integrator` consumes it).
 - **Iterative Testing:** Use `tdd-tester` to verify each component in isolation before moving to the next stage of the choreography.
-- **Central Planning:** The main Junie agent (you) should maintain the high-level plan while subagents handle the domain-specific implementation details.
+- **Central Planning:** The main coding agent should maintain the high-level plan while specialized roles handle domain-specific implementation details.
 
-## 🛠 Adding or Updating Subagents
+## Adding or Updating Agents
 
-Subagent definitions are stored in `.junie/agents/` as Markdown files with a YAML frontmatter.
+Agent definitions are maintained in the backend source repo under `.claude/agents/`. The repo-local Codex plugin under `backend/plugins/groupscout-agents/` is generated/curated from those specs and should be checked for drift when agent instructions change.
 
-### Subagent File Format:
+### Claude Agent File Format:
 ```yaml
 ---
 name: "agent-name"
@@ -106,11 +103,11 @@ Detailed instructions for the agent...
 ```
 
 ### Tips for Better Subagents:
-- **Platform Tools:** Always include `update_status` and `AskUserQuestion` in the `tools` list if you use a restricted allowlist. This ensures Junie can still report progress and ask for clarification.
+- **Platform Tools:** Always include progress-reporting and user-question tools if you use a restricted allowlist. This ensures the assistant can still report progress and ask for clarification.
 - **Focused Tools:** Only give an agent the tools it needs (e.g., `WebSearch` for `collector-specialist`).
 - **Clear Instructions:** Use the instructions to define the agent's persona, core principles, and common tasks.
 - **Reference Docs:** Point the agent to relevant project documentation (e.g., `DEVELOPER.md`, `PHASES.md`).
 
 ## 🔗 Related Resources
-- [Junie CLI Documentation](https://junie.jetbrains.com/docs/junie-cli-subagents.html)
 - [DEVELOPER.md](../DEVELOPER.md)
+- [GroupScout Codex Agents](../../plugins/groupscout-agents/README.md)

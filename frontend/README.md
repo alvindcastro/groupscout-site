@@ -2,11 +2,11 @@
 
 Phase 0-15 now follows the canonical `UI_TDD_PHASE_PROMPTS.md` order: baseline reconciliation, product IA/UX guardrails, backend compatibility smoke, API client contracts, Today, Leads, Lead Detail, status/corrections, verification, outreach, pipeline, analytics, read-only alerts, session/runtime, Docker E2E, and browser UX hardening. The restored baseline includes the dependency-free vanilla DOM product renderer/runtime, static build, product dev server, production static/proxy server, and same-origin `/api/*` contracts.
 
-Status reconciliation, 2026-05-25: the inspected UI checkout does not currently contain `web/src/renderer/browserUxHardening.js`, `test/browser-ux-hardening.test.js`, the `/admin/login` route/auth client wiring, production-server session gating, or `createApiClient().getLead(...)`. Restore or reconcile those artifacts under `groupscout-site-0m0`. Until then, the affected sections below are planned/canonical contract language, not proof of current checkout behavior.
+Status reconciliation, 2026-06-10: the inspected UI checkout currently contains `createApiClient().getLead(...)` in `web/src/api/leads.js`. It still does not contain `web/src/renderer/browserUxHardening.js`, `test/browser-ux-hardening.test.js`, the `/admin/login` route/auth client wiring, or production-server session gating. Restore or reconcile those remaining artifacts under `groupscout-site-0m0`. Until then, affected admin/session and Phase 15 hardening sections below are planned/canonical contract language, not proof of current checkout behavior.
 
 ## Current Scope
 
-- Design tokens live in `web/src/design/tokens.js` and are mapped from `DESIGN.md`.
+- Design tokens live in `web/src/design/tokens.js` and are mapped from `DESIGN.md` as a visual reference/token source, not product or brand source of truth.
 - The route shell lives in `web/src/app/shell.js` and mounts Today, Leads, Verification, Outreach, Pipeline, Analytics, Alerts, and a Settings placeholder.
 - Browser API access still enters through `web/src/api/client.js`, with same-origin `/api/*` transport centralized in `web/src/api/transport.js` and feature adapters split across focused `web/src/api/*` modules.
 - UI deployment/session helper rules live in `web/src/server/uiDeployment.js` and cover `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, development-only `CORS_ALLOWED_ORIGINS`, session-cookie `/api/*` access when configured, and a no-secret Docker smoke mode. The inspected production server does not currently wire that session gate before proxying `/api/*`.
@@ -19,7 +19,7 @@ Status reconciliation, 2026-05-25: the inspected UI checkout does not currently 
 - Product dev serving lives in `web/src/server/productDevServer.js`; `compose.dev.yml` runs that server on container port `3000` and host `${GROUPSCOUT_UI_HOST_PORT:-3001}`.
 - Backend compatibility smoke classification lives in `web/src/server/backendCompatibilitySmoke.js` and distinguishes proxy failure, backend route drift, auth, schema drift, compatible responses, and backend errors.
 - Lead inbox reads use `createApiClient().listLeads(...)` for `GET /api/leads` query serialization, pagination cursors, default priority ordering, and response field adaptation.
-- Lead detail reads should use `createApiClient().getLead(...)` for `GET /api/leads/{id}` evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows after `groupscout-site-0m0` restores or reconciles the missing client method.
+- Lead detail reads use `createApiClient().getLead(...)` for `GET /api/leads/{id}` evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows.
 - Lead status writes use `createApiClient().patchLead(...)` for `PATCH /api/leads/{id}` payloads covering status, owner, notes, snooze date, correction reason, and safe field corrections.
 - Raw audit reads use `createApiClient().getLeadRawAudit(...)` for the UI-safe `GET /api/leads/{id}/raw` alias.
 - Outreach history reads and manual attempt logs use `createApiClient().listLeadOutreach(...)` and `createApiClient().logLeadOutreach(...)` for `GET/POST /api/leads/{id}/outreach`.
@@ -83,7 +83,7 @@ for path in / /leads /leads/lead_hotel_001 /verification /outreach /pipeline /an
 done
 ```
 
-Expected: app routes return HTTP `200` from the UI shell. `/admin/login` and unauthenticated redirects are planned but absent from the inspected UI checkout.
+Expected: app routes return HTTP `200` from the UI shell. The current smoke excludes `/admin/login`; that route and unauthenticated redirects are planned but absent from the inspected UI checkout, so a missing `/admin/login` is not stale-asset evidence by itself.
 
 API proxy smoke:
 

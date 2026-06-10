@@ -367,7 +367,7 @@ See "Ollama Setup" section added separately.
 ## Part G — Ollama Modelfile & Persona Tuning
 
 **Files to create:** `config/Modelfile.groupscout`, `scripts/ollama_create_model.sh`
-**Files to edit:** `cmd/smoketest/main.go`, `docker-compose.yml`
+**Files to edit:** `cmd/tools/smoketest/main.go`, `docker-compose.yml`
 
 ```
 Context:
@@ -403,7 +403,7 @@ PARAMETER stop "```"
 
 chmod +x scripts/ollama_create_model.sh
 
---- TASK G-T: ADD -compare-providers TO cmd/smoketest/main.go ---
+--- TASK G-T: ADD -compare-providers TO cmd/tools/smoketest/main.go ---
 
 Add flag: -compare-providers
 When set:
@@ -438,7 +438,7 @@ See AI_DATA_STRATEGY update below.
   ./scripts/ollama_pull.sh llama3.2
   ./scripts/ollama_create_model.sh
   # In .env: LLM_MODEL=groupscout
-  go run ./cmd/smoketest/ -compare-providers
+  go run ./cmd/tools/smoketest/ -compare-providers
   # Review table: groupscout scores should be close to Claude baseline
 ```
   Confirm: no external API calls, enrichment succeeds (quality will be lower than Claude)

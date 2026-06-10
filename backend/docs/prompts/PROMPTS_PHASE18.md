@@ -154,7 +154,7 @@ Context:
 - Format: "👤 Jane Smith — Project Manager  |  jane.smith@pcl.ca"
 - When empty: show nothing (don't clutter with "No contact found")
 
-Task 18.4-T — update internal/notify/slack_test.go FIRST:
+Task 18.4-T — update internal/leadnotify/slack_test.go FIRST:
   Add test cases to existing TestFormatLeadMessage (or create new):
   - TestFormatLeadMessage_WithContact: lead.ContactEmail = "jane@pcl.ca";
     assert output contains "Jane Smith" and "jane@pcl.ca"
@@ -162,7 +162,7 @@ Task 18.4-T — update internal/notify/slack_test.go FIRST:
     assert no contact section in output
   Tests fail first. Commit.
 
-Task 18.4 — update internal/notify/slack.go:
+Task 18.4 — update internal/leadnotify/slack.go:
   In formatLeadBlocks(), after existing blocks:
   if lead.ContactEmail != "" {
       append context block:
@@ -175,7 +175,7 @@ Task 18.4 — update internal/notify/slack.go:
       }
   }
 
-Verify: go test ./internal/notify/...
+Verify: go test ./internal/leadnotify/...
 ```
 
 ---
@@ -255,13 +255,13 @@ Task 18.7 — update internal/enrichment/scorer.go:
     default:                         return "Major"
     }
 
-Task 18.8 — update internal/notify/slack.go:
+Task 18.8 — update internal/leadnotify/slack.go:
   In formatLeadBlocks(), update the project value field:
     display: "$2.4M (Medium)" instead of "$2400000"
     Use humanize helper or manual formatting: value / 1_000_000 with "M" suffix
     Append BudgetTier label in parentheses.
 
-Verify: go test ./internal/enrichment/... ./internal/notify/...
+Verify: go test ./internal/enrichment/... ./internal/leadnotify/...
 ```
 
 ---
@@ -274,7 +274,7 @@ Verify: go test ./internal/enrichment/... ./internal/notify/...
 | `internal/enrichment/enricher.go` | Wire Hunter after LLM enrichment |
 | `internal/enrichment/scorer.go` | Add `BudgetTier()` helper |
 | `internal/storage/leads.go` | Add contact fields + `UpdateContact()` |
-| `internal/notify/slack.go` | Contact block + budget tier label |
+| `internal/leadnotify/slack.go` | Contact block + budget tier label |
 | `migrations/004_contact_fields.up.sql` | ALTER TABLE adds contact columns |
 | `config/config.go` | HUNTER_API_KEY env var |
 | `docs/AI_DATA_STRATEGY.md` | Provider context (Hunter is not an LLM — it's a contact API) |

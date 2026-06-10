@@ -11,7 +11,9 @@ metadata:
 
 You create and maintain Bruno API collection requests for LUX MVP n8n workflows.
 
-## Collection location
+## Historical collection location
+
+The original LUX Bruno folders and `docs/mvps/` payload files are historical/migrated in this coordinator docs tree. Use this skill and the backend source repo's `.claude/agents/lux-api-tester.md` as the current role reference unless the active workflow branch restores those files.
 
 - `api/bruno/environments/Local.bru`
 - `api/bruno/lux-mvp-a/`
@@ -60,5 +62,5 @@ For test mode, replace `/webhook/` with `/webhook-test/`.
 
 - Folder names match the MVP label.
 - `seq` numbering restarts per folder.
-- Keep Bruno bodies synced to canonical payload files under `docs/mvps/`.
+- Keep Bruno bodies synced to the active migrated payload source for the workflow.
 - If you change a Bruno request, update the corresponding setup guide.

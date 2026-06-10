@@ -48,15 +48,15 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [x] **A2** `internal/collector/richmond.go` — download latest PDF + parse text into raw permit records (7-8 lines/record)
 - [x] **A3** `internal/collector/richmond.go` — filter by SUB TYPE + value > $500K, map to `RawProject`, call `HashProject()`
 - [x] **A4** `internal/collector/richmond_test.go` — unit tests for all pure functions (table-driven)
-- [x] **A5** `cmd/smoketest/main.go` — run collector, pretty-print results as JSON (dev tool)
+- [x] **A5** `cmd/tools/smoketest/main.go` — run collector, pretty-print results as JSON (dev tool)
 
 ### Part B — Claude Enrichment
 - [x] **B1** `internal/enrichment/claude.go` — `EnrichedLead` struct + Claude API POST + JSON response parser
 - [x] **B2** `internal/enrichment/enricher.go` — orchestrate: collect → `ExistsByHash` check → enrich → `LeadStore.Insert`
 
 ### Part C — Slack Notification
-- [x] **C1** `internal/notify/slack.go` — `Notifier` interface + `SlackNotifier` struct + webhook POST
-- [x] **C2** `internal/notify/slack.go` — Block Kit message formatter for a single `Lead`
+- [x] **C1** `internal/leadnotify/slack.go` — `Notifier` interface + `SlackNotifier` struct + webhook POST
+- [x] **C2** `internal/leadnotify/slack.go` — Block Kit message formatter for a single `Lead`
 
 ### Part D — Wire It Up
 - [x] **D1** `cmd/server/main.go` — `--run-once` flag: runs collect → enrich → notify pipeline and exits
@@ -244,7 +244,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 
 > Current Beads: remaining lead/outreach API work overlaps the planned operator UI API implementation in `groupscout-site-eqm`; generated frontend types are tracked by `groupscout-site-29q`.
 
-- [x] **7.1** `internal/notify/slack.go` — Identify lead source in Slack notifications.
+- [x] **7.1** `internal/leadnotify/slack.go` — Identify lead source in Slack notifications.
 - [x] **7.2** `PHASES.md` — Add tick-off tasks for user requests.
 - [x] **7.3** `CHANGELOG.md` — Document source identification and documentation updates.
 - [ ] **7.4** `internal/storage/leads.go` — Add `List` with filtering (status, score) and pagination.
@@ -498,7 +498,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 ### Part G — Ollama Modelfile & Persona Tuning
 > Raw `llama3.2` follows JSON instructions less reliably than Claude. A custom Modelfile bakes the hotel sales analyst persona + strict JSON instructions into the model at load time — reducing bad outputs without prompt engineering in every call.
 
-- [ ] **G-T** `cmd/smoketest/main.go` — add `-compare-providers` flag: runs the same 3 fixture permits through both the configured LLM provider and a second provider; prints side-by-side `priority_score` and `out_of_town_crew_likely` values. No assertions — visual comparison only.
+- [ ] **G-T** `cmd/tools/smoketest/main.go` — add `-compare-providers` flag: runs the same 3 fixture permits through both the configured LLM provider and a second provider; prints side-by-side `priority_score` and `out_of_town_crew_likely` values. No assertions — visual comparison only.
 - [ ] **G1** `config/Modelfile.groupscout` — Ollama Modelfile for hotel sales analyst persona:
   ```
   FROM llama3.2
@@ -526,7 +526,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **E4** Verify: set invalid primary API key → fallback activates → pipeline completes → Sentry captures primary failure
 
 ### Part F — Gemini Provider
-> `internal/enrichment/gemini.go` was added externally (Junie). Wire it into the factory and test coverage.
+> `internal/enrichment/gemini.go` was added externally. Wire it into the factory and test coverage.
 
 - [ ] **F-T** `internal/enrichment/gemini_test.go` — check if tests exist; if not, write `httptest.NewServer` tests: Gemini request body format (`contents[].parts[].text`), response parse (`candidates[0].content.parts[0].text`), non-200 error handling
 - [ ] **F1** `internal/enrichment/llm_factory.go` — wire `LLM_PROVIDER=gemini` → `GeminiClient` from `gemini.go`
@@ -599,8 +599,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **18.1** `internal/enrichment/hunter.go` — Hunter.io API client: domain lookup by org name → return top contact ranked by title relevance (project manager, travel coordinator, ops manager)
 - [ ] **18.2** `internal/enrichment/enricher.go` — call Hunter after Claude enrichment step; attach contact to lead if found
 - [ ] **18.3** `internal/storage/leads.go` — add `contact_name`, `contact_title`, `contact_email` fields to `Lead` struct; new migration `004_contact_fields.up.sql`
-- [ ] **18.4-T** `internal/notify/slack_test.go` — assert contact block appended when `ContactEmail != ""`; assert block absent when empty; fail first
-- [ ] **18.4** `internal/notify/slack.go` — append contact info block to lead Slack message when enrichment finds a match
+- [ ] **18.4-T** `internal/leadnotify/slack_test.go` — assert contact block appended when `ContactEmail != ""`; assert block absent when empty; fail first
+- [ ] **18.4** `internal/leadnotify/slack.go` — append contact info block to lead Slack message when enrichment finds a match
 - [ ] **18.5** `config/config.go` — `HUNTER_API_KEY` env var
 - [ ] **18.6** Log enrichment hit rate by source in pipeline metrics output
 
@@ -609,7 +609,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 
 - [ ] **18.7-T** `internal/enrichment/scorer_test.go` — add `TestBudgetTierScore` table-driven: <$1M → low, $1–10M → medium, >$10M → high; fail first
 - [ ] **18.7** `internal/enrichment/scorer.go` — `BudgetTier(value int64) string` helper: maps project value to spend tier; used in both pre-scorer and Slack formatter
-- [ ] **18.8** `internal/notify/slack.go` — include budget tier label in lead Slack message next to project value
+- [ ] **18.8** `internal/leadnotify/slack.go` — include budget tier label in lead Slack message next to project value
 
 ---
 
@@ -622,8 +622,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 
 - [ ] **19-T** `cmd/server/slack_actions_test.go` — table-driven: Claim payload → status=claimed, Dismiss → dismissed, Snooze → snoozed + `snoozed_until` set; Slack signing secret verification (reject bad HMAC); all fail first
 - [ ] **19.1** `cmd/server/main.go` — `/slack/actions` POST endpoint to handle interactive Slack button payloads (verified via Slack signing secret)
-- [ ] **19.2-T** `internal/notify/slack_test.go` — assert action buttons (Claim/Dismiss/Snooze) present in lead message output; fail first
-- [ ] **19.2** `internal/notify/slack.go` — add action buttons to lead messages: **Claim** / **Dismiss** / **Snooze 7d**
+- [ ] **19.2-T** `internal/leadnotify/slack_test.go` — assert action buttons (Claim/Dismiss/Snooze) present in lead message output; fail first
+- [ ] **19.2** `internal/leadnotify/slack.go` — add action buttons to lead messages: **Claim** / **Dismiss** / **Snooze 7d**
 - [ ] **19.3-T** `internal/storage/leads_test.go` — `TestLeadStatusTransition`: new→claimed, new→dismissed, new→snoozed; assert `snoozed_until` persisted; reject invalid transitions; fail first
 - [ ] **19.3** `internal/storage/leads.go` — status transitions: `new → claimed / dismissed / snoozed`; store `snoozed_until` timestamp
 - [ ] **19.4-T** `internal/storage/outreach_test.go` — `TestOutreachLogInsert` + `TestOutreachLogListByLead`; fail first
@@ -662,7 +662,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 ### Part B — Property-Scoped Pipeline
 - [ ] **B-T** `internal/enrichment/enricher_test.go` — add `TestEnricher_RoutesLeadToProperty`: mock two properties; assert lead routed to correct Slack channel based on location match; fail first
 - [ ] **B1** `internal/enrichment/enricher.go` — add `PropertyID string` to `Lead`; geo-match raw project location against configured property radius
-- [ ] **B2** `internal/notify/slack.go` — route Slack message to property-specific webhook URL
+- [ ] **B2** `internal/leadnotify/slack.go` — route Slack message to property-specific webhook URL
 
 ### Part C — Alertd Multi-Hotel Config
 > Already uses YAML per-hotel config (Phase 17-D1). Ensure `alertd` and the lead pipeline share the same `config/properties.yaml` schema or clearly separate them.
@@ -684,7 +684,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 - [ ] **A1** `internal/enrichment/repeat.go` — `RepeatDetector`: fuzzy-match incoming `general_contractor` / `applicant` against historical `outreach_log` wins; return `RepeatMatch` struct (org, last outcome, last arrival date, win count)
 - [ ] **A2** `internal/storage/leads.go` — query: `SELECT DISTINCT general_contractor, outcome FROM outreach_log JOIN leads` grouped by normalized org name
 - [ ] **A3** `internal/enrichment/enricher.go` — call `RepeatDetector` after enrichment; attach `RepeatMatch` to lead; bump priority score by +2 if prior win detected
-- [ ] **A4** `internal/notify/slack.go` — add "Repeat group 🔁" badge to Slack lead block when `RepeatOrganization=true`; include last outcome + date
+- [ ] **A4** `internal/leadnotify/slack.go` — add "Repeat group 🔁" badge to Slack lead block when `RepeatOrganization=true`; include last outcome + date
 
 ### Part B — Signal Quality Metrics
 > Rate each source by how often its leads turn into claimed leads (conversion to action). Surfaces in Phase 20 analytics and can auto-suppress low-quality sources.
@@ -877,8 +877,8 @@ Postgres integration follow-up: `groupscout-site-wda` tracks the raw-input forei
 
 - [ ] **28-T** `internal/storage/analytics_test.go` — seed test DB; `TestSourceAttribution` asserts correct grouped counts + hit rate %; `TestDemandDensityByWeek` asserts bucketing by arrival week; all fail first
 - [ ] **28.1** `internal/storage/leads.go` — aggregate query: leads grouped by source + outcome for a configurable time window
-- [ ] **28.2-T** `internal/notify/slack_test.go` — assert analytics Block Kit section: Source / Leads / Claimed / Won / Hit Rate columns; fail first
-- [ ] **28.2** `internal/notify/slack.go` — analytics summary Block Kit section: Source → Leads → Claimed → Won → Hit Rate %
+- [ ] **28.2-T** `internal/leadnotify/slack_test.go` — assert analytics Block Kit section: Source / Leads / Claimed / Won / Hit Rate columns; fail first
+- [ ] **28.2** `internal/leadnotify/slack.go` — analytics summary Block Kit section: Source → Leads → Claimed → Won → Hit Rate %
 - [ ] **28.3** `cmd/server/main.go` — wire analytics summary into existing `/digest` endpoint (appended section, not a new endpoint)
 - [ ] **28.4** Market demand view: upcoming leads bucketed by expected arrival week, grouped by source type — gives managers a forward demand density view
 

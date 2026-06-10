@@ -4,7 +4,7 @@ This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/group
 
 The UI source repo is currently a plain JavaScript UI workspace for GroupScout operator screens. It has model-level screen factories, a dependency-free vanilla DOM renderer, a static build script, and Node's built-in test runner.
 
-Status reconciliation, 2026-05-25: the inspected UI checkout does not currently contain `web/src/app/adminLogin.js`, `web/src/api/auth.js`, `web/src/renderer/browserUxHardening.js`, `test/browser-ux-hardening.test.js`, or `createApiClient().getLead(...)`; `productionServer.js` proxies `/api/*` directly instead of applying the documented session gate. Restore or reconcile those artifacts under `groupscout-site-0m0`.
+Status reconciliation, 2026-06-10: the inspected UI checkout currently contains `createApiClient().getLead(...)` in `web/src/api/leads.js`. It does not currently contain `web/src/app/adminLogin.js`, `web/src/api/auth.js`, `web/src/renderer/browserUxHardening.js`, or `test/browser-ux-hardening.test.js`; `productionServer.js` proxies `/api/*` directly instead of applying the documented session gate. Restore or reconcile the remaining admin/session/hardening artifacts under `groupscout-site-0m0`.
 
 ## Current Shape
 
@@ -29,7 +29,7 @@ Status reconciliation, 2026-05-25: the inspected UI checkout does not currently 
 - `web/src/app/pipelineMonitor.js` owns the mocked Pipeline Monitor screen model, health summaries, and async run-control metadata.
 - `web/src/app/analyticsDashboard.js` owns the mocked Analytics screen model, source-yield definitions, and demand-signal metadata.
 - `web/src/app/alertdConsole.js` owns the mocked Alertd read-only console model, SPS summaries, evidence, room inventory, action-history metadata, and disabled alert action policy.
-- `web/src/design/tokens.js` exports the subset of `DESIGN.md` tokens needed by tests.
+- `web/src/design/tokens.js` exports the subset of `DESIGN.md` visual reference tokens needed by tests.
 - `test/*.test.js` contains contract and screen-model tests using `node:test`.
 
 There is no bundler, framework runtime, lockfile, or package-install step yet.
@@ -85,7 +85,7 @@ npx @google/design.md lint DESIGN.md
 
 Useful focused runs:
 
-The commands below include historical/restoration targets. In the inspected UI checkout, runs that require planned admin auth files, `createApiClient().getLead(...)`, production session-gate wiring, or `test/browser-ux-hardening.test.js` belong to `groupscout-site-0m0` until those artifacts are restored or reconciled.
+The commands below include historical/restoration targets. In the inspected UI checkout, runs that require planned admin auth files, production session-gate wiring, or `test/browser-ux-hardening.test.js` belong to `groupscout-site-0m0` until those artifacts are restored or reconciled.
 
 ```sh
 node --test test/api-boundary.test.js
@@ -123,7 +123,7 @@ npm run build
 npm test
 ```
 
-Manual Docker/browser smoke should open `http://localhost:3001/admin/login` and confirm the login form appears as a compact floating window after `groupscout-site-0m0` restores the admin login route. The automated renderer test asserts the `admin-login-window` class contract when that test exists; it is not a visual regression test.
+Manual Docker/browser smoke should open `http://localhost:3001/admin/login` and confirm the login form appears as a compact floating window only after `groupscout-site-0m0` restores the admin login route. In the inspected current checkout, `/admin/login` is absent and should not be used as stale-asset evidence. The automated renderer test asserts the `admin-login-window` class contract when that test exists; it is not a visual regression test.
 
 API-client smell-phase baseline:
 
@@ -143,11 +143,11 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Keep `API_TOKEN` out of browser runtime/config modules.
 - Keep `UI_API_PROXY_TARGET` server-only; browser code and public config may only expose relative `/api/*`.
 - Keep production public config whitelist-only and free of provider keys, Slack tokens, Resend/SendGrid keys, database URLs, and `UI_SESSION_SECRET`.
-- Configure `UI_SESSION_SECRET` for real operator deployments so browser `/api/*` requests require a valid `groupscout_session`; leave it unset only for backend Docker smoke checks that need proxy reachability without a browser login flow.
+- For the planned production session gate, configure `UI_SESSION_SECRET` for real operator deployments so browser `/api/*` requests require a valid `groupscout_session`; leave it unset only for backend Docker smoke checks that need proxy reachability without a browser login flow. In the inspected current checkout, `productionServer.js` still proxies `/api/*` directly.
 - Use `UI_ENABLED` to disable the UI, `UI_BASE_PATH` for subpath mounting, and `UI_SESSION_SECRET` for session readiness.
 - Keep `CORS_ALLOWED_ORIGINS` development-only; same-origin deployment is the default production posture.
 - Add API access through `createApiClient(...)`; do not fetch backend URLs directly from app modules.
-- Use `createApiClient().getLead(...)` for browser-facing `GET /api/leads/{id}` detail reads after the missing detail client is restored; keep source evidence, AI enrichment, reviewer corrections, and activity distinct.
+- Use `createApiClient().getLead(...)` for browser-facing `GET /api/leads/{id}` detail reads; keep source evidence, AI enrichment, reviewer corrections, and activity distinct.
 - Use `GET /api/leads/{id}/raw` for browser-facing raw audit access; do not link older raw audit endpoints from UI screens.
 - Use `GET/POST /api/pipeline/runs` for pipeline history and manual run creation; do not call worker, scheduler, or one-shot automation endpoints directly from app modules.
 - Use `GET /api/stats` for browser-facing analytics; keep denominators, date ranges, and outcome definitions visible when adding metrics.
@@ -155,7 +155,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Use `GET /api/system` for Today/system-health summaries; keep Today as a read-only routing surface and leave mutations in the owning workspaces.
 - Keep status transitions in `leadStatus.js`; UI surfaces should consume action metadata instead of duplicating the transition table.
 - Keep mocked screen data aligned across inbox and detail models when a mocked lead appears in both places.
-- Treat `DESIGN.md` as the source design contract; `web/src/design/tokens.js` is a partial implementation used by tests.
+- Treat `DESIGN.md` as the visual reference and token contract; `web/src/design/tokens.js` is a partial implementation used by tests. Product behavior, naming, and brand truth stay in the product docs and source contracts.
 - Update phase docs and README when behavior or scope changes.
 
 ## Docker Operations
@@ -184,7 +184,7 @@ The backend repo is separate:
 
 For backend startup and API checks, see [how-to-run-backend.md](./how-to-run-backend.md).
 
-For the exact operator login, setup-token rotation, API smoke, and stale-asset recovery flow, see [admin-token-flow.md](./admin-token-flow.md).
+For the planned operator login, setup-token rotation, API smoke, and stale-asset recovery flow, see [admin-token-flow.md](./admin-token-flow.md).
 
 Backend markdown references are centralized under `/mnt/c/Users/alvin/groupscout-site/backend`; do not expect backend docs to exist in the backend source checkout after the doc move.
 
@@ -193,7 +193,7 @@ Frontend client contract targets:
 The `/api/*` list below describes UI client contracts, not live backend routes in the current source snapshot. Treat them as planned until `groupscout-site-eqm` lands the backend UI API surface and `groupscout-site-29q` regenerates checked frontend client/types.
 
 - `GET /api/leads`
-- `GET /api/leads/{id}` (planned in the inspected UI checkout until `createApiClient().getLead(...)` is restored)
+- `GET /api/leads/{id}`
 - `PATCH /api/leads/{id}`
 - `GET /api/leads/{id}/raw`
 - `GET /api/leads/{id}/outreach`
@@ -258,6 +258,6 @@ Development Compose and D4 production smoke details live in [Docker Runtime Matr
 - Tests now include dependency-free rendered HTML smoke coverage, but not a real browser engine.
 - Accessibility checks cover rendered landmarks, labels, and focusable metadata; they do not perform full assistive-technology audits.
 - Responsive behavior is still represented as layout metadata, not measured CSS layout.
-- Design token tests check selected exports; they do not resolve every nested token reference from `DESIGN.md`.
+- Design token tests check selected exports; they do not resolve every nested visual-token reference from `DESIGN.md`.
 - The browser credential guard recursively scans browser-facing `web/src/**/*.js` files while excluding `web/src/server`; keep server-only code in that excluded subtree and keep browser modules free of automation credentials.
 - Framework rendering remains a future strict-TDD phase; the current renderer is a minimal vanilla DOM bridge over the existing screen models.

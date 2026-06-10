@@ -23,7 +23,9 @@ The upstream `post_context_json`:
 }
 ```
 
-## Source file
+## Historical source file
+
+The original prompt file is historical/migrated in this coordinator docs tree. Use this skill and the backend source repo's `.claude/agents/lux-slack-notifier.md` as the current role reference.
 
 - `docs/mvps/mvp-c/prompts/user_slack_notify.txt`
 

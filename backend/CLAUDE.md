@@ -107,9 +107,9 @@ groupscout/
 │   │   ├── raw.go             # RawProjectStore interface + SQLite impl
 │   │   ├── leads.go           # LeadStore interface + Lead struct + SQLite impl
 │   │   └── embeddings.go      # EmbeddingStore interface + pgvector/SQLite impl ✅
-│   ├── notify/
-│   │   ├── slack.go           # Slack webhook (leads) + Bot API (alertd) ✅
-│   │   ├── slack_test.go      # unit tests: 14 tests ✅
+│   ├── leadnotify/
+│   │   ├── slack.go           # Slack webhook for lead notifications ✅
+│   │   ├── slack_test.go      # lead notification tests ✅
 │   │   └── email.go           # Resend email digest (Phase 4-C)
 │   ├── scheduler/
 │   │   └── scheduler.go       # cron wiring (Phase 3-D)
@@ -137,28 +137,20 @@ groupscout/
 ├── CLAUDE.md
 ├── docs/
 │   ├── planning/
-│   │   ├── PHASES.md          # living task tracker
+│   │   ├── PHASES.md          # phase reference and historical build context
 │   │   ├── ROADMAP.md
 │   │   ├── OLLAMA_INTEGRATION.md
 │   │   └── groupscout-plan.md
 │   ├── guides/
 │   │   ├── SETUP.md
 │   │   ├── DOCKER.md
-│   │   ├── TESTING.md           # § 11 covers LUX MVP testing (n8n only)
+│   │   ├── TESTING.md
 │   │   ├── OLLAMA_SETUP.md
 │   │   ├── ALERTD_SETUP.md
 │   │   ├── TROUBLESHOOTING.md
 │   │   ├── N8N_GUIDE.md         # § 11 Slack Integration; § 10 Workflow Inventory
 │   │   ├── HOME_DEPLOY.md
-│   │   ├── LUX_MVP_A_SETUP.md
-│   │   ├── LUX_MVP_A_USER_GUIDE.md
-│   │   ├── LUX_MVP_A_TROUBLESHOOTING.md
-│   │   ├── LUX_MVP_B_SETUP.md
-│   │   ├── LUX_MVP_B_USER_GUIDE.md
-│   │   ├── LUX_MVP_B_TROUBLESHOOTING.md
-│   │   ├── LUX_MVP_C_SETUP.md
-│   │   ├── LUX_MVP_C_USER_GUIDE.md
-│   │   └── LUX_MVP_C_TROUBLESHOOTING.md
+│   │   └── historical LUX guides migrated out of this docs tree
 │   ├── mvps/
 │   │   ├── mvp-a.md             # MVP-A spec: AI client status email generator
 │   │   ├── mvp-b.md             # MVP-B spec: automated lead follow-up sequence
@@ -255,7 +247,7 @@ Use `bd` for live task state. `docs/planning/PHASES.md` is retained as the phase
 
 ### LUX Platform Pipelines (n8n, Claude API — no Go code)
 
-Standalone n8n workflows for LUX Construction. Run independently — only n8n needed, no GroupScout server required. All prompts, payloads, and workflows live in `docs/mvps/`.
+Standalone n8n workflows for LUX Construction. Run independently — only n8n needed, no GroupScout server required. The old `docs/mvps/` and `docs/guides/LUX_MVP_*` files are historical/migrated in this coordinator repo; use the available LUX Codex skills in `backend/plugins/groupscout-agents/skills/` and the backend source repo's `.claude/agents/` specs as the current agent-role references.
 
 | MVP | Goal | Status |
 |---|---|---|
@@ -263,7 +255,7 @@ Standalone n8n workflows for LUX Construction. Run independently — only n8n ne
 | MVP-B | Automated lead follow-up sequence (classify → route → 3-email → Airtable → Slack) | ✅ complete |
 | MVP-C | LinkedIn & podcast post pipeline (milestone/episode → Claude → Slack review) | ✅ complete |
 
-**Agents:** `.claude/agents/lux-status-email-writer.md`, `lux-lead-classifier.md`, `lux-lead-sequence-writer.md`, `lux-content-writer.md`, `lux-slack-notifier.md`
+**Agent roles / skills:** `.claude/agents/lux-status-email-writer.md`, `lux-lead-classifier.md`, `lux-lead-sequence-writer.md`, `lux-content-writer.md`, `lux-slack-notifier.md`; Codex mirrors live under `backend/plugins/groupscout-agents/skills/`.
 
 ---
 

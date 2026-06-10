@@ -9,9 +9,9 @@ metadata:
 
 # LUX Lead Classifier
 
-Classify inbound LUX construction leads as the first step in the MVP-B follow-up pipeline.
+Classify inbound LUX construction leads as the first step in the MVP-B follow-up pipeline. The original `docs/mvps/mvp-b/` files are historical/migrated in this coordinator docs tree; use this skill and the backend source repo's `.claude/agents/lux-lead-classifier.md` as the current role reference.
 
-## Source files
+## Historical source files
 
 - `docs/mvps/mvp-b/payload.json`
 - `docs/mvps/mvp-b/payload_alt.json`
@@ -42,6 +42,6 @@ Do not add preamble or markdown.
 
 ## When tuning
 
-- Edit `docs/mvps/mvp-b/prompts/user_classify.txt`
+- Update the active migrated prompt source or this skill's rules, depending on where the workflow now keeps prompts
 - Remind the user to sync changes to the n8n workflow copy
 - Test against both sample payloads

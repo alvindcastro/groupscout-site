@@ -59,7 +59,7 @@ bd close <id>         # Complete work
 
 ## Session Completion
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+**When ending a work session that changed tracked files or Beads state**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds. For strictly read-only reviews with no tracked-file or Beads changes, report that no push is required and include the clean `git status` result.
 
 **MANDATORY WORKFLOW:**
 

@@ -82,7 +82,7 @@ Run enrichment with a local model instead of Claude or Gemini. No data leaves yo
 Use the smoketest tool to compare Ollama vs Claude on the same fixtures:
 
 ```bash
-COMPARE_LLM_PROVIDER=claude go run ./cmd/smoketest/ -compare-providers
+COMPARE_LLM_PROVIDER=claude go run ./cmd/tools/smoketest/ -compare-providers
 ```
 
 This prints a side-by-side table of `priority_score`, `estimated_crew_size`, and `out_of_town_crew_likely` from both providers.

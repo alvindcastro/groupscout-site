@@ -152,14 +152,15 @@ Use `PriorityScore` on the Slack/internal `0-10` scale. Legacy workflows that st
 - `api/`: OpenAPI / Swagger specifications.
 - `cmd/`: Entry points for `server`, `alertd`, and dev tools.
 - `config/`: Centralized environment and YAML configuration.
-- `.junie/agents/`: Definitions for specialized Junie subagents.
+- `.claude/agents/`: Source-of-truth definitions for specialized backend agents in the backend source repo.
+- `backend/plugins/groupscout-agents/`: Repo-local Codex skill bundle derived from the `.claude/agents/` specs.
 - `docs/`: Historical source location for in-depth guides and planning documents. Long-lived markdown docs are now centralized under `/mnt/c/Users/alvin/groupscout-site/backend`.
 - `internal/`: Core business logic (scrapers, scoring, state machines, storage).
 - `migrations/`: SQL migration files (for Postgres/SQLite).
 
-## 🤖 Junie Subagents
+## 🤖 Specialized Agents
 
-This project uses specialized Junie subagents to streamline development in different domains. These agents are defined in `.junie/agents/` and can be used to handle specific tasks with tailored instructions.
+This project uses specialized backend agent roles to streamline development in different domains. Role boundaries are maintained in the backend source repo's `.claude/agents/` specs; the coordinator repo mirrors them as Codex skills under `backend/plugins/groupscout-agents/` for Codex workflows.
 
 See [SUBAGENTS.md](./guides/SUBAGENTS.md) for a list of available agents and how to use them.
 
@@ -170,7 +171,7 @@ See [SUBAGENTS.md](./guides/SUBAGENTS.md) for a list of available agents and how
 - [DOCKER.md](./guides/DOCKER.md) - Running and troubleshooting Docker.
 - [ADMIN_AUTH.md](./guides/ADMIN_AUTH.md) - Admin setup-token login, session cookie, logout, and token rotation.
 - [BACKEND_FRONTEND_DOCKER_E2E.md](./planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md) - Current backend plus separate UI Docker smoke path.
-- [SUBAGENTS.md](./guides/SUBAGENTS.md) - How to use specialized Junie agents.
+- [SUBAGENTS.md](./guides/SUBAGENTS.md) - How to use specialized backend agents.
 - [TROUBLESHOOTING.md](./guides/TROUBLESHOOTING.md) - Pipeline and missing lead troubleshooting.
 - [SETUP.md](./guides/SETUP.md) - Detailed environment and dependency setup.
 - [TESTING.md](./guides/TESTING.md) - Comprehensive testing guide.

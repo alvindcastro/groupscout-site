@@ -2,7 +2,7 @@
 
 Phase 9 adds the minimum deployment and session model needed to keep the operator workspace behind browser sessions while preserving automation-only credentials for non-browser clients.
 
-Status reconciliation, 2026-05-25: the inspected UI checkout has `uiDeployment.js` helper logic, but `productionServer.js` currently proxies `/api/*` directly and the checkout lacks the documented `/admin/login` route/auth client wiring. Treat this file as the planned session/auth contract until `groupscout-site-0m0` restores or reconciles the implementation.
+Status reconciliation, 2026-06-10: the inspected UI checkout has `uiDeployment.js` helper logic, but `productionServer.js` currently proxies `/api/*` directly and the checkout lacks the documented `/admin/login` route/auth client wiring. Treat the session-gated production proxy and admin-login route sections as planned session/auth contract language until `groupscout-site-0m0` restores or reconciles the implementation.
 
 ## Scope
 
@@ -34,7 +34,7 @@ Status reconciliation, 2026-05-25: the inspected UI checkout has `uiDeployment.j
 - Disabled UI access returns `404` so the operator UI is not mounted.
 - `API_TOKEN` remains reserved for automation clients such as n8n and is not injected into browser requests.
 
-For current setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands, use [Admin Token Flow](./admin-token-flow.md) as the canonical runbook.
+For planned setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands, use [Admin Token Flow](./admin-token-flow.md) as the canonical runbook. In the inspected current checkout, missing `/admin/login` is expected and is not stale-asset evidence.
 
 ## Design Tokens
 

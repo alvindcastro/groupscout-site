@@ -9,9 +9,9 @@ metadata:
 
 # LUX Status Email Writer
 
-Generate client-facing project status emails for LUX from the canonical MVP-A prompts and sample payloads.
+Generate client-facing project status emails for LUX from the migrated/historical MVP-A prompt contract. The original `docs/mvps/mvp-a/` files are no longer present in this coordinator docs tree; treat this skill and the backend source repo's `.claude/agents/lux-status-email-writer.md` as the current role reference.
 
-## Source files
+## Historical source files
 
 - `docs/mvps/mvp-a/payload.json`
 - `docs/mvps/mvp-a/payload_alt.json`

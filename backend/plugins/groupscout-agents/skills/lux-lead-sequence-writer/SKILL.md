@@ -16,7 +16,9 @@ Generate personalized 3-email follow-up sequences for LUX construction leads as 
 1. The raw lead payload.
 2. Classification output from `lux-lead-classifier`.
 
-## Source files
+## Historical source files
+
+The original `docs/mvps/mvp-b/` prompt and payload files are historical/migrated in this coordinator docs tree. Use this skill and the backend source repo's `.claude/agents/lux-lead-sequence-writer.md` as the current role reference.
 
 - `docs/mvps/mvp-b/prompts/user_sequence_commercial.txt`
 - `docs/mvps/mvp-b/prompts/user_sequence_residential.txt`
@@ -39,6 +41,6 @@ Generate personalized 3-email follow-up sequences for LUX construction leads as 
 
 ## When tuning
 
-- Edit the canonical prompt files under `docs/mvps/mvp-b/prompts/`
+- Update the active migrated prompt source or this skill's rules, depending on where the workflow now keeps prompts
 - Remind the user to sync the changes to the n8n workflow
 - Test both the commercial and residential sample payloads

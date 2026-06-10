@@ -2,11 +2,11 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/admin-token-flow.md`. Run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`; run backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 
-Status reconciliation, 2026-05-25: this is the planned admin-token runbook. The inspected backend source snapshot does not expose `/api/auth/*`, and the inspected UI checkout does not expose `/admin/login` or the documented auth client wiring. Backend implementation is tracked by `groupscout-site-eqm`; UI restoration/reconciliation is tracked by `groupscout-site-0m0`.
+Status reconciliation, 2026-06-10: this is the planned admin-token runbook for the auth branch/reconciliation work. The inspected backend source snapshot does not expose `/api/auth/*`, and the inspected UI checkout does not expose `/admin/login` or the documented auth client wiring. Backend implementation is tracked by `groupscout-site-eqm`; UI restoration/reconciliation is tracked by `groupscout-site-0m0`. In the current checkout, a missing `/admin/login` route is expected and should not be treated as stale Docker assets.
 
 ## Operator Login Steps
 
-Use this flow when testing the Docker UI at `http://localhost:3001`.
+Use this flow when testing the Docker UI at `http://localhost:3001` after the planned admin auth route and backend auth endpoints are present.
 
 1. Confirm auth is enabled:
 
@@ -57,17 +57,17 @@ The UI serves immutable `/assets/*` files. The admin-login Docker refresh uses:
 /assets/app.js?v=admin-login-2
 ```
 
-If the browser does not show login after containers were rebuilt:
+After the planned admin login route exists, use this stale-asset check if rebuilt containers still show an older login or app screen:
 
 ```sh
 curl -i --max-time 5 http://localhost:3001/
 ```
 
-The HTML should reference `admin-login-2`. If it still references an older version such as `pipeline-output-4`, rebuild the UI image. If it references `admin-login-2` but the browser is stale, hard-refresh or open `/admin/login` directly.
+The HTML should reference the current admin-login asset query for that branch. If it still references an older version such as `pipeline-output-4`, rebuild the UI image. If it references the expected admin-login query but the browser is stale, hard-refresh or open `/admin/login` directly. In the inspected current checkout, `/admin/login` is absent, so this check is not a current smoke requirement.
 
 ## Direct API Smoke
 
-Login without a browser:
+After `/api/auth/*` exists, login without a browser:
 
 ```sh
 TOKEN="$(docker exec groupscout_app sh -lc 'cat data/admin-setup-token')"

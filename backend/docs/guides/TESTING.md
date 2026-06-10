@@ -153,8 +153,8 @@ We provide a helper script to check Ollama connectivity, model availability, and
 ### 3. Manual Verification & Tools
 Several utility scripts are provided for manual verification:
 - `scripts/test-ollama.sh`: Verifies Ollama connectivity and models.
-- `cmd/test_sentry/main.go`: Verifies Sentry connectivity and error reporting.
-- `check_db.go`: A quick script to inspect the contents of the SQLite `groupscout.db`.
+- `cmd/tools/test_sentry/main.go`: Verifies Sentry connectivity and error reporting.
+- Historical `check_db.go` notes may appear in older docs; use storage tests or current server audit commands instead unless a branch reintroduces that helper.
 - `/run` endpoint: Allows triggering a full pipeline execution manually via HTTP.
 
 ### 4. Integration Testing

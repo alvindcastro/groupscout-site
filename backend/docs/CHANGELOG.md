@@ -1,3 +1,14 @@
+## 2026-06-11 - Source README polish and empty directory cleanup
+
+### groupscout-site-aws - Polish source READMEs and remove empty doc directories
+
+- **What:** Expanded the backend and frontend source READMEs into developer-friendly landing pages and removed empty `.agents`/`.codex` directories left after markdown consolidation.
+- **Where:** Source repos `/mnt/c/Users/alvin/GolandProjects/groupscout` and `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
+- **Why:** The source repos were README-only after consolidation, but the READMEs needed enough local context for day-to-day development and the frontend Dockerfile still referenced removed markdown paths.
+- **How:** Added quick starts, common commands, runtime notes, docs links, and source-repo documentation policy; removed stale Dockerfile doc copies; updated UI tests to use centralized docs when mounted and skip doc-only assertions in isolated containers.
+
+---
+
 ## 2026-06-11 - Source repo markdown consolidation
 
 ### groupscout-site-jnc - Consolidate source repo markdown into coordination docs

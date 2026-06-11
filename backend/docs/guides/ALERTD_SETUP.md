@@ -58,7 +58,7 @@ If room inventory is not set, alerts will display: "room count not set — use /
 `alertd` runs as a separate service in `docker-compose.yml`:
 
 ```bash
-docker-compose up -d alertd
+docker compose up -d alertd
 ```
 
 ## Monitoring & Logs

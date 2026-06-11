@@ -1,3 +1,14 @@
+## 2026-06-10 - Documentation not-done and upgrade review
+
+### groupscout-site-0d6 - Review unfinished documentation tasks and upgrade plan
+
+- **What:** Added a dated not-done and upgrade snapshot, reconciled live Beads follow-up references, and narrowed stale current-source claims in backend/frontend docs.
+- **Where:** `backend/docs/planning/NOT_DONE_AND_UPGRADES.md`, roadmap/phase docs, backend/admin/EvalOps runbooks, frontend testing/status docs, and top-level README navigation.
+- **Why:** Open work and upgrade recommendations were spread across roadmap checkboxes, historical implementation logs, and current checkout reconciliation notes.
+- **How:** Ran parallel documentation reviewers for Beads, backend docs, and frontend docs; grouped unfinished work by theme; linked active issue IDs; and marked planned or branch-history commands that are not runnable in the inspected source snapshots.
+
+---
+
 ## 2026-05-25 - Missed task markdown reconciliation
 
 ### groupscout-site-ar1 - Restore n8n cadence to normal multi-lead run

@@ -8,7 +8,9 @@ Status reconciliation, 2026-06-10: the inspected UI checkout currently contains 
 
 The checkout was reconciled to the tracked Phase 13 UI baseline rather than rebuilt from a docs-only reset. That baseline already included the vanilla DOM renderer, `node:test` harness, screen models, static build, product dev server, production static/proxy server, Docker contracts, and same-origin `/api/*` browser boundary.
 
-## Phase Map
+## Historical Phase Map
+
+The status column records the 2026-05-09 branch-history implementation evidence. It is not a current-checkout inventory for files already called out as missing in the reconciliation note above.
 
 | Phase | Status | Evidence |
 |---|---|---|

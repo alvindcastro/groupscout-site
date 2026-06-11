@@ -17,7 +17,9 @@
 - `DESIGN.md`
 - Current UI branch state and Phase 13 UI runtime updates from `origin/main`
 
-## Current Repo Reality
+## Branch-History Repo Reality
+
+The bullets below describe the 2026-05-09 restoration history. The inspected 2026-06-10 UI checkout is missing some admin/session and Phase 15 hardening artifacts; `groupscout-site-0m0` owns restoring or reconciling those gaps.
 
 - [x] The previous `feat/master` checkout had local deletions of `package.json`, `web/`, `test/`, Docker files, README, and previous docs.
 - [x] The tracked UI baseline was restored on 2026-05-09 after a red Phase 0 reconciliation smoke proved the baseline was absent.

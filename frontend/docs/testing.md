@@ -2,9 +2,9 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/testing.md`. Run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui` and backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 
-Status reconciliation, 2026-05-25: the inspected UI checkout is missing the documented admin login/auth client, `createApiClient().getLead(...)`, and Phase 15 hardening module/test; the inspected backend source snapshot is also missing planned `/api/*` UI routes, admin auth, EvalOps targets, and `make smoke-ui-docker-e2e`. Treat historical green runs below as branch-history until `groupscout-site-0m0`, `groupscout-site-eqm`, and `groupscout-site-crz` land or the docs are further narrowed.
+Status reconciliation, 2026-06-10: the inspected UI checkout contains `createApiClient().getLead(...)`, but is missing the documented admin login/auth client and Phase 15 hardening module/test; the inspected backend source snapshot is also missing planned `/api/*` UI routes, admin auth, EvalOps targets, and `make smoke-ui-docker-e2e`. Treat historical green runs below as branch-history until `groupscout-site-0m0`, `groupscout-site-eqm`, and `groupscout-site-crz` land or the docs are further narrowed.
 
-The dated runs below remain useful implementation history, but they are not current-source proof for admin login, production session gating, `getLead`, browser UX hardening, generated clients, or protected `/api/*` backend routes in the inspected checkouts.
+The dated runs below remain useful implementation history, but they are not current-source proof for admin login, production session gating, browser UX hardening, generated clients, or protected `/api/*` backend routes in the inspected checkouts.
 
 ## Run This Now
 
@@ -126,7 +126,7 @@ Do not run CI UI containers with backend `.env` or `--env-file`. Do not inject `
 
 ## Focused UI Tests
 
-The list below includes historical/restoration targets. In the inspected UI checkout, commands that require the missing admin auth files, `createApiClient().getLead(...)`, production session-gate wiring, or `test/browser-ux-hardening.test.js` should be treated as `groupscout-site-0m0` restoration checks rather than current-source proof.
+The list below includes historical/restoration targets. In the inspected UI checkout, commands that require the missing admin auth files, production session-gate wiring, or `test/browser-ux-hardening.test.js` should be treated as `groupscout-site-0m0` restoration checks rather than current-source proof.
 
 ```sh
 node --test test/api-boundary.test.js
@@ -178,7 +178,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Historical/restoration target under `groupscout-site-0m0`: Phase 15 deterministic browser UX hardening for primary navigation, main landmarks, route-specific focus labels, accessible-name metadata, rendered desktop/tablet/mobile modes, stable loading/error/empty states, text-containment policy, and same-origin API metadata. Real browser verification remains tracked by `groupscout-site-kb4`.
 - Recursive browser-source checks that `API_TOKEN` is not referenced in browser-facing `web/src/**/*.js` modules outside `web/src/server`.
 - Lead inbox query serialization, blank-filter elision, sort overrides, and response adaptation.
-- Historical/restoration target under `groupscout-site-0m0`: lead detail client access through same-origin `GET /api/leads/{id}`, encoded lead IDs, evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows.
+- Lead detail client access through same-origin `GET /api/leads/{id}`, encoded lead IDs, evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows.
 - Lead inbox mocked table, filters, states, responsive metadata, and accessibility metadata.
 - Lead detail sections, source evidence, raw audit link intent, AI enrichment metadata, corrections, timeline, and states.
 - Verification Queue desktop/tablet table models, mobile card rendering, raw audit links, and review actions.

@@ -1,8 +1,8 @@
-# Admin Auth And Setup Token Flow
+# Admin Auth And Setup Token Flow Contract
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/backend/docs/guides/ADMIN_AUTH.md`. Run backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`; run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
 
-Status reconciliation, 2026-05-25: this is the planned admin auth/session runbook. The inspected backend source snapshot does not currently expose `ADMIN_AUTH_*` config, setup-token file creation, `groupscout_session`, or `/api/auth/*` routes, and the inspected UI checkout does not currently expose `/admin/login`. Backend implementation is tracked by `groupscout-site-eqm`; UI restoration/reconciliation is tracked by `groupscout-site-0m0`.
+Status reconciliation, 2026-05-25: this is a contract-only planned admin auth/session runbook. The inspected backend source snapshot does not currently expose `ADMIN_AUTH_*` config, setup-token file creation, `groupscout_session`, or `/api/auth/*` routes, and the inspected UI checkout does not currently expose `/admin/login`. Backend implementation is tracked by `groupscout-site-eqm`; UI restoration/reconciliation is tracked by `groupscout-site-0m0`.
 
 ## Planned Runtime Defaults
 

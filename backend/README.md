@@ -173,15 +173,15 @@ docker compose up -d
 ```
 
 #### 4. AI Quality EvalOps
-Planned AI quality EvalOps commands:
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include the EvalOps Makefile targets or `internal/evalops` runtime. Treat the commands below as the planned/branch-history gate until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
+
+Planned AI quality EvalOps commands after that runtime exists:
 ```bash
 make eval-quality
 make eval-gate
 ```
 
-Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include the EvalOps Makefile targets or `internal/evalops` runtime. Treat the commands below as the planned/branch-history gate until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
-
-To drive the same cases through Promptfoo after that runtime exists, run the local Go target first:
+To drive the same cases through Promptfoo, run the local Go target first:
 ```bash
 make eval-target
 promptfoo eval -c evals/promptfoo/groupscout.yaml
@@ -208,6 +208,7 @@ GQ5 review samples can be converted into review-only draft cases with the evalop
 *   [API_CONFIG.md](./docs/API_CONFIG.md) - Endpoint reference and configuration.
 *   [TESTING.md](./docs/guides/TESTING.md#8-api-testing-details) - How to test the APIs with curl, Bruno, or Swagger.
 *   [ROADMAP.md](./docs/planning/ROADMAP.md) - Long-term project roadmap.
+*   [NOT_DONE_AND_UPGRADES.md](./docs/planning/NOT_DONE_AND_UPGRADES.md) - Dated snapshot of unfinished Beads work and recommended upgrade sequencing.
 *   [UI_STRATEGY.md](./docs/planning/ui/UI_STRATEGY.md) - Operator UI strategy, information architecture, and UI API plan.
 *   [UI_DESIGN_SYSTEM.md](./docs/planning/ui/UI_DESIGN_SYSTEM.md) - Operator UI visual rules and design-system adaptation.
 *   [UI_PHASE31_DESIGN_SYSTEM_CONTRACT.md](./docs/planning/ui/UI_PHASE31_DESIGN_SYSTEM_CONTRACT.md) - Phase 31 token, primitive, component-test, accessibility, secret-safety, and no-hero contract.

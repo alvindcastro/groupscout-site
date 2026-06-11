@@ -846,6 +846,8 @@ The radius scale is tightly disciplined — the brand never uses a corner soften
 
 ## Known Gaps
 
+These are design-source gaps, not active markdown TODOs. Track implementation/refactor work through Beads, primarily `groupscout-site-2h1` for housekeeping and the relevant UI phase bead when a gap becomes product work.
+
 - Specific dark-mode token values for canvas, surface, ink, and hairline are not surfaced on these pages; the brand has not yet shipped a published dark-mode palette
 - Animation/transition timings are not extracted; recommend 150–200ms ease for hover/focus state transitions
 - Form validation success state is not explicitly captured beyond defaults — implement following standard green-border + success badge patterns

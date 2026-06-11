@@ -1,5 +1,7 @@
 # Changelog
 
+Note: historical entries preserve the asset versions and commands that were current when written. For the active admin asset query and login runbook, use `docs/admin-token-flow.md`.
+
 ## Unreleased
 
 ### Markdown Task-Drift Audit

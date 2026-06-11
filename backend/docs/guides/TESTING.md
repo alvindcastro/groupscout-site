@@ -83,6 +83,9 @@ go test ./cmd/alertd/... ./internal/alert/...
 ```
 
 #### Planned AI Quality EvalOps Tests
+
+Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `internal/evalops` or the EvalOps Makefile targets. Treat this section as branch-history/planned guidance until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
+
 ```bash
 go test -v ./internal/evalops
 ```
@@ -92,18 +95,16 @@ go test -v ./internal/evalops
 go test -v ./internal/evalops -run 'TestDraftCasesFromReviewSamples|TestWriteDraftCasesJSONL'
 ```
 
-Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `internal/evalops` or the EvalOps Makefile targets. Treat this section as branch-history/planned guidance until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
-
 These tests verify that redacted review samples become review-only draft cases with trace IDs, TODO expected fields, deterministic duplicate IDs, and a loader rejection until human review is complete.
 
-#### Run Offline AI Quality Reports
+#### Planned Offline AI Quality Reports
 ```bash
 make eval-quality
 ```
 
 This writes deterministic JSON, Markdown, and JUnit artifacts under `build/evals/` without live provider keys.
 
-#### Run The AI Quality Release Gate
+#### Planned AI Quality Release Gate
 ```bash
 make eval-gate
 ```

@@ -4,24 +4,22 @@
 >
 > - Live work is tracked in Beads. `PHASES.md` remains the **historical phase reference** (checkboxes + acceptance context).
 > - This file is the **big-picture list** — what's done, what's next, what's future.
+> - Current not-done work and upgrade sequencing lives in [NOT_DONE_AND_UPGRADES.md](./NOT_DONE_AND_UPGRADES.md).
 > - Source docs are preserved as-is; this is a read-only synthesis for navigation.
 
 ---
 
 ## Live Beads Follow-Ups
 
-Roadmap checkboxes are historical/strategic context. The missed-task audit on 2026-05-25 filed the concrete follow-up work in Beads:
+Roadmap checkboxes are historical/strategic context. Beads is the source of truth for active work, and the dated review snapshot lives in [NOT_DONE_AND_UPGRADES.md](./NOT_DONE_AND_UPGRADES.md).
 
-- `groupscout-site-3gq` — shared `alertd` state for `/api/alerts`.
-- `groupscout-site-yyj` — ops metrics and collector freshness observability.
-- `groupscout-site-vud` and `groupscout-site-48g` — LLM provider abstraction plus AI-ready SQL/LLM observability runtime.
-- `groupscout-site-crz` — restore or reconcile backend EvalOps and UI Docker smoke artifacts that docs reference but the inspected backend source snapshot lacks.
-- `groupscout-site-a50` — correct backend OpenAPI health response contract before frontend client generation relies on it.
-- `groupscout-site-wda` — investigate the Postgres enrichment raw-input FK integration failure found after `/ingest` landed.
-- `groupscout-site-39g` — home-deploy runbook execution and restore smoke. Coolify guide was added in `backend/docs/guides/COOLIFY.md`.
-- `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-0m0` — planned operator UI API routes, generated UI API client, sanitized raw preview, real-browser Phase 15 harness, and current UI checkout admin/session/detail-client hardening reconciliation.
-- `groupscout-site-2h1` — remaining backend/frontend smell refactors.
-- `groupscout-site-aaj`, `groupscout-site-1ee`, and `groupscout-site-a1h` — next source-expansion slice, multi-property design, and Codex plugin skill drift.
+Current open work themes:
+
+- Coordination hygiene: `groupscout-site-b38`, `groupscout-site-783`, and `groupscout-site-a1h`.
+- Runtime correctness and source reconciliation: `groupscout-site-ei7`, `groupscout-site-wda`, and `groupscout-site-crz`.
+- Operator UI and API bridge: `groupscout-site-0m0`, `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-3gq`.
+- Observability, AI, and analytics: `groupscout-site-yyj`, `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-4b4`.
+- Lead workflow, deployment, and expansion: `groupscout-site-62h`, `groupscout-site-iuc`, `groupscout-site-39g`, `groupscout-site-2h1`, `groupscout-site-aaj`, and `groupscout-site-1ee`.
 
 Recently completed:
 
@@ -53,8 +51,8 @@ Recently completed:
 - [x] **Phase 15** — PostgreSQL + pgvector migration: production storage + RAG foundation ✅
 - [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄 (`groupscout-site-vud`)
 - [x] **Phase 17** — Airport Disruption Alert System (`alertd`): YVR real-time monitoring ✅
-- [ ] **Phase 18** — Contact Enrichment: Hunter.io integration & budget tiers 📋 *(not live in the inspected backend source snapshot; create a focused bead before implementation)*
-- [ ] **Phase 19** — Slack Actions & Lead Feedback: claim/dismiss/snooze buttons 📋 (`groupscout-site-eqm` covers overlapping lead-state API work)
+- [ ] **Phase 18** — Contact Enrichment: Hunter.io integration & budget tiers 📋 (`groupscout-site-iuc`)
+- [ ] **Phase 19** — Slack Actions & Lead Feedback: claim/dismiss/snooze buttons 📋 (`groupscout-site-62h`; `groupscout-site-eqm` covers overlapping lead-state API work)
 - [ ] **Phase 20** — Housekeeping & Developer Experience ◐ baseline complete; remaining smell refactors open (`groupscout-site-2h1`)
 - [x] **Phase 21** — Ollama Prod Hardening ✅
 - [ ] **Phase 22** — Multi-Property Support: portfolio routing & YAML config 📋 (`groupscout-site-1ee`)
@@ -63,7 +61,7 @@ Recently completed:
 - [ ] **Phase 25** — AI Observability & Quality: Langfuse + AI-Ready SQL + eval harness 📋 (`groupscout-site-48g`)
 - [ ] **Phase 26** — Production Deployment: Hetzner + Coolify (primary), Railway (managed alt), home deploy/restore smoke open (`groupscout-site-39g`; event-driven `/ingest` complete in `groupscout-site-b25`)
 - [x] **Phase 27** — Input Audit & Verification Trail ✅ raw audit/redaction/retention complete; sanitized preview remains separate (`groupscout-site-4cv`)
-- [ ] **Phase 28** — Analytics & Source Attribution 📋 *(no active implementation bead in this pass)*
+- [ ] **Phase 28** — Analytics & Source Attribution 📋 (`groupscout-site-4b4`)
 - [ ] **Phase 29** — Prompt Engineering & Strict TDD 📋 (`groupscout-site-48g`, `groupscout-site-2h1`)
 - [ ] **Phase 30** — Advanced Audit & Verification 📋 (`groupscout-site-4cv`, `groupscout-site-48g`)
 
@@ -168,7 +166,7 @@ Tracked follow-up: `groupscout-site-yyj` owns Prometheus metrics, collector fres
 > Strict TDD phase plan: [UI_TDD_PHASE_PLAN.md](./ui/UI_TDD_PHASE_PLAN.md).
 > Copy-paste prompts: [PROMPTS_PHASE31_UI.md](../prompts/PROMPTS_PHASE31_UI.md), [PROMPTS_PHASE32_UI.md](../prompts/PROMPTS_PHASE32_UI.md), [PROMPTS_PHASE33_UI.md](../prompts/PROMPTS_PHASE33_UI.md), and [PROMPTS_PHASE34_UI.md](../prompts/PROMPTS_PHASE34_UI.md).
 
-- [ ] Operator UI foundation — TypeScript React SPA under a future `web/` app, backed by `/api/*` contracts and same-origin deployment
+- [ ] Operator UI foundation — frontend work belongs in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`; backend-owned work is the `/api/*` contract surface and same-origin deployment support.
 - [ ] Lead inbox — filterable triage table by status, score, source, property, owner, and timing
 - [ ] Lead detail — source evidence, raw audit access, AI rationale, notes, status actions, and outreach history
 - [ ] Verification queue — flagged or low-confidence leads with reviewer corrections and audit trail

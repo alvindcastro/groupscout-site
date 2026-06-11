@@ -44,7 +44,7 @@ openssl rand -hex 32
 
 > Everything else has sensible defaults. See `.env.example` for the full list.
 
-Planned admin auth defaults on after the `/api/auth/*` implementation lands. The inspected backend source snapshot does not currently create `ADMIN_SETUP_TOKEN_FILE` or expose `/admin/login`/`/api/auth/*`; see [ADMIN_AUTH.md](./ADMIN_AUTH.md) for the target login, logout, and token-rotation flow.
+Contract-only admin auth defaults on after the `/api/auth/*` implementation lands. The inspected backend source snapshot does not currently create `ADMIN_SETUP_TOKEN_FILE` or expose `/admin/login`/`/api/auth/*`; see [ADMIN_AUTH.md](./ADMIN_AUTH.md) for the target login, logout, and token-rotation flow.
 
 ---
 

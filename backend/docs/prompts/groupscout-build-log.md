@@ -25,9 +25,9 @@ I built this in Go. I know Go well and it's the right tool for a background data
 | Layer | What I used | Why |
 |---|---|---|
 | Language | Go 1.26.1 | Know it well; great for pipelines |
-| Database | SQLite (`modernc.org/sqlite`) | Zero ops for local dev, pure Go so no C compiler on Windows |
+| Database | Postgres with pgvector; SQLite fallback for local dev | Production storage, vector-ready retrieval, and low-friction local runs |
 | AI enrichment | Claude Messages API (raw `net/http`) | Haiku is cheap (~$0.001/permit); Sonnet available as upgrade |
-| notifications | Slack + SendGrid Email | Slack for instant alerts; SendGrid for weekly HTML digests |
+| notifications | Slack + Resend Email | Slack for instant alerts; Resend for HTML digests |
 | Logging | Structured Logging (`slog`) | Contextual, JSON/Text toggles, production-grade observability |
 | Deployment | Docker & Docker Compose | Containerized for production readiness |
 | Config | `.env` file + environment variables | 12-factor: no secrets in code |
@@ -45,7 +45,7 @@ Collector Layer    — scrape / parse raw permit data
        ↓
 Enrichment Layer   — Claude API: score, classify, summarize
        ↓
-Storage Layer      — SQLite: dedup + persist raw records and leads
+Storage Layer      — Postgres/SQLite: dedup + persist raw records and leads
        ↓
 Notification Layer — Slack digest: Block Kit card per lead
 ```
@@ -393,7 +393,7 @@ The pipeline is a mature, production-ready lead generation engine. The full stac
 2. **Collects:** 8 active collectors — Richmond permits, Delta permits, Creative BC, VCC, BCIB, TransLink/YVR announcements, BC Bid RSS, Eventbrite, and Google News RSS.
 3. **Scores:** A rule-based Go pre-scorer filters out noise before spending any API tokens.
 4. **Enriches:** Claude Haiku analyzes each lead — crew size estimate, GC identification, outreach timing, personalized cold email draft.
-5. **Notifies:** Instant Block Kit cards to Slack; weekly HTML digest via SendGrid.
+5. **Notifies:** Instant Block Kit cards to Slack; weekly HTML digest via Resend.
 
 **Infrastructure (all running in Docker Compose):**
 
@@ -406,18 +406,20 @@ The pipeline is a mature, production-ready lead generation engine. The full stac
 | Loki | Structured log aggregation |
 | Sentry | Runtime error tracking and alerting |
 
-The full stack boots with `docker-compose up -d`. All logs are structured JSON (via `slog`), collected by Loki, and browsable in Grafana.
+The full stack boots with `docker compose up -d`. All logs are structured JSON (via `slog`), collected by Loki, and browsable in Grafana.
 
 ---
 
 ## What's Next
 
-**Phase 6 — Productionization:**
-- Swap SQLite → PostgreSQL for better concurrency.
-- Formal database migrations (using `golang-migrate`).
-- Final deployment to production VPS.
-- Fix `pdftotext` inside Docker — add Poppler to the Alpine image so the permit scrapers work in the containerized environment.
-- Smart Refresh: avoid re-fetching PDFs that haven't changed since the last run.
+This build log is historical narrative. Use Beads plus [NOT_DONE_AND_UPGRADES.md](../planning/NOT_DONE_AND_UPGRADES.md) for current work selection.
+
+Current high-value follow-ups:
+
+- Runtime correctness: `groupscout-site-ei7` and `groupscout-site-wda`.
+- Operator UI/API bridge: `groupscout-site-eqm`, `groupscout-site-0m0`, `groupscout-site-29q`, `groupscout-site-4cv`, and `groupscout-site-kb4`.
+- Observability and AI platform: `groupscout-site-yyj`, `groupscout-site-vud`, and `groupscout-site-48g`.
+- Lead workflow and growth: `groupscout-site-62h`, `groupscout-site-iuc`, and `groupscout-site-4b4`.
 
 **Phase 7+ — Long-term:**
 - Lead history tracking and sentiment trend analysis.
@@ -437,9 +439,9 @@ The full stack boots with `docker-compose up -d`. All logs are structured JSON (
 
 **Match your Go version in your Dockerfile.** `go.mod` declares `go 1.26` — if your Docker image is `golang:1.24-alpine`, `go mod download` silently fails with exit code 1. The version floor in `go.mod` is enforced at build time.
 
-**Docker is where "works on my machine" bugs surface.** `pdftotext` works fine locally (bundled with Git for Windows) but isn't in Alpine Linux. The tool ran, reported success, and the permit scrapers silently returned zero results. Always check `docker-compose logs app` after a first containerized run — don't assume a clean exit means clean output.
+**Docker is where "works on my machine" bugs surface.** `pdftotext` works fine locally (bundled with Git for Windows) but isn't in Alpine Linux. The tool ran, reported success, and the permit scrapers silently returned zero results. Always check `docker compose logs app` after a first containerized run — don't assume a clean exit means clean output.
 
-**Running the whole stack in Docker Compose changes the development loop.** `docker-compose logs -f app` becomes your new best friend. Structured logging (`slog` with JSON output) makes those logs queryable in Grafana/Loki immediately — no extra instrumentation needed.
+**Running the whole stack in Docker Compose changes the development loop.** `docker compose logs -f app` becomes your new best friend. Structured logging (`slog` with JSON output) makes those logs queryable in Grafana/Loki immediately — no extra instrumentation needed.
 
 ---
 

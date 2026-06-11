@@ -591,7 +591,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 ## Phase 18 — Contact Enrichment 📋
 **Goal:** Auto-surface a decision-maker contact alongside each lead — project manager, production coordinator, travel manager — using Hunter.io (v1). Biggest current gap vs. competitors.
 
-> Current source reconciliation: `HUNTER_API_KEY` config exists, but the inspected backend source snapshot does not include a live Hunter client, contact-field migration, or Slack contact block. No open implementation bead currently owns Phase 18; create a focused bead before coding this checklist.
+> Current source reconciliation: `HUNTER_API_KEY` config exists, but the inspected backend source snapshot does not include a live Hunter client, contact-field migration, or Slack contact block. Active implementation work is tracked by `groupscout-site-iuc`.
 
 > **TDD rule for this phase:** T tasks first. All unit tests use mock HTTP; no real Hunter.io calls in test suite.
 
@@ -616,7 +616,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 ## Phase 19 — Slack Actions & Lead Feedback 📋
 **Goal:** Reps act on leads without leaving Slack. Track outcomes. Resurface aging leads.
 
-> Current Beads: overlapping lead-state API work belongs to `groupscout-site-eqm`. Slack-specific action-button and signature-verification work does not currently have a dedicated open bead in this pass.
+> Current Beads: overlapping lead-state API work belongs to `groupscout-site-eqm`. Slack-specific action-button and signature-verification work is tracked by `groupscout-site-62h`.
 
 > **TDD rule for this phase:** T tasks first. Slack action handler is pure logic — test it with fixture payloads before wiring the HTTP endpoint.
 
@@ -871,7 +871,7 @@ Postgres integration follow-up: `groupscout-site-wda` tracks the raw-input forei
 ## Phase 28 — Analytics & Source Attribution 📋
 **Goal:** Weekly digest that shows which signal sources are generating closed business, enabling the sales team to prioritize outreach.
 
-> No active implementation bead currently owns Phase 28; create a focused bead before coding this checklist.
+> Active implementation work is tracked by `groupscout-site-4b4`; coordinate observability overlap with `groupscout-site-yyj`.
 
 > **TDD rule for this phase:** T tasks first. Aggregate queries tested against in-memory SQLite fixture data.
 

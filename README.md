@@ -12,6 +12,7 @@ This repo is the starting point for GroupScout planning, feature prompts, bug-fi
 - `backend/` contains markdown moved from the backend repo, preserving the original relative paths.
 - `frontend/` contains markdown moved from the frontend repo, preserving the original relative paths.
 - Root `AGENTS.md` and `CLAUDE.md` describe how agents should coordinate work from this repo.
+- Backend and frontend source repositories should keep only their repo-local `README.md` markdown pointer unless a generated or runtime-local Markdown artifact is explicitly required.
 
 ## Agent Workflow
 

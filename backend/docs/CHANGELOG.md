@@ -1,3 +1,14 @@
+## 2026-06-11 - Source repo markdown consolidation
+
+### groupscout-site-jnc - Consolidate source repo markdown into coordination docs
+
+- **What:** Verified backend and frontend source markdown has centralized copies in this docs repo, then reduced the source repos to README-only markdown pointers.
+- **Where:** Source repos `/mnt/c/Users/alvin/GolandProjects/groupscout` and `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`; coordination docs remain under `backend/` and `frontend/`.
+- **Why:** Long-lived markdown now belongs in this coordination docs repository, while implementation repos should stay focused on source, tests, runtime files, and a minimal README pointer.
+- **How:** Ran parallel inventories for backend, frontend, and coordinator docs; left source `README.md` files pointing to centralized docs; removed tracked non-README markdown from the source repos.
+
+---
+
 ## 2026-06-10 - Documentation not-done and upgrade review
 
 ### groupscout-site-0d6 - Review unfinished documentation tasks and upgrade plan

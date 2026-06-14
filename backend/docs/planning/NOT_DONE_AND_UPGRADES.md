@@ -8,10 +8,9 @@ Current review status after closing the documentation review task: `bd stats` re
 
 ## Start Here
 
-1. `groupscout-site-b38` - fix the frontend Beads workspace identity mismatch before relying on frontend-local issue sync.
-2. `groupscout-site-783` - resolve or document the `.beads` permission warning on the Windows-mounted coordination repo.
-3. `groupscout-site-0m0` - finish or split the stale in-progress UI admin/session and hardening reconciliation.
-4. `groupscout-site-crz` - reconcile backend EvalOps and UI smoke artifacts before trusting old roadmap or changelog claims.
+1. `groupscout-site-783` - resolve or document the `.beads` permission warning on the Windows-mounted coordination repo.
+2. `groupscout-site-0m0` - finish or split the stale in-progress UI admin/session and hardening reconciliation.
+3. `groupscout-site-crz` - reconcile backend EvalOps and UI smoke artifacts before trusting old roadmap or changelog claims.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -19,7 +18,6 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ### Coordination And Source-Of-Truth Hygiene
 
-- `groupscout-site-b38` - fix the frontend repo Beads workspace identity mismatch before relying on frontend-local issue sync.
 - `groupscout-site-783` - resolve the `.beads` directory permission warning on the Windows-mounted coordination repo.
 - `groupscout-site-a1h` - audit Codex plugin skill drift so local agent instructions and plugin docs do not diverge.
 
@@ -59,7 +57,7 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ## Recommended Upgrade Order
 
-1. **Stabilize documentation and repo identity first.** Clear `groupscout-site-b38`, `groupscout-site-783`, `groupscout-site-0m0`, and `groupscout-site-crz` so future agents can trust the repo state and smoke commands.
+1. **Stabilize documentation and repo state first.** Clear `groupscout-site-783`, `groupscout-site-0m0`, and `groupscout-site-crz` so future agents can trust the repo state and smoke commands.
 2. **Fix runtime warnings before expanding scope.** Prioritize `groupscout-site-ei7` and `groupscout-site-wda`; both are correctness risks that can be masked by successful end-to-end runs.
 3. **Ship the operator UI contract bridge.** Implement `groupscout-site-eqm`, then generate typed clients with `groupscout-site-29q`, then add raw-preview and browser-hardening work under `groupscout-site-4cv` and `groupscout-site-kb4`.
 4. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.

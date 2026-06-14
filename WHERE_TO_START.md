@@ -25,10 +25,9 @@ Create or reuse a task branch in the owning source repo before implementation wo
 
 ## Current Starting Point
 
-1. Fix `groupscout-site-b38` next. The frontend Beads workspace identity mismatch can make future frontend Beads sync and pushes unreliable.
-2. Resolve or explicitly accept `groupscout-site-783`. The `.beads` permission warning appears on every Beads command in this Windows-mounted repo and creates noise during handoffs.
-3. Finish or split `groupscout-site-0m0`. It is the only in-progress item and owns current UI checkout drift around admin/session artifacts and Phase 15 hardening.
-4. Reconcile `groupscout-site-crz` before trusting old EvalOps or UI smoke claims in backend docs.
+1. Resolve or explicitly accept `groupscout-site-783`. The `.beads` permission warning appears on every Beads command in this Windows-mounted repo and creates noise during handoffs.
+2. Finish or split `groupscout-site-0m0`. It is the only in-progress item and owns current UI checkout drift around admin/session artifacts and Phase 15 hardening.
+3. Reconcile `groupscout-site-crz` before trusting old EvalOps or UI smoke claims in backend docs.
 
 After those hygiene/reconciliation tasks, move to runtime correctness:
 

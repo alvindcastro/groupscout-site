@@ -2,7 +2,7 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/testing.md`. Run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui` and backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 
-Status reconciliation, 2026-06-14: the inspected UI checkout contains `createApiClient().getLead(...)`, production-server session gating before `/api/*` proxying, and deterministic Phase 15 hardening module/test coverage. It is still missing the documented admin login/auth client; the inspected backend source snapshot is also missing planned `/api/*` UI routes, admin auth, EvalOps targets, and `make smoke-ui-docker-e2e`. Treat admin-login and backend-owned historical green runs below as branch-history until `groupscout-site-1x9`, `groupscout-site-eqm`, and `groupscout-site-crz` land or the docs are further narrowed.
+Status reconciliation, 2026-06-13: the inspected UI checkout contains `createApiClient().getLead(...)`, production-server session gating before `/api/*` proxying, and deterministic Phase 15 hardening module/test coverage. It is still missing the documented admin login/auth client; the backend is also missing planned `/api/*` UI routes and admin auth. `groupscout-site-crz` has landed (EvalOps targets and `make smoke-ui-docker-e2e` are now present). Treat admin-login and protected route runs as branch-history until `groupscout-site-1x9` and `groupscout-site-eqm` land.
 
 The dated runs below remain useful implementation history, but they are not current-source proof for admin login, generated clients, or protected `/api/*` backend routes in the inspected checkouts.
 

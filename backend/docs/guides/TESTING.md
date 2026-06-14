@@ -71,7 +71,7 @@ File-backed setup tokens rotate after successful login. If a setup token is reje
 go test ./internal/smoke
 ```
 
-Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `internal/smoke` or `make smoke-ui-docker-e2e`. Use this once the Phase 38 smoke contract is restored or merged in `groupscout-site-crz`. To run the full Docker smoke against the external UI repo after that:
+Reconciled 2026-06-13 (`groupscout-site-crz`): `internal/smoke` and `make smoke-ui-docker-e2e` are now present in the backend. To run the full Docker smoke against the external UI repo:
 
 ```bash
 make smoke-ui-docker-e2e
@@ -84,7 +84,7 @@ go test ./cmd/alertd/... ./internal/alert/...
 
 #### Planned AI Quality EvalOps Tests
 
-Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `internal/evalops` or the EvalOps Makefile targets. Treat this section as branch-history/planned guidance until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
+Reconciled 2026-06-13 (`groupscout-site-crz`): `internal/evalops` and the EvalOps Makefile targets are now present.
 
 ```bash
 go test -v ./internal/evalops

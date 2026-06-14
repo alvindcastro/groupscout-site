@@ -2,7 +2,7 @@
 
 This doc distinguishes the current Docker/runtime modes so contributors do not expect the test image, development product server, and production static/proxy server to behave identically.
 
-Status reconciliation, 2026-06-14: the inspected UI checkout's production server applies the documented session gate before proxying `/api/*`; the inspected backend source snapshot still lacks the backend-owned `make smoke-ui-docker-e2e` target. Backend smoke restoration is tracked by `groupscout-site-crz`, and the remaining frontend admin login route is tracked by `groupscout-site-1x9`.
+Reconciled 2026-06-13 (`groupscout-site-crz`): the backend now exposes `make smoke-ui-docker-e2e`. The remaining frontend admin login route is tracked by `groupscout-site-1x9`.
 
 ## Modes
 

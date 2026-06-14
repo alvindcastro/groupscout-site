@@ -4,7 +4,7 @@ Use this runbook when you want the current GroupScout backend and the separate U
 
 This is a smoke path, not a full product UI acceptance test. The backend is live, and the UI production container serves static assets and forwards `/api/*`.
 
-Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include `make smoke-ui-docker-e2e`, `scripts/smoke-ui-docker-e2e.sh`, or `internal/smoke`, and it does not implement the planned UI API routes. Treat the executable gate as planned/branch-history until `groupscout-site-crz` restores or reconciles the backend-owned smoke artifact.
+Reconciled 2026-06-13 (`groupscout-site-crz`): `make smoke-ui-docker-e2e`, `scripts/smoke-ui-docker-e2e.sh`, and `internal/smoke` are now present. The planned UI API routes are still tracked by `groupscout-site-eqm`.
 
 Executable form from the backend repo:
 

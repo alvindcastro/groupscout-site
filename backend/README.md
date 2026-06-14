@@ -173,9 +173,8 @@ docker compose up -d
 ```
 
 #### 4. AI Quality EvalOps
-Status reconciliation, 2026-05-25: the inspected backend source snapshot does not currently include the EvalOps Makefile targets or `internal/evalops` runtime. Treat the commands below as the planned/branch-history gate until the EvalOps runtime is restored or merged in `groupscout-site-crz`.
+Reconciled 2026-06-13 (`groupscout-site-crz`): `internal/evalops` and EvalOps targets are now present.
 
-Planned AI quality EvalOps commands after that runtime exists:
 ```bash
 make eval-quality
 make eval-gate

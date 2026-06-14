@@ -25,8 +25,8 @@ Create or reuse a task branch in the owning source repo before implementation wo
 
 ## Current Starting Point
 
-1. Finish or split `groupscout-site-0m0`. It is the only in-progress item and owns current UI checkout drift around admin/session artifacts and Phase 15 hardening.
-2. Reconcile `groupscout-site-crz` before trusting old EvalOps or UI smoke claims in backend docs.
+1. Reconcile `groupscout-site-crz` before trusting old EvalOps or UI smoke claims in backend docs.
+2. Then move to runtime correctness unless Beads shows a newer blocker.
 
 After those hygiene/reconciliation tasks, move to runtime correctness:
 
@@ -36,6 +36,7 @@ After those hygiene/reconciliation tasks, move to runtime correctness:
 Then move to the operator UI bridge:
 
 - `groupscout-site-eqm` - backend `/api/*` routes needed by the UI.
+- `groupscout-site-1x9` - frontend `/admin/login` route/client after backend auth/session routes land.
 - `groupscout-site-29q` - generated frontend API client/types from OpenAPI.
 - `groupscout-site-4cv` - sanitized raw audit preview.
 - `groupscout-site-kb4` - real browser Phase 15 harness after current-checkout drift is resolved.
@@ -50,7 +51,7 @@ Then move to the operator UI bridge:
 
 ## Known Drift To Reconcile
 
-- `frontend/docs/ui-tdd-phase-0-15-implementation.md` records branch-history evidence; use `groupscout-site-0m0` to decide whether to restore missing files or narrow the docs to current behavior.
+- `frontend/docs/ui-tdd-phase-0-15-implementation.md` records branch-history evidence; current checkout now has `getLead`, production session gating, and deterministic Phase 15 hardening again, while `/admin/login` remains planned under `groupscout-site-1x9`.
 - `backend/docs/CHANGELOG.md` mentions UI API and pipeline/stat/system work that some planning contracts still mark as not live; verify against the backend source before relying on those claims.
 - The `.beads` permission warning on this Windows-mounted coordination checkout is accepted under `groupscout-site-783`; `chmod 700 .beads` does not persist on the current DrvFs/9p mount without metadata support.
 - Historical roadmap files can conflict with the Beads order. Prefer Beads plus `NOT_DONE_AND_UPGRADES.md` over older "next" lists.

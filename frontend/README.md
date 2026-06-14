@@ -2,19 +2,19 @@
 
 Phase 0-15 now follows the canonical `UI_TDD_PHASE_PROMPTS.md` order: baseline reconciliation, product IA/UX guardrails, backend compatibility smoke, API client contracts, Today, Leads, Lead Detail, status/corrections, verification, outreach, pipeline, analytics, read-only alerts, session/runtime, Docker E2E, and browser UX hardening. The restored baseline includes the dependency-free vanilla DOM product renderer/runtime, static build, product dev server, production static/proxy server, and same-origin `/api/*` contracts.
 
-Status reconciliation, 2026-06-10: the inspected UI checkout currently contains `createApiClient().getLead(...)` in `web/src/api/leads.js`. It still does not contain `web/src/renderer/browserUxHardening.js`, `test/browser-ux-hardening.test.js`, the `/admin/login` route/auth client wiring, or production-server session gating. Restore or reconcile those remaining artifacts under `groupscout-site-0m0`. Until then, affected admin/session and Phase 15 hardening sections below are planned/canonical contract language, not proof of current checkout behavior.
+Status reconciliation, 2026-06-14: the inspected UI checkout contains `createApiClient().getLead(...)`, production-server session gating before `/api/*` proxying, and deterministic Phase 15 browser UX hardening artifacts. It still does not contain the `/admin/login` route/auth client wiring; that remaining UI login work is tracked by `groupscout-site-1x9` after backend auth/session routes land under `groupscout-site-eqm`.
 
 ## Current Scope
 
 - Design tokens live in `web/src/design/tokens.js` and are mapped from `DESIGN.md` as a visual reference/token source, not product or brand source of truth.
 - The route shell lives in `web/src/app/shell.js` and mounts Today, Leads, Verification, Outreach, Pipeline, Analytics, Alerts, and a Settings placeholder.
 - Browser API access still enters through `web/src/api/client.js`, with same-origin `/api/*` transport centralized in `web/src/api/transport.js` and feature adapters split across focused `web/src/api/*` modules.
-- UI deployment/session helper rules live in `web/src/server/uiDeployment.js` and cover `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, development-only `CORS_ALLOWED_ORIGINS`, session-cookie `/api/*` access when configured, and a no-secret Docker smoke mode. The inspected production server does not currently wire that session gate before proxying `/api/*`.
+- UI deployment/session helper rules live in `web/src/server/uiDeployment.js` and cover `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, development-only `CORS_ALLOWED_ORIGINS`, session-cookie `/api/*` access when configured, and a no-secret Docker smoke mode. `web/src/server/productionServer.js` applies that session gate before proxying `/api/*`, while leaving `/api/auth/status` and `/api/auth/login` reachable for the future login bootstrap.
 - Browser runtime contract metadata lives in `web/src/server/browserRuntimeContract.js`; D4 now implements the lightweight production Node server on port `3000` with `/healthz` and same-origin `/api/*` routing to server-side `http://groupscout:8080` without exposing automation credentials.
 - Phase 13 renderer/runtime metadata lives in `web/src/server/productRendererRuntime.js`; the first rendered-route smoke coverage lives in `test/phase-13-renderer-runtime.test.js`.
-- Phase 15 browser UX hardening metadata is planned to live in `web/src/renderer/browserUxHardening.js` with deterministic route-specific focus, accessible-name, rendered responsive-mode, state-region, text-containment, and same-origin checks in `test/browser-ux-hardening.test.js`; those files were absent from the inspected UI checkout.
+- Phase 15 browser UX hardening metadata lives in `web/src/renderer/browserUxHardening.js` with deterministic route-specific focus, accessible-name, rendered responsive-mode, state-region, text-containment, and same-origin checks in `test/browser-ux-hardening.test.js`.
 - Handoff: real-browser Phase 15 verification remains open in bd issue `groupscout-site-kb4`; current coverage is deterministic/model-level and has no Playwright/Puppeteer dependency, package lock, or local Chromium binary.
-- Production same-origin serving lives in `web/src/server/productionServer.js`; in the inspected UI checkout, `npm run start:ui` serves `web/dist`, falls back to `index.html` for app routes, and forwards `/api/*` server-side to `UI_API_PROXY_TARGET` or `http://groupscout:8080` without the documented session gate.
+- Production same-origin serving lives in `web/src/server/productionServer.js`; `npm run start:ui` serves `web/dist`, falls back to `index.html` for app routes, authorizes `/api/*` through the UI session boundary, and forwards authorized API requests server-side to `UI_API_PROXY_TARGET` or `http://groupscout:8080`.
 - Static product assets are generated with `npm run build` from `web/src/renderer/buildStaticApp.js`; the first renderer mapping lives in `web/src/renderer/domRenderer.js`.
 - Product dev serving lives in `web/src/server/productDevServer.js`; `compose.dev.yml` runs that server on container port `3000` and host `${GROUPSCOUT_UI_HOST_PORT:-3001}`.
 - Backend compatibility smoke classification lives in `web/src/server/backendCompatibilitySmoke.js` and distinguishes proxy failure, backend route drift, auth, schema drift, compatible responses, and backend errors.
@@ -43,7 +43,7 @@ Status reconciliation, 2026-06-10: the inspected UI checkout currently contains 
 - Phase 6 tests cover editable outreach drafts, contact validation, manual copied/sent/logged states, outreach API reads/writes, outcome capture, activity timelines, `/outreach` route mounting, responsive metadata, and token usage.
 - Phase 7 tests cover pipeline run history, async run creation, collector counts/failures, LLM and delivery health summaries, partial-data states, `/pipeline` route mounting, responsive metadata, and token usage.
 - Phase 8 tests cover stats client shape, status/source/score/owner/week summaries, source-yield hit-rate definitions, lead aging, verification quality, demand timing, visible denominator/date-range labels, `/analytics` route mounting, responsive metadata, and token usage.
-- Phase 9 helper/model tests cover session enforcement metadata for `/api/*`, recursive browser credential exclusion, no automation-token browser headers, `UI_ENABLED`, `UI_BASE_PATH`, deployment readiness, and dev-only CORS configuration. The inspected production server does not currently enforce the historical session gate before proxying `/api/*`.
+- Phase 9 helper/model tests cover session enforcement metadata for `/api/*`, recursive browser credential exclusion, no automation-token browser headers, `UI_ENABLED`, `UI_BASE_PATH`, deployment readiness, dev-only CORS configuration, and production-server authorization before API proxying.
 - Phase 10 tests cover read-only alert state rendering, SPS summaries, evidence, room inventory, action history, disabled mutation actions, `/alerts` route mounting, responsive metadata, token usage, and `GET /api/alerts`.
 - Phase 11 tests cover the Today command center, priority lead and aging-work summaries, active alerts, failed jobs, system health, read-only action policy, `/` route mounting, responsive metadata, token usage, and `GET /api/system`.
 - Smell Phase H1 split the growing browser API client module while preserving `createApiClient(...)` and the centralized same-origin `/api/*` guard.
@@ -110,7 +110,7 @@ docker run --rm groupscout-ui-test
 
 Docker/runtime mode selection is centralized in [Docker Runtime Matrix](./docs/docker-runtime-matrix.md). Use it for the D1 test image, Phase 13 development product server, D4 production static/proxy server, backend-network smoke commands, expected `/api/*` status codes, and secret-boundary rules.
 
-Current UI-facing follow-ups: `groupscout-site-0m0` for current UI checkout admin/session/detail-client/hardening reconciliation, `groupscout-site-eqm` for live backend UI API routes, `groupscout-site-crz` for backend-owned EvalOps/UI smoke artifact reconciliation, `groupscout-site-kb4` for real-browser Phase 15 verification, `groupscout-site-29q` for generated API client/types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-3gq` for shared alert state, `groupscout-site-yyj` for ops metrics/freshness, and `groupscout-site-2h1` for broader smell refactors. Frontend Beads workspace identity was reconciled under `groupscout-site-b38`; use normal frontend-local `bd dolt push` when working in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`. For the full live Beads follow-up index, see `backend/docs/planning/ROADMAP.md`; for recommended upgrade sequencing, see `backend/docs/planning/NOT_DONE_AND_UPGRADES.md`.
+Current UI-facing follow-ups: `groupscout-site-eqm` for live backend UI API routes/auth, `groupscout-site-1x9` for the frontend `/admin/login` route after backend auth lands, `groupscout-site-crz` for backend-owned EvalOps/UI smoke artifact reconciliation, `groupscout-site-kb4` for real-browser Phase 15 verification, `groupscout-site-29q` for generated API client/types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-3gq` for shared alert state, `groupscout-site-yyj` for ops metrics/freshness, and `groupscout-site-2h1` for broader smell refactors. Frontend Beads workspace identity was reconciled under `groupscout-site-b38`; use normal frontend-local `bd dolt push` when working in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`. For the full live Beads follow-up index, see `backend/docs/planning/ROADMAP.md`; for recommended upgrade sequencing, see `backend/docs/planning/NOT_DONE_AND_UPGRADES.md`.
 
 ## Developer Docs
 
@@ -148,7 +148,7 @@ Current UI-facing follow-ups: `groupscout-site-0m0` for current UI checkout admi
 
 - Browser-facing source must not reference automation credentials.
 - Browser requests must stay behind explicit `/api/*` contracts.
-- Production `/api/*` proxy requests should require a valid `groupscout_session` before the backend is contacted when `UI_SESSION_SECRET` is configured; this is planned/reconciliation work under `groupscout-site-0m0` for the inspected UI checkout.
+- Production `/api/*` proxy requests require a valid `groupscout_session` before the backend is contacted when `UI_SESSION_SECRET` is configured.
 - The shell reserves navigation for Today, Leads, Verification, Outreach, Pipeline, Analytics, Alerts, and Settings.
 - Historically, Phase 0 kept feature screens, real API calls, auth, analytics, and deployment behavior out of scope. Later phases now add model-level screens, browser API clients, analytics, session/deployment metadata, and read-only system surfaces.
 
@@ -229,7 +229,7 @@ Current UI-facing follow-ups: `groupscout-site-0m0` for current UI checkout admi
 
 - Deployment helper: `createUiDeploymentConfig(...)`, `assertUiDeploymentReady(...)`, `resolveUiMount(...)`, and `authorizeUiApiRequest(...)`.
 - Planned session cookie: `groupscout_session` is required for browser `/api/*` access when the UI is enabled and `UI_SESSION_SECRET` is configured.
-- Planned admin login route: `/admin/login` submits the backend setup token to `/api/auth/login`, verifies the new session, and redirects to `/`.
+- Planned admin login route: `/admin/login` submits the backend setup token to `/api/auth/login`, verifies the new session, and redirects to `/`; frontend route restoration is tracked by `groupscout-site-1x9`.
 - Setup-token source, token rotation, logout behavior, stale Docker asset recovery, and direct curl smoke commands live in [Admin Token Flow](./docs/admin-token-flow.md).
 - Settings: `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, and development-only `CORS_ALLOWED_ORIGINS`.
 - Mounted shell: `createMountedRouteShell(...)` maps URLs under `UI_BASE_PATH` to internal routes and emits base-path-aware hrefs.

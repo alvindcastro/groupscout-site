@@ -283,7 +283,7 @@ This older workflow is retained for context only. Current sessions use Beads and
 **Goal:** Improve user interaction and external integrations.
 
 > Historical broad checklist. Backend-owned UI API contracts and smoke paths are tracked more precisely in `docs/planning/ui/UI_TDD_PHASE_PLAN.md` Phases 31-38.
-> Current Beads: `groupscout-site-eqm` for backend UI API routes, `groupscout-site-29q` for generated frontend API types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-kb4` for browser harness coverage, `groupscout-site-0m0` for UI checkout reconciliation, and `groupscout-site-3gq` for alert state.
+> Current Beads: `groupscout-site-eqm` for backend UI API/auth routes, `groupscout-site-1x9` for frontend admin login after backend auth lands, `groupscout-site-29q` for generated frontend API types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-kb4` for browser harness coverage, and `groupscout-site-3gq` for alert state.
 
 - [x] **10.0** `docs/planning/ui/UI_STRATEGY.md` — Define operator UI strategy, information architecture, status model, API boundaries, and MVP sequence.
 - [ ] **10.1** `internal/storage/leads.go` — Add filtered `List` with status/source/min-score/search/pagination support.

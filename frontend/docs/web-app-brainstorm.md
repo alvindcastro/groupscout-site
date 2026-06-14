@@ -19,7 +19,7 @@
 
 ## Branch-History Repo Reality
 
-The bullets below describe the 2026-05-09 restoration history. The inspected 2026-06-10 UI checkout is missing some admin/session and Phase 15 hardening artifacts; `groupscout-site-0m0` owns restoring or reconciling those gaps.
+The bullets below describe the 2026-05-09 restoration history. The inspected 2026-06-14 UI checkout has production session gating and deterministic Phase 15 hardening restored; the remaining frontend admin login route/client work is tracked by `groupscout-site-1x9`.
 
 - [x] The previous `feat/master` checkout had local deletions of `package.json`, `web/`, `test/`, Docker files, README, and previous docs.
 - [x] The tracked UI baseline was restored on 2026-05-09 after a red Phase 0 reconciliation smoke proved the baseline was absent.
@@ -81,9 +81,9 @@ The first useful app is not a marketing site and not a CRM replacement. It is a 
 ## Tracked Product Decisions
 
 - Verification is modeled separately from lead status in the UI screen models; live backend route/state alignment remains tracked by `groupscout-site-eqm` and generated client/type follow-through by `groupscout-site-29q`.
-- Operator permissions for claim, verify, correct, dismiss, reopen, and won/lost actions remain part of the admin/session reconciliation tracked by `groupscout-site-0m0`.
+- Operator permissions for claim, verify, correct, dismiss, reopen, and won/lost actions remain part of backend UI/auth route work tracked by `groupscout-site-eqm`.
 - Reviewer corrections live alongside original source and AI values in the UI model; backend contract alignment remains tracked by `groupscout-site-eqm` and `groupscout-site-29q`.
-- The documented browser session-cookie path is the current planned auth direction; restoring or reconciling the inspected checkout is tracked by `groupscout-site-0m0`.
+- The documented browser session-cookie path is the current planned auth direction; frontend `/admin/login` restoration is tracked by `groupscout-site-1x9` after backend auth routes land.
 - Backend-owned `/api/*` route implementation is tracked by `groupscout-site-eqm`; generated frontend client/types are tracked by `groupscout-site-29q`.
 - Sanitized raw audit preview/redaction is tracked by `groupscout-site-4cv`.
 - Outreach outcome source-of-truth and backend persistence belong with the planned operator UI API route work in `groupscout-site-eqm`.

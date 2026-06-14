@@ -46,7 +46,7 @@ H1 targets the growing API client module:
 ## Public Contracts Named Before H1
 
 - Named exports from `web/src/api/client.js`: `API_BASE_PATH`, `DEFAULT_LEAD_INBOX_SORT`, `LEAD_INBOX_ITEM_FIELDS`, and `createApiClient`.
-- `createApiClient(...)` methods: `request`, `listLeads`, `patchLead`, `getLeadRawAudit`, `listLeadOutreach`, `logLeadOutreach`, `listPipelineRuns`, `startPipelineRun`, `getStats`, `listAlerts`, and `getSystem`.
+- `createApiClient(...)` methods: `request`, `listLeads`, `getLead`, `patchLead`, `getLeadRawAudit`, `listLeadOutreach`, `logLeadOutreach`, `listPipelineRuns`, `startPipelineRun`, `getStats`, `listAlerts`, and `getSystem`.
 - Browser request paths must be same-origin relative `/api/*` routes and must use `credentials: "same-origin"`.
 - Browser requests must not inject automation-token headers.
 - Read-only surfaces remain read-only: alert and system clients do not expose mutation helpers.

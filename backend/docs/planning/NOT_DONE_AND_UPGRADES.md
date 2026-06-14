@@ -4,12 +4,12 @@ Date: 2026-06-14
 
 Beads is the source of truth for active work. This snapshot is a navigation layer for choosing the next implementation or documentation pass; refresh it with `bd list --status=open` and `bd list --status=in_progress` before starting work.
 
-Current review status after closing the documentation review task: `bd stats` reported 89 issues total, 21 open issues, 1 in-progress issue, 0 blocked issues, and 67 closed issues. The only in-progress task at review time was `groupscout-site-0m0`. `bd blocked` reported no blocked issues.
+Current review status after the latest UI reconciliation pass: `groupscout-site-0m0` restored production session gating and deterministic Phase 15 hardening in the frontend checkout. Backend EvalOps/UI smoke reconciliation remains the next source-of-truth task.
 
 ## Start Here
 
-1. `groupscout-site-0m0` - finish or split the stale in-progress UI admin/session and hardening reconciliation.
-2. `groupscout-site-crz` - reconcile backend EvalOps and UI smoke artifacts before trusting old roadmap or changelog claims.
+1. `groupscout-site-crz` - reconcile backend EvalOps and UI smoke artifacts before trusting old roadmap or changelog claims.
+2. `groupscout-site-ei7` and `groupscout-site-wda` - investigate runtime correctness warnings after source-of-truth hygiene is stable.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -27,8 +27,8 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ### Operator UI And API Bridge
 
-- `groupscout-site-0m0` - restore or reconcile UI admin session and browser hardening artifacts in the current UI checkout.
 - `groupscout-site-eqm` - implement the planned backend-owned operator UI API routes.
+- `groupscout-site-1x9` - restore the frontend `/admin/login` route/client after backend auth/session routes land.
 - `groupscout-site-29q` - generate frontend API client types from OpenAPI after backend contracts are stable.
 - `groupscout-site-4cv` - implement sanitized raw audit preview instead of exposing raw payload bytes in browser state.
 - `groupscout-site-kb4` - add a real-browser Phase 15 harness for focus, layout, screenshot, and overlap checks.
@@ -55,9 +55,9 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ## Recommended Upgrade Order
 
-1. **Stabilize documentation and repo state first.** Clear `groupscout-site-0m0` and `groupscout-site-crz` so future agents can trust the repo state and smoke commands.
+1. **Stabilize documentation and repo state first.** Clear `groupscout-site-crz` so future agents can trust EvalOps and smoke command claims.
 2. **Fix runtime warnings before expanding scope.** Prioritize `groupscout-site-ei7` and `groupscout-site-wda`; both are correctness risks that can be masked by successful end-to-end runs.
-3. **Ship the operator UI contract bridge.** Implement `groupscout-site-eqm`, then generate typed clients with `groupscout-site-29q`, then add raw-preview and browser-hardening work under `groupscout-site-4cv` and `groupscout-site-kb4`.
+3. **Ship the operator UI contract bridge.** Implement `groupscout-site-eqm`, then restore frontend admin login with `groupscout-site-1x9`, generate typed clients with `groupscout-site-29q`, then add raw-preview and real-browser hardening work under `groupscout-site-4cv` and `groupscout-site-kb4`.
 4. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.
 5. **Improve lead conversion workflows.** Add Slack actions, contact enrichment, analytics, and source attribution through `groupscout-site-62h`, `groupscout-site-iuc`, and `groupscout-site-4b4`.
 6. **Harden the AI and deployment platform.** Sequence `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-39g` after the runtime and UI bridge are stable.

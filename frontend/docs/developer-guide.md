@@ -4,13 +4,13 @@ This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/group
 
 The UI source repo is currently a plain JavaScript UI workspace for GroupScout operator screens. It has model-level screen factories, a dependency-free vanilla DOM renderer, a static build script, and Node's built-in test runner.
 
-Status reconciliation, 2026-06-10: the inspected UI checkout currently contains `createApiClient().getLead(...)` in `web/src/api/leads.js`. It does not currently contain `web/src/app/adminLogin.js`, `web/src/api/auth.js`, `web/src/renderer/browserUxHardening.js`, or `test/browser-ux-hardening.test.js`; `productionServer.js` proxies `/api/*` directly instead of applying the documented session gate. Restore or reconcile the remaining admin/session/hardening artifacts under `groupscout-site-0m0`.
+Status reconciliation, 2026-06-14: the inspected UI checkout contains `createApiClient().getLead(...)`, production `/api/*` session gating, and deterministic Phase 15 hardening artifacts. It does not currently contain `web/src/app/adminLogin.js` or `web/src/api/auth.js`; restore the remaining admin login route/client under `groupscout-site-1x9` after backend auth/session routes land under `groupscout-site-eqm`.
 
 ## Current Shape
 
 - `web/src/api/client.js` is the stable browser API facade. Focused adapters live under `web/src/api/*`, and `web/src/api/transport.js` owns the shared same-origin `/api/*` request guard.
 - `web/src/app/shell.js` owns route-shell selection.
-- Planned `web/src/app/adminLogin.js` owns the setup-token login screen model once restored.
+- Planned `web/src/app/adminLogin.js` owns the setup-token login screen model once restored under `groupscout-site-1x9`.
 - `web/src/server/uiDeployment.js` owns model-level UI deployment settings, base-path mounting, session-cookie API authorization, and development-only CORS metadata.
 - `web/src/server/browserRuntimeContract.js` owns the D2 browser runtime contract metadata for the lightweight Node server, reserved port, health path, static asset boundary, `/api/*` routing expectation, and forbidden browser public config keys.
 - `web/src/server/productRendererRuntime.js` owns the Phase 13 renderer/runtime contract.
@@ -18,7 +18,7 @@ Status reconciliation, 2026-06-10: the inspected UI checkout currently contains 
 - `web/src/server/productionServer.js` owns the D4 production same-origin server for `web/dist` static assets, `/healthz`, whitelist-only public config, and server-side `/api/*` proxying.
 - `web/src/renderer/domRenderer.js` owns the first dependency-free rendered route mapping.
 - `web/src/renderer/staticAppEntry.js` owns the browser static entrypoint, app-route-only click interception, and dynamic loading of copied renderer modules.
-- Planned `web/src/renderer/browserUxHardening.js` owns the Phase 15 deterministic browser UX hardening report until a real browser harness is added.
+- `web/src/renderer/browserUxHardening.js` owns the Phase 15 deterministic browser UX hardening report until a real browser harness is added.
 - `web/src/renderer/buildStaticApp.js` owns the static product build into `web/dist`.
 - `web/src/app/todayCommandCenter.js` owns the mocked Today command center, operational priority summaries, system health metadata, and read-only routing policy.
 - `web/src/app/leadInbox.js` owns the mocked Lead Inbox screen model.
@@ -85,7 +85,7 @@ npx @google/design.md lint DESIGN.md
 
 Useful focused runs:
 
-The commands below include historical/restoration targets. In the inspected UI checkout, runs that require planned admin auth files, production session-gate wiring, or `test/browser-ux-hardening.test.js` belong to `groupscout-site-0m0` until those artifacts are restored or reconciled.
+The commands below include current focused tests plus historical/restoration targets. In the inspected UI checkout, runs that require planned admin auth files belong to `groupscout-site-1x9` until those artifacts are restored or reconciled.
 
 ```sh
 node --test test/api-boundary.test.js
@@ -123,7 +123,7 @@ npm run build
 npm test
 ```
 
-Manual Docker/browser smoke should open `http://localhost:3001/admin/login` and confirm the login form appears as a compact floating window only after `groupscout-site-0m0` restores the admin login route. In the inspected current checkout, `/admin/login` is absent and should not be used as stale-asset evidence. The automated renderer test asserts the `admin-login-window` class contract when that test exists; it is not a visual regression test.
+Manual Docker/browser smoke should open `http://localhost:3001/admin/login` and confirm the login form appears as a compact floating window only after `groupscout-site-1x9` restores the admin login route. In the inspected current checkout, `/admin/login` is absent and should not be used as stale-asset evidence. The automated renderer test asserts the `admin-login-window` class contract when that test exists; it is not a visual regression test.
 
 API-client smell-phase baseline:
 
@@ -143,7 +143,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 - Keep `API_TOKEN` out of browser runtime/config modules.
 - Keep `UI_API_PROXY_TARGET` server-only; browser code and public config may only expose relative `/api/*`.
 - Keep production public config whitelist-only and free of provider keys, Slack tokens, Resend/SendGrid keys, database URLs, and `UI_SESSION_SECRET`.
-- For the planned production session gate, configure `UI_SESSION_SECRET` for real operator deployments so browser `/api/*` requests require a valid `groupscout_session`; leave it unset only for backend Docker smoke checks that need proxy reachability without a browser login flow. In the inspected current checkout, `productionServer.js` still proxies `/api/*` directly.
+- For the production session gate, configure `UI_SESSION_SECRET` for real operator deployments so browser `/api/*` requests require a valid `groupscout_session` before proxying to the backend.
 - Use `UI_ENABLED` to disable the UI, `UI_BASE_PATH` for subpath mounting, and `UI_SESSION_SECRET` for session readiness.
 - Keep `CORS_ALLOWED_ORIGINS` development-only; same-origin deployment is the default production posture.
 - Add API access through `createApiClient(...)`; do not fetch backend URLs directly from app modules.

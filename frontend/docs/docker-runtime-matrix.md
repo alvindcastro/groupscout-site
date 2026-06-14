@@ -2,7 +2,7 @@
 
 This doc distinguishes the current Docker/runtime modes so contributors do not expect the test image, development product server, and production static/proxy server to behave identically.
 
-Status reconciliation, 2026-05-25: the inspected UI checkout's production server proxies `/api/*` directly and does not currently wire the documented session gate; the inspected backend source snapshot also lacks the backend-owned `make smoke-ui-docker-e2e` target. UI session restoration is tracked by `groupscout-site-0m0`; backend smoke restoration is tracked by `groupscout-site-crz`.
+Status reconciliation, 2026-06-14: the inspected UI checkout's production server applies the documented session gate before proxying `/api/*`; the inspected backend source snapshot still lacks the backend-owned `make smoke-ui-docker-e2e` target. Backend smoke restoration is tracked by `groupscout-site-crz`, and the remaining frontend admin login route is tracked by `groupscout-site-1x9`.
 
 ## Modes
 
@@ -10,8 +10,8 @@ Status reconciliation, 2026-05-25: the inspected UI checkout's production server
 | --- | --- | --- | --- | --- | --- |
 | D1 test image | `docker run --rm groupscout-ui-test` | No | No | No | Run the model-level Node test suite in a clean container. |
 | Phase 13 development product server | `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout` | Yes, from `web/dist` | Server-side target metadata and same-origin behavior | Yes, for merged Compose wiring | Prove the UI service can join the backend Compose network, expose `/healthz`, and serve generated product assets. |
-| D4 production server | `npm run start:ui` or `docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production` | Yes, from `web/dist` | Yes, server-side; session-gated behavior is planned under `groupscout-site-0m0` | Backend required for `/api/*` smoke checks | Serve one browser origin for static assets plus same-origin API forwarding. |
-| D4 production server on backend network | `docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml --profile smoke-ui-e2e up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy` | Yes, from `web/dist` | Yes, server-side; session-gated behavior is planned under `groupscout-site-0m0` | Yes | Production UI runtime smoke path; backend-owned repeatable gate restoration is tracked by `groupscout-site-crz`. |
+| D4 production server | `npm run start:ui` or `docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production` | Yes, from `web/dist` | Yes, server-side and session-gated when UI session auth is configured | Backend required for `/api/*` smoke checks | Serve one browser origin for static assets plus same-origin API forwarding. |
+| D4 production server on backend network | `docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml --profile smoke-ui-e2e up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy` | Yes, from `web/dist` | Yes, server-side and session-gated when UI session auth is configured | Yes | Production UI runtime smoke path; backend-owned repeatable gate restoration is tracked by `groupscout-site-crz`. |
 
 ## D1 Test Image
 
@@ -43,7 +43,7 @@ The `-p groupscout` flag keeps the Docker network name predictable as `groupscou
 
 ## D4 Production Server
 
-The `production` Docker target runs `npm run start:ui`, which starts `web/src/server/productionServer.js`. In the inspected UI checkout, it serves static assets from `web/dist`, exposes `/healthz`, and forwards `/api/*` server-side to `UI_API_PROXY_TARGET` or `http://groupscout:8080`. The previously documented session gate before proxy forwarding is planned/reconciliation work in `groupscout-site-0m0`.
+The `production` Docker target runs `npm run start:ui`, which starts `web/src/server/productionServer.js`. In the inspected UI checkout, it serves static assets from `web/dist`, exposes `/healthz`, authorizes `/api/*` through the UI session boundary, and forwards authorized API requests server-side to `UI_API_PROXY_TARGET` or `http://groupscout:8080`.
 
 Use it when validating same-origin static/proxy behavior:
 
@@ -56,7 +56,7 @@ curl -i http://localhost:3002/assets/app.js
 curl -i http://localhost:3002/api/system
 ```
 
-Planned session-gate behavior under `groupscout-site-0m0`: unauthenticated `GET /api/system` should return `401` from the UI before proxying when `UI_SESSION_SECRET` is configured. In the inspected UI checkout, the production server proxies `/api/*` directly, so current smoke should treat backend `404` as route absence and `502` as proxy reachability failure. `GET /healthz`, `GET /`, and `GET /assets/app.js` can validate the UI container without a backend.
+Unauthenticated `GET /api/system` returns `401` from the UI before proxying when `UI_SESSION_SECRET` is configured and no valid `groupscout_session` is present. Backend-network smoke paths that do not configure UI session auth can still use `/api/*` to distinguish backend `404` route absence from `502` proxy reachability failure. `GET /healthz`, `GET /`, and `GET /assets/app.js` can validate the UI container without a backend.
 
 To smoke the production UI container against the backend container instead of a host backend, use the `smoke-ui-e2e` Compose profile:
 
@@ -93,7 +93,7 @@ Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo after `gro
 
 - Browser-facing JavaScript should see relative `/api/*` paths, not `http://groupscout:8080`.
 - `UI_API_PROXY_TARGET` is server-side only.
-- Production `/api/*` proxying should be session-gated before backend forwarding when `UI_SESSION_SECRET` is configured; this is tracked by `groupscout-site-0m0` for the inspected UI checkout.
+- Production `/api/*` proxying is session-gated before backend forwarding when `UI_SESSION_SECRET` is configured.
 - The backend Docker smoke path leaves `UI_SESSION_SECRET` unset so proxy reachability can be checked without issuing a browser session.
 - Do not pass backend `.env` files into UI containers.
 - Do not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config or static assets.

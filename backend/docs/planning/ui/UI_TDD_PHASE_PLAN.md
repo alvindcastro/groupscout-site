@@ -25,7 +25,7 @@ Status reconciliation, 2026-05-25: Phase 35-37 rows below describe TDD contract 
 - [x] Verify static frontend assets do not expose secrets.
 - [x] Keep marketing hero patterns out of the operator workspace.
 
-Phase 31 implementation note: the frontend package now lives in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`, while these centralized docs keep the contract history. Current UI checkout reconciliation is tracked by `groupscout-site-0m0`.
+Phase 31 implementation note: the frontend package now lives in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`, while these centralized docs keep the contract history. Current UI checkout reconciliation restored `getLead`, production session gating, and deterministic Phase 15 artifacts under `groupscout-site-0m0`.
 
 ## Phase 32 - App Shell And Routing
 
@@ -35,7 +35,7 @@ Phase 31 implementation note: the frontend package now lives in `/mnt/c/Users/al
 - [x] Test responsive collapse for navigation and detail/evidence rail.
 - [x] Verify build and component tests.
 
-Phase 32 implementation note: the separate frontend repo contains the UI package; this planning file remains the centralized contract record. Route/static artifact reconciliation for the inspected UI checkout is tracked by `groupscout-site-0m0`.
+Phase 32 implementation note: the separate frontend repo contains the UI package; this planning file remains the centralized contract record. Frontend `/admin/login` route restoration is tracked by `groupscout-site-1x9` after backend auth routes land.
 
 ## Phase 33 - Mocked Lead Inbox
 
@@ -55,7 +55,7 @@ Phase 33 implementation note: mocked lead inbox work belongs to the separate fro
 - [x] Keep correction controls disabled or mocked until backend correction storage exists.
 - [x] Verify no raw payload body loads into the default detail response.
 
-Phase 34 implementation note: lead detail/evidence UI work belongs to the separate frontend repo, while the live backend `GET /api/leads/{id}` route remains planned under `groupscout-site-eqm`; current checkout detail-client reconciliation is tracked by `groupscout-site-0m0`.
+Phase 34 implementation note: lead detail/evidence UI work belongs to the separate frontend repo, while the live backend `GET /api/leads/{id}` route remains planned under `groupscout-site-eqm`; the current checkout detail client was reconciled under `groupscout-site-0m0`.
 
 ## Phase 35 - UI API Contracts
 

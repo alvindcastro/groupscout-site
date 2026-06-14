@@ -2,9 +2,9 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/testing.md`. Run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui` and backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 
-Status reconciliation, 2026-06-10: the inspected UI checkout contains `createApiClient().getLead(...)`, but is missing the documented admin login/auth client and Phase 15 hardening module/test; the inspected backend source snapshot is also missing planned `/api/*` UI routes, admin auth, EvalOps targets, and `make smoke-ui-docker-e2e`. Treat historical green runs below as branch-history until `groupscout-site-0m0`, `groupscout-site-eqm`, and `groupscout-site-crz` land or the docs are further narrowed.
+Status reconciliation, 2026-06-14: the inspected UI checkout contains `createApiClient().getLead(...)`, production-server session gating before `/api/*` proxying, and deterministic Phase 15 hardening module/test coverage. It is still missing the documented admin login/auth client; the inspected backend source snapshot is also missing planned `/api/*` UI routes, admin auth, EvalOps targets, and `make smoke-ui-docker-e2e`. Treat admin-login and backend-owned historical green runs below as branch-history until `groupscout-site-1x9`, `groupscout-site-eqm`, and `groupscout-site-crz` land or the docs are further narrowed.
 
-The dated runs below remain useful implementation history, but they are not current-source proof for admin login, production session gating, browser UX hardening, generated clients, or protected `/api/*` backend routes in the inspected checkouts.
+The dated runs below remain useful implementation history, but they are not current-source proof for admin login, generated clients, or protected `/api/*` backend routes in the inspected checkouts.
 
 ## Run This Now
 
@@ -126,7 +126,7 @@ Do not run CI UI containers with backend `.env` or `--env-file`. Do not inject `
 
 ## Focused UI Tests
 
-The list below includes historical/restoration targets. In the inspected UI checkout, commands that require the missing admin auth files, production session-gate wiring, or `test/browser-ux-hardening.test.js` should be treated as `groupscout-site-0m0` restoration checks rather than current-source proof.
+The list below includes current focused tests plus historical/restoration targets. In the inspected UI checkout, commands that require the missing admin auth files should be treated as `groupscout-site-1x9` restoration checks rather than current-source proof.
 
 ```sh
 node --test test/api-boundary.test.js
@@ -166,16 +166,15 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 ## What Current Or Historical UI Tests Cover
 
 - Same-origin `/api/*` browser request boundary, public API-client facade shape, split adapter module ownership, request defaults, and invalid-route pre-fetch rejection.
-- Session-cookie enforcement metadata for UI `/api/*` access.
-- Historical/restoration target under `groupscout-site-0m0`: production request-handler enforcement that rejects missing/invalid `groupscout_session` before `/api/*` proxying when `UI_SESSION_SECRET` is configured, allows the no-secret backend Docker smoke proxy path, and applies baseline browser security headers.
-- Historical/restoration target under `groupscout-site-0m0`: admin setup-token login route rendering, protected-route redirect metadata, login verification through auth status/current-admin calls, and logout routing through `/api/auth/logout`.
-- Historical/restoration target under `groupscout-site-0m0`: admin login floating-window renderer contract through the `admin-login-window` form class.
+- Session-cookie enforcement metadata for UI `/api/*` access and production-server authorization before API proxying when `UI_SESSION_SECRET` is configured.
+- Historical/restoration target under `groupscout-site-1x9`: admin setup-token login route rendering, protected-route redirect metadata, login verification through auth status/current-admin calls, and logout routing through `/api/auth/logout`.
+- Historical/restoration target under `groupscout-site-1x9`: admin login floating-window renderer contract through the `admin-login-window` form class.
 - `UI_ENABLED`, `UI_BASE_PATH`, `UI_SESSION_SECRET`, and development-only `CORS_ALLOWED_ORIGINS` deployment behavior.
 - D2 browser runtime contract metadata for the reserved start command, port, health path, static asset boundary, `/api/*` server/proxy target, and forbidden browser public config keys.
 - D3/Phase 13 development Compose metadata for the UI service, backend network attachment, backend service dependency, port mapping, healthcheck command, no-secret Compose boundary, and product dev-server health payload.
 - D4 production same-origin server metadata, static asset presence, app-route fallback, server-side `/api/*` proxy request construction, public-config secret rejection, and production Docker target.
 - Phase 13 renderer/runtime contract, rendered route smoke for Today/Leads/Lead Detail/Pipeline/mobile Verification, static product build output, app-route-only SPA navigation, public asset secret scans, copied `/src/*` module cache policy, product dev server metadata, and backend compatibility smoke classification.
-- Historical/restoration target under `groupscout-site-0m0`: Phase 15 deterministic browser UX hardening for primary navigation, main landmarks, route-specific focus labels, accessible-name metadata, rendered desktop/tablet/mobile modes, stable loading/error/empty states, text-containment policy, and same-origin API metadata. Real browser verification remains tracked by `groupscout-site-kb4`.
+- Phase 15 deterministic browser UX hardening for primary navigation, main landmarks, route-specific focus labels, accessible-name metadata, rendered desktop/tablet/mobile modes, stable loading/error/empty states, text-containment policy, and same-origin API metadata. Real browser verification remains tracked by `groupscout-site-kb4`.
 - Recursive browser-source checks that `API_TOKEN` is not referenced in browser-facing `web/src/**/*.js` modules outside `web/src/server`.
 - Lead inbox query serialization, blank-filter elision, sort overrides, and response adaptation.
 - Lead detail client access through same-origin `GET /api/leads/{id}`, encoded lead IDs, evidence workspace fields, source evidence, AI enrichment, reviewer corrections, and activity rows.

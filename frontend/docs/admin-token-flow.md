@@ -2,7 +2,7 @@
 
 This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/groupscout-site/frontend/docs/admin-token-flow.md`. Run UI commands from `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`; run backend commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 
-Status reconciliation, 2026-06-10: this is the planned admin-token runbook for the auth branch/reconciliation work. The inspected backend source snapshot does not expose `/api/auth/*`, and the inspected UI checkout does not expose `/admin/login` or the documented auth client wiring. Backend implementation is tracked by `groupscout-site-eqm`; UI restoration/reconciliation is tracked by `groupscout-site-0m0`. In the current checkout, a missing `/admin/login` route is expected and should not be treated as stale Docker assets.
+Status reconciliation, 2026-06-14: this is the planned admin-token runbook for the auth branch/reconciliation work. The inspected backend source snapshot does not expose `/api/auth/*`, and the inspected UI checkout does not expose `/admin/login` or the documented auth client wiring. Backend implementation is tracked by `groupscout-site-eqm`; frontend login restoration is tracked by `groupscout-site-1x9`. In the current checkout, a missing `/admin/login` route is expected and should not be treated as stale Docker assets.
 
 ## Operator Login Steps
 

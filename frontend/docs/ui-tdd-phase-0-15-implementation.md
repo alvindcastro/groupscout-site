@@ -4,13 +4,13 @@
 
 This document records the canonical `UI_TDD_PHASE_PROMPTS.md` Phase 0-15 order completed on 2026-05-09.
 
-Status reconciliation, 2026-06-10: the inspected UI checkout currently contains `createApiClient().getLead(...)`, but no longer contains several artifacts cited below, including `web/src/renderer/browserUxHardening.js` and `test/browser-ux-hardening.test.js`; `productionServer.js` also proxies `/api/*` directly instead of applying the historical session gate. Treat this file as implementation history until `groupscout-site-0m0` restores the missing artifacts or narrows the docs to the current checkout.
+Status reconciliation, 2026-06-14: the inspected UI checkout contains `createApiClient().getLead(...)`, production `/api/*` session gating, and deterministic Phase 15 hardening artifacts again. Treat admin-login references as branch-history until `groupscout-site-1x9` restores the `/admin/login` route/client after backend auth routes land.
 
 The checkout was reconciled to the tracked Phase 13 UI baseline rather than rebuilt from a docs-only reset. That baseline already included the vanilla DOM renderer, `node:test` harness, screen models, static build, product dev server, production static/proxy server, Docker contracts, and same-origin `/api/*` browser boundary.
 
 ## Historical Phase Map
 
-The status column records the 2026-05-09 branch-history implementation evidence. It is not a current-checkout inventory for files already called out as missing in the reconciliation note above. Current-checkout reconciliation belongs to `groupscout-site-0m0`; real browser verification belongs to `groupscout-site-kb4`.
+The status column records the 2026-05-09 branch-history implementation evidence with 2026-06-14 reconciliation for `getLead`, production session gating, and deterministic Phase 15 artifacts. Real browser verification belongs to `groupscout-site-kb4`; admin-login restoration belongs to `groupscout-site-1x9`.
 
 | Phase | Status | Evidence |
 |---|---|---|

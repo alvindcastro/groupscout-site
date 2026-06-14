@@ -21,7 +21,7 @@ Reduce the growing browser API client module into focused API adapters while pre
 
 - Callers still import from `web/src/api/client.js`.
 - Named exports remain `API_BASE_PATH`, `DEFAULT_LEAD_INBOX_SORT`, `LEAD_INBOX_ITEM_FIELDS`, and `createApiClient`.
-- `createApiClient(...)` still exposes `request`, `listLeads`, `patchLead`, `getLeadRawAudit`, `listLeadOutreach`, `logLeadOutreach`, `listPipelineRuns`, `startPipelineRun`, `getStats`, `listAlerts`, and `getSystem`.
+- `createApiClient(...)` still exposes `request`, `listLeads`, `getLead`, `patchLead`, `getLeadRawAudit`, `listLeadOutreach`, `logLeadOutreach`, `listPipelineRuns`, `startPipelineRun`, `getStats`, `listAlerts`, and `getSystem`.
 - Browser requests still fail before fetch for absolute `http` or `https` URLs, empty paths, and paths outside `/api/`.
 - Browser requests still use `credentials: "same-origin"` and do not inject automation-token headers.
 - Alert and system surfaces remain read-only.

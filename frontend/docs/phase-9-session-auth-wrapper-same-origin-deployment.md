@@ -2,7 +2,7 @@
 
 Phase 9 adds the minimum deployment and session model needed to keep the operator workspace behind browser sessions while preserving automation-only credentials for non-browser clients.
 
-Status reconciliation, 2026-06-10: the inspected UI checkout has `uiDeployment.js` helper logic, but `productionServer.js` currently proxies `/api/*` directly and the checkout lacks the documented `/admin/login` route/auth client wiring. Treat the session-gated production proxy and admin-login route sections as planned session/auth contract language until `groupscout-site-0m0` restores or reconciles the implementation.
+Status reconciliation, 2026-06-14: the inspected UI checkout has `uiDeployment.js` helper logic and `productionServer.js` now applies session authorization before proxying `/api/*`. The checkout still lacks the documented `/admin/login` route/auth client wiring; that remaining frontend work is tracked by `groupscout-site-1x9` after backend auth/session routes land under `groupscout-site-eqm`.
 
 ## Scope
 
@@ -29,12 +29,12 @@ Status reconciliation, 2026-06-10: the inspected UI checkout has `uiDeployment.j
 - If the backend uses `ADMIN_SETUP_TOKEN`, that env-backed setup token is active and does not rotate automatically.
 - The backend response includes a bearer `session_token` for non-browser smoke clients, but browser code relies on the HttpOnly `groupscout_session` cookie.
 - Admin sessions are in-memory and expire after `ADMIN_SESSION_TTL_HOURS`, default `24`; backend restarts invalidate active browser sessions.
-- The planned production request handler applies this authorization check before proxying `/api/*` to `UI_API_PROXY_TARGET`; with no session secret configured, the backend Docker smoke path can proxy `/api/*` without a browser login flow.
+- The production request handler applies this authorization check before proxying `/api/*` to `UI_API_PROXY_TARGET`; with no valid session, configured UI API requests return `401` before backend forwarding.
 - Planned health, static, JSON, and proxied responses include baseline browser security headers: CSP, `x-content-type-options`, `x-frame-options`, and `referrer-policy`.
 - Disabled UI access returns `404` so the operator UI is not mounted.
 - `API_TOKEN` remains reserved for automation clients such as n8n and is not injected into browser requests.
 
-For planned setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands, use [Admin Token Flow](./admin-token-flow.md) as the canonical runbook. In the inspected current checkout, missing `/admin/login` is expected and is not stale-asset evidence.
+For planned setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands, use [Admin Token Flow](./admin-token-flow.md) as the canonical runbook. In the inspected current checkout, missing `/admin/login` is expected until `groupscout-site-1x9` lands and is not stale-asset evidence.
 
 ## Design Tokens
 

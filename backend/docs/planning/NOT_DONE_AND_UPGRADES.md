@@ -1,15 +1,14 @@
 # Not-Done Work And Upgrade Snapshot
 
-Date: 2026-06-14
+Date: 2026-06-13
 
 Beads is the source of truth for active work. This snapshot is a navigation layer for choosing the next implementation or documentation pass; refresh it with `bd list --status=open` and `bd list --status=in_progress` before starting work.
 
-Current review status after the 2026-06-13 reconciliation pass: `groupscout-site-crz` is closed — `internal/evalops`, `internal/smoke`, `scripts/smoke-ui-docker-e2e.sh`, 21 golden JSONL fixtures, and EvalOps Makefile targets have been restored to the backend. Runtime correctness warnings are now the next priority.
+Current review status after the 2026-06-13 session: `groupscout-site-ei7` is closed — VCC source drift detection, VCC per-event dedup hash fix, and Postgres raw persistence UTF-8 sanitization are now in the backend (`task/event-driven-ingest`). The Postgres enrichment FK integration failure is next.
 
 ## Start Here
 
-1. `groupscout-site-ei7` - investigate normal `/run` collector drift and raw persistence warnings.
-2. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
+1. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -21,8 +20,8 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ### Runtime Correctness And Data Safety
 
-- `groupscout-site-ei7` - investigate normal `/run` collector drift and raw persistence warnings that can hide behind otherwise successful Slack sends.
 - `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
+- ~~`groupscout-site-ei7`~~ - **closed 2026-06-13**: VCC 404 drift detection (`SourceDriftError`), VCC per-event dedup hash fix, and Postgres TEXT column UTF-8 sanitization implemented.
 - ~~`groupscout-site-crz`~~ - **closed 2026-06-13**: EvalOps and UI smoke artifacts restored.
 
 ### Operator UI And API Bridge
@@ -55,7 +54,7 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ## Recommended Upgrade Order
 
-1. **Stabilize documentation and repo state first.** Clear `groupscout-site-crz` so future agents can trust EvalOps and smoke command claims.
+1. **Stabilize documentation and repo state first.** ~~Clear `groupscout-site-crz`~~ done. ~~Clear `groupscout-site-ei7`~~ done.
 2. **Fix runtime warnings before expanding scope.** Prioritize `groupscout-site-ei7` and `groupscout-site-wda`; both are correctness risks that can be masked by successful end-to-end runs.
 3. **Ship the operator UI contract bridge.** Implement `groupscout-site-eqm`, then restore frontend admin login with `groupscout-site-1x9`, generate typed clients with `groupscout-site-29q`, then add raw-preview and real-browser hardening work under `groupscout-site-4cv` and `groupscout-site-kb4`.
 4. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.

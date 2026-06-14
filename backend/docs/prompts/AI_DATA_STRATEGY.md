@@ -50,8 +50,10 @@ This means:
 
 A denormalized **context view** that joins `raw_projects + leads + outreach_log` into a single prompt-ready string per lead:
 
+Before creating migration files, inspect the backend source repo's current `migrations/` directory and use the next available number. Historical examples in this document intentionally use `<next>` placeholders.
+
 ```sql
--- migrations/003_ai_context.up.sql
+-- migrations/<next>_ai_context.up.sql
 CREATE VIEW IF NOT EXISTS v_lead_context AS
 SELECT
     l.id,
@@ -130,7 +132,7 @@ Anthropic does not offer a public embeddings API. Options ranked by fit:
 ### Storage schema
 
 ```sql
--- migrations/003_ai_context.up.sql (continued)
+-- migrations/<next>_ai_context.up.sql (continued)
 CREATE TABLE IF NOT EXISTS lead_embeddings (
     lead_id     TEXT PRIMARY KEY REFERENCES leads(id),
     model       TEXT NOT NULL,           -- e.g., "voyage-3-lite"
@@ -243,7 +245,7 @@ Current Beads: Phase A AI-ready SQL, Langfuse/noop tracing, and runtime `EvalLea
 
 ### Phase A — AI-Ready SQL only (no embeddings yet)
 > Coding prompts: [PROMPTS_AI_READY_SQL.md](./PROMPTS_AI_READY_SQL.md)
-- [ ] `migrations/004_lead_context_view.up.sql` — `v_lead_context` view
+- [ ] `migrations/<next>_lead_context_view.up.sql` — `v_lead_context` view
 - [ ] `GetContext(ctx, id string) (string, error)` on `LeadStore`
 - [ ] Refactor `DraftOutreach()` to accept and use `contextText string`
 - [ ] Wire `GetContext()` into the outreach draft endpoint

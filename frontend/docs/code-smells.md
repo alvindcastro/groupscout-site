@@ -20,7 +20,7 @@ Production screen modules export and default to mock data such as lead rows, det
 
 Impact: demo/test data is coupled to runtime factories, which can blur the line between fixture behavior and production behavior once live data is introduced.
 
-Tracked follow-up: move fixtures behind explicit test/demo inputs before a renderer or live backend wiring ships under `groupscout-site-2h1`.
+Tracked follow-up: move fixtures behind explicit test/demo inputs before live backend wiring or renderer expansion ships under `groupscout-site-2h1`.
 
 ### Duplicated Domain Constants
 

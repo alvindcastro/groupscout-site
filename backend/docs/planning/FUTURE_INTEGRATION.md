@@ -75,11 +75,13 @@
 
 ## Summary of Next Steps
 
-By priority:
+This file is an idea map, not the active priority queue. Use [NOT_DONE_AND_UPGRADES.md](./NOT_DONE_AND_UPGRADES.md) and Beads for current sequencing.
 
-1. **Phase 7.4–7.6** — Lead Management API endpoints (`GET /leads`, `PATCH /leads/{id}`, OutreachLogStore) — unblocks Phase 19
-2. **Phase 16** — LLM Provider Abstraction — required before Phase 24 (agentic layer depends on the interface)
-3. **Phase 25-A** — AI-Ready SQL view — quick win; immediately improves prompt quality and reduces `claude.go` complexity
-4. **Phase 9** — Parallel collector execution — reduces pipeline runtime from sequential to concurrent
-5. **Phase 24** — ReAct loop + tool-calling — highest AI value; requires Phase 16 first
-6. **Phase 26** — Home/Coolify deploy execution and optional Terraform IaC; event-driven processing is already covered by `/ingest`
+Current Beads-backed priority themes:
+
+1. Source-of-truth hygiene and source checkout reconciliation.
+2. Runtime correctness for collector/raw persistence warnings.
+3. Backend UI API routes and generated frontend client/types.
+4. Observability, AI-ready SQL, provider abstraction, analytics, and deployment upgrades.
+
+Idea-level dependencies still matter: the lead-management API work unblocks richer Slack/UI actions, the LLM provider abstraction should precede agentic tool-calling, and AI-ready SQL should inspect current migrations before choosing filenames.

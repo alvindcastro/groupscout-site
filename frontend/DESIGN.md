@@ -452,6 +452,10 @@ components:
 
 ## Overview
 
+## GroupScout Operator App Subset
+
+Use this file as a token and visual-reference source, not as a mandate to copy Mintlify marketing composition into the GroupScout operator workspace. For GroupScout app screens, prefer dense, work-focused layouts with restrained surfaces, compact controls, clear evidence hierarchy, and no landing-page hero treatment. Marketing hero patterns, oversized promotional cards, and atmospheric decorative backgrounds are out of scope for the operator UI unless a future issue explicitly asks for a public marketing page.
+
 Mintlify positions itself at the intersection of polished marketing presentation and developer-grade documentation density. The home and startups pages open with cinematic atmospheric heroes — soft sky-gradient backdrops with cloud illustrations on the homepage, dark teal-to-mint gradients with a rocket launch on the startups page — that feel more like a SaaS landing aesthetic than a developer tool. Then the deeper surfaces (pricing comparison, live documentation pages) collapse into dense, high-information layouts where Inter body type carries 14–16px copy across long-form prose, syntax-highlighted code blocks, and 3-column documentation grids.
 
 The brand's signature mint green ({colors.brand-green}) appears sparingly but decisively — on the hero "Get started" pill button, the green checkmark icons inside feature lists, the "Featured" pricing tier border, and active state indicators inside docs UI. Black-pill primary buttons dominate the marketing flow; white-on-dark inversions appear on dark hero bands. The signature pairing of Inter (body, headings) with Geist Mono (code blocks, inline references, type signatures) reinforces the developer-tool DNA without requiring a third typeface.

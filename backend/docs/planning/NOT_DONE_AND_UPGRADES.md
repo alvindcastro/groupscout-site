@@ -1,8 +1,19 @@
 # Not-Done Work And Upgrade Snapshot
 
-Date: 2026-06-10
+Date: 2026-06-14
 
 Beads is the source of truth for active work. This snapshot is a navigation layer for choosing the next implementation or documentation pass; refresh it with `bd list --status=open` and `bd list --status=in_progress` before starting work.
+
+Current review status after closing the documentation review task: `bd stats` reported 89 issues total, 21 open issues, 1 in-progress issue, 0 blocked issues, and 67 closed issues. The only in-progress task at review time was `groupscout-site-0m0`. `bd blocked` reported no blocked issues.
+
+## Start Here
+
+1. `groupscout-site-b38` - fix the frontend Beads workspace identity mismatch before relying on frontend-local issue sync.
+2. `groupscout-site-783` - resolve or document the `.beads` permission warning on the Windows-mounted coordination repo.
+3. `groupscout-site-0m0` - finish or split the stale in-progress UI admin/session and hardening reconciliation.
+4. `groupscout-site-crz` - reconcile backend EvalOps and UI smoke artifacts before trusting old roadmap or changelog claims.
+
+The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
 ## Highest-Value Unfinished Work
 
@@ -62,3 +73,4 @@ Beads is the source of truth for active work. This snapshot is a navigation laye
 - When an implementation lands in a source repo, update this coordination repo's markdown in the same session if the behavior, runbook, or roadmap changes.
 - Treat old roadmap checkboxes as historical planning context unless an open Beads issue confirms the work is still active.
 - When docs mention a command or artifact that is missing from an inspected source checkout, either restore the artifact in the owning repo or document the reconciliation issue ID next to the claim.
+- When prompt files name migration numbers, inspect the backend source repo's current migrations before creating new migration files.

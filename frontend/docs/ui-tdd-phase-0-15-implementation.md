@@ -10,7 +10,7 @@ The checkout was reconciled to the tracked Phase 13 UI baseline rather than rebu
 
 ## Historical Phase Map
 
-The status column records the 2026-05-09 branch-history implementation evidence. It is not a current-checkout inventory for files already called out as missing in the reconciliation note above.
+The status column records the 2026-05-09 branch-history implementation evidence. It is not a current-checkout inventory for files already called out as missing in the reconciliation note above. Current-checkout reconciliation belongs to `groupscout-site-0m0`; real browser verification belongs to `groupscout-site-kb4`.
 
 | Phase | Status | Evidence |
 |---|---|---|

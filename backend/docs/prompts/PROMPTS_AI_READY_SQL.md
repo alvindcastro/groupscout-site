@@ -27,8 +27,10 @@
 
 ## Task 1 — Migration: create `v_lead_context` view
 
-**File to create:** `migrations/004_lead_context_view.up.sql`
-**File to create:** `migrations/004_lead_context_view.down.sql`
+Before choosing filenames, inspect the backend source repo's current `migrations/` directory and use the next available migration number. Older planning docs refer to both `004_lead_context_view` and `005_ai_context`; the source checkout wins.
+
+**File to create:** `migrations/<next>_lead_context_view.up.sql`
+**File to create:** `migrations/<next>_lead_context_view.down.sql`
 
 ```
 Create a Postgres migration that adds a view called v_lead_context.

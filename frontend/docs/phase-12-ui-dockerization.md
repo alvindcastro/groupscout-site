@@ -28,9 +28,9 @@ Phase D0 through D5 are complete. Future UI runtime or renderer work still requi
 - Browser UI code must use same-origin `/api/*` contracts.
 - `API_TOKEN` is reserved for automation clients and must not be exposed to browser JavaScript.
 
-## Recommended Direction
+## Historical Direction
 
-The current UI test workspace and production same-origin static/proxy server are containerized. Next, add a product browser runtime or renderer only after its behavior is test-covered. This avoids inventing UI framework code around a product app that does not exist yet.
+The current UI test workspace and production same-origin static/proxy server are containerized. Phase 13 later added the dependency-free product renderer/runtime. Treat the guidance below as the D0-D5 historical target shape; new renderer or browser-harness expansion should follow the active Beads issues and strict TDD.
 
 Preferred end state:
 

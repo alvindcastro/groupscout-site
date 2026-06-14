@@ -15,7 +15,7 @@ Roadmap checkboxes are historical/strategic context. Beads is the source of trut
 
 Current open work themes:
 
-- Coordination hygiene: `groupscout-site-783` and `groupscout-site-a1h`.
+- Coordination hygiene: `groupscout-site-a1h`.
 - Runtime correctness and source reconciliation: `groupscout-site-ei7`, `groupscout-site-wda`, and `groupscout-site-crz`.
 - Operator UI and API bridge: `groupscout-site-0m0`, `groupscout-site-eqm`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-3gq`.
 - Observability, AI, and analytics: `groupscout-site-yyj`, `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-4b4`.
@@ -23,6 +23,7 @@ Current open work themes:
 
 Recently completed:
 
+- `groupscout-site-783` — the `.beads` permission warning on the Windows-mounted coordination checkout was documented as an accepted DrvFs/9p limitation after `chmod 700 .beads` did not persist.
 - `groupscout-site-b38` — frontend Beads workspace identity was reconciled so frontend-local issue sync no longer requires bypassing the identity check.
 - `groupscout-site-b25` — event-driven `POST /ingest` and `EnrichOne` backend branch, with single-item enrichment tests, handler tests, and OpenAPI/docs updates.
 - `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery with a delivery log, run lock, fallback selector, and JSON `/run` result.

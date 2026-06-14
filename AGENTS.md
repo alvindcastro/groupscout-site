@@ -2,6 +2,10 @@
 
 This project uses **bd** (beads) for issue tracking. Run `bd prime` for full workflow context, and use the Beads integration block below as the canonical command reference.
 
+## Known Environment Notes
+
+- This checkout lives on a Windows-mounted WSL path (`/mnt/c/Users/alvin/groupscout-site`). `bd` may warn that `.beads` is mode `0777` and recommend `chmod 700`; `chmod` does not persist on this DrvFs/9p mount without Linux metadata support. Treat that warning as an accepted local limitation for this coordination repo unless the repo is moved to a POSIX filesystem or the WSL mount is reconfigured with metadata support.
+
 ## Repository Roles
 
 This repository is the coordination point for GroupScout work. Future feature and bug-fix prompts should start here, then agents should route implementation work to the owning code repository:

@@ -8,9 +8,8 @@ Current review status after closing the documentation review task: `bd stats` re
 
 ## Start Here
 
-1. `groupscout-site-783` - resolve or document the `.beads` permission warning on the Windows-mounted coordination repo.
-2. `groupscout-site-0m0` - finish or split the stale in-progress UI admin/session and hardening reconciliation.
-3. `groupscout-site-crz` - reconcile backend EvalOps and UI smoke artifacts before trusting old roadmap or changelog claims.
+1. `groupscout-site-0m0` - finish or split the stale in-progress UI admin/session and hardening reconciliation.
+2. `groupscout-site-crz` - reconcile backend EvalOps and UI smoke artifacts before trusting old roadmap or changelog claims.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -18,7 +17,6 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ### Coordination And Source-Of-Truth Hygiene
 
-- `groupscout-site-783` - resolve the `.beads` directory permission warning on the Windows-mounted coordination repo.
 - `groupscout-site-a1h` - audit Codex plugin skill drift so local agent instructions and plugin docs do not diverge.
 
 ### Runtime Correctness And Data Safety
@@ -57,7 +55,7 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ## Recommended Upgrade Order
 
-1. **Stabilize documentation and repo state first.** Clear `groupscout-site-783`, `groupscout-site-0m0`, and `groupscout-site-crz` so future agents can trust the repo state and smoke commands.
+1. **Stabilize documentation and repo state first.** Clear `groupscout-site-0m0` and `groupscout-site-crz` so future agents can trust the repo state and smoke commands.
 2. **Fix runtime warnings before expanding scope.** Prioritize `groupscout-site-ei7` and `groupscout-site-wda`; both are correctness risks that can be masked by successful end-to-end runs.
 3. **Ship the operator UI contract bridge.** Implement `groupscout-site-eqm`, then generate typed clients with `groupscout-site-29q`, then add raw-preview and browser-hardening work under `groupscout-site-4cv` and `groupscout-site-kb4`.
 4. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.
@@ -72,3 +70,4 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 - Treat old roadmap checkboxes as historical planning context unless an open Beads issue confirms the work is still active.
 - When docs mention a command or artifact that is missing from an inspected source checkout, either restore the artifact in the owning repo or document the reconciliation issue ID next to the claim.
 - When prompt files name migration numbers, inspect the backend source repo's current migrations before creating new migration files.
+- The `.beads` permission warning on this `/mnt/c` coordination checkout is an accepted environment limitation under `groupscout-site-783`; eliminate it by moving the checkout to a POSIX filesystem or enabling WSL metadata support, not by repeatedly running `chmod`.

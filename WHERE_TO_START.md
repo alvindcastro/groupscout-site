@@ -25,9 +25,8 @@ Create or reuse a task branch in the owning source repo before implementation wo
 
 ## Current Starting Point
 
-1. Resolve or explicitly accept `groupscout-site-783`. The `.beads` permission warning appears on every Beads command in this Windows-mounted repo and creates noise during handoffs.
-2. Finish or split `groupscout-site-0m0`. It is the only in-progress item and owns current UI checkout drift around admin/session artifacts and Phase 15 hardening.
-3. Reconcile `groupscout-site-crz` before trusting old EvalOps or UI smoke claims in backend docs.
+1. Finish or split `groupscout-site-0m0`. It is the only in-progress item and owns current UI checkout drift around admin/session artifacts and Phase 15 hardening.
+2. Reconcile `groupscout-site-crz` before trusting old EvalOps or UI smoke claims in backend docs.
 
 After those hygiene/reconciliation tasks, move to runtime correctness:
 
@@ -53,6 +52,7 @@ Then move to the operator UI bridge:
 
 - `frontend/docs/ui-tdd-phase-0-15-implementation.md` records branch-history evidence; use `groupscout-site-0m0` to decide whether to restore missing files or narrow the docs to current behavior.
 - `backend/docs/CHANGELOG.md` mentions UI API and pipeline/stat/system work that some planning contracts still mark as not live; verify against the backend source before relying on those claims.
+- The `.beads` permission warning on this Windows-mounted coordination checkout is accepted under `groupscout-site-783`; `chmod 700 .beads` does not persist on the current DrvFs/9p mount without metadata support.
 - Historical roadmap files can conflict with the Beads order. Prefer Beads plus `NOT_DONE_AND_UPGRADES.md` over older "next" lists.
 - Migration-number prompt files are guidance only. Inspect current backend migrations before creating new migration filenames.
 

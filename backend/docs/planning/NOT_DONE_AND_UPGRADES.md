@@ -4,12 +4,12 @@ Date: 2026-06-14
 
 Beads is the source of truth for active work. This snapshot is a navigation layer for choosing the next implementation or documentation pass; refresh it with `bd list --status=open` and `bd list --status=in_progress` before starting work.
 
-Current review status after the latest UI reconciliation pass: `groupscout-site-0m0` restored production session gating and deterministic Phase 15 hardening in the frontend checkout. Backend EvalOps/UI smoke reconciliation remains the next source-of-truth task.
+Current review status after the 2026-06-13 reconciliation pass: `groupscout-site-crz` is closed — `internal/evalops`, `internal/smoke`, `scripts/smoke-ui-docker-e2e.sh`, 21 golden JSONL fixtures, and EvalOps Makefile targets have been restored to the backend. Runtime correctness warnings are now the next priority.
 
 ## Start Here
 
-1. `groupscout-site-crz` - reconcile backend EvalOps and UI smoke artifacts before trusting old roadmap or changelog claims.
-2. `groupscout-site-ei7` and `groupscout-site-wda` - investigate runtime correctness warnings after source-of-truth hygiene is stable.
+1. `groupscout-site-ei7` - investigate normal `/run` collector drift and raw persistence warnings.
+2. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -23,7 +23,7 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 - `groupscout-site-ei7` - investigate normal `/run` collector drift and raw persistence warnings that can hide behind otherwise successful Slack sends.
 - `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
-- `groupscout-site-crz` - restore or reconcile backend EvalOps and UI Docker smoke artifacts that docs reference but the inspected backend snapshot lacks.
+- ~~`groupscout-site-crz`~~ - **closed 2026-06-13**: EvalOps and UI smoke artifacts restored.
 
 ### Operator UI And API Bridge
 

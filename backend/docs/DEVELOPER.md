@@ -27,7 +27,7 @@ Use [BACKEND_FOR_UI_TESTING.md](./planning/ui/BACKEND_FOR_UI_TESTING.md) for loc
 
 ### Local n8n Developer Checks
 
-The Compose n8n UI is at `http://localhost:5678`. For the Sunday/Wednesday cadence, developers should verify both the CLI export and the visible workflow graph before handing off:
+The Compose n8n UI is at `http://localhost:5678`. For the daily (except Saturday) cadence, developers should verify both the CLI export and the visible workflow graph before handing off:
 
 ```bash
 docker exec groupscout_n8n wget -qO- http://groupscout:8080/health

@@ -1,6 +1,6 @@
 {
   "id": "groupscout-sunday-wednesday-lead-cadence",
-  "name": "GroupScout Sunday Wednesday Lead Cadence",
+  "name": "GroupScout Daily Lead Cadence (except Saturday)",
   "nodes": [
     {
       "parameters": {
@@ -11,7 +11,11 @@
               "weeksInterval": 1,
               "triggerAtDay": [
                 0,
-                3
+                1,
+                2,
+                3,
+                4,
+                5
               ],
               "triggerAtHour": 9,
               "triggerAtMinute": 0
@@ -20,7 +24,7 @@
         }
       },
       "id": "f78f0fe1-9e78-4c95-ae63-36ca7e7f36a5",
-      "name": "Schedule Sunday And Wednesday",
+      "name": "Schedule Daily Except Saturday",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -264,7 +268,7 @@
   ],
   "pinData": {},
   "connections": {
-    "Schedule Sunday And Wednesday": {
+    "Schedule Daily Except Saturday": {
       "main": [
         [
           {

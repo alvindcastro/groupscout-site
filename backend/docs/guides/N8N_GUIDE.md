@@ -1,6 +1,6 @@
 ### n8n Integration Guide for GroupScout
 
-This guide provides comprehensive instructions for integrating n8n with GroupScout. It covers triggering the internal pipeline, pushing external leads, managing automated digests, and coordinating a Sunday/Wednesday internal lead send.
+This guide provides comprehensive instructions for integrating n8n with GroupScout. It covers triggering the internal pipeline, pushing external leads, managing automated digests, and coordinating a daily (except Saturday) internal lead send.
 
 ---
 
@@ -139,26 +139,26 @@ Trigger a summary email of all "new" or "notified" leads from the last 7 days.
 
 ### 6. Basic Scheduling with n8n
 
-You can use the **Schedule** node in n8n to automate GroupScout runs at specific times. The tracked Sunday/Wednesday workflow uses this plain `/run` mode so Slack receives the same multi-lead digest as `go run cmd/server/main.go --run-once`.
+You can use the **Schedule** node in n8n to automate GroupScout runs at specific times. The tracked daily cadence workflow uses guaranteed delivery `/run` mode (see Section 7) so Slack receives the single best lead each run.
 
-#### Example: Run every Sunday and Wednesday at 9:00 AM
+#### Example: Run every day except Saturday at 9:00 AM
 
 1.  Add a **Schedule** node to your workflow.
 2.  Set **Trigger Interval** to `Weeks`.
-3.  **Days of the Week**: Select `Sunday` and `Wednesday`.
+3.  **Days of the Week**: Select `Sunday`, `Monday`, `Tuesday`, `Wednesday`, `Thursday`, and `Friday` (leave `Saturday` unchecked).
 4.  **Time**: Set to `09:00`.
 5.  Set the workflow timezone to the hotel/operator timezone, for example `America/Vancouver`.
 6.  Connect this node to an **HTTP Request** node configured for the `/run` endpoint (as described in Section 3).
 
 ---
 
-### 7. Sunday/Wednesday Guaranteed Lead Send
+### 7. Daily (Except Saturday) Guaranteed Lead Send
 
-The Sunday/Wednesday cadence uses **guaranteed delivery mode** — the backend finds and delivers the single best available lead from the current run or, if nothing new scored above zero, falls back to the highest-priority undelivered `notified` lead from the backlog.
+The daily cadence uses **guaranteed delivery mode** — the backend finds and delivers the single best available lead from the current run or, if nothing new scored above zero, falls back to the highest-priority undelivered `notified` lead from the backlog.
 
 #### n8n workflow
 
-1.  **Schedule**: run every `Sunday` and `Wednesday` at `09:00` in `America/Vancouver`.
+1.  **Schedule**: run every day except `Saturday` at `09:00` in `America/Vancouver` (days `Sunday`–`Friday`).
 2.  **Preflight**: call `GET http://groupscout:8080/health`. Stop and notify operations if the database is unavailable.
 3.  **Trigger collection and delivery**: call `POST http://groupscout:8080/run` with the `GroupScout API` bearer credential and a JSON body that includes the cadence key and guaranteed delivery flag:
     ```json
@@ -182,7 +182,7 @@ Importable workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json
 
 For the provided Docker Compose stack, n8n reads the tracked workflow expressions from container environment variables. Recreate n8n after env changes with `docker compose up -d n8n`, then verify `N8N_BLOCK_ENV_ACCESS_IN_NODE`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` are all present before activating the workflow.
 
-When validating an existing imported workflow, export it and confirm the `/run` HTTP node body expression evaluates to a JSON object containing `guarantee_one_lead: true`, `delivery_mode: "exactly_one"`, and a cadence key. The schedule must be active for Sunday/Wednesday 09:00 `America/Vancouver`.
+When validating an existing imported workflow, export it and confirm the `/run` HTTP node body expression evaluates to a JSON object containing `guarantee_one_lead: true`, `delivery_mode: "exactly_one"`, and a cadence key. The schedule must be active for daily-except-Saturday 09:00 `America/Vancouver` (`triggerAtDay: [0,1,2,3,4,5]`).
 
 #### Local UI checklist
 
@@ -190,7 +190,7 @@ Use this when an operator wants to visually confirm the workflow before leaving 
 
 1. Open `http://localhost:5678`.
 2. Sign in with the local n8n owner account.
-3. Open **GroupScout Sunday Wednesday Lead Cadence**.
+3. Open **GroupScout Daily Lead Cadence (except Saturday)**.
 4. Confirm the top-right workflow toggle is **Active**.
 5. Confirm the graph contains schedule, cadence-key, duplicate guard, health preflight, `/run` trigger, run classifier, delivered marker, and ops Slack failure/no-lead branches.
 6. Open **Trigger GroupScout Run** and confirm the body expression includes `guarantee_one_lead: true` and `cadence_key`.

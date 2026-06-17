@@ -1,12 +1,12 @@
 # GroupScout n8n Workflows
 
-## Sunday/Wednesday Lead Cadence
+## Daily (Except Saturday) Lead Cadence
 
-Import `sunday-wednesday-lead-cadence.json` into n8n for the Sunday/Wednesday internal lead send.
+Import `sunday-wednesday-lead-cadence.json` into n8n for the daily internal lead send. The filename and workflow id (`groupscout-sunday-wednesday-lead-cadence`) are retained for stability; the schedule now runs daily except Saturday.
 
 The workflow:
 
-- runs every Sunday and Wednesday at 09:00 in `America/Vancouver`;
+- runs every day except Saturday at 09:00 in `America/Vancouver` (`triggerAtDay: [0,1,2,3,4,5]`);
 - writes a cadence key such as `lead-cadence:2026-05-27:wednesday` in workflow static data and stops duplicate runs only after a cadence is marked delivered;
 - calls `GET /health` before running the pipeline;
 - calls plain `POST /run` with a bearer token and an empty JSON body, matching `go run cmd/server/main.go --run-once` notification behavior;
@@ -58,12 +58,12 @@ Expected export fields are `"active":true`, `"triggerAtDay":[0,3]`, `"triggerAtH
 
 ### UI Verification
 
-Open `http://localhost:5678`, then open **GroupScout Sunday Wednesday Lead Cadence**.
+Open `http://localhost:5678`, then open **GroupScout Daily Lead Cadence (except Saturday)**.
 
 Verify:
 
 - the workflow toggle is **Active**;
-- the schedule node runs on Sunday and Wednesday at `09:00` in `America/Vancouver`;
+- the schedule node runs every day except Saturday at `09:00` in `America/Vancouver`;
 - **Trigger GroupScout Run** uses `POST` to `{{$env.GROUPSCOUT_API_BASE_URL}}/run` or the `http://groupscout:8080/run` fallback;
 - the Authorization header uses `Bearer {{$env.GROUPSCOUT_API_TOKEN}}`;
 - the JSON body is `{}`, so `/run` uses the normal multi-lead notification path;

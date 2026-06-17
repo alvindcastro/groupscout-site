@@ -1,3 +1,15 @@
+## 2026-06-17 - Lead cadence changed to daily except Saturday (groupscout-site-bdo)
+
+### n8n cadence now runs every day except Saturday at 9 AM
+
+- **What:** The live n8n cadence workflow (`groupscout-sunday-wednesday-lead-cadence`) ran only Sunday and Wednesday at 09:00 `America/Vancouver`. It now runs every day except Saturday at 09:00 (`triggerAtDay: [0,1,2,3,4,5]`, omitting Saturday=6).
+- **Where:** Live n8n container (`groupscout_n8n`) — schedule trigger updated via `n8n import:workflow` + reactivation + restart. Tracked importable asset `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json`. Docs: `guides/N8N_GUIDE.md` (§6, §7, validation, intro), `workflows/n8n/README.md`, `DEVELOPER.md`, `guides/HOME_DEPLOY.md`.
+- **Why:** Operator wanted a daily lead each weekday/Sunday morning rather than only twice a week, with Saturday left off.
+- **How:** Changed the schedule node's `triggerAtDay` from `[0,3]` to `[0,1,2,3,4,5]`; renamed the node to **Schedule Daily Except Saturday** and the workflow display name to **GroupScout Daily Lead Cadence (except Saturday)**. The workflow id and asset filename (`groupscout-sunday-wednesday-lead-cadence`) are intentionally retained so existing references and the sub-workflow caller keep resolving. Guaranteed one-lead delivery, cadence-key idempotency, and the daily-dynamic cadence key (`lead-cadence:YYYY-MM-DD:<weekday>`) are unchanged.
+- **Verification:** Live export confirms `active: true`, node `Schedule Daily Except Saturday`, `triggerAtDay: [0,1,2,3,4,5]`, hour 9, minute 0 after container restart.
+
+---
+
 ## 2026-06-17 - Email lead delivery alongside Slack
 
 ### Mirror every Slack lead delivery to email

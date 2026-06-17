@@ -152,33 +152,37 @@ You can use the **Schedule** node in n8n to automate GroupScout runs at specific
 
 ---
 
-### 7. Sunday/Wednesday Normal Lead Send
+### 7. Sunday/Wednesday Guaranteed Lead Send
 
-The backend can run the pipeline and notify all newly collected leads. The Sunday/Wednesday n8n cadence should call normal `/run` so it sends all current `new` leads, then marks them `notified`, matching the command-line `--run-once` path.
+The Sunday/Wednesday cadence uses **guaranteed delivery mode** — the backend finds and delivers the single best available lead from the current run or, if nothing new scored above zero, falls back to the highest-priority undelivered `notified` lead from the backlog.
 
 #### n8n workflow
 
-Use this when the goal is a dependable scheduled version of the normal pipeline:
-
 1.  **Schedule**: run every `Sunday` and `Wednesday` at `09:00` in `America/Vancouver`.
 2.  **Preflight**: call `GET http://groupscout:8080/health`. Stop and notify operations if the database is unavailable.
-3.  **Trigger collection and delivery**: call `POST http://groupscout:8080/run` with the `GroupScout API` bearer credential and an empty JSON body:
+3.  **Trigger collection and delivery**: call `POST http://groupscout:8080/run` with the `GroupScout API` bearer credential and a JSON body that includes the cadence key and guaranteed delivery flag:
     ```json
-    {}
+    {
+      "guarantee_one_lead": true,
+      "delivery_mode": "exactly_one",
+      "cadence_key": "lead-cadence:YYYY-MM-DD:wednesday",
+      "idempotency_key": "lead-cadence:YYYY-MM-DD:wednesday"
+    }
     ```
+    The tracked n8n workflow computes the cadence key dynamically via the **Build Cadence Key** code node and injects it into the body expression.
 4.  **Branch on result**:
-    - `notified_leads > 0`: one Slack digest was sent containing all current new leads.
-    - `notified_leads == 0`: no current leads were available for Slack; send an operational Slack note.
+    - `delivery_status == "sent"`: one Slack lead was delivered; mark the cadence key as done.
+    - `delivery_status == "no_eligible_lead"`: no lead above the score threshold exists anywhere in the system; send an operational Slack note.
     - non-2xx response: send an operational Slack note and retry later.
-5.  **Retry policy**: let n8n retry transient HTTP failures, but keep a workflow variable or data-store key such as `lead-cadence:YYYY-MM-DD:sunday` so n8n can stop early after a successful scheduled send.
+5.  **Idempotency**: the backend writes a `lead_deliveries` row keyed on `idempotency_key`; duplicate cadence fires (n8n retries, manual triggers) are safely skipped.
 
-This flow is safe because n8n only uses server-to-server `API_TOKEN` credentials and GroupScout remains the source of truth. It cannot fabricate a lead when no eligible lead exists; a zero-notification result goes to the ops branch.
+**Backend defensive guard (2026-06-17)**: as of commit `038c08b`, the backend treats any `/run` request that includes a non-empty `cadence_key` or `schedule_key` as a guaranteed-delivery run, regardless of whether `guarantee_one_lead` parsed correctly. This defends against n8n expression evaluation failures that produce an invalid JSON body and silently default `GuaranteeOneLead` to false.
 
 Importable workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 
 For the provided Docker Compose stack, n8n reads the tracked workflow expressions from container environment variables. Recreate n8n after env changes with `docker compose up -d n8n`, then verify `N8N_BLOCK_ENV_ACCESS_IN_NODE`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` are all present before activating the workflow.
 
-When validating an existing imported workflow, export it and check for both schedule and request body. The schedule must be active for Sunday/Wednesday 09:00 `America/Vancouver`, and the `/run` node must use an empty `{}` JSON body. If the live export still contains `guarantee_one_lead`, `delivery_mode`, or `idempotency_key`, re-import the tracked JSON; otherwise n8n will keep using the old exactly-one cadence path.
+When validating an existing imported workflow, export it and confirm the `/run` HTTP node body expression evaluates to a JSON object containing `guarantee_one_lead: true`, `delivery_mode: "exactly_one"`, and a cadence key. The schedule must be active for Sunday/Wednesday 09:00 `America/Vancouver`.
 
 #### Local UI checklist
 
@@ -188,8 +192,8 @@ Use this when an operator wants to visually confirm the workflow before leaving 
 2. Sign in with the local n8n owner account.
 3. Open **GroupScout Sunday Wednesday Lead Cadence**.
 4. Confirm the top-right workflow toggle is **Active**.
-5. Confirm the graph contains schedule, cadence-key, duplicate guard, health preflight, normal `/run`, run classifier, delivered marker, and ops Slack failure/no-lead branches.
-6. Open **Trigger GroupScout Run** and confirm the body is `{}` so it does not request exactly-one delivery.
+5. Confirm the graph contains schedule, cadence-key, duplicate guard, health preflight, `/run` trigger, run classifier, delivered marker, and ops Slack failure/no-lead branches.
+6. Open **Trigger GroupScout Run** and confirm the body expression includes `guarantee_one_lead: true` and `cadence_key`.
 7. Open each ops Slack node and confirm the URL is environment-backed, not the placeholder webhook URL.
 
 #### Backend delivery guarantee
@@ -203,7 +207,7 @@ The backend guarantee uses:
 
 Future UI/system visibility for next scheduled send, last notified count, failed cadence reason, retry count, and n8n execution link remains part of the operator UI/API roadmap.
 
-The older exactly-one backend guarantee remains implemented under `groupscout-site-fuc` for manual/special-purpose cadence tests, but it is no longer the default scheduled n8n workflow.
+The exactly-one backend guarantee is the default for the scheduled n8n cadence. Manual ad-hoc `/run` calls without a `cadence_key` use the non-guaranteed path and fan out all current `new` leads in one Slack burst.
 
 ---
 
@@ -219,11 +223,12 @@ The older exactly-one backend guarantee remains implemented under `groupscout-si
     - From host n8n to a host backend, use `http://localhost:8080`.
     - From containerized n8n to a host backend, use `http://host.docker.internal:8080` on Docker Desktop.
     - Check if the GroupScout server is actually running (`docker compose ps` or `go run cmd/server/main.go`).
-- **No lead sent on Sunday/Wednesday**: Check `/run` JSON. `notified_leads:0` means no fresh `new` leads were available for Slack; send an operational "no qualified lead" notice.
+- **No lead sent on Sunday/Wednesday (`delivery_status: no_eligible_lead`)**: No lead in the DB has `status IN ('new','notified')` with a score above zero that hasn't already been cadence-delivered. This is a genuine empty-pool event. Check recent collector logs for parse failures or score-zero runs. Collector issues (VCC 404, creativebc parse error) shrink the pool.
+- **Cadence runs in non-guaranteed mode (`no new leads to notify` in logs)**: The backend logged this message on the non-guaranteed code path, meaning `cadence_key`/`schedule_key` was empty AND `guarantee_one_lead` was false. Confirm the `/run` HTTP node body expression includes `cadence_key`. As of 2026-06-17, any request with a non-empty `cadence_key` or `schedule_key` is automatically treated as guaranteed.
 - **Cadence workflow never sends**: Confirm the imported workflow is active, the n8n container was restarted after activation, and the live export still shows `triggerAtDay:[0,3]`, `triggerAtHour:9`, `triggerAtMinute:0`, and `timezone:"America/Vancouver"`.
-- **Cadence sends only one lead**: Export the workflow and confirm the `/run` HTTP node no longer includes `guarantee_one_lead`, `delivery_mode`, or `idempotency_key`. Re-import the tracked workflow if those fields are present.
+- **Cadence sends only one lead**: This is the intended behavior — the Sunday/Wednesday cadence uses `guarantee_one_lead: true` and delivers exactly one high-priority lead per run. If you want all new leads in a single Slack burst, call `/run` with an empty body manually (omit the cadence key so non-guaranteed mode is used).
 - **Cannot sign in to local n8n**: Use `n8n user-management:reset` with the container stopped. If sign-in still shows an existing owner account, follow the local SQLite owner recovery steps in [Troubleshooting](./TROUBLESHOOTING.md#6-recover-local-n8n-sign-in).
-- **Duplicate scheduled send after retry**: The tracked workflow stores the cadence key after a successful delivery and stops duplicate same-cadence workflow runs. Backend exactly-one idempotency is only used if you intentionally call the guarantee mode.
+- **Duplicate scheduled send after retry**: The tracked workflow stores the cadence key after a successful delivery and stops duplicate same-cadence workflow runs. The backend also guards via `lead_deliveries` idempotency key — a second request with the same `idempotency_key` is a no-op if the first delivered successfully.
 
 #### Advanced Workflow Example
 1.  **RSS Read**: Check for new construction news.

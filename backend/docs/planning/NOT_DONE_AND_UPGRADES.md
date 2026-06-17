@@ -1,14 +1,15 @@
 # Not-Done Work And Upgrade Snapshot
 
-Date: 2026-06-13
+Date: 2026-06-17
 
 Beads is the source of truth for active work. This snapshot is a navigation layer for choosing the next implementation or documentation pass; refresh it with `bd list --status=open` and `bd list --status=in_progress` before starting work.
 
-Current review status after the 2026-06-13 session: `groupscout-site-ei7` is closed — VCC source drift detection, VCC per-event dedup hash fix, and Postgres raw persistence UTF-8 sanitization are now in the backend (`task/event-driven-ingest`). The Postgres enrichment FK integration failure is next.
+Current review status after the 2026-06-17 session: Three lead-cadence gaps were diagnosed and fixed — VCC URL drift (404 → 200), creativebc html5 parse fallback, and n8n guaranteed-delivery mode. See CHANGELOG for full details.
 
 ## Start Here
 
-1. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
+1. `groupscout-site-8bp` - verify VCC `/events` page selectors actually return events after the URL fix.
+2. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -20,9 +21,11 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ### Runtime Correctness And Data Safety
 
+- `groupscout-site-8bp` - verify VCC `/events` page selectors return events after URL fix (follow-up to 2026-06-17 VCC drift fix).
 - `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 - ~~`groupscout-site-ei7`~~ - **closed 2026-06-13**: VCC 404 drift detection (`SourceDriftError`), VCC per-event dedup hash fix, and Postgres TEXT column UTF-8 sanitization implemented.
 - ~~`groupscout-site-crz`~~ - **closed 2026-06-13**: EvalOps and UI smoke artifacts restored.
+- **2026-06-17 cadence gaps fixed**: VCC `docker-compose.yml` URL updated (`/events/calendar` → `/events`); creativebc parser falls back to full-document walk when html5 restructuring loses `inProductionList`; backend `/run` now treats any request with `cadence_key`/`schedule_key` as guaranteed delivery to defend against n8n expression failures.
 
 ### Operator UI And API Bridge
 

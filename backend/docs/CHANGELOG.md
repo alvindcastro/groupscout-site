@@ -1,3 +1,29 @@
+## 2026-06-17 - Lead cadence gap diagnosis and fixes
+
+### Three gaps diagnosed from Wednesday cadence no-lead event
+
+**What happened**: n8n fired the Wednesday cadence at 09:00 PDT; backend returned `run_ok=true, no_lead=true`. Investigation via container logs and n8n SQLite DB revealed three independent root causes.
+
+#### VCC URL source drift (`docker-compose.yml`)
+- **What:** Changed `VCC_URL` from `/events/calendar` (404) to `/events` (200 OK).
+- **Where:** `docker-compose.yml` in the backend source repo.
+- **Why:** The env override pointed to a URL path that no longer exists on the VCC site. The default fallback in code (`/events`) works, but the docker-compose override took precedence.
+- **Follow-up:** `groupscout-site-8bp` — verify the CSS selectors in `vcc.go` still match the current `/events` page structure.
+
+#### creativebc html5 parse fallback (`internal/collector/events/creativebc.go`)
+- **What:** Added a fallback to walk from the document root when `findNodeByID("inProductionList")` returns nil.
+- **Where:** `parseCreativeBCHTML` in `creativebc.go`.
+- **Why:** Go's html5 parser restructures pages with invalid table nesting (unclosed `<div>` inside `<td>`) — it hoists elements out of their parent, making the `inProductionList` div unfindable by ID walk even though it exists in the raw HTML. The live page has 26 productions; the parser was returning zero.
+- **How:** If `findNodeByID` fails, set `listDiv = doc` and walk the full tree. The existing "no productions found" guard handles truly empty pages.
+
+#### Cadence guaranteed delivery fallback (`cmd/server/main.go`)
+- **What:** Backend `/run` now treats any request that includes `cadence_key` or `schedule_key` as a guaranteed-delivery run (`GuaranteeOneLead=true`).
+- **Where:** Handler in `main.go`.
+- **Why:** The n8n cadence workflow DB has `guarantee_one_lead: true` in the request body, but Go silently ignores an unparseable body (`_ = json.Decode(...)`) — if n8n's expression `$node['Build Cadence Key'].json.cadence_key` fails to resolve, the body becomes invalid JSON and the backend defaults to `GuaranteeOneLead=false`. The non-guaranteed path only delivers freshly-scored `new` leads, so when every collector scores 0 on a given day, nothing is delivered even though there are eligible notified backlog leads. The `ListDeliveryCandidates` query correctly resurfaces `notified` leads not yet in `lead_deliveries`.
+- **Context:** The n8n `groupscout-site-ar1` change (2026-05-25) intentionally switched the cadence back to `{}` for "multi-lead fan-out," but the DB workflow at inspection time still had `guarantee_one_lead: true`. This defensive backend guard means the cadence always uses guaranteed delivery when a schedule key is present, regardless of what the body contains.
+
+---
+
 ## 2026-06-11 - Source README polish and empty directory cleanup
 
 ### groupscout-site-aws - Polish source READMEs and remove empty doc directories

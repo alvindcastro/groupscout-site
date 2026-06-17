@@ -204,6 +204,7 @@ The backend guarantee uses:
 - A `lead_deliveries` table with `lead_id`, `channel`, `schedule_key`, `sent_at`, `idempotency_key`, `status`, and `result`.
 - A fallback selector that prefers fresh `new` leads, then resurfaces the best eligible `notified` backlog lead that has not already been delivered by the cadence.
 - A `delivery_locks` row so n8n retries and manual pipeline starts cannot race each other.
+- A best-effort email copy: every Slack delivery (guaranteed cadence and manual multi-lead `/run`) also emails the same lead(s) via Resend to `LEAD_NOTIFY_EMAILS`. Email failures are logged as warnings and never block the Slack send or the lead status update. Requires `RESEND_API_KEY` and an `EMAIL_FROM` whose domain is verified in Resend to reach recipients other than the account owner.
 
 Future UI/system visibility for next scheduled send, last notified count, failed cadence reason, retry count, and n8n execution link remains part of the operator UI/API roadmap.
 

@@ -1,3 +1,15 @@
+## 2026-06-17 - Email lead delivery alongside Slack
+
+### Mirror every Slack lead delivery to email
+
+- **What:** Every Slack lead delivery now also sends an email copy. Applies to both the guaranteed Sunday/Wednesday cadence (one lead) and manual multi-lead `/run` (all new leads).
+- **Where:** Backend source repo — `internal/leadnotify/email.go` (new `SendLeads`, configurable `From`, shared `post` helper), `cmd/server/pipeline.go` (both delivery paths), `config/config.go` (`LEAD_NOTIFY_EMAILS`, `EMAIL_FROM`), `docker-compose.yml`.
+- **Why:** Operators wanted an inbox copy of delivered leads, not just Slack. Recipients are a dynamic comma-separated list so more addresses can be added without code changes.
+- **How:** Reused the existing Resend integration. Email is best-effort — failures log a warning but never block the Slack send or the lead status update, since Slack remains the delivery source of truth. `RESEND_API_KEY` was in `.env` but never passed into the container, so digest email was also silently broken; compose now forwards it. `EMAIL_FROM` defaults to `onboarding@resend.dev`, which sends without domain verification but only to the Resend account owner — emailing other recipients (`groupscout-site-<id>`) requires verifying a domain and setting `EMAIL_FROM` to e.g. `alerts@groupscout.ai`.
+- **Verification:** A guaranteed `/run` delivered to Slack and emailed the lead to `alvin.dcastro@gmail.com` (confirmed via `emailed guaranteed lead` log and Resend message ID).
+
+---
+
 ## 2026-06-17 - Lead cadence gap diagnosis and fixes
 
 ### Three gaps diagnosed from Wednesday cadence no-lead event

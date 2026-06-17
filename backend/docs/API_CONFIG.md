@@ -44,7 +44,9 @@ GroupScout integrates with several external SaaS providers.
 | **Google Gemini** | `GEMINI_API_KEY` | `https://generativelanguage.googleapis.com/...` | Alternative AI provider. |
 | **Slack Webhooks** | `SLACK_WEBHOOK_URL` | `https://hooks.slack.com/services/...` | Posting lead digests to channels. |
 | **Slack Bot API** | `SLACK_BOT_TOKEN` | `https://slack.com/api/...` | Used by `alertd` for stateful alert updates. |
-| **Resend** | `RESEND_API_KEY` | `https://api.resend.com/emails` | Sending weekly lead summary emails. |
+| **Resend** | `RESEND_API_KEY` | `https://api.resend.com/emails` | Sending the weekly digest and per-delivery lead emails. |
+| **Lead email recipients** | `LEAD_NOTIFY_EMAILS` | `alvin.dcastro@gmail.com` | Comma-separated recipient list emailed on every Slack lead delivery. Add more addresses here (requires a verified `EMAIL_FROM` domain to reach non-account-owner addresses). |
+| **Email from-address** | `EMAIL_FROM` | `GroupScout <onboarding@resend.dev>` | Resend `from` header. The onboarding default works without domain verification but only delivers to the Resend account owner. Verify a domain in Resend, then set e.g. `GroupScout <alerts@groupscout.ai>` to email arbitrary recipients. |
 | **Hunter.io** | `HUNTER_API_KEY` | `https://api.hunter.io/v2/...` | (Phase 18) Finding decision-maker contact info. |
 | **Sentry** | `SENTRY_DSN` | - | Error tracking and observability. |
 

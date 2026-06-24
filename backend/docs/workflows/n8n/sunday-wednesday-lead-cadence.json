@@ -151,7 +151,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({}) }}",
+        "jsonBody": "={{ JSON.stringify({ guarantee_one_lead: true, delivery_mode: 'one_lead', cadence_key: $node['Build Cadence Key'].json.cadence_key, schedule_key: $node['Build Cadence Key'].json.cadence_key, idempotency_key: $node['Build Cadence Key'].json.cadence_key }) }}",
         "options": {
           "response": {
             "response": {

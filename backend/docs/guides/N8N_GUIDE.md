@@ -164,7 +164,7 @@ The daily cadence uses **guaranteed delivery mode** — the backend finds and de
     ```json
     {
       "guarantee_one_lead": true,
-      "delivery_mode": "exactly_one",
+      "delivery_mode": "one_lead",
       "cadence_key": "lead-cadence:YYYY-MM-DD:wednesday",
       "idempotency_key": "lead-cadence:YYYY-MM-DD:wednesday"
     }
@@ -182,7 +182,7 @@ Importable workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json
 
 For the provided Docker Compose stack, n8n reads the tracked workflow expressions from container environment variables. Recreate n8n after env changes with `docker compose up -d n8n`, then verify `N8N_BLOCK_ENV_ACCESS_IN_NODE`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` are all present before activating the workflow.
 
-When validating an existing imported workflow, export it and confirm the `/run` HTTP node body expression evaluates to a JSON object containing `guarantee_one_lead: true`, `delivery_mode: "exactly_one"`, and a cadence key. The schedule must be active for daily-except-Saturday 09:00 `America/Vancouver` (`triggerAtDay: [0,1,2,3,4,5]`).
+When validating an existing imported workflow, export it and confirm the `/run` HTTP node body expression evaluates to a JSON object containing `guarantee_one_lead: true`, `delivery_mode: "one_lead"`, and a cadence key. The schedule must be active for daily-except-Saturday 09:00 `America/Vancouver` (`triggerAtDay: [0,1,2,3,4,5]`).
 
 #### Local UI checklist
 
@@ -226,8 +226,8 @@ The exactly-one backend guarantee is the default for the scheduled n8n cadence. 
     - Check if the GroupScout server is actually running (`docker compose ps` or `go run cmd/server/main.go`).
 - **No lead sent on Sunday/Wednesday (`delivery_status: no_eligible_lead`)**: No lead in the DB has `status IN ('new','notified')` with a score above zero that hasn't already been cadence-delivered. This is a genuine empty-pool event. Check recent collector logs for parse failures or score-zero runs. Collector issues (VCC 404, creativebc parse error) shrink the pool.
 - **Cadence runs in non-guaranteed mode (`no new leads to notify` in logs)**: The backend logged this message on the non-guaranteed code path, meaning `cadence_key`/`schedule_key` was empty AND `guarantee_one_lead` was false. Confirm the `/run` HTTP node body expression includes `cadence_key`. As of 2026-06-17, any request with a non-empty `cadence_key` or `schedule_key` is automatically treated as guaranteed.
-- **Cadence workflow never sends**: Confirm the imported workflow is active, the n8n container was restarted after activation, and the live export still shows `triggerAtDay:[0,3]`, `triggerAtHour:9`, `triggerAtMinute:0`, and `timezone:"America/Vancouver"`.
-- **Cadence sends only one lead**: This is the intended behavior — the Sunday/Wednesday cadence uses `guarantee_one_lead: true` and delivers exactly one high-priority lead per run. If you want all new leads in a single Slack burst, call `/run` with an empty body manually (omit the cadence key so non-guaranteed mode is used).
+- **Cadence workflow never sends**: Confirm the imported workflow is active, the n8n container was restarted after activation, and the live export still shows `triggerAtDay:[0,1,2,3,4,5]`, `triggerAtHour:9`, `triggerAtMinute:0`, and `timezone:"America/Vancouver"`.
+- **Cadence sends only one lead**: This is the intended behavior — the daily except Saturday cadence uses `guarantee_one_lead: true` and delivers exactly one high-priority lead per run. If you want all new leads in a single Slack burst, call `/run` with an empty body manually (omit the cadence key so non-guaranteed mode is used).
 - **Cannot sign in to local n8n**: Use `n8n user-management:reset` with the container stopped. If sign-in still shows an existing owner account, follow the local SQLite owner recovery steps in [Troubleshooting](./TROUBLESHOOTING.md#6-recover-local-n8n-sign-in).
 - **Duplicate scheduled send after retry**: The tracked workflow stores the cadence key after a successful delivery and stops duplicate same-cadence workflow runs. The backend also guards via `lead_deliveries` idempotency key — a second request with the same `idempotency_key` is a no-op if the first delivered successfully.
 

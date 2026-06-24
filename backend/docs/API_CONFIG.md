@@ -15,7 +15,7 @@ Default port: `8080` (Configurable via `PORT`)
 |---|---|---|---|
 | `/health` | `GET` | System health check (DB + API connectivity). | No |
 | `/metrics` | `GET` | Prometheus endpoint for currently wired runtime metrics; collected/enriched/notified/failure counters, collector freshness, and dashboard docs remain open in `groupscout-site-yyj`. | No |
-| `/run` | `POST` | Manually triggers the collect-enrich-notify pipeline and returns JSON counts. Plain `{}` requests notify all current `new` leads, matching `--run-once`; the optional `guarantee_one_lead:true` / `delivery_mode:"exactly_one"` body still sends/logs exactly one eligible cadence lead for special-purpose runs. | Yes (Bearer Token) |
+| `/run` | `POST` | Manually triggers the collect-enrich-notify pipeline and returns JSON counts. Plain `{}` requests notify all current `new` leads, matching `--run-once`; cadence requests with `cadence_key` / `schedule_key` use idempotent delivery and send every eligible current or undelivered backlog lead. | Yes (Bearer Token) |
 | `/digest` | `POST` | Sends a weekly email summary of leads via Resend. | Yes (Bearer Token) |
 | `/ingest` | `POST` | Accepts one normalized raw project/event payload, stores the raw audit payload, runs `EnrichOne()`, and deduplicates by payload hash. Present in the current event-driven ingest backend branch. | Yes (Bearer Token) |
 | `/n8n/webhook` | `POST` | Receives a pre-enriched lead-shaped JSON payload from n8n, inserts it directly, and optionally notifies Slack. `PriorityScore` is the Slack/internal `0-10` score; legacy `0-100` values are normalized before storage and delivery. Keep this for pre-enriched lead pushes; use `/ingest` when GroupScout should enrich one raw item. | Yes (Bearer Token) |

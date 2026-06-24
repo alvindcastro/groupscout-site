@@ -1,3 +1,15 @@
+## 2026-06-24 - Cadence sends all eligible leads (groupscout-site-c6x)
+
+### Scheduled cadence no longer caps delivery at one lead
+
+- **What:** The daily except Saturday n8n cadence now requests `delivery_mode: "all_eligible"` and the backend cadence path sends every eligible lead candidate in one Slack/email batch, not just the top lead.
+- **Where:** Backend source repo — `cmd/server/pipeline.go`, `cmd/server/delivery_test.go`, `cmd/server/main.go`, `api/swagger.yaml`. Coordination docs/workflow — `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json`, `backend/docs/workflows/n8n/README.md`, `backend/docs/guides/N8N_GUIDE.md`, `backend/docs/API_CONFIG.md`.
+- **Why:** Operators want the scheduled cadence to fan out multiple leads when multiple leads are available, while preserving cadence idempotency and backlog duplicate protection.
+- **How:** The backend records a root `lead_deliveries` row for the cadence key and one per-lead `lead_deliveries` row using `<cadence-key>:<lead-id>`, so retries skip the cadence and future cadence runs exclude already-delivered backlog leads.
+- **Verification:** Focused backend tests cover sending multiple candidates and excluding them from the next cadence run.
+
+---
+
 ## 2026-06-17 - Lead cadence changed to daily except Saturday (groupscout-site-bdo)
 
 ### n8n cadence now runs every day except Saturday at 9 AM

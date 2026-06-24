@@ -9,7 +9,7 @@ The workflow:
 - runs every day except Saturday at 09:00 in `America/Vancouver` (`triggerAtDay: [0,1,2,3,4,5]`);
 - writes a cadence key such as `lead-cadence:2026-05-27:wednesday` in workflow static data and stops duplicate runs only after a cadence is marked delivered;
 - calls `GET /health` before running the pipeline;
-- calls `POST /run` with a bearer token and a guaranteed-delivery body containing `guarantee_one_lead`, `delivery_mode`, `cadence_key`, `schedule_key`, and `idempotency_key`;
+- calls `POST /run` with a bearer token and a cadence-delivery body containing `guarantee_one_lead`, `delivery_mode`, `cadence_key`, `schedule_key`, and `idempotency_key`;
 - sends an operational Slack message when health fails, the run fails, or the backend returns no notified leads;
 - retries transient HTTP node failures up to three times;
 - stops silently on duplicate cadence-key runs after delivery.
@@ -66,10 +66,10 @@ Verify:
 - the schedule node runs every day except Saturday at `09:00` in `America/Vancouver`;
 - **Trigger GroupScout Run** uses `POST` to `{{$env.GROUPSCOUT_API_BASE_URL}}/run` or the `http://groupscout:8080/run` fallback;
 - the Authorization header uses `Bearer {{$env.GROUPSCOUT_API_TOKEN}}`;
-- the JSON body includes `guarantee_one_lead`, `delivery_mode`, `cadence_key`, `schedule_key`, and `idempotency_key`, so `/run` uses guaranteed one-lead cadence delivery;
+- the JSON body includes `guarantee_one_lead`, `delivery_mode: "all_eligible"`, `cadence_key`, `schedule_key`, and `idempotency_key`, so `/run` uses idempotent cadence delivery for every eligible lead;
 - both ops Slack HTTP nodes use `{{$env.GROUPSCOUT_OPS_SLACK_WEBHOOK_URL}}`;
 - the success path is `Delivered?` to `Mark Delivered`, and failure/no-lead paths go to the ops Slack nodes.
 
 ### Backend Contract
 
-The backend `/run` guaranteed mode returns JSON with `new_leads`, `notified_leads`, `delivery_status`, `delivered_lead_id`, `idempotency_key`, and `schedule_key`. The workflow treats `delivery_status == "sent"` or `"duplicate"` as delivered and treats `delivery_status == "no_eligible_lead"` as an operational no-lead outcome. Manual ad-hoc `/run` calls without a cadence key still use the normal multi-lead notification path.
+The backend `/run` cadence mode returns JSON with `new_leads`, `notified_leads`, `delivery_status`, `delivered_lead_id`, `delivered_lead_ids`, `idempotency_key`, and `schedule_key`. The workflow treats `delivery_status == "sent"` or `"duplicate"` as delivered and treats `delivery_status == "no_eligible_lead"` as an operational no-lead outcome. Manual ad-hoc `/run` calls without a cadence key still use the normal multi-lead notification path.

@@ -1,3 +1,15 @@
+## 2026-06-26 - Cadence no-lead Slack message refreshed (groupscout-site-h7h)
+
+### No-lead cadence notice uses backend message text
+
+- **What:** The n8n no-lead branch now posts the backend's human-readable cadence `message` instead of the old diagnostic text with `run_ok`, `no_lead`, and HTTP status flags.
+- **Where:** Coordination workflow asset — `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json`; workflow runbook — `backend/docs/workflows/n8n/README.md`.
+- **Why:** The live Slack notice was outdated and operator-hostile even though the backend already returns a ready-to-post no-lead summary.
+- **How:** The run classifier preserves `parsed.message`, and the no-lead Slack body uses that value with a clean fallback sentence.
+- **Verification:** JSON syntax check and workflow export grep should show `message` in the classifier before importing to live n8n.
+
+---
+
 ## 2026-06-24 - Cadence sends all eligible leads (groupscout-site-c6x)
 
 ### Scheduled cadence no longer caps delivery at one lead

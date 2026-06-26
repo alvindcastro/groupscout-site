@@ -24,6 +24,8 @@ docker build --target test -t groupscout-ui-test .
 docker run --rm groupscout-ui-test
 ```
 
+For Podman migration checks, use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) before substituting `podman build`, `podman run`, or `podman compose`.
+
 For operator smoke with backend and UI already running:
 
 ```sh
@@ -55,7 +57,7 @@ There is still no package install requirement.
 
 ## Docker And Admin Smoke
 
-Use [Docker Runtime Matrix](./docker-runtime-matrix.md) for current Docker mode selection, backend-network smoke commands, expected `/api/*` status codes, and CI image checks. Use [Admin Token Flow](./admin-token-flow.md) for setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands.
+Use [Docker Runtime Matrix](./docker-runtime-matrix.md) for current Docker mode selection, backend-network smoke commands, expected `/api/*` status codes, and CI image checks. Use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) for Podman-specific host aliases, Compose validation, logging caveats, and rollback. Use [Admin Token Flow](./admin-token-flow.md) for setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands.
 
 The UI Docker test image no longer copies `DESIGN.md` or `docs/` from the UI repo because long-lived markdown lives in `/mnt/c/Users/alvin/groupscout-site/frontend`. In an isolated container without that mount, centralized-doc-only assertions are skipped while runtime/code assertions still run. To force doc assertions inside the container, mount the coordinator docs and set `GROUPSCOUT_UI_DOCS_ROOT`.
 
@@ -120,9 +122,9 @@ node --test test/dockerization-contract.test.js
 
 CI should run `npm test`, build and run the D1 test image, then build the production image. If the backend Compose file is available, CI can also run the merged Compose config validation command or the backend-owned `make smoke-ui-docker-e2e` gate. Smoke `/healthz`, `/`, and `/assets/app.js` against the production UI container without backend secrets; smoke `/api/system` through the D4 proxy and accept the current backend status (`404` on backend `main`, or `401` once protected UI API routes are present).
 
-The production UI Compose profile is implemented in the UI source repo. The backend-owned repeatable UI Docker E2E gate is reconciliation work tracked by `groupscout-site-crz` in the inspected backend checkout.
+The production UI Compose profile is implemented in the UI source repo. The backend-owned repeatable UI Docker E2E gate is now available as `make smoke-ui-docker-e2e` in the backend source repo.
 
-Do not run CI UI containers with backend `.env` or `--env-file`. Do not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.
+Do not run CI UI containers with backend `.env` or `--env-file`. `UI_SESSION_SECRET` is valid only as server-side runtime configuration for deployments that need session-gated `/api/*`. Do not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.
 
 ## Focused UI Tests
 

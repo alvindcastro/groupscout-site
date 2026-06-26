@@ -45,6 +45,7 @@ Then move to the operator UI bridge:
 
 - Active not-done and upgrade order: [backend/docs/planning/NOT_DONE_AND_UPGRADES.md](./backend/docs/planning/NOT_DONE_AND_UPGRADES.md)
 - Strategic roadmap: [backend/docs/planning/ROADMAP.md](./backend/docs/planning/ROADMAP.md)
+- Podman migration runbook: [backend/docs/guides/PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md)
 - Frontend current-checkout reconciliation: [frontend/README.md](./frontend/README.md)
 - UI implementation history: [frontend/docs/ui-tdd-phase-0-15-implementation.md](./frontend/docs/ui-tdd-phase-0-15-implementation.md)
 - Frontend smell refactor prompts: [frontend/docs/code-smell-transformation-prompts.md](./frontend/docs/code-smell-transformation-prompts.md)

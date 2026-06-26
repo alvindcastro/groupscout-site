@@ -12,6 +12,8 @@ D4 status: production same-origin serving. The UI repo now provides a lightweigh
 
 D5 status: Docker operations docs and CI hooks. The UI repo now documents repeatable local, container, Compose, production smoke, and future CI commands without adding runtime behavior.
 
+Podman migration status: Docker remains the known-good baseline for this contract. Use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) before substituting Podman commands, host aliases, or network assumptions.
+
 ## Decision
 
 The chosen dockerization path is test image first, browser runtime later.
@@ -102,6 +104,12 @@ Run it with an explicit server-side proxy target:
 docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production
 ```
 
+For Podman standalone smoke, validate `host.containers.internal` locally and use that alias when the backend runs on the host:
+
+```sh
+podman run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.containers.internal:8080 groupscout-ui-production
+```
+
 Smoke checks:
 
 ```sh
@@ -132,7 +140,7 @@ Required UI Docker env vars stay small:
 
 - `GROUPSCOUT_UI_HOST_PORT` optionally changes the D3 development host port from `3001`.
 - `GROUPSCOUT_UI_REPO` optionally changes the build context used by `compose.dev.yml`.
-- `UI_API_PROXY_TARGET` is server-side only. Use `http://groupscout:8080` inside Compose and `http://host.docker.internal:8080` for a standalone production-container smoke against a host backend.
+- `UI_API_PROXY_TARGET` is server-side only. Use `http://groupscout:8080` inside Compose and `http://host.docker.internal:8080` for a standalone Docker production-container smoke against a host backend. Podman standalone smoke usually uses `http://host.containers.internal:8080`; validate that alias locally.
 
 The development smoke path requires the sibling backend repo at `/mnt/c/Users/alvin/GolandProjects/groupscout`. Starting `groupscout` also starts backend dependencies `postgres`, `ollama`, and `ollama-init`; the UI product dev-server smoke does not require `alertd`, `n8n`, Grafana, Prometheus, Loki, Promtail, or a lead pipeline run.
 
@@ -140,7 +148,7 @@ For a concise comparison of the D1 test image, Phase 13 development product serv
 
 CI order: local Node tests, Docker test-image build/run, production image build, then optional smoke checks. CI can validate merged Compose config when the backend Compose file is available. Production `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` smoke checks need a reachable backend or CI stub and should return `200`; `/healthz`, `/`, and `/assets/app.js` can run against the UI container alone.
 
-CI must not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config or static assets.
+`UI_SESSION_SECRET` is allowed only as server-side runtime configuration for real operator deployments. CI must not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.
 
 ## Backend Contract
 

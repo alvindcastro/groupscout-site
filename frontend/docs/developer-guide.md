@@ -62,7 +62,7 @@ docker build --target test -t groupscout-ui-test .
 docker run --rm groupscout-ui-test
 ```
 
-Use [Docker Runtime Matrix](./docker-runtime-matrix.md) to choose between the D1 test image, Phase 13 development Compose product server, and D4 production static/proxy server. It owns current Compose commands, backend-network smoke checks, expected `/api/*` statuses, port rules, and secret boundaries.
+Use [Docker Runtime Matrix](./docker-runtime-matrix.md) to choose between the D1 test image, Phase 13 development Compose product server, and D4 production static/proxy server. It owns current Compose commands, backend-network smoke checks, expected `/api/*` statuses, port rules, and secret boundaries. Podman migration work is tracked in [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md).
 
 Production same-origin server:
 
@@ -160,9 +160,9 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 
 ## Docker Operations
 
-Docker operation mode selection, required env vars, backend dependency expectations, and D3/D4 smoke commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md).
+Docker operation mode selection, required env vars, backend dependency expectations, and D3/D4 smoke commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md). Docker remains the known-good baseline; use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) before substituting `podman compose` or Podman host aliases.
 
-The UI production Compose profile exists in the UI repo. The inspected backend source snapshot does not currently expose `make smoke-ui-docker-e2e`, so run that backend-owned E2E gate only after the Phase 38 smoke target is restored or merged.
+The UI production Compose profile exists in the UI repo. The backend source now exposes `make smoke-ui-docker-e2e`; run that backend-owned E2E gate after the backend and UI Compose stacks are available.
 
 CI hook order:
 
@@ -172,7 +172,7 @@ CI hook order:
 4. `docker build --target production -t groupscout-ui-production .`
 5. Optional smoke checks for `/healthz`, `/`, and `/assets/app.js`; smoke `/api/system` only when a backend or CI stub is reachable, and expect the backend's current status through the proxy.
 
-Do not run UI Docker containers with backend `.env` or `--env-file`. Do not pass `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts. Browser-visible config may only expose relative `/api/*`.
+Do not run UI Docker containers with backend `.env` or `--env-file`. `UI_SESSION_SECRET` is allowed only as server-side runtime configuration for real operator deployments. Do not pass `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts. Browser-visible config may only expose relative `/api/*`.
 
 ## Backend Integration Boundary
 

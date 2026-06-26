@@ -6,6 +6,8 @@ This is a smoke path, not a full product UI acceptance test. The backend is live
 
 Reconciled 2026-06-13 (`groupscout-site-crz`): `make smoke-ui-docker-e2e`, `scripts/smoke-ui-docker-e2e.sh`, and `internal/smoke` are now present. The planned UI API routes are still tracked by `groupscout-site-eqm`.
 
+Docker remains the known-good baseline for this E2E path. Podman migration work should start from [PODMAN_MIGRATION.md](../../guides/PODMAN_MIGRATION.md) and must revalidate project/network naming, host aliases, and the backend-owned smoke script before claiming parity.
+
 Executable form from the backend repo:
 
 ```sh
@@ -41,6 +43,8 @@ The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compo
 ## Start Backend Plus D3 UI Product Server
 
 Run from the UI repo so `compose.dev.yml` is local, but pin the Compose project name to `groupscout` so the Docker network name is stable:
+
+For Podman Compose, keep the same `-p groupscout` convention but verify the generated network name before relying on manual container attachment.
 
 ```sh
 cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui

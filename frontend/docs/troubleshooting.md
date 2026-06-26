@@ -125,7 +125,7 @@ Common causes:
 
 - `UI_ENABLED` is true but `UI_SESSION_SECRET` is missing or shorter than 32 characters.
 - `CORS_ALLOWED_ORIGINS` is configured for a production environment. CORS allow lists are development-only in the current deployment model.
-- Helper-level session authorization fails because browser `/api/*` requests lack the `groupscout_session` cookie or present an invalid session value. In the inspected current checkout, `productionServer.js` does not yet apply this helper before proxying.
+- Helper-level session authorization fails because browser `/api/*` requests lack the `groupscout_session` cookie or present an invalid session value. The current production server applies this helper before proxying when `UI_SESSION_SECRET` is configured.
 
 ## Browser Runtime Contract Fails
 
@@ -142,6 +142,8 @@ Note: D2 originally reserved `npm run start:ui`, port `3000`, and `/healthz` as 
 ## UI Development Compose Fails
 
 D3 adds `compose.dev.yml` as a UI-repo override for the backend Compose file. Use [Docker Runtime Matrix](./docker-runtime-matrix.md) for the current validation, startup, smoke, and teardown commands.
+
+For Podman migration checks, use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md). Keep `-p groupscout` during validation and verify the generated network name before relying on manual network attachment.
 
 Do not validate or start `compose.dev.yml` by itself. It depends on backend-defined service `groupscout` and network `groupscout_net`.
 
@@ -172,7 +174,9 @@ docker version
 docker compose version
 ```
 
-Do not pass the backend `.env` file into UI containers with `--env-file`. UI Docker operations should not receive `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET`.
+If testing Podman, check `podman info` and `podman compose version` instead. Podman does not use Docker Desktop WSL integration or the Docker socket permission model.
+
+Do not pass the backend `.env` file into UI containers with `--env-file`. `UI_SESSION_SECRET` is allowed only as server-side runtime configuration for real operator deployments. UI container operations should not put `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` in browser-visible config, static assets, Compose output, or CI artifacts.
 
 ## Testing Stack Looks Partially Unhealthy
 
@@ -209,6 +213,12 @@ Use another standalone production smoke host port:
 docker run --rm -p 3005:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production
 ```
 
+For Podman standalone smoke, the host backend alias is usually `host.containers.internal`:
+
+```sh
+podman run --rm -p 3005:3000 -e UI_API_PROXY_TARGET=http://host.containers.internal:8080 groupscout-ui-production
+```
+
 ## UI Proxy Smoke Fails
 
 Interpret `/api/*` smoke failures by status:
@@ -216,7 +226,7 @@ Interpret `/api/*` smoke failures by status:
 - `502`: the backend is unreachable or `UI_API_PROXY_TARGET` points at the wrong host.
 - `404`: the proxy reached the backend, but the requested backend route is missing or the path is wrong. On the current backend source snapshot, `/api/leads?limit=1`, `/api/system`, and `/api/alerts?limit=1` may return `404` until `groupscout-site-eqm` lands the UI API routes.
 - `401`: expected only once protected UI API routes and session auth are present and the request does not have a valid `groupscout_session`; unset `UI_SESSION_SECRET` only for backend Docker smoke checks that need no-login proxy reachability.
-- DNS errors for `groupscout`: the production container is not on the backend Compose network, or it is running with standalone `docker run` and should use `http://host.docker.internal:8080`.
+- DNS errors for `groupscout`: the production container is not on the backend Compose network, or it is running standalone and should use a host alias such as Docker Desktop's `http://host.docker.internal:8080` or Podman's `http://host.containers.internal:8080`.
 
 Browser-visible code and config should still show relative `/api/*`, never `http://groupscout:8080` or backend secrets.
 
@@ -229,7 +239,7 @@ After the planned admin/session flow lands, protected app routes call `/api/auth
 - The browser received the HttpOnly `groupscout_session` cookie from `POST /api/auth/login`.
 - The setup token was read from the current `ADMIN_SETUP_TOKEN` value or `ADMIN_SETUP_TOKEN_FILE`. File-backed setup tokens rotate after successful login.
 
-After the planned production session gate lands, `UI_SESSION_SECRET` makes `/api/*` requests without a valid cookie return `401` before proxying. In the inspected current checkout, the production server proxies directly; if `UI_SESSION_SECRET` is unset for Docker smoke, API requests can proxy without a browser session, but the backend may still require its own admin auth depending on `ADMIN_AUTH_ENABLED`.
+When `UI_SESSION_SECRET` is configured, `/api/*` requests without a valid cookie return `401` before proxying. If `UI_SESSION_SECRET` is unset for container smoke, API requests can proxy without a browser session, but the backend may still require its own admin auth depending on `ADMIN_AUTH_ENABLED`.
 
 ## Planned Admin Login Does Not Appear In Docker
 
@@ -287,7 +297,7 @@ If D4 is run with standalone `docker run`, use a host backend target. If D4 is r
 
 The current backend smoke contract expects `/api/system` to return the backend's current status through the D4 proxy. On backend `main`, that is `404`; once protected UI API routes are present, expect `401` without a browser session. A `502` means the UI proxy could not reach the backend target.
 
-The production UI Compose profile is implemented in the UI source repo. The backend-owned repeatable UI Docker E2E gate is reconciliation work tracked by `groupscout-site-crz` in the inspected backend checkout.
+The production UI Compose profile is implemented in the UI source repo. The backend-owned repeatable UI Docker E2E gate is available as `make smoke-ui-docker-e2e` in the backend source repo.
 
 ## Production UI Runtime Fails
 
@@ -303,7 +313,7 @@ Common causes:
 
 - `GET /` or `GET /assets/app.js` returns 404 because `web/dist/index.html` or `web/dist/assets/app.js` is missing from the image or local checkout.
 - `GET /leads/lead_hotel_001` returns 404 because app-route fallback to `index.html` regressed.
-- After session-gate reconciliation lands, `GET /api/*` returns 401 because `UI_SESSION_SECRET` is configured and the request does not have a valid `groupscout_session`.
+- `GET /api/*` returns 401 because `UI_SESSION_SECRET` is configured and the request does not have a valid `groupscout_session`.
 - `GET /api/*` returns 502 because `UI_API_PROXY_TARGET` is wrong, the backend is down, or a Compose container cannot resolve `groupscout`.
 - Browser code references `http://groupscout:8080` directly instead of a relative `/api/*` path.
 - Public config or static assets include blocked names such as `API_TOKEN`, `CLAUDE_API_KEY`, Slack tokens, Resend/SendGrid keys, database URLs, or `UI_SESSION_SECRET`.

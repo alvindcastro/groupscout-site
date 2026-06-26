@@ -14,7 +14,8 @@ Before you begin, ensure you have the following:
     - **Set it**: In your `.env` file: `API_TOKEN=your_generated_token`.
 - **n8n Instance**:
     - **Self-Hosted**: Use the provided `docker-compose.yml`. n8n will be at `http://localhost:5678`.
-    - **Cloud/External**: Ensure it can reach your server's IP. If GroupScout is in Docker, use `http://host.docker.internal:8080` (Mac/Win) or the container's IP.
+    - **Cloud/External**: Ensure it can reach your server's IP. If GroupScout is in Docker, use `http://host.docker.internal:8080` on Docker Desktop (Mac/Windows), `http://host.containers.internal:8080` on Podman where available, or the container's IP.
+    - **Podman migration**: See [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) before replacing Docker Compose commands in this guide.
 
 ---
 
@@ -223,6 +224,7 @@ The scheduled n8n cadence sends all currently eligible cadence candidates. Manua
     - From Compose n8n to Compose backend, use `http://groupscout:8080`.
     - From host n8n to a host backend, use `http://localhost:8080`.
     - From containerized n8n to a host backend, use `http://host.docker.internal:8080` on Docker Desktop.
+    - From containerized n8n to a host backend under Podman, try `http://host.containers.internal:8080` and verify it in the local Podman setup.
     - Check if the GroupScout server is actually running (`docker compose ps` or `go run cmd/server/main.go`).
 - **No lead sent on Sunday/Wednesday (`delivery_status: no_eligible_lead`)**: No lead in the DB has `status IN ('new','notified')` with a score above zero that hasn't already been cadence-delivered. This is a genuine empty-pool event. Check recent collector logs for parse failures or score-zero runs. Collector issues (VCC 404, creativebc parse error) shrink the pool.
 - **Cadence runs in non-guaranteed mode (`no new leads to notify` in logs)**: The backend logged this message on the non-guaranteed code path, meaning `cadence_key`/`schedule_key` was empty AND `guarantee_one_lead` was false. Confirm the `/run` HTTP node body expression includes `cadence_key`. As of 2026-06-17, any request with a non-empty `cadence_key` or `schedule_key` is automatically treated as guaranteed.

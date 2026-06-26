@@ -110,6 +110,8 @@ docker run --rm groupscout-ui-test
 
 Docker/runtime mode selection is centralized in [Docker Runtime Matrix](./docs/docker-runtime-matrix.md). Use it for the D1 test image, Phase 13 development product server, D4 production static/proxy server, backend-network smoke commands, expected `/api/*` status codes, and secret-boundary rules.
 
+Podman migration notes live in [backend/docs/guides/PODMAN_MIGRATION.md](../backend/docs/guides/PODMAN_MIGRATION.md). Docker remains the known-good baseline for the UI container commands until those Podman smoke gates pass.
+
 Current UI-facing follow-ups: `groupscout-site-eqm` for live backend UI API routes/auth, `groupscout-site-1x9` for the frontend `/admin/login` route after backend auth lands, `groupscout-site-crz` for backend-owned EvalOps/UI smoke artifact reconciliation, `groupscout-site-kb4` for real-browser Phase 15 verification, `groupscout-site-29q` for generated API client/types, `groupscout-site-4cv` for sanitized raw preview, `groupscout-site-3gq` for shared alert state, `groupscout-site-yyj` for ops metrics/freshness, and `groupscout-site-2h1` for broader smell refactors. Frontend Beads workspace identity was reconciled under `groupscout-site-b38`; use normal frontend-local `bd dolt push` when working in `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`. For the full live Beads follow-up index, see `backend/docs/planning/ROADMAP.md`; for recommended upgrade sequencing, see `backend/docs/planning/NOT_DONE_AND_UPGRADES.md`.
 
 ## Developer Docs
@@ -139,6 +141,7 @@ Current UI-facing follow-ups: `groupscout-site-eqm` for live backend UI API rout
 - [Phase 12 UI Dockerization Prompt Pack](./docs/phase-12-ui-dockerization.md)
 - [UI Dockerization Contract](./docs/ui-dockerization-contract.md)
 - [Docker Runtime Matrix](./docs/docker-runtime-matrix.md)
+- [Podman Migration Runbook](../backend/docs/guides/PODMAN_MIGRATION.md)
 - [Phase 13 Product Renderer Runtime](./docs/phase-13-product-renderer-runtime.md)
 - [Phase 13 Product Renderer Runtime Prompt Pack](./docs/phase-13-product-renderer-runtime-prompts.md)
 - [UI TDD Phases 0-15 Implementation Status](./docs/ui-tdd-phase-0-15-implementation.md)

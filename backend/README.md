@@ -37,7 +37,7 @@
 
 1.  **Install Prerequisites:**
     *   [Go 1.26+](https://go.dev/dl/)
-    *   [Docker & Docker Compose](https://docs.docker.com/get-docker/) (Optional, for simplified deployment)
+    *   [Docker & Docker Compose](https://docs.docker.com/get-docker/) (Optional, for simplified deployment). Podman migration notes are in [PODMAN_MIGRATION.md](./docs/guides/PODMAN_MIGRATION.md); Docker Compose remains the known-good baseline.
     *   [pdftotext](https://www.xpdfreader.com/pdftotext-man.html) (Included with Git for Windows at `C:\Program Files\Git\mingw64\bin\pdftotext.exe`)
 
 2.  **Clone the Repository:**
@@ -59,6 +59,8 @@
 ### 🐳 Docker Deployment (Recommended)
 
 GroupScout includes a `docker-compose.yml` that starts the app along with **n8n** (automation), **Prometheus/Grafana** (monitoring), and **Loki** (logging).
+
+For Podman migration work, use [PODMAN_MIGRATION.md](./docs/guides/PODMAN_MIGRATION.md) first. It defines the current `COMPOSE="podman compose"` smoke sequence, known Promtail/socket/GPU caveats, and rollback path.
 
 ```bash
 # Define your keys in .env first, then:
@@ -196,7 +198,8 @@ GQ5 review samples can be converted into review-only draft cases with the evalop
 *   [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System design and data flow.
 *   [SETUP.md](./docs/guides/SETUP.md) - Installation and configuration guide.
 *   [ADMIN_AUTH.md](./docs/guides/ADMIN_AUTH.md) - Planned admin setup-token login, session cookie, logout, and token rotation.
-*   [DOCKER.md](./docs/guides/DOCKER.md) - Running and troubleshooting Docker.
+*   [DOCKER.md](./docs/guides/DOCKER.md) - Running and troubleshooting the known-good Docker Compose stack.
+*   [PODMAN_MIGRATION.md](./docs/guides/PODMAN_MIGRATION.md) - Podman migration review, smoke sequence, caveats, and rollback.
 *   [TESTING.md](./docs/guides/TESTING.md) - Comprehensive testing guide (unit, integration, Ollama).
 *   [VERIFICATION.md](./docs/guides/VERIFICATION.md) - Runtime and EvalOps verification checklist.
 *   [N8N_GUIDE.md](./docs/guides/N8N_GUIDE.md) - Workflow automation and scheduling.

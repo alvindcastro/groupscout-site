@@ -4,6 +4,8 @@
 >
 > **Stack requirements:** Two always-on Go binaries (`server` + `alertd` daemon), PostgreSQL 17 + pgvector, optional: n8n, Redis, Prometheus, Grafana Loki.
 >
+> **Container runtime note:** Docker Compose is still the known-good baseline for these deployment options. Podman is currently a local migration target; use [PODMAN_MIGRATION.md](../guides/PODMAN_MIGRATION.md) before treating Traefik socket discovery, Promtail log scraping, host aliases, GPU-backed Ollama, or Compose networking as Podman-compatible.
+>
 > **Key constraint:** `alertd` polls every 10–90 seconds. It **cannot** run on a platform that scales to zero between requests (e.g. Cloud Run, Render free tier).
 
 ---

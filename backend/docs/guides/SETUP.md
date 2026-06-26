@@ -10,7 +10,8 @@ End-to-end walkthrough: from prerequisites to n8n scheduling the pipeline automa
 |---|---|---|
 | Go 1.26+ | Local server mode | https://go.dev/dl/ |
 | `pdftotext` | PDF permit scraping | Bundled with Git for Windows at `C:\Program Files\Git\mingw64\bin\pdftotext.exe` — no extra install needed |
-| Docker + Docker Compose | Docker mode | https://docs.docker.com/get-docker/ |
+| Docker + Docker Compose | Known-good container mode | https://docs.docker.com/get-docker/ |
+| Podman + Podman Compose | Migration candidate | See [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) before substituting commands |
 
 ---
 
@@ -116,7 +117,7 @@ go run cmd/server/main.go --run-once
 
 ### Option B — Docker Compose (recommended)
 
-Starts GroupScout + **Postgres (with pgvector/pgvector:pg17)** + n8n + Prometheus + Grafana + Loki in one command.
+Starts GroupScout + **Postgres (with pgvector/pgvector:pg17)** + n8n + Prometheus + Grafana + Loki in one command. Testing Podman instead of Docker? Use [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) first. The core app/Postgres/n8n path is the initial target; Promtail Docker socket mounts, Traefik Docker provider examples, host aliases, and Ollama GPU support need separate validation.
 
 ```bash
 docker compose up -d

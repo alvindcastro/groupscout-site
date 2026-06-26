@@ -1,6 +1,6 @@
 # Docker Guide — GroupScout
 
-This guide provides technical details for running and troubleshooting GroupScout using Docker and Docker Compose.
+This guide provides technical details for running and troubleshooting GroupScout using Docker and Docker Compose. Docker Compose remains the known-good baseline. If you are testing Podman compatibility, start with [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) and keep any unverified runtime differences there.
 
 ## 🚀 Running with Docker Compose
 
@@ -33,6 +33,16 @@ AUDIT_RETENTION_RUN_ON_START=true
 docker compose up -d
 ```
 This starts all services in the background.
+
+Podman migration shorthand:
+
+```bash
+COMPOSE="podman compose"
+$COMPOSE -p groupscout config --quiet
+$COMPOSE -p groupscout up -d --build
+```
+
+Do not assume every Docker command below is Podman-compatible. Promtail, Traefik socket discovery, Ollama GPU access, and host aliases have separate caveats in [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md).
 
 ### 4. Service Overview
 
@@ -151,7 +161,7 @@ This creates compressed tarballs in the `./backups` directory.
 
 ### Manual Database Dump (Postgres)
 ```bash
-docker exec -t groupscout_postgres pg_dumpall -c -U groupscout > dump.sql
+docker compose exec postgres pg_dumpall -c -U groupscout > dump.sql
 ```
 
 ## 📊 Monitoring & Logging

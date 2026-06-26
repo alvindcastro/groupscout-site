@@ -1,3 +1,15 @@
+## 2026-06-26 - Podman migration runbook added
+
+### Container runtime migration path documented
+
+- **What:** Added a canonical Podman migration runbook and linked it from active backend, frontend, coordination, and deployment docs.
+- **Where:** Added `backend/docs/guides/PODMAN_MIGRATION.md`; updated backend Docker/setup/n8n/readme docs, UI Docker/runtime docs, and backend UI E2E/deployment planning notes.
+- **Why:** The existing runbooks assumed Docker Desktop, Docker Compose, Docker socket mounts, `host.docker.internal`, and Docker network naming. Podman migration needs explicit smoke gates, caveats, and rollback before commands are treated as interchangeable.
+- **How:** Kept Docker Compose as the known-good baseline, documented `COMPOSE`/`CONTAINER_CLI` variables, service-oriented Compose commands, Podman host alias guidance, Promtail/Traefik/GPU caveats, volume rollback warnings, and the backend plus UI smoke sequence.
+- **Verification:** Markdown-only update; link/search checks should confirm the new runbook is referenced from active docs.
+
+---
+
 ## 2026-06-26 - Cadence no-lead Slack message refreshed (groupscout-site-h7h)
 
 ### No-lead cadence notice uses backend message text

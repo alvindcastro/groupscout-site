@@ -4,6 +4,13 @@ Note: historical entries preserve the asset versions and commands that were curr
 
 ## Unreleased
 
+### Podman Migration Documentation
+
+- What: Linked the canonical Podman migration runbook from active UI runtime docs and clarified Docker-known-good versus Podman-candidate commands.
+- Where: Updated `README.md`, `docs/docker-runtime-matrix.md`, `docs/developer-guide.md`, `docs/testing.md`, `docs/troubleshooting.md`, and `docs/ui-dockerization-contract.md`.
+- When: Updated on 2026-06-26.
+- Why: The UI Docker docs assumed Docker Desktop host aliases and Docker Compose network behavior; Podman smoke needs explicit aliases, project naming checks, and server-side-only secret handling.
+
 ### Markdown Task-Drift Audit
 
 - What: Converted prompt-only unchecked checklist items to plain bullets, routed open product/smell/redaction follow-ups to existing bead IDs, and narrowed current-test language where the inspected checkout lacks the referenced artifacts.

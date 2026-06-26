@@ -4,6 +4,8 @@ This doc distinguishes the current Docker/runtime modes so contributors do not e
 
 Reconciled 2026-06-13 (`groupscout-site-crz`): the backend now exposes `make smoke-ui-docker-e2e`. The remaining frontend admin login route is tracked by `groupscout-site-1x9`.
 
+Docker remains the known-good baseline for the commands below. For Podman migration work, use the canonical [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) and treat this matrix as the Docker command source of truth until each Podman variant is validated.
+
 ## Modes
 
 | Mode | Entry Point | Serves Assets | Proxies `/api/*` | Backend Required | Primary Use |
@@ -24,6 +26,13 @@ docker build --target test -t groupscout-ui-test .
 docker run --rm groupscout-ui-test
 ```
 
+Podman candidate after validation:
+
+```sh
+podman build --target test -t groupscout-ui-test .
+podman run --rm groupscout-ui-test
+```
+
 ## D3 Development Compose Health Harness
 
 `compose.dev.yml` is an override for the backend Compose stack, not a standalone Compose file. The backend Compose file defines service `groupscout` and network `groupscout_net`; without that file, Compose validation is expected to fail.
@@ -41,6 +50,8 @@ docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/doc
 
 The `-p groupscout` flag keeps the Docker network name predictable as `groupscout_groupscout_net`, which is useful when attaching the D4 production container manually.
 
+Under Podman Compose, keep `-p groupscout` and validate network naming before relying on manual network attachment. Within the merged Compose stack, prefer service DNS (`http://groupscout:8080`) over host aliases.
+
 ## D4 Production Server
 
 The `production` Docker target runs `npm run start:ui`, which starts `web/src/server/productionServer.js`. In the inspected UI checkout, it serves static assets from `web/dist`, exposes `/healthz`, authorizes `/api/*` through the UI session boundary, and forwards authorized API requests server-side to `UI_API_PROXY_TARGET` or `http://groupscout:8080`.
@@ -55,6 +66,15 @@ curl -i http://localhost:3002/
 curl -i http://localhost:3002/assets/app.js
 curl -i http://localhost:3002/api/system
 ```
+
+Podman standalone smoke usually uses the host alias `host.containers.internal` instead of Docker Desktop's `host.docker.internal`:
+
+```sh
+podman build --target production -t groupscout-ui-production .
+podman run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.containers.internal:8080 groupscout-ui-production
+```
+
+If the local Podman setup does not provide that alias, run the UI container on the backend Compose network and target `http://groupscout:8080` server-side.
 
 Unauthenticated `GET /api/system` returns `401` from the UI before proxying when `UI_SESSION_SECRET` is configured and no valid `groupscout_session` is present. Backend-network smoke paths that do not configure UI session auth can still use `/api/*` to distinguish backend `404` route absence from `502` proxy reachability failure. `GET /healthz`, `GET /`, and `GET /assets/app.js` can validate the UI container without a backend.
 
@@ -96,5 +116,6 @@ Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo after `gro
 - Production `/api/*` proxying is session-gated before backend forwarding when `UI_SESSION_SECRET` is configured.
 - The backend Docker smoke path leaves `UI_SESSION_SECRET` unset so proxy reachability can be checked without issuing a browser session.
 - Do not pass backend `.env` files into UI containers.
-- Do not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config or static assets.
+- `UI_SESSION_SECRET` is valid server-side runtime configuration for real operator deployments, but should be supplied through runtime secrets/env, not browser-visible config.
+- Do not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.
 - A future framework-backed product dev server should update this matrix before changing `compose.dev.yml` semantics again.

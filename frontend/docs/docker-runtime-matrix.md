@@ -107,7 +107,7 @@ docker compose -p groupscout \
 
 The backend smoke contract expects `/healthz`, `/`, and `/assets/app.js` to return `200`, proxied `/api/system` to return the current backend status (`404` on backend `main`, or `401` once protected UI API routes are present), and the intentionally bad proxy target to return `502`.
 
-Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo after `groupscout-site-crz` restores or reconciles that target.
+Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo. The backend script defaults to Docker Compose but accepts `GROUPSCOUT_COMPOSE="podman compose"` after the Podman CLI is available in the shell.
 
 ## Stable Boundaries
 

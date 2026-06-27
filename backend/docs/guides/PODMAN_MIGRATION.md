@@ -8,6 +8,7 @@ Run backend runtime commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`
 
 - Docker Compose is still the baseline documented runtime.
 - Podman support is a migration target for local development and smoke testing, not yet a proven production deployment target.
+- 2026-06-26 verification: `winget list RedHat.Podman-Desktop` shows Podman Desktop 1.28.2 installed, but `podman --version` and `podman compose version` are not available in the current PowerShell session. Podman Desktop's install directory does not include `podman.exe`; winget lists the separate CLI packages `RedHat.Podman` and `Podman.CLI`. Two non-interactive `winget install RedHat.Podman` attempts timed out without registering the package. Install or expose a Podman CLI before running the smoke sequence.
 - Prefer runtime variables in local notes and scripts:
 
 ```sh
@@ -106,10 +107,23 @@ If `host.containers.internal` is unavailable in the local Podman setup, use a ba
 
 ```sh
 cd /mnt/c/Users/alvin/GolandProjects/groupscout
-make smoke-ui-docker-e2e
+GROUPSCOUT_COMPOSE="podman compose" make smoke-ui-docker-e2e
 ```
 
-The current target name is Docker-specific. Do not rename it until source scripts and CI expectations are updated together.
+The current target name is Docker-specific. Do not rename it until source scripts and CI expectations are updated together. Without `GROUPSCOUT_COMPOSE`, the target keeps the Docker-known-good default.
+
+Runtime-configurable backend Make targets:
+
+```sh
+make docker-up
+make docker-down
+make docker-logs
+COMPOSE="podman compose" make docker-up
+COMPOSE="podman compose" make docker-down
+COMPOSE="podman compose" make docker-logs
+```
+
+The names stay Docker-specific for compatibility, but the `COMPOSE` variable allows Podman validation without duplicating every target.
 
 ## Known Migration Risks
 

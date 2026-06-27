@@ -8,7 +8,7 @@ Run backend runtime commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`
 
 - Docker Compose is still the baseline documented runtime.
 - Podman support is a migration target for local development and smoke testing, not yet a proven production deployment target.
-- 2026-06-26 verification: `winget list RedHat.Podman-Desktop` shows Podman Desktop 1.28.2 installed, but `podman --version` and `podman compose version` are not available in the current PowerShell session. Podman Desktop's install directory does not include `podman.exe`; winget lists the separate CLI packages `RedHat.Podman` and `Podman.CLI`. Two non-interactive `winget install RedHat.Podman` attempts timed out without registering the package. Install or expose a Podman CLI before running the smoke sequence.
+- 2026-06-27 verification: `winget list RedHat.Podman-Desktop` shows Podman Desktop 1.28.2 installed, but `podman --version` and `podman compose version` are not available in the current PowerShell session. Podman Desktop's install directory does not include `podman.exe`; winget lists the separate CLI packages `RedHat.Podman` and `Podman.CLI`. Two non-interactive `winget install RedHat.Podman` attempts timed out without registering the package. Install or expose a Podman CLI before running the smoke sequence.
 - Prefer runtime variables in local notes and scripts:
 
 ```sh

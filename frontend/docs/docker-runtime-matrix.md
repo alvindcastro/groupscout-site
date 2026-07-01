@@ -4,7 +4,7 @@ This doc distinguishes the current Docker/runtime modes so contributors do not e
 
 Reconciled 2026-06-13 (`groupscout-site-crz`): the backend now exposes `make smoke-ui-docker-e2e`. The remaining frontend admin login route is tracked by `groupscout-site-1x9`.
 
-Docker remains the known-good baseline for the commands below. For Podman migration work, use the canonical [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) and treat this matrix as the Docker command source of truth until each Podman variant is validated.
+Docker remains the production and CI command baseline for the commands below. Local Podman smoke gates passed on 2026-07-01; use the canonical [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) for validated Podman variants and current Windows notes.
 
 ## Modes
 

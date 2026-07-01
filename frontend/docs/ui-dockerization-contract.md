@@ -12,7 +12,7 @@ D4 status: production same-origin serving. The UI repo now provides a lightweigh
 
 D5 status: Docker operations docs and CI hooks. The UI repo now documents repeatable local, container, Compose, production smoke, and future CI commands without adding runtime behavior.
 
-Podman migration status: Docker remains the known-good baseline for this contract. Use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) before substituting Podman commands, host aliases, or network assumptions.
+Podman migration status: local Podman smoke gates passed on 2026-07-01. Docker remains the production and CI command baseline for this contract until those docs are updated together. Use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) before substituting Podman commands, host aliases, or network assumptions.
 
 ## Decision
 

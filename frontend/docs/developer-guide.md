@@ -160,7 +160,7 @@ node --test test/api-boundary.test.js test/lead-inbox-client.test.js test/lead-s
 
 ## Docker Operations
 
-Docker operation mode selection, required env vars, backend dependency expectations, and D3/D4 smoke commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md). Docker remains the known-good baseline; use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) before substituting `podman compose` or Podman host aliases.
+Docker operation mode selection, required env vars, backend dependency expectations, and D3/D4 smoke commands live in [Docker Runtime Matrix](./docker-runtime-matrix.md). Local Podman smoke gates passed on 2026-07-01; use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) before substituting `podman compose` or Podman host aliases. Docker remains the production and CI command baseline until those docs are updated together.
 
 The UI production Compose profile exists in the UI repo. The backend source now exposes `make smoke-ui-docker-e2e`; run that backend-owned E2E gate after the backend and UI Compose stacks are available.
 

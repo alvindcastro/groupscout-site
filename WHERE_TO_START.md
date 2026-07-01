@@ -27,16 +27,16 @@ Create or reuse a task branch in the owning source repo before implementation wo
 
 Always run `bd ready` first; Beads is authoritative when this handoff ages. As of 2026-07-01, the next starting points are:
 
-1. `groupscout-site-lkr` - install Podman CLI and run the migration smoke sequence.
-2. `groupscout-site-7ak` - verify a sending domain in Resend so lead emails can reach non-owner recipients.
-3. `groupscout-site-8bp` - verify VCC `/events` selectors after the URL drift fix.
-4. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
+1. `groupscout-site-7ak` - verify a sending domain in Resend so lead emails can reach non-owner recipients.
+2. `groupscout-site-8bp` - verify VCC `/events` selectors after the URL drift fix.
+3. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 
 Recently completed source-of-truth cleanup:
 
 - `groupscout-site-crz` - backend EvalOps and UI smoke artifacts restored/reconciled.
 - `groupscout-site-ei7` - normal `/run` collector drift and raw persistence warnings fixed.
 - `groupscout-site-783` - `.beads` permission warning documented as an accepted Windows-mounted checkout limitation.
+- `groupscout-site-lkr` - Podman CLI, Compose provider, backend stack, UI image tests, and backend-owned UI E2E smoke validated.
 
 Then move to the operator UI bridge:
 

@@ -6,7 +6,7 @@ This is a smoke path, not a full product UI acceptance test. The backend is live
 
 Reconciled 2026-06-13 (`groupscout-site-crz`): `make smoke-ui-docker-e2e`, `scripts/smoke-ui-docker-e2e.sh`, and `internal/smoke` are now present. The planned UI API routes are still tracked by `groupscout-site-eqm`.
 
-Docker remains the known-good baseline for this E2E path. Podman migration work should start from [PODMAN_MIGRATION.md](../../guides/PODMAN_MIGRATION.md) and must revalidate project/network naming, host aliases, and the backend-owned smoke script before claiming parity.
+Docker remains the production and CI command baseline for this E2E path. Local Podman smoke gates passed on 2026-07-01; use [PODMAN_MIGRATION.md](../../guides/PODMAN_MIGRATION.md) for validated Podman commands, project/network naming, host aliases, and Windows port notes.
 
 Executable form from the backend repo:
 

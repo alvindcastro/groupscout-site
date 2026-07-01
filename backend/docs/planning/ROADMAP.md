@@ -16,7 +16,7 @@ Roadmap checkboxes are historical/strategic context. Beads is the source of trut
 Current open work themes:
 
 - Coordination hygiene: `groupscout-site-a1h`.
-- Operational prerequisites: `groupscout-site-lkr` and `groupscout-site-7ak`.
+- Operational prerequisites: `groupscout-site-7ak`.
 - Runtime correctness and source reconciliation: `groupscout-site-8bp` and `groupscout-site-wda`.
 - Operator UI and API bridge: `groupscout-site-eqm`, `groupscout-site-1x9`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-3gq`.
 - Observability, AI, and analytics: `groupscout-site-yyj`, `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-4b4`.
@@ -26,6 +26,7 @@ Recently completed:
 
 - `groupscout-site-crz` - backend EvalOps and UI smoke artifacts restored/reconciled.
 - `groupscout-site-ei7` - normal `/run` collector drift and raw persistence warnings fixed.
+- `groupscout-site-lkr` - Podman CLI and Compose provider installed; backend stack, UI image tests, and backend-owned UI E2E smoke passed.
 - `groupscout-site-0m0` — the current UI checkout now has `getLead`, production `/api/*` session gating, and deterministic Phase 15 browser UX hardening restored; the remaining `/admin/login` route/client work was split to `groupscout-site-1x9` after backend auth routes land.
 - `groupscout-site-783` — the `.beads` permission warning on the Windows-mounted coordination checkout was documented as an accepted DrvFs/9p limitation after `chmod 700 .beads` did not persist.
 - `groupscout-site-b38` — frontend Beads workspace identity was reconciled so frontend-local issue sync no longer requires bypassing the identity check.

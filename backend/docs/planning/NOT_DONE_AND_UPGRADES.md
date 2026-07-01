@@ -8,10 +8,9 @@ Current review status after the 2026-07-01 coordination refresh: completed recon
 
 ## Start Here
 
-1. `groupscout-site-lkr` - install Podman CLI and run the migration smoke sequence.
-2. `groupscout-site-7ak` - verify a sending domain in Resend so lead emails can reach non-owner recipients.
-3. `groupscout-site-8bp` - verify VCC `/events` page selectors actually return events after the URL fix.
-4. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
+1. `groupscout-site-7ak` - verify a sending domain in Resend so lead emails can reach non-owner recipients.
+2. `groupscout-site-8bp` - verify VCC `/events` page selectors actually return events after the URL fix.
+3. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -54,7 +53,7 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ### Expansion And Architecture
 
-- `groupscout-site-lkr` - install Podman CLI and run the migration smoke sequence before treating Podman as an operational baseline.
+- ~~`groupscout-site-lkr`~~ - **closed 2026-07-01**: Podman CLI and Compose provider installed; backend stack, UI image tests, and backend-owned UI E2E smoke passed.
 - `groupscout-site-2h1` - continue remaining backend and frontend smell refactors.
 - `groupscout-site-aaj` - plan the next source-expansion collector slice.
 - `groupscout-site-1ee` - design multi-property routing support.

@@ -7,8 +7,9 @@ Run backend runtime commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`
 ## Current Decision
 
 - Docker Compose is still the baseline documented runtime.
-- Podman support is a migration target for local development and smoke testing, not yet a proven production deployment target.
-- 2026-06-27 verification: `winget list RedHat.Podman-Desktop` shows Podman Desktop 1.28.2 installed, but `podman --version` and `podman compose version` are not available in the current PowerShell session. Podman Desktop's install directory does not include `podman.exe`; winget lists the separate CLI packages `RedHat.Podman` and `Podman.CLI`. Two non-interactive `winget install RedHat.Podman` attempts timed out without registering the package. Install or expose a Podman CLI before running the smoke sequence.
+- Podman support is validated for local development and smoke testing. Docker Compose remains the production baseline until deployment docs, CI, and production socket/logging assumptions are updated together.
+- 2026-07-01 verification: `RedHat.Podman` 5.8.3 and standalone `Docker.DockerCompose` 5.2.0 are installed. `podman machine init` and `podman machine start` provisioned a rootless WSL-backed machine, `podman --version`, `podman compose version`, and `podman info` passed, the backend stack started, the UI test image passed, and the backend-owned UI E2E smoke passed under Podman.
+- Current Windows notes: PowerShell needs the Winget user PATH refreshed for `docker-compose.exe` after install. Git Bash can run the backend-owned smoke script with `GROUPSCOUT_COMPOSE="podman compose"` when the Docker Compose Winget package directory is on PATH. Plain WSL has `make`, but cannot execute the Windows `podman.exe` in this environment.
 - Prefer runtime variables in local notes and scripts:
 
 ```sh
@@ -111,6 +112,21 @@ GROUPSCOUT_COMPOSE="podman compose" make smoke-ui-docker-e2e
 ```
 
 The current target name is Docker-specific. Do not rename it until source scripts and CI expectations are updated together. Without `GROUPSCOUT_COMPOSE`, the target keeps the Docker-known-good default.
+
+Validated from Git Bash on 2026-07-01 because Windows `make` was not installed:
+
+```sh
+export PATH="$PATH:/c/Users/alvin/AppData/Local/Microsoft/WinGet/Packages/Docker.DockerCompose_Microsoft.Winget.Source_8wekyb3d8bbwe"
+cd /c/Users/alvin/GolandProjects/groupscout
+GROUPSCOUT_COMPOSE="podman compose" \
+GROUPSCOUT_BACKEND_REPO=C:/Users/alvin/GolandProjects/groupscout \
+GROUPSCOUT_UI_REPO=C:/Users/alvin/WebstormProjects/groupscout-ui \
+GROUPSCOUT_UI_PRODUCTION_HOST_PORT=3004 \
+GROUPSCOUT_UI_BAD_PROXY_HOST_PORT=3005 \
+  bash scripts/smoke-ui-docker-e2e.sh
+```
+
+Ports `3004` and `3005` avoided a local rootless Podman relay issue where an earlier standalone `3002:3000` run bound only `[::1]:3002` and returned an empty host response. The production UI image itself responded correctly inside the container and on an explicit IPv4 host mapping.
 
 Runtime-configurable backend Make targets:
 

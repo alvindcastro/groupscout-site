@@ -269,7 +269,7 @@ TEST_POSTGRES_URL="postgres://groupscout:groupscout@localhost:5432/groupscout?ss
   go test -v -tags integration ./internal/storage/...
 ```
 
-Planned EvalOps:
+EvalOps quality gates:
 
 ```sh
 make eval-quality
@@ -277,7 +277,7 @@ make eval-gate
 make eval-target
 ```
 
-These EvalOps targets are not present in the inspected backend source snapshot; restoration/reconciliation is tracked by `groupscout-site-crz`.
+These EvalOps targets were restored under `groupscout-site-crz`. If they are missing in a backend checkout, pull or reconcile `/mnt/c/Users/alvin/GolandProjects/groupscout` before treating older branch-history notes as current.
 
 ## Manual API Checks
 

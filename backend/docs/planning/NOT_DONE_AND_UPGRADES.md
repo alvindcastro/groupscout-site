@@ -1,15 +1,17 @@
 # Not-Done Work And Upgrade Snapshot
 
-Date: 2026-06-17
+Date: 2026-07-01
 
 Beads is the source of truth for active work. This snapshot is a navigation layer for choosing the next implementation or documentation pass; refresh it with `bd list --status=open` and `bd list --status=in_progress` before starting work.
 
-Current review status after the 2026-06-17 session: Three lead-cadence gaps were diagnosed and fixed — VCC URL drift (404 → 200), creativebc html5 parse fallback, and n8n guaranteed-delivery mode. See CHANGELOG for full details.
+Current review status after the 2026-07-01 coordination refresh: completed reconciliation tasks were removed from the active start path. `groupscout-site-crz`, `groupscout-site-ei7`, and `groupscout-site-783` are closed; use `bd ready` for the live order before starting work.
 
 ## Start Here
 
-1. `groupscout-site-8bp` - verify VCC `/events` page selectors actually return events after the URL fix.
-2. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
+1. `groupscout-site-lkr` - install Podman CLI and run the migration smoke sequence.
+2. `groupscout-site-7ak` - verify a sending domain in Resend so lead emails can reach non-owner recipients.
+3. `groupscout-site-8bp` - verify VCC `/events` page selectors actually return events after the URL fix.
+4. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -45,12 +47,14 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ### Lead Workflow And Automation Upgrades
 
+- `groupscout-site-7ak` - verify a sending domain in Resend so email notification work can reach non-owner recipients.
 - `groupscout-site-62h` - add Slack lead action buttons and signature verification.
 - `groupscout-site-iuc` - implement Phase 18 contact enrichment and budget tiers.
 - `groupscout-site-39g` - execute the home deploy path, lock down observability surfaces, configure backups, and run one restore smoke.
 
 ### Expansion And Architecture
 
+- `groupscout-site-lkr` - install Podman CLI and run the migration smoke sequence before treating Podman as an operational baseline.
 - `groupscout-site-2h1` - continue remaining backend and frontend smell refactors.
 - `groupscout-site-aaj` - plan the next source-expansion collector slice.
 - `groupscout-site-1ee` - design multi-property routing support.
@@ -58,7 +62,7 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 ## Recommended Upgrade Order
 
 1. **Stabilize documentation and repo state first.** ~~Clear `groupscout-site-crz`~~ done. ~~Clear `groupscout-site-ei7`~~ done.
-2. **Fix runtime warnings before expanding scope.** Prioritize `groupscout-site-ei7` and `groupscout-site-wda`; both are correctness risks that can be masked by successful end-to-end runs.
+2. **Fix runtime warnings before expanding scope.** Prioritize `groupscout-site-8bp` and `groupscout-site-wda`; both are correctness risks that can be masked by successful end-to-end runs.
 3. **Ship the operator UI contract bridge.** Implement `groupscout-site-eqm`, then restore frontend admin login with `groupscout-site-1x9`, generate typed clients with `groupscout-site-29q`, then add raw-preview and real-browser hardening work under `groupscout-site-4cv` and `groupscout-site-kb4`.
 4. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.
 5. **Improve lead conversion workflows.** Add Slack actions, contact enrichment, analytics, and source attribution through `groupscout-site-62h`, `groupscout-site-iuc`, and `groupscout-site-4b4`.

@@ -16,13 +16,16 @@ Roadmap checkboxes are historical/strategic context. Beads is the source of trut
 Current open work themes:
 
 - Coordination hygiene: `groupscout-site-a1h`.
-- Runtime correctness and source reconciliation: `groupscout-site-ei7`, `groupscout-site-wda`, and `groupscout-site-crz`.
+- Operational prerequisites: `groupscout-site-lkr` and `groupscout-site-7ak`.
+- Runtime correctness and source reconciliation: `groupscout-site-8bp` and `groupscout-site-wda`.
 - Operator UI and API bridge: `groupscout-site-eqm`, `groupscout-site-1x9`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-3gq`.
 - Observability, AI, and analytics: `groupscout-site-yyj`, `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-4b4`.
 - Lead workflow, deployment, and expansion: `groupscout-site-62h`, `groupscout-site-iuc`, `groupscout-site-39g`, `groupscout-site-2h1`, `groupscout-site-aaj`, and `groupscout-site-1ee`.
 
 Recently completed:
 
+- `groupscout-site-crz` - backend EvalOps and UI smoke artifacts restored/reconciled.
+- `groupscout-site-ei7` - normal `/run` collector drift and raw persistence warnings fixed.
 - `groupscout-site-0m0` — the current UI checkout now has `getLead`, production `/api/*` session gating, and deterministic Phase 15 browser UX hardening restored; the remaining `/admin/login` route/client work was split to `groupscout-site-1x9` after backend auth routes land.
 - `groupscout-site-783` — the `.beads` permission warning on the Windows-mounted coordination checkout was documented as an accepted DrvFs/9p limitation after `chmod 700 .beads` did not persist.
 - `groupscout-site-b38` — frontend Beads workspace identity was reconciled so frontend-local issue sync no longer requires bypassing the identity check.
@@ -31,7 +34,7 @@ Recently completed:
 - `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n and tracked under `backend/docs/workflows/n8n/`.
 - `groupscout-site-j73` — opt-in raw audit retention worker, manual purge command, Docker env, and Postgres purge-safety coverage.
 - `groupscout-site-dxq` — UI schema/API roadmap documentation cleanup.
-- `groupscout-site-mt5` and `groupscout-site-e5a` — production UI Compose wiring and the backend plus UI Docker E2E gate were implemented in branch history; `groupscout-site-crz` owns restoring or reconciling missing backend smoke artifacts in the inspected source snapshot.
+- `groupscout-site-mt5` and `groupscout-site-e5a` - production UI Compose wiring and the backend plus UI Docker E2E gate were implemented in branch history; backend smoke artifact reconciliation later closed under `groupscout-site-crz`.
 
 ---
 

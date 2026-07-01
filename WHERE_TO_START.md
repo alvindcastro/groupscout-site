@@ -1,6 +1,6 @@
 # Where To Start
 
-Date: 2026-06-14
+Date: 2026-07-01
 
 Beads is the source of truth for active work. This file is a short handoff map for agents and humans deciding which GroupScout task to pick next.
 
@@ -25,13 +25,18 @@ Create or reuse a task branch in the owning source repo before implementation wo
 
 ## Current Starting Point
 
-1. Reconcile `groupscout-site-crz` before trusting old EvalOps or UI smoke claims in backend docs.
-2. Then move to runtime correctness unless Beads shows a newer blocker.
+Always run `bd ready` first; Beads is authoritative when this handoff ages. As of 2026-07-01, the next starting points are:
 
-After those hygiene/reconciliation tasks, move to runtime correctness:
+1. `groupscout-site-lkr` - install Podman CLI and run the migration smoke sequence.
+2. `groupscout-site-7ak` - verify a sending domain in Resend so lead emails can reach non-owner recipients.
+3. `groupscout-site-8bp` - verify VCC `/events` selectors after the URL drift fix.
+4. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 
-- `groupscout-site-ei7` - normal `/run` collector and raw persistence warnings.
-- `groupscout-site-wda` - Postgres enrichment raw-input foreign-key integration failure.
+Recently completed source-of-truth cleanup:
+
+- `groupscout-site-crz` - backend EvalOps and UI smoke artifacts restored/reconciled.
+- `groupscout-site-ei7` - normal `/run` collector drift and raw persistence warnings fixed.
+- `groupscout-site-783` - `.beads` permission warning documented as an accepted Windows-mounted checkout limitation.
 
 Then move to the operator UI bridge:
 
@@ -39,7 +44,7 @@ Then move to the operator UI bridge:
 - `groupscout-site-1x9` - frontend `/admin/login` route/client after backend auth/session routes land.
 - `groupscout-site-29q` - generated frontend API client/types from OpenAPI.
 - `groupscout-site-4cv` - sanitized raw audit preview.
-- `groupscout-site-kb4` - real browser Phase 15 harness after current-checkout drift is resolved.
+- `groupscout-site-kb4` - real browser Phase 15 harness.
 
 ## Documentation Anchors
 

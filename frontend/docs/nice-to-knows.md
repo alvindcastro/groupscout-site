@@ -89,13 +89,13 @@ Backend lead priority is a `/10` contract in the operator-facing UI, Slack, and 
 
 The UI repo has more than one Docker mode. Phase 13 `compose.dev.yml` runs a backend-network product dev server on `localhost:3001`; it serves generated `web/dist` assets and keeps backend discovery server-side. D4 `groupscout-ui-production` runs the production static/proxy server on container port `3000`; use the `smoke-ui-e2e` Compose profile to attach it to the backend network for backend plus UI smoke checks.
 
-Use `docker compose -p groupscout` when combining backend and UI Compose files so service names and the shared network stay predictable.
+Use `docker compose -p groupscout` when combining backend and UI Compose files so service names and the shared network stay predictable. The same project-name rule applies to `podman compose` after the local Podman runtime is initialized.
 
 There is now a dependency-free product renderer and a dedicated production Compose profile for the D4 runtime. On backend `main`, `/api/system` currently returns `404` through the D4 proxy; that still proves proxy reachability until the protected UI API routes land.
 
-For current Docker mode commands and expected smoke results, use [Docker Runtime Matrix](./docker-runtime-matrix.md). If backend `/health` reports Ollama unavailable while the UI and Postgres-backed API checks pass, treat that as an LLM/enrichment-specific follow-up, not a blocker for UI/API smoke.
+For current Docker mode commands, validated Podman variants, and expected smoke results, use [Docker Runtime Matrix](./docker-runtime-matrix.md). If backend `/health` reports Ollama unavailable while the UI and Postgres-backed API checks pass, treat that as an LLM/enrichment-specific follow-up, not a blocker for UI/API smoke.
 
-Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo.
+Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo. For Podman, set `GROUPSCOUT_COMPOSE="podman compose"`; on the validated Windows setup, Git Bash plus the Winget Docker Compose package directory on PATH was used.
 
 ## Known Refactor Follow-Up
 

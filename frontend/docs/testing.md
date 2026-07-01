@@ -24,7 +24,7 @@ docker build --target test -t groupscout-ui-test .
 docker run --rm groupscout-ui-test
 ```
 
-For Podman migration checks, use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) before substituting `podman build`, `podman run`, or `podman compose`.
+For Podman checks, use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md). Local Podman smoke passed on 2026-07-01 with `podman build`, `podman run`, merged `podman compose`, and the backend-owned UI E2E gate.
 
 For operator smoke with backend and UI already running:
 
@@ -57,7 +57,7 @@ There is still no package install requirement.
 
 ## Docker And Admin Smoke
 
-Use [Docker Runtime Matrix](./docker-runtime-matrix.md) for current Docker mode selection, backend-network smoke commands, expected `/api/*` status codes, and CI image checks. Use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) for Podman-specific host aliases, Compose validation, logging caveats, and rollback. Use [Admin Token Flow](./admin-token-flow.md) for setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands.
+Use [Docker Runtime Matrix](./docker-runtime-matrix.md) for current Docker mode selection, backend-network smoke commands, expected `/api/*` status codes, validated Podman equivalents, and CI image checks. Use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) for Podman-specific host aliases, Compose validation, Windows PATH/Git Bash notes, logging caveats, and rollback. Use [Admin Token Flow](./admin-token-flow.md) for setup-token login, token rotation, logout, stale asset recovery, and direct curl smoke commands.
 
 The UI Docker test image no longer copies `DESIGN.md` or `docs/` from the UI repo because long-lived markdown lives in `/mnt/c/Users/alvin/groupscout-site/frontend`. In an isolated container without that mount, centralized-doc-only assertions are skipped while runtime/code assertions still run. To force doc assertions inside the container, mount the coordinator docs and set `GROUPSCOUT_UI_DOCS_ROOT`.
 

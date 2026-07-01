@@ -13,7 +13,7 @@ Docker remains the production and CI command baseline for the commands below. Lo
 | D1 test image | `docker run --rm groupscout-ui-test` | No | No | No | Run the model-level Node test suite in a clean container. |
 | Phase 13 development product server | `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout` | Yes, from `web/dist` | Server-side target metadata and same-origin behavior | Yes, for merged Compose wiring | Prove the UI service can join the backend Compose network, expose `/healthz`, and serve generated product assets. |
 | D4 production server | `npm run start:ui` or `docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production` | Yes, from `web/dist` | Yes, server-side and session-gated when UI session auth is configured | Backend required for `/api/*` smoke checks | Serve one browser origin for static assets plus same-origin API forwarding. |
-| D4 production server on backend network | `docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml --profile smoke-ui-e2e up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy` | Yes, from `web/dist` | Yes, server-side and session-gated when UI session auth is configured | Yes | Production UI runtime smoke path; backend-owned repeatable gate restoration is tracked by `groupscout-site-crz`. |
+| D4 production server on backend network | `docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml --profile smoke-ui-e2e up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy` | Yes, from `web/dist` | Yes, server-side and session-gated when UI session auth is configured | Yes | Production UI runtime smoke path; backend-owned repeatable gate is available through `make smoke-ui-docker-e2e`. |
 
 ## D1 Test Image
 
@@ -26,7 +26,7 @@ docker build --target test -t groupscout-ui-test .
 docker run --rm groupscout-ui-test
 ```
 
-Podman candidate after validation:
+Validated Podman equivalent:
 
 ```sh
 podman build --target test -t groupscout-ui-test .
@@ -50,7 +50,7 @@ docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/doc
 
 The `-p groupscout` flag keeps the Docker network name predictable as `groupscout_groupscout_net`, which is useful when attaching the D4 production container manually.
 
-Under Podman Compose, keep `-p groupscout` and validate network naming before relying on manual network attachment. Within the merged Compose stack, prefer service DNS (`http://groupscout:8080`) over host aliases.
+Under Podman Compose, keep `-p groupscout`. The 2026-07-01 smoke validated merged backend/UI Compose with `GROUPSCOUT_UI_REPO` set to the native Windows UI path so the Compose provider did not resolve `/mnt/c/...` under the backend repo. Within the merged Compose stack, prefer service DNS (`http://groupscout:8080`) over host aliases.
 
 ## D4 Production Server
 
@@ -71,10 +71,10 @@ Podman standalone smoke usually uses the host alias `host.containers.internal` i
 
 ```sh
 podman build --target production -t groupscout-ui-production .
-podman run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.containers.internal:8080 groupscout-ui-production
+podman run --rm -p 127.0.0.1:3004:3000 -e UI_API_PROXY_TARGET=http://host.containers.internal:8080 groupscout-ui-production
 ```
 
-If the local Podman setup does not provide that alias, run the UI container on the backend Compose network and target `http://groupscout:8080` server-side.
+Port `3004` is used here because the validated Windows rootless Podman setup saw an empty host response on an earlier `3002:3000` relay. If the local Podman setup does not provide `host.containers.internal`, run the UI container on the backend Compose network and target `http://groupscout:8080` server-side.
 
 Unauthenticated `GET /api/system` returns `401` from the UI before proxying when `UI_SESSION_SECRET` is configured and no valid `groupscout_session` is present. Backend-network smoke paths that do not configure UI session auth can still use `/api/*` to distinguish backend `404` route absence from `502` proxy reachability failure. `GET /healthz`, `GET /`, and `GET /assets/app.js` can validate the UI container without a backend.
 
@@ -105,9 +105,9 @@ docker compose -p groupscout \
   rm -f groupscout-ui-production groupscout-ui-production-bad-proxy
 ```
 
-The backend smoke contract expects `/healthz`, `/`, and `/assets/app.js` to return `200`, proxied `/api/system` to return the current backend status (`404` on backend `main`, or `401` once protected UI API routes are present), and the intentionally bad proxy target to return `502`.
+The backend smoke contract expects `/healthz`, `/`, and `/assets/app.js` to return `200`, proxied `/api/system` to return the current backend status (`404` on backend `main`, or `401` once protected UI API routes are present), and the intentionally bad proxy target to return a non-`200` status. With session auth enabled, bad-proxy requests can return `401` before proxying.
 
-Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo. The backend script defaults to Docker Compose but accepts `GROUPSCOUT_COMPOSE="podman compose"` after the Podman CLI is available in the shell.
+Repeatable gate: run `make smoke-ui-docker-e2e` from the backend repo. The backend script defaults to Docker Compose but accepts `GROUPSCOUT_COMPOSE="podman compose"` after the Podman CLI and Compose provider are available in the shell. On the validated Windows setup, Git Bash was used with the Winget Docker Compose package directory on PATH; see the Podman runbook for the exact command.
 
 ## Stable Boundaries
 

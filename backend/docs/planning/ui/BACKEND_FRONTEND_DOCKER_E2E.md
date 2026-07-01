@@ -28,14 +28,15 @@ make smoke-ui-docker-e2e
 | Backend `groupscout` service | `8080` | Live Go API container from backend Compose. |
 | UI D3 product dev server | `3001` by default | Proves the UI service can build, join the backend Compose network, serve product assets, and expose `/healthz`. |
 | UI D4 production container | `3002` in this runbook | Serves `web/dist`, exposes `/healthz`, and proxies same-origin `/api/*` to `http://groupscout:8080`. |
-| UI D4 bad-proxy container | `3003` in this runbook | Uses an intentionally invalid upstream so `/api/*` must return `502`. |
+| UI D4 bad-proxy container | `3003` in this runbook | Uses an intentionally invalid upstream so `/api/*` must return a non-`200` status. With session auth enabled, `401` can occur before proxying. |
 | Grafana | `3000` | Backend observability stack, so the UI examples avoid host port `3000`. |
 
-The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compose profile. The backend-owned repeatable gate is tracked by `groupscout-site-crz`.
+The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compose profile. The backend-owned repeatable gate is available through `make smoke-ui-docker-e2e`; restoration was completed under `groupscout-site-crz`.
 
 ## Prerequisites
 
 - Docker Desktop or Docker Engine with Compose v2.
+- For Podman: `RedHat.Podman`, standalone `Docker.DockerCompose`, an initialized/running Podman machine, and a shell where `podman compose version` succeeds. See [PODMAN_MIGRATION.md](../../guides/PODMAN_MIGRATION.md).
 - Backend `.env` in `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 - UI repo present at `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
 - Time for first backend boot: the current `groupscout` service depends on `ollama` and `ollama-init`, so first startup may pull models.
@@ -44,7 +45,7 @@ The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compo
 
 Run from the UI repo so `compose.dev.yml` is local, but pin the Compose project name to `groupscout` so the Docker network name is stable:
 
-For Podman Compose, keep the same `-p groupscout` convention but verify the generated network name before relying on manual container attachment.
+For Podman Compose, keep the same `-p groupscout` convention. On Windows, set `GROUPSCOUT_UI_REPO` to the native Windows UI path when using the standalone Docker Compose provider so the build context resolves correctly.
 
 ```sh
 cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
@@ -95,7 +96,7 @@ Expected:
 
 - `/healthz`, `/`, and `/assets/app.js` should return `200` from the UI container.
 - `/api/system` on port `3002` should return the current backend status through the same-origin UI proxy: `404` on backend `main`, or `401` once protected UI API routes are present.
-- `/api/system` on port `3003` should return `502`; this proves proxy failures are surfaced by the UI runtime instead of being mistaken for backend route drift.
+- `/api/system` on port `3003` should return a non-`200` status; `502` proves proxy failure surfacing, while `401` can occur first when UI session auth blocks the request before proxying.
 
 The executable gate performs these checks and verifies the UI Compose overlay does not inject `API_TOKEN`, provider keys, Slack/email keys, database URLs, Ollama endpoints, or `UI_SESSION_SECRET`.
 

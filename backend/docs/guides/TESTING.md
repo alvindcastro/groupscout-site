@@ -77,6 +77,14 @@ Reconciled 2026-06-13 (`groupscout-site-crz`): `internal/smoke` and `make smoke-
 make smoke-ui-docker-e2e
 ```
 
+Local Podman smoke passed on 2026-07-01. With a working Podman machine and Compose provider, use:
+
+```bash
+GROUPSCOUT_COMPOSE="podman compose" make smoke-ui-docker-e2e
+```
+
+On the validated Windows setup, Git Bash was used because Windows `make` was not installed. See [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) for the exact Git Bash command, PATH requirement, and alternate UI smoke ports.
+
 #### Run Alertd Tests
 ```bash
 go test ./cmd/alertd/... ./internal/alert/...

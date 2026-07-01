@@ -114,6 +114,17 @@ cd /mnt/c/Users/alvin/GolandProjects/groupscout
 docker compose up -d
 ```
 
+Local Podman equivalent after `podman machine init`, `podman machine start`, and Compose provider setup:
+
+```sh
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+COMPOSE="podman compose" make docker-up
+curl -i --max-time 5 http://localhost:8080/health
+podman exec groupscout_postgres psql -U groupscout -d groupscout -c "SELECT 1;"
+```
+
+Use [Podman Migration Runbook](../../backend/docs/guides/PODMAN_MIGRATION.md) for the validated Windows PATH, Git Bash, and smoke-port notes.
+
 Services exposed by the current compose file:
 
 | Service | URL / Port | Purpose |
@@ -141,7 +152,7 @@ docker compose ps
 
 ## Run Backend With UI Docker
 
-From the UI repo, choose the current D3 development product server or D4 production static/proxy smoke path in [Docker Runtime Matrix](./docker-runtime-matrix.md). That matrix owns the merged Compose command, `-p groupscout` network convention, D4 production-container command, expected `/api/*` smoke statuses, and cleanup steps.
+From the UI repo, choose the current D3 development product server or D4 production static/proxy smoke path in [Docker Runtime Matrix](./docker-runtime-matrix.md). That matrix owns the merged Compose command, `-p groupscout` network convention, D4 production-container command, expected `/api/*` smoke statuses, Podman variants, and cleanup steps.
 
 Expected endpoints:
 

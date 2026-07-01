@@ -37,7 +37,8 @@
 
 1.  **Install Prerequisites:**
     *   [Go 1.26+](https://go.dev/dl/)
-    *   [Docker & Docker Compose](https://docs.docker.com/get-docker/) (Optional, for simplified deployment). Podman migration notes are in [PODMAN_MIGRATION.md](./docs/guides/PODMAN_MIGRATION.md); Docker Compose remains the known-good baseline.
+    *   [Docker & Docker Compose](https://docs.docker.com/get-docker/) (Optional, for simplified deployment). Docker Compose remains the production and CI command baseline.
+    *   [Podman CLI + Docker Compose provider](./docs/guides/PODMAN_MIGRATION.md) (Optional, validated local container runtime). On Windows, install `RedHat.Podman` and standalone `Docker.DockerCompose`, then run `podman machine init` and `podman machine start`.
     *   [pdftotext](https://www.xpdfreader.com/pdftotext-man.html) (Included with Git for Windows at `C:\Program Files\Git\mingw64\bin\pdftotext.exe`)
 
 2.  **Clone the Repository:**
@@ -60,7 +61,7 @@
 
 GroupScout includes a `docker-compose.yml` that starts the app along with **n8n** (automation), **Prometheus/Grafana** (monitoring), and **Loki** (logging).
 
-For Podman migration work, use [PODMAN_MIGRATION.md](./docs/guides/PODMAN_MIGRATION.md) first. It defines the current `COMPOSE="podman compose"` smoke sequence, known Promtail/socket/GPU caveats, and rollback path.
+For local Podman runs, use [PODMAN_MIGRATION.md](./docs/guides/PODMAN_MIGRATION.md) first. It defines the validated `COMPOSE="podman compose"` smoke sequence, Windows PATH/Git Bash notes, known Promtail/socket/GPU caveats, and rollback path.
 
 ```bash
 # Define your keys in .env first, then:

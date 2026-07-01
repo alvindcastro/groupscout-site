@@ -10,8 +10,8 @@ End-to-end walkthrough: from prerequisites to n8n scheduling the pipeline automa
 |---|---|---|
 | Go 1.26+ | Local server mode | https://go.dev/dl/ |
 | `pdftotext` | PDF permit scraping | Bundled with Git for Windows at `C:\Program Files\Git\mingw64\bin\pdftotext.exe` — no extra install needed |
-| Docker + Docker Compose | Known-good container mode | https://docs.docker.com/get-docker/ |
-| Podman + Podman Compose | Migration candidate | See [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) before substituting commands |
+| Docker + Docker Compose | Production and CI command baseline | https://docs.docker.com/get-docker/ |
+| Podman CLI + Docker Compose provider | Validated local container mode | See [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md). On Windows, install `RedHat.Podman` and standalone `Docker.DockerCompose`, then run `podman machine init` and `podman machine start`. |
 
 ---
 
@@ -56,6 +56,24 @@ Contract-only admin auth defaults on after the `/api/auth/*` implementation land
 
 ## SQLite (local dev only)
 DATABASE_URL=groupscout.db — no Docker required.
+
+---
+
+## Podman Local Runtime
+
+Local Podman smoke passed on 2026-07-01. Docker Compose remains the production and CI command baseline, but the backend stack can be validated locally with Podman after the runtime is initialized:
+
+```bash
+podman --version
+podman compose version
+podman info
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+COMPOSE="podman compose" make docker-up
+curl -i --max-time 5 http://localhost:8080/health
+podman exec groupscout_postgres psql -U groupscout -d groupscout -c "SELECT 1;"
+```
+
+On Windows PowerShell, refresh PATH after installing `Docker.DockerCompose` so `podman compose` can find `docker-compose.exe`. Git Bash can run the backend-owned smoke script when the Winget Docker Compose package directory is appended to PATH; plain WSL cannot execute the Windows `podman.exe` in this local setup. Use [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) for the exact UI E2E smoke command and port notes.
 
 ---
 
@@ -471,5 +489,7 @@ For `/n8n/webhook`, send `PriorityScore` on the Slack/internal `0-10` scale. Leg
 | `pdftotext not found` (Docker) | `poppler-utils` is now included in the Docker image. If you see this, run `docker compose up -d --build`. |
 | `go mod download` fails during Docker build | Go version mismatch — `Dockerfile` must use `golang:1.26-alpine` to match `go.mod` |
 | `Failed to initialize: protocol not available` | Docker Desktop WSL integration not enabled for your distro — see Docker Desktop → Settings → Resources → WSL Integration |
+| `podman compose` cannot find a provider | Install standalone `Docker.DockerCompose`, refresh PATH, and confirm `podman compose version` prints the Compose version. |
+| Podman host port returns an empty response | Retry with an explicit IPv4 host mapping such as `-p 127.0.0.1:3004:3000`; the 2026-07-01 smoke hit a rootless relay issue on `3002:3000`. |
 | `permission denied` on Docker socket | Run `sudo usermod -aG docker $USER && newgrp docker` |
 | Docker Desktop UI stuck on stale compose entry | Run `docker compose down` from the project directory, then restart Docker Desktop |

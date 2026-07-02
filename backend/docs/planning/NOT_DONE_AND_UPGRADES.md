@@ -4,13 +4,15 @@ Date: 2026-07-01
 
 Beads is the source of truth for active work. This snapshot is a navigation layer for choosing the next implementation or documentation pass; refresh it with `bd list --status=open` and `bd list --status=in_progress` before starting work.
 
-Current review status after the 2026-07-01 coordination refresh: completed reconciliation tasks were removed from the active start path. `groupscout-site-crz`, `groupscout-site-ei7`, and `groupscout-site-783` are closed; use `bd ready` for the live order before starting work.
+Current review status after the 2026-07-01 coordination refresh: completed reconciliation tasks were removed from the active start path. `groupscout-site-crz`, `groupscout-site-ei7`, `groupscout-site-783`, `groupscout-site-8bp`, and `groupscout-site-wda` are closed; use `bd ready` for the live order before starting work.
 
 ## Start Here
 
 1. `groupscout-site-7ak` - verify a sending domain in Resend so lead emails can reach non-owner recipients.
-2. `groupscout-site-8bp` - verify VCC `/events` page selectors actually return events after the URL fix.
-3. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
+2. `groupscout-site-ydv` - merge the VCC selector fix to backend `main` and rebuild the server container so the fix reaches the live collector.
+3. `groupscout-site-g95` - merge the integration-test serialization fix to backend `main` so the enrichment/storage integration gate stays green in CI.
+
+Both `ydv` and `g95` are merge/deploy follow-ups: the underlying code fixes are complete on backend task branches but do not reach `main`/production until merged.
 
 The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.md).
 
@@ -22,8 +24,10 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 
 ### Runtime Correctness And Data Safety
 
-- `groupscout-site-8bp` - verify VCC `/events` page selectors return events after URL fix (follow-up to 2026-06-17 VCC drift fix).
-- `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
+- `groupscout-site-ydv` - merge backend branch `task/vcc-events-selectors` to `main` and rebuild the server container (`./cmd/server`) so the VCC `/events` selector fix reaches the live collector.
+- `groupscout-site-g95` - merge backend branch `task/enrichment-integration-schema-isolation` to `main` so the serialized enrichment/storage integration gate stays green in CI.
+- ~~`groupscout-site-8bp`~~ - **closed 2026-07-01**: VCC `/events` selector drift fixed — collector now matches the live `.event-item` anchor markup and extracts all events (backend branch `task/vcc-events-selectors`; merge follow-up `groupscout-site-ydv`).
+- ~~`groupscout-site-wda`~~ - **closed 2026-07-01**: enrichment raw-input FK integration failure was cross-package test concurrency (shared `TEST_POSTGRES_URL` DB), not schema drift or UUID binding; fixed by serializing integration tests with a Postgres advisory lock (backend branch `task/enrichment-integration-schema-isolation`; merge follow-up `groupscout-site-g95`).
 - ~~`groupscout-site-ei7`~~ - **closed 2026-06-13**: VCC 404 drift detection (`SourceDriftError`), VCC per-event dedup hash fix, and Postgres TEXT column UTF-8 sanitization implemented.
 - ~~`groupscout-site-crz`~~ - **closed 2026-06-13**: EvalOps and UI smoke artifacts restored.
 - **2026-06-17 cadence gaps fixed**: VCC `docker-compose.yml` URL updated (`/events/calendar` → `/events`); creativebc parser falls back to full-document walk when html5 restructuring loses `inProductionList`; backend `/run` now treats any request with `cadence_key`/`schedule_key` as guaranteed delivery to defend against n8n expression failures.
@@ -61,7 +65,7 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 ## Recommended Upgrade Order
 
 1. **Stabilize documentation and repo state first.** ~~Clear `groupscout-site-crz`~~ done. ~~Clear `groupscout-site-ei7`~~ done.
-2. **Fix runtime warnings before expanding scope.** Prioritize `groupscout-site-8bp` and `groupscout-site-wda`; both are correctness risks that can be masked by successful end-to-end runs.
+2. **Land the completed runtime fixes in production.** The `8bp` (VCC selectors) and `wda` (enrichment integration FK) correctness fixes are done but still on backend task branches. Merge them to `main` and rebuild the container via `groupscout-site-ydv` and `groupscout-site-g95`; until then the live image still runs the old code regardless of how green end-to-end runs look.
 3. **Ship the operator UI contract bridge.** Implement `groupscout-site-eqm`, then restore frontend admin login with `groupscout-site-1x9`, generate typed clients with `groupscout-site-29q`, then add raw-preview and real-browser hardening work under `groupscout-site-4cv` and `groupscout-site-kb4`.
 4. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.
 5. **Improve lead conversion workflows.** Add Slack actions, contact enrichment, analytics, and source attribution through `groupscout-site-62h`, `groupscout-site-iuc`, and `groupscout-site-4b4`.

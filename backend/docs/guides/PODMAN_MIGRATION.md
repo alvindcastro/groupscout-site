@@ -174,6 +174,41 @@ The current Ollama GPU notes are Docker-tested only. The Compose file includes N
 
 Docker and Podman keep separate local volume stores. Before switching runtimes on a machine with useful local data, export the Postgres and Ollama volumes from the old runtime or accept a fresh local stack.
 
+**Verified 2026-07-02 — the n8n volume gap silently breaks Slack cadence.** After the switch, the Podman `groupscout_n8n_data` volume came up empty, so the `n8n` container had **no workflows** — the daily lead cadence never fired and no Slack push happened. This is separate from any container being down: even with n8n running, an empty volume means no active schedule trigger. Detect and recover:
+
+```sh
+podman exec groupscout_n8n n8n list:workflow          # empty output == workflow lost
+podman cp backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json groupscout_n8n:/tmp/cadence.json
+# In Git Bash prefix with MSYS_NO_PATHCONV=1, or the /tmp path is rewritten to a Windows path and import fails with ENOENT:
+podman exec groupscout_n8n n8n import:workflow --input=/tmp/cadence.json
+podman exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+podman restart groupscout_n8n                          # re-registers the schedule trigger
+```
+
+The cadence workflow is fully env-var driven (`GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, `GROUPSCOUT_API_TOKEN`, `GROUPSCOUT_API_BASE_URL` are set on the `n8n` service), so no n8n credentials need re-adding. See [N8N_GUIDE.md § 8 Troubleshooting](./N8N_GUIDE.md#8-troubleshooting--tips).
+
+### Machine Autostart On Windows
+
+The Podman machine does **not** start on Windows logon/boot. If it is down, every GroupScout container is down and the n8n schedule trigger never fires — the most common cause of a silently missed Slack cadence after a reboot. Check with `podman machine list`; `LAST UP: Never` or `Stopped` means nothing is running.
+
+A Windows scheduled task, **`PodmanMachineAutostart`** (trigger: AtLogOn, current user), closes this gap. It runs `C:\Users\alvin\.local\share\containers\podman-autostart.ps1`, which:
+
+1. runs `podman machine start` (no-op if already up),
+2. polls `podman info` until the client connection is ready,
+3. starts the stack in dependency order: `groupscout_postgres`, then `groupscout_ollama`, `groupscout_app`, `groupscout_n8n`.
+
+The task owns container bring-up on purpose. Containers are `restart=unless-stopped`, but Podman's in-machine `podman-restart.service` **cannot be enabled over non-interactive `podman machine ssh`** (`Access denied`, a WSL/dbus limitation), so `unless-stopped` alone does not bring containers back after a machine restart. Verified end-to-end from a cold `podman machine stop`: the task brings the machine and all four containers up with the cadence workflow active.
+
+Manage or re-run the task from PowerShell:
+
+```powershell
+Get-ScheduledTask -TaskName PodmanMachineAutostart | Select-Object TaskName, State
+Start-ScheduledTask -TaskName PodmanMachineAutostart          # run it now
+(Get-ScheduledTaskInfo -TaskName PodmanMachineAutostart).LastTaskResult   # 0 == success
+```
+
+Note: the trigger fires at user logon, not at the pre-login lock screen. Headless start before any user signs in would require a rootful machine plus a system service.
+
 ## Rollback
 
 If Podman smoke fails and the Docker baseline is needed again:

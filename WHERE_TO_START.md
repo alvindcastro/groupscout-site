@@ -28,10 +28,10 @@ Create or reuse a task branch in the owning source repo before implementation wo
 Always run `bd ready` first; Beads is authoritative when this handoff ages. As of 2026-07-01, the next starting points are:
 
 1. `groupscout-site-7ak` - verify a sending domain in Resend so lead emails can reach non-owner recipients.
-2. `groupscout-site-wda` - investigate the Postgres enrichment raw-input foreign-key integration failure.
 
 Recently completed source-of-truth cleanup:
 
+- `groupscout-site-wda` - Postgres enrichment raw-input FK integration failure fixed: root cause was cross-package test concurrency (shared `TEST_POSTGRES_URL` DB), now serialized with a Postgres advisory lock (backend branch `task/enrichment-integration-schema-isolation`; merge follow-up `groupscout-site-g95`).
 - `groupscout-site-8bp` - VCC `/events` selector drift fixed: collector now matches the live `.event-item` anchor markup and extracts all events (backend branch `task/vcc-events-selectors`).
 - `groupscout-site-crz` - backend EvalOps and UI smoke artifacts restored/reconciled.
 - `groupscout-site-ei7` - normal `/run` collector drift and raw persistence warnings fixed.

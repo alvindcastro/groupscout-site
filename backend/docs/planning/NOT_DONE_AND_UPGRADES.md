@@ -1,6 +1,6 @@
 # Not-Done Work And Upgrade Snapshot
 
-Date: 2026-07-01
+Date: 2026-07-04
 
 Beads is the source of truth for active work. This snapshot is a navigation layer for choosing the next implementation or documentation pass; refresh it with `bd list --status=open` and `bd list --status=in_progress` before starting work.
 
@@ -62,15 +62,52 @@ The detailed handoff for agents is [WHERE_TO_START.md](../../../WHERE_TO_START.m
 - `groupscout-site-aaj` - plan the next source-expansion collector slice.
 - `groupscout-site-1ee` - design multi-property routing support.
 
+## Current Upgrade Findings
+
+These notes came from a documentation-only scan of the coordination repo plus the owning backend and frontend repos on 2026-07-04. They are intended to sharpen prioritization, not replace Beads as the source of truth.
+
+### Runtime And Tooling
+
+- Backend headline runtime versions are already current enough that version churn is not the bottleneck right now: `go 1.26` in `go.mod`, `golang:1.26-alpine` in `Dockerfile`, and `node:22-bookworm-slim` in the UI Dockerfile.
+- The backend runtime image still uses `alpine:latest`. Pin that to a concrete release before more deploy work lands so container behavior does not drift silently between rebuilds.
+- The frontend still lacks package policy metadata in `package.json` (`engines`, `packageManager`) and does not advertise lint/format tooling through npm scripts. This is a low-effort baseline hardening pass under `groupscout-site-2h1`.
+- The frontend remains a custom Node + vanilla DOM stack, so framework migration is not the right default upgrade. The higher-value upgrade is stronger contracts and smaller modules, not swapping stacks.
+
+### Contract And Platform Upgrades
+
+- `groupscout-site-29q` remains a high-value follow-up once backend contracts settle: typed/generated frontend API bindings will remove part of the current duplicated normalization and field-name drift risk.
+- `groupscout-site-kb4` remains high value because current UI tests are still model-level and do not prove browser layout, focus, or overlap behavior.
+- `groupscout-site-vud` remains important because the backend enrichment layer still carries provider-specific request building, prompt selection, response parsing, and outreach generation in a small number of coupled modules.
+
+## Current Large-File Refactor Targets
+
+These are the largest code hotspots observed during the scan and the places most likely to repay decomposition work.
+
+### Backend
+
+- `internal/collector/permits/richmond.go` (~557 lines): combines report discovery, download, PDF-to-text flow, parsing, filtering, and project normalization.
+- `cmd/server/pipeline.go` (~377 lines): combines run orchestration, collector wiring, delivery lock handling, notification behavior, and result shaping.
+- `internal/enrichment/claude.go` (~360 lines): combines Anthropic transport, prompt routing, structured-response parsing, and outreach drafting.
+- `internal/collector/events/creativebc.go` (~374 lines) and `internal/collector/permits/delta.go` (~330 lines): similar collector concentration risk.
+
+### Frontend
+
+- `web/src/app/leadDetail.js` (~425 lines): combines fixture data, screen state modeling, layout tokens, and mutation behavior.
+- `web/src/app/verificationQueue.js` (~398 lines): large screen-model module.
+- `web/src/renderer/domRenderer.js` (~362 lines): combines shell construction, screen rendering, and preview override logic.
+- `web/src/server/productionServer.js` (~330 lines): combines static serving, health handling, auth checks, and API proxy behavior.
+- `test/dockerization-contract.test.js` (~485 lines): likely still useful, but broad enough that future container-contract changes may be noisy to maintain.
+
 ## Recommended Upgrade Order
 
 1. **Stabilize documentation and repo state first.** ~~Clear `groupscout-site-crz`~~ done. ~~Clear `groupscout-site-ei7`~~ done.
 2. **Land the completed runtime fixes in production.** The `8bp` (VCC selectors) and `wda` (enrichment integration FK) correctness fixes are done but still on backend task branches. Merge them to `main` and rebuild the container via `groupscout-site-ydv` and `groupscout-site-g95`; until then the live image still runs the old code regardless of how green end-to-end runs look.
 3. **Ship the operator UI contract bridge.** Implement `groupscout-site-eqm`, then restore frontend admin login with `groupscout-site-1x9`, generate typed clients with `groupscout-site-29q`, then add raw-preview and real-browser hardening work under `groupscout-site-4cv` and `groupscout-site-kb4`.
-4. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.
-5. **Improve lead conversion workflows.** Add Slack actions, contact enrichment, analytics, and source attribution through `groupscout-site-62h`, `groupscout-site-iuc`, and `groupscout-site-4b4`.
-6. **Harden the AI and deployment platform.** Sequence `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-39g` after the runtime and UI bridge are stable.
-7. **Expand sources and routing deliberately.** Use `groupscout-site-aaj` and `groupscout-site-1ee` after the current pipeline, observability, and operator surfaces can absorb more lead volume.
+4. **Reduce structural UI and backend smells before widening surface area.** Use `groupscout-site-2h1` to split large screen-model modules, decouple mock fixtures from runtime factories, separate renderer/server concerns, and pin the backend runtime image instead of adding more behavior to the current hotspots.
+5. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.
+6. **Improve lead conversion workflows.** Add Slack actions, contact enrichment, analytics, and source attribution through `groupscout-site-62h`, `groupscout-site-iuc`, and `groupscout-site-4b4`.
+7. **Harden the AI and deployment platform.** Sequence `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-39g` after the runtime and UI bridge are stable.
+8. **Expand sources and routing deliberately.** Use `groupscout-site-aaj` and `groupscout-site-1ee` after the current pipeline, observability, and operator surfaces can absorb more lead volume.
 
 ## Documentation Maintenance Rules
 

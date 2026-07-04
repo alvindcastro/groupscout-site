@@ -6,6 +6,20 @@ For future implementation prompts that transform these smells under strict TDD, 
 
 ## UI Repo
 
+### Largest Current UI Hotspots
+
+Current size scan of the frontend repo points to a small set of modules carrying most of the UI complexity:
+
+- `web/src/app/leadDetail.js` (~425 lines): mixes mock fixture data, screen-factory state, layout metadata, and mutation wiring.
+- `web/src/app/verificationQueue.js` (~398 lines): large screen-model module with substantial view-state shaping in one file.
+- `web/src/renderer/domRenderer.js` (~362 lines): mixes route shell creation, lead-inbox override behavior, navigation rendering, HTML rendering, and responsive behavior.
+- `web/src/server/productionServer.js` (~330 lines): mixes static asset serving, same-origin API proxying, auth boundary checks, and proxy header filtering.
+- `web/src/app/outreachWorkspace.js`, `web/src/app/analyticsDashboard.js`, `web/src/app/todayCommandCenter.js`, and `web/src/app/leadInbox.js` (all ~300+ lines): repeated screen-model patterns that are still manageable individually but collectively raise change cost.
+
+Impact: most future UI behavior changes will continue to land in a handful of large files unless responsibilities are separated more aggressively.
+
+Tracked follow-up: use `groupscout-site-2h1` to split fixture data from runtime factories, isolate renderer helpers from route-shell special cases, and break the production server into narrower static-serving, auth, and proxy modules.
+
 ### Growing API Client Module - Mitigated In H1
 
 H1 split `web/src/api/client.js` into a stable facade plus focused API modules under `web/src/api/`. `web/src/api/transport.js` now owns the centralized same-origin `/api/*` guard, and feature adapters own their own paths, payload normalization, and response adaptation.
@@ -21,6 +35,8 @@ Production screen modules export and default to mock data such as lead rows, det
 Impact: demo/test data is coupled to runtime factories, which can blur the line between fixture behavior and production behavior once live data is introduced.
 
 Tracked follow-up: move fixtures behind explicit test/demo inputs before live backend wiring or renderer expansion ships under `groupscout-site-2h1`.
+
+Observed hotspots: `web/src/app/leadDetail.js` currently embeds `mockLeadDetails`, and `web/src/renderer/domRenderer.js` imports `mockLeadInboxLeads` to support override behavior during render.
 
 ### Duplicated Domain Constants
 
@@ -88,11 +104,24 @@ Tracked follow-up: add browser/component coverage when a renderer exists under `
 
 ### Missing Runtime Contract
 
-The tests use modern Node and web APIs, but `package.json` does not declare an `engines` field.
+The tests use modern Node and web APIs, but `package.json` does not declare an `engines` field or a `packageManager` policy.
 
 Impact: developers on older Node versions can see confusing failures.
 
-Tracked follow-up: standardize Node version in docs first, then add an `engines` field when package policy is ready under `groupscout-site-2h1`.
+Tracked follow-up: standardize Node version in docs first, then add `engines` and `packageManager` metadata when package policy is ready under `groupscout-site-2h1`.
+
+### Renderer And Server Boundary Drift
+
+The current frontend architecture uses a custom Node + vanilla DOM stack rather than a framework router/bundler boundary. That is workable, but some modules now carry both runtime behavior and composition responsibilities.
+
+Observed hotspots:
+
+- `web/src/renderer/domRenderer.js` combines route rendering, shell shaping, and lead-inbox preview override behavior.
+- `web/src/server/productionServer.js` combines static serving, health responses, API proxying, and deployment auth policy glue.
+
+Impact: renderer changes, deployment changes, and API boundary changes can all collide in a small number of modules, making focused tests harder to keep small.
+
+Tracked follow-up: keep the current no-framework stack, but split renderer helpers and production server responsibilities before adding more routes or deployment modes under `groupscout-site-2h1`.
 
 ## Backend Repo Documentation Drift
 

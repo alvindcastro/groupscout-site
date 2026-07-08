@@ -67,7 +67,7 @@ Actions by marker:
 | `slack notify` | Check `SLACK_WEBHOOK_URL` and Slack webhook status. |
 | collector or `pdftotext` error | Rebuild with `docker compose up -d --build` and confirm `poppler-utils`/`pdftotext` exists in the image. |
 
-Normal n8n cadence runs use plain `/run` and return `new_leads` plus `notified_leads`. If `notified_leads` is greater than zero, Slack received the normal multi-lead digest. The optional backend exactly-one guarantee adds a `delivery_status` field to `/run` JSON:
+The tracked n8n cadence uses the guaranteed cadence `/run` body and returns `delivery_status`, `notified_leads`, and `message`. Optional manual `/run` calls without a cadence key still use the normal multi-lead path:
 
 | Status | What to check |
 |---|---|
@@ -106,7 +106,7 @@ If the filters are too strict, you can relax them in your `.env` file or environ
 - **n8n / API Triggers**: If you are triggering the pipeline via `/run`, ensure your `API_TOKEN` is correct.
 - **n8n direct leads**: If you are posting pre-enriched leads to `/n8n/webhook`, send `PriorityScore` on the `0-10` scale. Legacy `0-100` values are normalized by the backend before storage and Slack/email delivery.
 
-### 5. Verify the Sunday/Wednesday n8n cadence can send
+### 5. Verify the Sunday/Tuesday/Thursday n8n cadence can send
 
 The importable cadence workflow stays inactive after import until an operator activates it. It also needs n8n container environment access so `$env.GROUPSCOUT_API_TOKEN` and `$env.GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` resolve.
 
@@ -125,9 +125,9 @@ Expected:
 
 - every env check prints `SET`;
 - health includes `"database":"ok"`;
-- n8n logs include `Activated workflow "GroupScout Sunday Wednesday Lead Cadence"`;
-- a live workflow export shows `"active":true`, `"triggerAtDay":[0,3]`, `"triggerAtHour":9`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`.
-- the same live export shows an empty `/run` body and result classification using `notified_leads` and `new_leads`; if it still contains `guarantee_one_lead`, `delivery_mode`, or `idempotency_key`, the live workflow is stale and only sends one lead.
+- n8n logs include `Activated workflow "GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)"`;
+- a live workflow export shows `"active":true`, `"triggerAtDay":[0,2,4]`, `"triggerAtHour":18`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`.
+- the same live export shows the guaranteed cadence `/run` body and result classification using `delivery_status`, `notified_leads`, and `message`; if it still shows `JSON.stringify({})`, the live workflow is stale and still on the old non-guaranteed path.
 
 ### 6. Recover local n8n sign-in
 
@@ -186,7 +186,7 @@ docker run --rm --volumes-from groupscout_n8n --entrypoint sh n8nio/n8n:latest -
 docker start groupscout_n8n
 ```
 
-Sign in with `OWNER_EMAIL` and `TEMP_PASSWORD`, then immediately change the password in n8n user settings. After login, confirm **GroupScout Sunday Wednesday Lead Cadence** is still **Active**.
+Sign in with `OWNER_EMAIL` and `TEMP_PASSWORD`, then immediately change the password in n8n user settings. After login, confirm **GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)** is still **Active**.
 
 Clean up the temporary SQLite copy after recovery:
 
@@ -286,7 +286,7 @@ Do not pass backend `.env` files into UI containers. The browser-visible UI must
 ## ❓ FAQ
 
 ### Why is there only 1 lead?
-If `/run` was called with `guarantee_one_lead:true` and `delivery_mode:"exactly_one"`, one lead is intentional: that optional backend mode sends exactly one eligible lead and records it in `lead_deliveries`. The scheduled n8n cadence should not use those fields; re-import the tracked workflow if the live export still contains them.
+If `/run` was called with `guarantee_one_lead:true` and `delivery_mode:"exactly_one"`, one lead is intentional: that optional backend mode sends exactly one eligible lead and records it in `lead_deliveries`. The scheduled n8n cadence should use `delivery_mode:"all_eligible"` instead; re-import the tracked workflow if the live export still shows `JSON.stringify({})` or the old exactly-one body.
 
 This usually happens if:
 - You've already run the pipeline today, and all other permits are now **duplicates**.

@@ -1,6 +1,6 @@
 ### n8n Integration Guide for GroupScout
 
-This guide provides comprehensive instructions for integrating n8n with GroupScout. It covers triggering the internal pipeline, pushing external leads, managing automated digests, and coordinating a daily (except Saturday) internal lead send.
+This guide provides comprehensive instructions for integrating n8n with GroupScout. It covers triggering the internal pipeline, pushing external leads, managing automated digests, and coordinating a Sunday/Tuesday/Thursday 6 PM internal lead send.
 
 ---
 
@@ -140,26 +140,26 @@ Trigger a summary email of all "new" or "notified" leads from the last 7 days.
 
 ### 6. Basic Scheduling with n8n
 
-You can use the **Schedule** node in n8n to automate GroupScout runs at specific times. The tracked daily cadence workflow uses idempotent cadence `/run` mode (see Section 7) so Slack receives every eligible lead each run.
+You can use the **Schedule** node in n8n to automate GroupScout runs at specific times. The tracked cadence workflow uses idempotent cadence `/run` mode (see Section 7) so Slack receives every eligible lead each run.
 
-#### Example: Run every day except Saturday at 9:00 AM
+#### Example: Run Sunday, Tuesday, and Thursday at 6:00 PM
 
 1.  Add a **Schedule** node to your workflow.
 2.  Set **Trigger Interval** to `Weeks`.
-3.  **Days of the Week**: Select `Sunday`, `Monday`, `Tuesday`, `Wednesday`, `Thursday`, and `Friday` (leave `Saturday` unchecked).
-4.  **Time**: Set to `09:00`.
+3.  **Days of the Week**: Select `Sunday`, `Tuesday`, and `Thursday`.
+4.  **Time**: Set to `18:00`.
 5.  Set the workflow timezone to the hotel/operator timezone, for example `America/Vancouver`.
 6.  Connect this node to an **HTTP Request** node configured for the `/run` endpoint (as described in Section 3).
 
 ---
 
-### 7. Daily (Except Saturday) Cadence Lead Send
+### 7. Sunday/Tuesday/Thursday Cadence Lead Send
 
-The daily cadence uses **idempotent cadence delivery mode** — the backend finds and delivers every eligible lead from the current run and undelivered `notified` backlog, ordered by the existing candidate selector.
+The scheduled cadence uses **idempotent cadence delivery mode** — the backend finds and delivers every eligible lead from the current run and undelivered `notified` backlog, ordered by the existing candidate selector.
 
 #### n8n workflow
 
-1.  **Schedule**: run every day except `Saturday` at `09:00` in `America/Vancouver` (days `Sunday`–`Friday`).
+1.  **Schedule**: run on `Sunday`, `Tuesday`, and `Thursday` at `18:00` in `America/Vancouver`.
 2.  **Preflight**: call `GET http://groupscout:8080/health`. Stop and notify operations if the database is unavailable.
 3.  **Trigger collection and delivery**: call `POST http://groupscout:8080/run` with the `GroupScout API` bearer credential and a JSON body that includes the cadence key and cadence delivery flag:
     ```json
@@ -183,7 +183,7 @@ Importable workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json
 
 For the provided Docker Compose stack, n8n reads the tracked workflow expressions from container environment variables. Recreate n8n after env changes with `docker compose up -d n8n`, then verify `N8N_BLOCK_ENV_ACCESS_IN_NODE`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` are all present before activating the workflow.
 
-When validating an existing imported workflow, export it and confirm the `/run` HTTP node body expression evaluates to a JSON object containing `guarantee_one_lead: true`, `delivery_mode: "all_eligible"`, and a cadence key. The schedule must be active for daily-except-Saturday 09:00 `America/Vancouver` (`triggerAtDay: [0,1,2,3,4,5]`).
+When validating an existing imported workflow, export it and confirm the `/run` HTTP node body expression evaluates to a JSON object containing `guarantee_one_lead: true`, `delivery_mode: "all_eligible"`, and a cadence key. The schedule must be active for Sunday/Tuesday/Thursday 18:00 `America/Vancouver` (`triggerAtDay: [0,2,4]`).
 
 #### Local UI checklist
 
@@ -191,7 +191,7 @@ Use this when an operator wants to visually confirm the workflow before leaving 
 
 1. Open `http://localhost:5678`.
 2. Sign in with the local n8n owner account.
-3. Open **GroupScout Daily Lead Cadence (except Saturday)**.
+3. Open **GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)**.
 4. Confirm the top-right workflow toggle is **Active**.
 5. Confirm the graph contains schedule, cadence-key, duplicate guard, health preflight, `/run` trigger, run classifier, delivered marker, and ops Slack failure/no-lead branches.
 6. Open **Trigger GroupScout Run** and confirm the body expression includes `guarantee_one_lead: true` and `cadence_key`.
@@ -226,9 +226,9 @@ The scheduled n8n cadence sends all currently eligible cadence candidates. Manua
     - From containerized n8n to a host backend, use `http://host.docker.internal:8080` on Docker Desktop.
     - From containerized n8n to a host backend under Podman, try `http://host.containers.internal:8080` and verify it in the local Podman setup.
     - Check if the GroupScout server is actually running (`docker compose ps` or `go run cmd/server/main.go`).
-- **No lead sent on Sunday/Wednesday (`delivery_status: no_eligible_lead`)**: No lead in the DB has `status IN ('new','notified')` with a score above zero that hasn't already been cadence-delivered. This is a genuine empty-pool event. Check recent collector logs for parse failures or score-zero runs. Collector issues (VCC 404, creativebc parse error) shrink the pool.
+- **No lead sent on a scheduled cadence run (`delivery_status: no_eligible_lead`)**: No lead in the DB has `status IN ('new','notified')` with a score above zero that hasn't already been cadence-delivered. This is a genuine empty-pool event. Check recent collector logs for parse failures or score-zero runs. Collector issues (VCC 404, creativebc parse error) shrink the pool.
 - **Cadence runs in non-guaranteed mode (`no new leads to notify` in logs)**: The backend logged this message on the non-guaranteed code path, meaning `cadence_key`/`schedule_key` was empty AND `guarantee_one_lead` was false. Confirm the `/run` HTTP node body expression includes `cadence_key`. As of 2026-06-17, any request with a non-empty `cadence_key` or `schedule_key` is automatically treated as guaranteed.
-- **Cadence workflow never sends**: Confirm the imported workflow is active, the n8n container was restarted after activation, and the live export still shows `triggerAtDay:[0,1,2,3,4,5]`, `triggerAtHour:9`, `triggerAtMinute:0`, and `timezone:"America/Vancouver"`.
+- **Cadence workflow never sends**: Confirm the imported workflow is active, the n8n container was restarted after activation, and the live export still shows `triggerAtDay:[0,2,4]`, `triggerAtHour:18`, `triggerAtMinute:0`, and `timezone:"America/Vancouver"`.
 - **No Slack push at all after a Docker→Podman switch (or after a reboot)**: Two distinct causes, verified 2026-07-02:
     1. **Nothing is running.** The Podman machine does not auto-start on Windows logon. Check `podman machine list` — if `LAST UP` is `Never` or the machine is `Stopped`, run `podman machine start`, then bring the stack up: `podman compose -p groupscout up -d postgres groupscout n8n`. A Windows scheduled task (`PodmanMachineAutostart`, AtLogOn) now does this automatically; see [PODMAN_MIGRATION.md → Machine Autostart On Windows](./PODMAN_MIGRATION.md#machine-autostart-on-windows).
     2. **Empty n8n volume.** Docker and Podman keep separate named-volume stores, so a fresh Podman `n8n` container starts with **no workflows**. Verify with `podman exec groupscout_n8n n8n list:workflow`; if empty, re-import from the tracked asset:

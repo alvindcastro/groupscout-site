@@ -260,31 +260,31 @@ curl -i -X POST \
   http://localhost:8080/run
 ```
 
-**Guaranteed Sunday/Wednesday Delivery Run**
+**Guaranteed Cadence Delivery Run**
 ```bash
 curl -i -X POST \
   -H "Authorization: Bearer your_api_token" \
   -H "Content-Type: application/json" \
-  -H "Idempotency-Key: lead-cadence:2026-05-27:wednesday" \
-  -d '{"guarantee_one_lead":true,"delivery_mode":"exactly_one","cadence_key":"lead-cadence:2026-05-27:wednesday","idempotency_key":"lead-cadence:2026-05-27:wednesday"}' \
+  -H "Idempotency-Key: lead-cadence:2026-05-28:thursday" \
+  -d '{"guarantee_one_lead":true,"delivery_mode":"exactly_one","cadence_key":"lead-cadence:2026-05-28:thursday","idempotency_key":"lead-cadence:2026-05-28:thursday"}' \
   http://localhost:8080/run
 ```
 
 Expected `delivery_status` values are `sent`, `duplicate`, `no_eligible_lead`, or `locked`.
 
-That curl proves the optional backend guarantee path only. The scheduled n8n workflow should use normal `/run` with an empty JSON body so it sends the same multi-lead Slack digest as `--run-once`. To prove the n8n scheduled send path, also verify the live n8n container has its environment, can reach the backend, and has the imported cadence workflow activated:
+That curl proves the optional backend exactly-one guarantee path only. The scheduled n8n workflow should use the tracked guaranteed cadence body with `delivery_mode:"all_eligible"`. To prove the n8n scheduled send path, also verify the live n8n container has its environment, can reach the backend, and has the imported cadence workflow activated:
 
 ```bash
 docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSCOUT_API_BASE_URL GROUPSCOUT_API_TOKEN GROUPSCOUT_OPS_SLACK_WEBHOOK_URL; do v=$(printenv "$k"); if [ -n "$v" ]; then echo "$k=SET"; else echo "$k=MISSING"; fi; done'
 docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
 docker exec groupscout_n8n n8n export:workflow --id=groupscout-sunday-wednesday-lead-cadence --output=/tmp/groupscout-cadence-review.json
 docker exec groupscout_n8n sh -lc "grep -o '\"active\":[^,}]*\|\"triggerAtDay\":\[[^]]*\]\|\"triggerAtHour\":[0-9]*\|\"triggerAtMinute\":[0-9]*\|\"timezone\":\"[^\"]*\"' /tmp/groupscout-cadence-review.json"
-docker exec groupscout_n8n sh -lc "grep -o '\"jsonBody\":\"={{ JSON.stringify({}) }}\"\\|notified_leads\\|new_leads' /tmp/groupscout-cadence-review.json"
+docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\\|delivery_mode\\|cadence_key\\|schedule_key\\|idempotency_key\\|notified_leads\\|delivery_status\\|message' /tmp/groupscout-cadence-review.json"
 ```
 
-Expected n8n smoke result: every env check prints `SET`, health includes `"database":"ok"`, and the workflow export shows `"active":true`, Sunday/Wednesday days `[0,3]`, hour `9`, minute `0`, timezone `America/Vancouver`, an empty `/run` body, and `notified_leads`/`new_leads` result classification. If the export still contains `guarantee_one_lead`, `delivery_mode`, or `idempotency_key`, the live workflow is still on the old exactly-one send path.
+Expected n8n smoke result: every env check prints `SET`, health includes `"database":"ok"`, and the workflow export shows `"active":true`, Sunday/Tuesday/Thursday days `[0,2,4]`, hour `18`, minute `0`, timezone `America/Vancouver`, the guaranteed cadence `/run` body, and `delivery_status`/`notified_leads`/`message` result classification. If the export still shows `JSON.stringify({})`, the live workflow is still on the old non-guaranteed send path.
 
-For UI verification, open `http://localhost:5678`, then open **GroupScout Sunday Wednesday Lead Cadence**. The visible graph should have schedule, cadence key, duplicate guard, health preflight, normal `/run`, result classification, delivered marker, and ops Slack failure/no-lead branches. The workflow toggle must be **Active**. This UI check proves an operator can inspect the send path; the export check above is the repeatable CLI assertion.
+For UI verification, open `http://localhost:5678`, then open **GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)**. The visible graph should have schedule, cadence key, duplicate guard, health preflight, guaranteed cadence `/run`, result classification, delivered marker, and ops Slack failure/no-lead branches. The workflow toggle must be **Active**. This UI check proves an operator can inspect the send path; the export check above is the repeatable CLI assertion.
 
 **Trigger Weekly Digest**
 ```bash

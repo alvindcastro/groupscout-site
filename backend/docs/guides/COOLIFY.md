@@ -230,7 +230,7 @@ curl -i -X POST https://server.example.com/run \
   -H "Authorization: Bearer $API_TOKEN"
 ```
 
-For cadence delivery, import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` into n8n, confirm it is inactive after import, set `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, then redeploy or restart n8n so the running container has the new environment. Run the health preflight and normal `/run` test, then activate the workflow. A live workflow export should show both the Sunday/Wednesday 09:00 schedule and an empty `{}` `/run` body so scheduled sends match command-line multi-lead behavior.
+For cadence delivery, import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` into n8n, confirm it is inactive after import, set `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, then redeploy or restart n8n so the running container has the new environment. Run the health preflight and normal `/run` test, then activate the workflow. A live workflow export should show the Sunday/Tuesday/Thursday 18:00 schedule plus the guaranteed cadence `/run` body before you leave it active.
 
 Then verify the containers:
 
@@ -278,7 +278,7 @@ Acceptance:
 - Confirm `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` so `$env.*` workflow expressions can resolve.
 - Confirm `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` is set and not a placeholder.
 - Confirm the imported cadence workflow is active after testing; imports start inactive.
-- Confirm the live workflow export uses an empty `/run` body and does not include `guarantee_one_lead`, `delivery_mode`, or `idempotency_key`; if it still does, re-import the tracked workflow asset.
+- Confirm the live workflow export uses the guaranteed cadence `/run` body and includes `guarantee_one_lead`, `delivery_mode`, `cadence_key`, `schedule_key`, and `idempotency_key`; if it still shows `JSON.stringify({})`, re-import the tracked workflow asset.
 
 **Grafana or n8n is exposed too broadly**
 

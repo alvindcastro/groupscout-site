@@ -1,12 +1,12 @@
 # GroupScout n8n Workflows
 
-## Daily (Except Saturday) Lead Cadence
+## Sunday/Tuesday/Thursday 6 PM Lead Cadence
 
-Import `sunday-wednesday-lead-cadence.json` into n8n for the daily internal lead send. The filename and workflow id (`groupscout-sunday-wednesday-lead-cadence`) are retained for stability; the schedule now runs daily except Saturday.
+Import `sunday-wednesday-lead-cadence.json` into n8n for the scheduled internal lead send. The filename and workflow id (`groupscout-sunday-wednesday-lead-cadence`) are retained for stability; the schedule now runs Sunday, Tuesday, and Thursday at 18:00 in `America/Vancouver`.
 
 The workflow:
 
-- runs every day except Saturday at 09:00 in `America/Vancouver` (`triggerAtDay: [0,1,2,3,4,5]`);
+- runs Sunday, Tuesday, and Thursday at 18:00 in `America/Vancouver` (`triggerAtDay: [0,2,4]`);
 - writes a cadence key such as `lead-cadence:2026-05-27:wednesday` in workflow static data and stops duplicate runs only after a cadence is marked delivered;
 - calls `GET /health` before running the pipeline;
 - calls `POST /run` with a bearer token and a cadence-delivery body containing `guarantee_one_lead`, `delivery_mode`, `cadence_key`, `schedule_key`, and `idempotency_key`;
@@ -54,16 +54,16 @@ docker exec groupscout_n8n sh -lc "grep -o '\"active\":[^,}]*\|\"triggerAtDay\":
 docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\\|delivery_mode\\|cadence_key\\|schedule_key\\|idempotency_key\\|notified_leads\\|delivery_status\\|message' /tmp/groupscout-cadence-review.json"
 ```
 
-Expected export fields are `"active":true`, `"triggerAtDay":[0,1,2,3,4,5]`, `"triggerAtHour":9`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`. The second grep must show the guaranteed `/run` body plus `delivery_status`/`notified_leads`/`message` classification; if it still shows `JSON.stringify({})`, the live workflow is using the old non-guaranteed cadence body and must be re-imported from the tracked JSON.
+Expected export fields are `"active":true`, `"triggerAtDay":[0,2,4]`, `"triggerAtHour":18`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`. The second grep must show the guaranteed `/run` body plus `delivery_status`/`notified_leads`/`message` classification; if it still shows `JSON.stringify({})`, the live workflow is using the old non-guaranteed cadence body and must be re-imported from the tracked JSON.
 
 ### UI Verification
 
-Open `http://localhost:5678`, then open **GroupScout Daily Lead Cadence (except Saturday)**.
+Open `http://localhost:5678`, then open **GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)**.
 
 Verify:
 
 - the workflow toggle is **Active**;
-- the schedule node runs every day except Saturday at `09:00` in `America/Vancouver`;
+- the schedule node runs Sunday, Tuesday, and Thursday at `18:00` in `America/Vancouver`;
 - **Trigger GroupScout Run** uses `POST` to `{{$env.GROUPSCOUT_API_BASE_URL}}/run` or the `http://groupscout:8080/run` fallback;
 - the Authorization header uses `Bearer {{$env.GROUPSCOUT_API_TOKEN}}`;
 - the JSON body includes `guarantee_one_lead`, `delivery_mode: "all_eligible"`, `cadence_key`, `schedule_key`, and `idempotency_key`, so `/run` uses idempotent cadence delivery for every eligible lead;

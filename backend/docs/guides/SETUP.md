@@ -356,7 +356,7 @@ n8n needs your `API_TOKEN` to call GroupScout.
 
 ---
 
-### 5c — Import the Sunday/Wednesday workflow
+### 5c — Import the Sunday/Tuesday/Thursday 6 PM workflow
 
 Use the tracked workflow asset as the primary path:
 
@@ -375,12 +375,12 @@ docker exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-
 docker restart groupscout_n8n
 ```
 
-After restart, export the workflow and confirm it is active with `triggerAtDay:[0,3]`, `triggerAtHour:9`, and `timezone:"America/Vancouver"`. Also confirm the `/run` HTTP node uses an empty `{}` JSON body; if the export still contains `guarantee_one_lead`, `delivery_mode`, or `idempotency_key`, re-import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` before activation because the live workflow is still on the old one-lead path.
+After restart, export the workflow and confirm it is active with `triggerAtDay:[0,2,4]`, `triggerAtHour:18`, and `timezone:"America/Vancouver"`. Also confirm the `/run` HTTP node uses the guaranteed cadence body; if the export still contains `JSON.stringify({})`, re-import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` before activation because the live workflow is still on the old non-guaranteed path.
 
-In the n8n UI, open **GroupScout Sunday Wednesday Lead Cadence** and verify the visible graph is:
+In the n8n UI, open **GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)** and verify the visible graph is:
 
 ```txt
-Schedule Sunday And Wednesday
+Schedule Sun Tue Thu 6 PM
   -> Build Cadence Key
   -> Duplicate Cadence?
   -> Health Preflight
@@ -399,8 +399,8 @@ Manual fallback:
 1. Go to **Workflows** → **New Workflow**.
 2. Add a **Schedule** trigger node:
    - **Trigger Interval**: `Weeks`
-   - **Days of the Week**: `Sunday`, `Wednesday`
-   - **Time**: `09:00`
+   - **Days of the Week**: `Sunday`, `Tuesday`, `Thursday`
+   - **Time**: `18:00`
    - **Timezone**: `America/Vancouver` unless the operator team works from another fixed timezone
 3. Add an **HTTP Request** node and connect it to the Schedule node:
    - **Method**: `POST`
@@ -420,21 +420,21 @@ Click **Test Workflow** (or the play button on the Schedule node) to fire it imm
 
 Check:
 - The HTTP Request node shows a `200 OK` response
-- The backend JSON includes `notified_leads`; values greater than zero mean the normal multi-lead Slack digest was sent, and zero means the ops Slack no-lead branch should run
+- The backend JSON includes `delivery_status`, `notified_leads`, and `message`; `delivery_status:"sent"` or `"duplicate"` means the cadence is handled, and `delivery_status:"no_eligible_lead"` should flow to the ops Slack no-lead branch
 
-### 5e — Make the twice-weekly lead send reliable
+### 5e — Make the scheduled lead send reliable
 
-The tracked importable workflow already includes the reliable Sunday/Wednesday path: health preflight, normal `/run` body, workflow-level cadence duplicate guard, and ops Slack branching. The manual fallback above is a basic scheduler with the same backend run mode.
+The tracked importable workflow already includes the reliable Sunday/Tuesday/Thursday path: health preflight, guaranteed cadence `/run` body, workflow-level cadence duplicate guard, and ops Slack branching. The manual fallback above is a basic scheduler with the same backend run mode.
 
-For a manual Sunday/Wednesday cadence:
+For a manual Sunday/Tuesday/Thursday cadence:
 
 1. Add a preflight HTTP Request node for `GET http://groupscout:8080/health`.
 2. Keep the scheduled `POST /run` node as the source-of-truth pipeline trigger.
-3. Send an empty JSON body `{}` so the backend uses the normal multi-lead notify path.
+3. Send the same cadence JSON body used by the tracked workflow so `/run` receives `guarantee_one_lead:true`, `delivery_mode:"all_eligible"`, and the cadence key fields.
 4. Add an error/no-leads branch that sends an operational Slack message when no qualified lead is available.
-5. Store the cadence key in n8n's data store so workflow-level retries can stop early after the backend reports `notified_leads > 0`.
+5. Store the cadence key in n8n's data store so workflow-level retries can stop early after the backend reports `delivery_status:"sent"` or `"duplicate"`.
 
-The backend owns collection, enrichment, Slack fan-out, and machine-readable `/run` results. n8n owns the Sunday/Wednesday schedule, workflow-level duplicate guard, and failure routing. The optional backend exactly-one guarantee remains available for manual/special-purpose tests but is no longer the tracked scheduled workflow.
+The backend owns collection, enrichment, Slack fan-out, and machine-readable `/run` results. n8n owns the Sunday/Tuesday/Thursday schedule, workflow-level duplicate guard, and failure routing.
 
 Completed workflow asset: `groupscout-site-yfl` added the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence key, and no-leads/failure Slack branch. `groupscout-site-ar1` restored the workflow to normal multi-lead `/run` behavior after the exactly-one cadence proved too narrow for scheduled sends.
 

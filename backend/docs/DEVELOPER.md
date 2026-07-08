@@ -27,13 +27,13 @@ Use [BACKEND_FOR_UI_TESTING.md](./planning/ui/BACKEND_FOR_UI_TESTING.md) for loc
 
 ### Local n8n Developer Checks
 
-The Compose n8n UI is at `http://localhost:5678`. For the daily (except Saturday) cadence, developers should verify both the CLI export and the visible workflow graph before handing off:
+The Compose n8n UI is at `http://localhost:5678`. For the Sunday/Tuesday/Thursday 6 PM cadence, developers should verify both the CLI export and the visible workflow graph before handing off:
 
 ```bash
 docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
 docker exec groupscout_n8n n8n export:workflow --id=groupscout-sunday-wednesday-lead-cadence --output=/tmp/groupscout-cadence-review.json
 docker exec groupscout_n8n sh -lc "grep -o '\"active\":[^,}]*\|\"triggerAtDay\":\[[^]]*\]\|\"triggerAtHour\":[0-9]*\|\"triggerAtMinute\":[0-9]*\|\"timezone\":\"[^\"]*\"' /tmp/groupscout-cadence-review.json"
-docker exec groupscout_n8n sh -lc "grep -o '\"jsonBody\":\"={{ JSON.stringify({}) }}\"\\|notified_leads\\|new_leads' /tmp/groupscout-cadence-review.json"
+docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\\|delivery_mode\\|cadence_key\\|schedule_key\\|idempotency_key\\|notified_leads\\|delivery_status\\|message' /tmp/groupscout-cadence-review.json"
 ```
 
 If local n8n login is unavailable, follow [Recover local n8n sign-in](./guides/TROUBLESHOOTING.md#6-recover-local-n8n-sign-in) instead of deleting the `n8n_data` volume; deleting the volume also deletes imported workflows and credentials.

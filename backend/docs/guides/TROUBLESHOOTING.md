@@ -54,7 +54,7 @@ docker compose logs groupscout --tail=200 | rg "filtering complete|skipping dupl
 - `skipping duplicate`: The permit was already processed in a previous run.
 - `skipping enrichment: low score score=0`: The project was recorded but wasn't interesting enough to justify AI costs.
 - `sent leads to Slack count=N`: the run produced and delivered leads.
-- `no new leads to notify`: the run completed, but there were no fresh `new` leads to send.
+- `no new leads to notify`: the run completed, but there were no fresh `new` leads to send. If the scheduled cadence already delivered today's only lead and marked it `notified`, this is expected for a later normal `/run`.
 
 Actions by marker:
 
@@ -65,6 +65,7 @@ Actions by marker:
 | `skipping duplicate` | The source item was already processed. Inspect `raw_projects` or clear test data only when deliberately replaying. |
 | `skipping enrichment: low score` | Lower `ENRICHMENT_THRESHOLD` for testing or improve scoring rules. |
 | `slack notify` | Check `SLACK_WEBHOOK_URL` and Slack webhook status. |
+| `failed to email leads` or `failed to email guaranteed leads` with a Resend 403 | Check `LEAD_NOTIFY_EMAILS` and `EMAIL_FROM`. With `onboarding@resend.dev`, send only to the Resend account owner (`alvin.dcastro@gmail.com`) until a sending domain is verified. |
 | collector or `pdftotext` error | Rebuild with `docker compose up -d --build` and confirm `poppler-utils`/`pdftotext` exists in the image. |
 
 The tracked n8n cadence uses the guaranteed cadence `/run` body and returns `delivery_status`, `notified_leads`, and `message`. Optional manual `/run` calls without a cadence key still use the normal multi-lead path:

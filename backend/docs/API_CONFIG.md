@@ -50,6 +50,8 @@ GroupScout integrates with several external SaaS providers.
 | **Hunter.io** | `HUNTER_API_KEY` | `https://api.hunter.io/v2/...` | (Phase 18) Finding decision-maker contact info. |
 | **Sentry** | `SENTRY_DSN` | - | Error tracking and observability. |
 
+Until the Resend sending domain is verified, keep `LEAD_NOTIFY_EMAILS=alvin.dcastro@gmail.com`. Adding non-owner recipients such as hotel sales addresses will make Resend reject the email copy, although Slack delivery still succeeds.
+
 ---
 
 ### 3. Data Source Polling (Scrapers)

@@ -133,8 +133,10 @@ Trigger a summary email of all "new" or "notified" leads from the last 7 days.
 
 #### Node: **HTTP Request**
 - **Method**: `POST`
-- **URL**: `http://<groupscout-host>:8080/digest?to=sales@yourcompany.com`
+- **URL**: `http://<groupscout-host>:8080/digest?to=alvin.dcastro@gmail.com`
 - **Authentication**: `Predefined Credential`.
+
+Use `to=alvin.dcastro@gmail.com` until the Resend sending domain is verified. The Resend onboarding sender only delivers to the account owner; non-owner recipients require a verified `EMAIL_FROM` domain.
 
 ---
 
@@ -223,7 +225,7 @@ The backend guarantee uses:
 
 Future UI/system visibility for next scheduled send, last notified count, failed cadence reason, retry count, and n8n execution link remains part of the operator UI/API roadmap.
 
-The scheduled n8n cadence sends all currently eligible cadence candidates. Manual ad-hoc `/run` calls without a `cadence_key` use the non-guaranteed path and fan out all current `new` leads in one Slack burst.
+The scheduled n8n cadence sends all currently eligible cadence candidates. Manual ad-hoc `/run` calls without a `cadence_key` use the non-guaranteed path and fan out all current `new` leads in one Slack burst. If the cadence already marked today's only lead as `notified`, a later normal `/run` can correctly return `new_leads:0` and `notified_leads:0`.
 
 ---
 

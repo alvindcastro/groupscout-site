@@ -1,3 +1,14 @@
+## 2026-07-07 - Lead email recipient and normal trigger behavior documented (groupscout-site-lil)
+
+### Digest-first and normal `/run` expectations captured
+
+- **What:** Documented that live lead email copies should currently go to `alvin.dcastro@gmail.com` only until the Resend sending domain is verified, and clarified why a normal `/run` can return zero notifications after the cadence already notified the day's only lead.
+- **Where:** Updated `backend/docs/API_CONFIG.md`, `backend/docs/guides/N8N_GUIDE.md`, `SETUP.md`, `TESTING.md`, and `TROUBLESHOOTING.md`.
+- **Why:** Resend rejects non-owner recipients when using the onboarding sender, while Slack delivery still succeeds. Operators also need to distinguish a genuine empty normal run from a failed trigger.
+- **Verification:** On July 7, 2026, `/digest?to=alvin.dcastro@gmail.com` succeeded with 7 digest leads, and a later normal `/run` returned `new_leads:0` / `notified_leads:0` because the single lead created that day was already `notified`.
+
+---
+
 ## 2026-07-07 - Cadence timing update runbook refreshed (groupscout-site-umy)
 
 ### Timing changes and immediate trigger path documented

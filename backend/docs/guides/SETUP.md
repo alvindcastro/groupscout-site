@@ -303,7 +303,7 @@ docker compose logs groupscout --tail=100
 Interpret the result:
 
 - `sent leads to Slack count=N`: leads were delivered to Slack.
-- `no new leads to notify`: the run succeeded, but filters or deduplication left no fresh leads.
+- `no new leads to notify`: the run succeeded, but filters, deduplication, or an earlier cadence delivery left no fresh `new` leads. This is expected if today's only lead is already `notified`.
 - `Unauthorized`: the `API_TOKEN` in n8n or curl does not match the backend.
 - `slack notify`: Slack delivery failed; check `SLACK_WEBHOOK_URL`.
 - collector or `pdftotext` errors: rebuild the image and inspect collector settings.
@@ -469,7 +469,7 @@ If you've been using SQLite (`groupscout.db`) and want to move your data to a ne
 |---|---|---|
 | `/health` | GET | Health check — no auth required |
 | `/run` | POST | Run full pipeline (collect → enrich → notify) |
-| `/digest` | POST | Send weekly email digest (`?to=email@example.com`) |
+| `/digest` | POST | Send weekly email digest (`?to=alvin.dcastro@gmail.com` until Resend domain verification is complete) |
 | `/ingest` | POST | Push one raw project/event payload through `EnrichOne()` |
 | `/n8n/webhook` | POST | Push a pre-enriched single lead from an external n8n workflow |
 

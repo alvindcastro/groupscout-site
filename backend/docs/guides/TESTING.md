@@ -292,8 +292,10 @@ For an immediate Slack send without waiting for the schedule, use **Test Workflo
 ```bash
 curl -i -X POST \
   -H "Authorization: Bearer your_api_token" \
-  "http://localhost:8080/digest?to=alvin@groupscout.ai"
+  "http://localhost:8080/digest?to=alvin.dcastro@gmail.com"
 ```
+
+Use `alvin.dcastro@gmail.com` for live digest smoke checks until the Resend sending domain is verified. Non-owner recipients can fail with the onboarding sender even when Slack delivery works.
 
 **Raw Project/Event Ingest**
 ```bash

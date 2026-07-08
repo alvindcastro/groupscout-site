@@ -286,6 +286,8 @@ Expected n8n smoke result: every env check prints `SET`, health includes `"datab
 
 For UI verification, open `http://localhost:5678`, then open **GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)**. The visible graph should have schedule, cadence key, duplicate guard, health preflight, guaranteed cadence `/run`, result classification, delivered marker, and ops Slack failure/no-lead branches. The workflow toggle must be **Active**. This UI check proves an operator can inspect the send path; the export check above is the repeatable CLI assertion.
 
+For an immediate Slack send without waiting for the schedule, use **Test Workflow** in the n8n UI. In this local stack, `n8n execute --id=groupscout-sunday-wednesday-lead-cadence` can fail against the running container because the live instance already owns the task-broker port.
+
 **Trigger Weekly Digest**
 ```bash
 curl -i -X POST \

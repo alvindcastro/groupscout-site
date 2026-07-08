@@ -181,7 +181,7 @@ podman exec groupscout_n8n n8n list:workflow          # empty output == workflow
 podman cp backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json groupscout_n8n:/tmp/cadence.json
 # In Git Bash prefix with MSYS_NO_PATHCONV=1, or the /tmp path is rewritten to a Windows path and import fails with ENOENT:
 podman exec groupscout_n8n n8n import:workflow --input=/tmp/cadence.json
-podman exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+podman exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
 podman restart groupscout_n8n                          # re-registers the schedule trigger
 ```
 

@@ -1,3 +1,15 @@
+## 2026-07-07 - Cadence timing update runbook refreshed (groupscout-site-umy)
+
+### Timing changes and immediate trigger path documented
+
+- **What:** Updated the cadence workflow docs to explain how to change `triggerAtDay` / `triggerAtHour` / `triggerAtMinute`, switched live activation guidance to `n8n publish:workflow`, and documented the preferred immediate-run path.
+- **Where:** Coordination workflow runbook — `backend/docs/workflows/n8n/README.md`; operator and setup guides — `backend/docs/guides/N8N_GUIDE.md`, `SETUP.md`, `TESTING.md`, `TROUBLESHOOTING.md`, and `PODMAN_MIGRATION.md`.
+- **Why:** Operators need a reproducible timing-change procedure, and the older docs still pointed at deprecated `update:workflow` activation plus an unreliable local CLI execute path.
+- **How:** Added the timing-edit/import/publish/restart/verify loop, noted that import deactivates the workflow, and directed immediate manual runs to the n8n UI test path.
+- **Verification:** On July 7, 2026, a live host `POST /run` call using the cadence payload returned `delivery_status:"sent"` with `notified_leads:1`, confirming Slack delivery after the schedule update.
+
+---
+
 ## 2026-06-26 - Podman migration runbook added
 
 ### Container runtime migration path documented

@@ -366,16 +366,18 @@ backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json
 
 Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md). After import, confirm the workflow is inactive, set the `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` environment variables or node values, run **Test Workflow**, then activate it.
 
-In the provided Docker Compose stack, those n8n environment values are injected from backend `.env` when the `n8n` container is created. `GROUPSCOUT_API_TOKEN` maps to `API_TOKEN`, `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` maps to `SLACK_WEBHOOK_URL`, and `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` allows workflow expressions to read `$env.*`. If any of these values change, run `docker compose up -d n8n`, verify they are present without printing secrets, then activate:
+In the provided Docker Compose stack, those n8n environment values are injected from backend `.env` when the `n8n` container is created. `GROUPSCOUT_API_TOKEN` maps to `API_TOKEN`, `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` maps to `SLACK_WEBHOOK_URL`, and `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` allows workflow expressions to read `$env.*`. If any of these values change, run `docker compose up -d n8n`, verify they are present without printing secrets, then publish and restart:
 
 ```bash
 docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSCOUT_API_BASE_URL GROUPSCOUT_API_TOKEN GROUPSCOUT_OPS_SLACK_WEBHOOK_URL; do v=$(printenv "$k"); if [ -n "$v" ]; then echo "$k=SET"; else echo "$k=MISSING"; fi; done'
 docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
-docker exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+docker exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
 docker restart groupscout_n8n
 ```
 
 After restart, export the workflow and confirm it is active with `triggerAtDay:[0,2,4]`, `triggerAtHour:18`, and `timezone:"America/Vancouver"`. Also confirm the `/run` HTTP node uses the guaranteed cadence body; if the export still contains `JSON.stringify({})`, re-import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` before activation because the live workflow is still on the old non-guaranteed path.
+
+When the cadence timing changes, edit the tracked workflow JSON first, update `triggerAtDay`, `triggerAtHour`, and `triggerAtMinute`, then re-import, publish, restart, and re-export to verify the live schedule.
 
 In the n8n UI, open **GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)** and verify the visible graph is:
 
@@ -416,7 +418,9 @@ Manual fallback:
 
 ### 5d — Test the workflow manually
 
-Click **Test Workflow** (or the play button on the Schedule node) to fire it immediately without waiting for Sunday or Wednesday.
+Click **Test Workflow** (or the play button on the Schedule node) to fire it immediately without waiting for the next scheduled slot.
+
+For the live container, prefer the UI trigger over `n8n execute`; the CLI execute path can fail while the running n8n instance already owns its task-broker port.
 
 Check:
 - The HTTP Request node shows a `200 OK` response

@@ -185,6 +185,20 @@ For the provided Docker Compose stack, n8n reads the tracked workflow expression
 
 When validating an existing imported workflow, export it and confirm the `/run` HTTP node body expression evaluates to a JSON object containing `guarantee_one_lead: true`, `delivery_mode: "all_eligible"`, and a cadence key. The schedule must be active for Sunday/Tuesday/Thursday 18:00 `America/Vancouver` (`triggerAtDay: [0,2,4]`).
 
+#### Updating the timing
+
+When the cadence days or time change:
+
+1. Edit the tracked asset at [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json).
+2. Change `triggerAtDay`, `triggerAtHour`, and `triggerAtMinute`.
+3. If the visible schedule meaning changed, rename the workflow display name, the schedule node name, and the matching `connections` key together.
+4. Import the JSON into n8n.
+5. Publish the workflow with `n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence`.
+6. Restart n8n so the schedule trigger re-registers.
+7. Export the live workflow and confirm the expected days, hour, minute, timezone, and guaranteed `/run` body.
+
+`n8n update:workflow --active=true` is deprecated in the current n8n CLI. Prefer `publish:workflow` for live activation after import.
+
 #### Local UI checklist
 
 Use this when an operator wants to visually confirm the workflow before leaving it to the schedule:
@@ -236,7 +250,7 @@ The scheduled n8n cadence sends all currently eligible cadence candidates. Manua
        podman cp backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json groupscout_n8n:/tmp/cadence.json
        # In Git Bash, prefix with MSYS_NO_PATHCONV=1 or the /tmp path is mangled to a Windows path:
        podman exec groupscout_n8n n8n import:workflow --input=/tmp/cadence.json
-       podman exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+       podman exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
        podman restart groupscout_n8n   # required for the schedule trigger to re-register
        ```
        The workflow is fully env-var driven (`GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, `GROUPSCOUT_API_TOKEN`, `GROUPSCOUT_API_BASE_URL` in the container env), so no n8n credentials need re-adding.

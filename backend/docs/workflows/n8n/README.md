@@ -44,10 +44,10 @@ docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSC
 
 Expected health output includes `"database":"ok"`, and every env check should print `SET` without exposing secret values.
 
-Then open n8n at `http://localhost:5678`, confirm the workflow is inactive after import, set any missing env-backed values or credentials, run **Test Workflow**, and activate it only after the health and `/run` nodes return the expected status. CLI activation is:
+Then open n8n at `http://localhost:5678`, confirm the workflow is inactive after import, set any missing env-backed values or credentials, run **Test Workflow**, and activate it only after the health and `/run` nodes return the expected status. CLI publish plus activation is:
 
 ```sh
-docker exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+docker exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
 docker restart groupscout_n8n
 docker exec groupscout_n8n n8n export:workflow --id=groupscout-sunday-wednesday-lead-cadence --output=/tmp/groupscout-cadence-review.json
 docker exec groupscout_n8n sh -lc "grep -o '\"active\":[^,}]*\|\"triggerAtDay\":\[[^]]*\]\|\"triggerAtHour\":[0-9]*\|\"triggerAtMinute\":[0-9]*\|\"timezone\":\"[^\"]*\"' /tmp/groupscout-cadence-review.json"
@@ -55,6 +55,34 @@ docker exec groupscout_n8n sh -lc "grep -o 'guarantee_one_lead\\|delivery_mode\\
 ```
 
 Expected export fields are `"active":true`, `"triggerAtDay":[0,2,4]`, `"triggerAtHour":18`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`. The second grep must show the guaranteed `/run` body plus `delivery_status`/`notified_leads`/`message` classification; if it still shows `JSON.stringify({})`, the live workflow is using the old non-guaranteed cadence body and must be re-imported from the tracked JSON.
+
+`n8n update:workflow --active=true` still works in this environment, but n8n now marks it deprecated. Prefer `publish:workflow` and then restart the `groupscout_n8n` container so the schedule trigger re-registers.
+
+### Change Timing
+
+Use this when the cadence should run on different days or at a different time:
+
+1. Edit `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json`.
+2. Update the schedule node `triggerAtDay`, `triggerAtHour`, and `triggerAtMinute`.
+3. If the visible cadence meaning changed, also update the workflow `name`, the schedule node `name`, and the `connections` key that points at that schedule node.
+4. Keep the filename and workflow `id` stable unless every downstream reference is being updated at the same time.
+5. Copy the file into the live container, import it, publish it, restart n8n, and export it again to verify the live schedule fields:
+
+```sh
+docker cp backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json groupscout_n8n:/tmp/sunday-wednesday-lead-cadence.json
+docker exec groupscout_n8n n8n import:workflow --input=/tmp/sunday-wednesday-lead-cadence.json
+docker exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
+docker restart groupscout_n8n
+docker exec groupscout_n8n n8n export:workflow --id=groupscout-sunday-wednesday-lead-cadence --output=/tmp/groupscout-cadence-review.json
+```
+
+Import deactivates the workflow, so publishing and restarting are both required before the new schedule can fire.
+
+### Trigger Now
+
+For an immediate operator test, use **Test Workflow** in the n8n UI or the play button on the schedule node. Against the live container, that path is more reliable than `n8n execute`, which can fail while the running instance already owns its task-broker port.
+
+If you need the same cadence payload outside the UI, call `POST /run` with the same guaranteed cadence body the workflow uses and a current cadence key.
 
 ### UI Verification
 

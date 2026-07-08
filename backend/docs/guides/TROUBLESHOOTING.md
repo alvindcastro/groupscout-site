@@ -116,7 +116,7 @@ Run from `/mnt/c/Users/alvin/GolandProjects/groupscout`:
 docker compose up -d n8n
 docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSCOUT_API_BASE_URL GROUPSCOUT_API_TOKEN GROUPSCOUT_OPS_SLACK_WEBHOOK_URL; do v=$(printenv "$k"); if [ -n "$v" ]; then echo "$k=SET"; else echo "$k=MISSING"; fi; done'
 docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
-docker exec groupscout_n8n n8n update:workflow --id=groupscout-sunday-wednesday-lead-cadence --active=true
+docker exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
 docker restart groupscout_n8n
 docker logs --tail 80 groupscout_n8n
 ```
@@ -128,6 +128,8 @@ Expected:
 - n8n logs include `Activated workflow "GroupScout Lead Cadence (Sun/Tue/Thu 6 PM)"`;
 - a live workflow export shows `"active":true`, `"triggerAtDay":[0,2,4]`, `"triggerAtHour":18`, `"triggerAtMinute":0`, and `"timezone":"America/Vancouver"`.
 - the same live export shows the guaranteed cadence `/run` body and result classification using `delivery_status`, `notified_leads`, and `message`; if it still shows `JSON.stringify({})`, the live workflow is stale and still on the old non-guaranteed path.
+
+If you need to force a run immediately, prefer **Test Workflow** in the n8n UI. The `n8n execute` CLI can fail against the running local container because the live instance already owns its task-broker port.
 
 ### 6. Recover local n8n sign-in
 

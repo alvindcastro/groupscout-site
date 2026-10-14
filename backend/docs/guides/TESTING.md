@@ -168,6 +168,14 @@ We provide a helper script to check Ollama connectivity, model availability, and
 - `alertd` uses an `env_file`
 - the Dockerfile uses unpinned or root images, or builds single files instead of packages
 
+`app_config_test.go` (IaC Phase 2) covers the config mounted from `deploy/config/`. It fails when:
+- a bind-mount source is missing
+- n8n doesn't start through the workflow bootstrap, or `bootstrap.sh` has CRLF line endings
+- a tracked workflow lacks an id, a name or an `active` flag
+- Prometheus doesn't scrape `groupscout:8080/metrics`
+- a dashboard panel uses an unprovisioned datasource
+- Promtail comes back
+
 `make compose-check` renders every profile set and the production overlay with the real Compose CLI (`COMPOSE="podman compose"` for Podman).
 
 ### 3. Manual Verification & Tools

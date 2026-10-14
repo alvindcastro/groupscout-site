@@ -312,22 +312,24 @@ Verified in WSL without a container runtime:
 
 ### Phase 2: App config as code (M) · `groupscout-site-6ah.3`
 
-n8n:
-- Copy the workflow JSON to `deploy/config/n8n/workflows/`. Decide whether the coordination repo copy becomes the doc reference or a sync target, and remove the duplication risk.
-- Add an `n8n-init` service (same pinned image and volume) that runs **before** `n8n` (`depends_on: service_completed_successfully`):
-  - Import each workflow **only if it's missing or its checksum changed**, to preserve the `staticData` cadence-dedupe keys.
-  - Activate or publish the workflow using the command that matches the pinned n8n version.
-  - Exit non-zero if import or activation fails, so `n8n` doesn't start in a broken state.
-- Remove the manual "import, activate, restart" steps from PODMAN_MIGRATION.md and N8N_GUIDE.md once `n8n-init` is verified.
-- Test: start with an empty `n8n_data` volume and confirm the cadence workflow is active with no manual steps. This reproduces the Podman incident.
+Done 2026-10-14. Merged to backend `main` as `cff8062` (branch `task/iac-phase2-app-config`, commit `bbccdca`). Verified live on Podman 5.8.4.
+
+n8n, implemented as an entrypoint wrapper rather than the `n8n-init` service first proposed:
+- `deploy/config/n8n/bootstrap.sh` runs inside the `n8n` container before the server starts (`entrypoint: tini -- sh /opt/groupscout/n8n/bootstrap.sh`). A separate init container would rerun on every `compose up` while n8n was already running and race it for the SQLite database. The wrapper can't.
+- The script imports a workflow only when it's missing or its sha256 changed (recorded in `n8n_data`), and publishes it when the JSON says `"active": true`. Two n8n 2.43.5 quirks shaped it:
+  - `import:workflow --activeState=fromJson` is rejected outside queue/multi-main mode.
+  - Re-importing an active workflow fails, because the CLI user may not deactivate it. The script therefore runs `unpublish:workflow`, then `import:workflow`, then `publish:workflow`.
+- A failed import exits non-zero before n8n starts.
+- The canonical workflow JSON moved to the backend repo (`deploy/config/n8n/workflows/`) and now declares `"active": true`. The coordination-repo copy was deleted, and runbooks now say "edit the JSON, restart n8n".
+- Verified against a throwaway volume in five scenarios: fresh volume, unchanged, changed while active, reverted, and an existing workflow without a checksum (the live first boot). It was then verified on the live volume: the first boot imported, a restart logged `unchanged`, and the cadence stayed active and healthy.
 
 Observability:
-- Add `deploy/config/prometheus/prometheus.yml` that scrapes `groupscout:8080/metrics`, plus `alertd` if it exposes metrics.
-- Add Grafana provisioning: Prometheus and Loki datasources, plus a starter "GroupScout overview" dashboard JSON (run counts, lead counts, collector errors, HTTP latency).
-- Replace Promtail with **Grafana Alloy**, using a config that works for Docker (socket) and is documented for Podman (journald or file).
-- Mount all config read-only, so nothing important lives only in the `grafana_data` or `prometheus_data` volumes.
-
-**Done when:** `down -v` followed by `up` brings back the active workflow, the scrape targets, and the dashboards with zero manual steps.
+- `deploy/config/prometheus/prometheus.yml` scrapes `groupscout:8080/metrics`, plus Prometheus itself. `alertd` exposes no metrics.
+- Grafana provisions the Prometheus and Loki datasources (fixed uids) and a **GroupScout Overview** dashboard. The dashboard covers service status, uptime, scrape duration, memory, CPU, goroutines, Ollama calls and p95 latency, and app and n8n logs. The run counts, lead counts and collector errors proposed above aren't exported by the app yet, because the `evalops_*` counters are never registered. That work stays in `groupscout-site-yyj`.
+- Grafana Alloy (`v1.20.1`) replaced Promtail outright instead of running alongside it for a week: Promtail never worked on Podman and wasn't deployed anywhere. Alloy reads logs through the Docker API socket, and inside the Podman machine `/var/run/docker.sock` links to the rootless Podman socket, so one config serves both runtimes.
+- All config is mounted read-only from `deploy/config/`. `.gitattributes` pins `*.sh` and `deploy/**` to LF.
+- `internal/smoke/app_config_test.go` guards the wiring.
+- Live verification: Prometheus target `groupscout` is `up`. Every dashboard query returns data except the Ollama panels, as expected with `OLLAMA_ENABLED=false`. Loki holds every container's logs with `container`/`compose_service` labels. Grafana logs no errors, and both datasource health checks report OK.
 
 ### Phase 3: Secrets as code (S) · `groupscout-site-6ah.4`
 

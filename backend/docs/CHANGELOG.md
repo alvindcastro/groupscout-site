@@ -1,3 +1,28 @@
+## 2026-10-14 - IaC Phase 2: app config as code (groupscout-site-6ah.3)
+
+### n8n workflows, Prometheus, Grafana and Alloy now come from git
+
+- **What:**
+  - n8n starts through `deploy/config/n8n/bootstrap.sh`, which imports and publishes tracked workflows that are missing or changed (sha256 kept in the volume) before the server starts. An empty `n8n_data` volume now recovers by itself; this was the July Podman incident.
+  - Prometheus scrapes `groupscout:8080/metrics`.
+  - Grafana provisions its datasources and a GroupScout Overview dashboard.
+  - Grafana Alloy replaces Promtail and ships logs through the Docker API socket, which also works on Podman.
+- **Where:**
+  - Backend `main` `cff8062`: `deploy/config/{n8n,prometheus,grafana,alloy}`, `docker-compose.yml`, `.gitattributes` (LF for `*.sh` and `deploy/**`), `internal/smoke/app_config_test.go`.
+  - Docs: the workflow runbook was rewritten. `DOCKER.md`, `PODMAN_MIGRATION.md`, `N8N_GUIDE.md`, `SETUP.md`, `TESTING.md`, `COOLIFY.md`, `HOME_DEPLOY.md`, `DEPLOYMENT_OPTIONS.md` and the IaC plan were updated.
+  - The coordination-repo copy of the cadence JSON was removed. The backend repo's `deploy/config/n8n/workflows/` is now canonical.
+- **Why:** an empty n8n volume had silently stopped the cadence, Prometheus scraped nothing, Grafana was unprovisioned, and Promtail never worked on Podman.
+- **Gotchas found:**
+  - n8n 2.43.5 rejects `import:workflow --activeState=fromJson` outside queue/multi-main mode.
+  - Re-importing over an active workflow fails, because the CLI user may not deactivate it, so the bootstrap unpublishes first. The old manual "import, publish, restart" runbook no longer works on 2.43.
+  - The app's `evalops_*` counters are never registered, so only runtime and Ollama metrics exist. That stays in `groupscout-site-yyj`.
+- **Verification:**
+  - Five bootstrap scenarios passed on a throwaway volume, followed by a live first boot (import) and a restart (`unchanged`). The cadence stayed active.
+  - The Prometheus target is `up`, all non-Ollama dashboard queries return data, Loki holds labelled logs for every container, and Grafana's datasource health checks report OK.
+  - `go test ./...` passed (17 packages).
+
+---
+
 ## 2026-10-14 - Infrastructure as Code plan and Phase 1 Compose/image hardening (groupscout-site-6ah, groupscout-site-6ah.2)
 
 ### IaC plan tracked in Beads

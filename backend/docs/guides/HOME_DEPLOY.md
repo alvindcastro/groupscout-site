@@ -296,7 +296,7 @@ curl -Iv http://server.groupscout.duckdns.org/health 2>&1 | grep "301\|Location"
 
 All three must pass before proceeding to A5 or calling Part A complete. `ollama` may report `unavailable` for non-LLM smoke, but the database must be healthy.
 
-For the Sunday/Tuesday/Thursday 6 PM cadence, import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` (filename retained for stability; the workflow now runs Sunday, Tuesday, and Thursday at 18:00 `America/Vancouver`), keep it inactive until the environment variables above resolve, then run the health and normal `/run` nodes before activation.
+For the Sunday/Tuesday/Thursday 6 PM cadence, the n8n bootstrap imports and publishes backend repo `deploy/config/n8n/workflows/sunday-wednesday-lead-cadence.json` when n8n starts. The filename is retained for stability; the workflow runs Sunday, Tuesday and Thursday at 18:00 `America/Vancouver`. Make sure the environment variables above resolve before the first start, then run the health and normal `/run` nodes to verify.
 
 Deployment completion is tracked by `groupscout-site-39g`: choose DuckDNS/Traefik or Cloudflare Tunnel, verify public HTTPS health and redirects, lock down observability surfaces, configure weekly backups, and run at least one restore smoke.
 

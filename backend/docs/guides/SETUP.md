@@ -148,7 +148,7 @@ Run the package (`./cmd/server`), not `cmd/server/main.go`. The server is split 
 
 ### Option B — Docker Compose (recommended)
 
-Starts GroupScout + **Postgres (pgvector `0.8.7-pg17-bookworm`)** + n8n, plus Ollama (`llm` profile) and Prometheus + Grafana + Loki (`obs` profile), in one command. The Compose layout, profiles and pinned image versions are described in [DOCKER.md](./DOCKER.md#compose-layout). Testing Podman instead of Docker? Use [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) first. The core app/Postgres/n8n path is the initial target; Promtail Docker socket mounts, Traefik Docker provider examples, host aliases, and Ollama GPU support need separate validation.
+Starts GroupScout + **Postgres (pgvector `0.8.7-pg17-bookworm`)** + n8n, plus Ollama (`llm` profile) and Prometheus + Grafana + Loki + Alloy (`obs` profile), in one command. The Compose layout, profiles and pinned image versions are described in [DOCKER.md](./DOCKER.md#compose-layout). Testing Podman instead of Docker? Use [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) first. The core app/Postgres/n8n path is the initial target; Promtail Docker socket mounts, Traefik Docker provider examples, host aliases, and Ollama GPU support need separate validation.
 
 ```bash
 make docker-up
@@ -379,24 +379,17 @@ n8n needs your `API_TOKEN` to call GroupScout.
 
 ### 5c — Import the Sunday/Tuesday/Thursday 6 PM workflow
 
-Use the tracked workflow asset as the primary path:
+With the provided Docker Compose stack there is nothing to import. Since IaC Phase 2, n8n's bootstrap imports and publishes the tracked workflow (backend repo `deploy/config/n8n/workflows/sunday-wednesday-lead-cadence.json`) every time n8n starts with the workflow missing or the file changed. For an n8n outside the Compose stack, follow **Importing Outside The Compose Stack** in [`../workflows/n8n/README.md`](../workflows/n8n/README.md), set the `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` environment variables or node values, and run **Test Workflow**.
 
-```txt
-backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json
-```
-
-Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md). After import, confirm the workflow is inactive, set the `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` environment variables or node values, run **Test Workflow**, then activate it.
-
-In the provided Docker Compose stack, those n8n environment values are injected from backend `.env` when the `n8n` container is created. `GROUPSCOUT_API_TOKEN` maps to `API_TOKEN`, `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` maps to `SLACK_WEBHOOK_URL`, and `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` allows workflow expressions to read `$env.*`. If any of these values change, run `docker compose up -d n8n`, verify they are present without printing secrets, then publish and restart:
+In the provided Docker Compose stack, those n8n environment values are injected from backend `.env` when the `n8n` container is created. `GROUPSCOUT_API_TOKEN` maps to `API_TOKEN`, `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` maps to `SLACK_WEBHOOK_URL`, and `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` allows workflow expressions to read `$env.*`. If any of these values change, run `docker compose up -d n8n`, then verify they are present without printing secrets:
 
 ```bash
 docker exec groupscout_n8n sh -lc 'for k in N8N_BLOCK_ENV_ACCESS_IN_NODE GROUPSCOUT_API_BASE_URL GROUPSCOUT_API_TOKEN GROUPSCOUT_OPS_SLACK_WEBHOOK_URL; do v=$(printenv "$k"); if [ -n "$v" ]; then echo "$k=SET"; else echo "$k=MISSING"; fi; done'
-docker exec groupscout_n8n wget -qO- http://groupscout:8080/health
-docker exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
-docker restart groupscout_n8n
+docker exec groupscout_n8n node -e "fetch('http://groupscout:8080/health').then(r=>r.text()).then(console.log)"
+docker exec groupscout_n8n n8n list:workflow --active=true
 ```
 
-After restart, export the workflow and confirm it is active with `triggerAtDay:[0,2,4]`, `triggerAtHour:18`, and `timezone:"America/Vancouver"`. Also confirm the `/run` HTTP node uses the guaranteed cadence body; if the export still contains `JSON.stringify({})`, re-import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` before activation because the live workflow is still on the old non-guaranteed path.
+After restart, export the workflow and confirm it is active with `triggerAtDay:[0,2,4]`, `triggerAtHour:18`, and `timezone:"America/Vancouver"`. Also confirm the `/run` HTTP node uses the guaranteed cadence body; if the export still contains `JSON.stringify({})`, the live workflow is stale. Force a re-import with `docker exec groupscout_n8n rm /home/node/.n8n/groupscout-workflows.sha256 && docker compose restart n8n`.
 
 When the cadence timing changes, edit the tracked workflow JSON first, update `triggerAtDay`, `triggerAtHour`, and `triggerAtMinute`, then re-import, publish, restart, and re-export to verify the live schedule.
 
@@ -463,7 +456,7 @@ The backend owns collection, enrichment, Slack fan-out, and machine-readable `/r
 
 Completed workflow asset: `groupscout-site-yfl` added the importable Sunday/Wednesday n8n workflow JSON, Docker import smoke notes, health preflight, cadence key, and no-leads/failure Slack branch. `groupscout-site-ar1` restored the workflow to normal multi-lead `/run` behavior after the exactly-one cadence proved too narrow for scheduled sends.
 
-Workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
+Workflow asset: backend repo `deploy/config/n8n/workflows/sunday-wednesday-lead-cadence.json`, imported automatically by the n8n bootstrap. The runbook is [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 
 ## Step 6 — Migrate Data (SQLite to Postgres)
 

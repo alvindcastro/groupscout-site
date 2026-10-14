@@ -7,7 +7,7 @@ This guide covers the Hetzner + Coolify path from Phase 26. Use it when uptime m
 > **Compose changes from IaC Phase 1** that affect this guide:
 > - Coolify deploys the base `docker-compose.yml` only. That file builds the image itself and publishes no host ports, which suits Coolify's proxy.
 > - The base file falls back to **dev defaults** for `POSTGRES_PASSWORD` (`groupscout`), `GRAFANA_ADMIN_PASSWORD` (`admin`) and `N8N_ENCRYPTION_KEY` (generated in the volume). Set all three in Coolify before the first deploy; nothing fails loudly if you forget. The stricter `deploy/compose/compose.prod.yml` overlay requires them, but it expects registry images, which arrive in IaC Phase 4.
-> - Ollama (`llm`) and Prometheus/Grafana/Loki/Promtail (`obs`) are Compose profiles. Set `COMPOSE_PROFILES` in Coolify if you want them, and confirm in the deploy log that Coolify honors it.
+> - Ollama (`llm`) and Prometheus/Grafana/Loki/Alloy (`obs`) are Compose profiles. Set `COMPOSE_PROFILES` in Coolify if you want them, and confirm in the deploy log that Coolify honors it.
 
 ## Target Shape
 
@@ -85,7 +85,7 @@ Map services from Compose as persistent services. Names may vary with the backen
 | `n8n` | Optional | Workflow scheduler and integrations | n8n UI loads and can reach `http://groupscout:8080/health` |
 | `prometheus` | Internal/guarded | Metrics scraping | Targets are up |
 | `grafana` | Guarded | Dashboards | Login reachable only behind auth/allowlist |
-| `loki` / `promtail` | No | Log aggregation | Grafana can query logs |
+| `loki` / `alloy` | No | Log aggregation | Grafana can query logs |
 
 Do not expose `postgres`, `loki`, or internal Prometheus scrape endpoints publicly.
 
@@ -238,7 +238,7 @@ curl -i -X POST https://server.example.com/run \
   -H "Authorization: Bearer $API_TOKEN"
 ```
 
-For cadence delivery, import `backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json` into n8n, confirm it is inactive after import, set `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, then redeploy or restart n8n so the running container has the new environment. Run the health preflight and normal `/run` test, then activate the workflow. A live workflow export should show the Sunday/Tuesday/Thursday 18:00 schedule plus the guaranteed cadence `/run` body before you leave it active.
+For cadence delivery, the n8n bootstrap imports and publishes backend repo `deploy/config/n8n/workflows/sunday-wednesday-lead-cadence.json` when n8n starts. Before the first deploy, set `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, then redeploy or restart n8n so the running container has the new environment. Run the health preflight and normal `/run` test. A live workflow export should show the Sunday/Tuesday/Thursday 18:00 schedule plus the guaranteed cadence `/run` body before you leave it active.
 
 Then verify the containers:
 

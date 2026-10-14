@@ -21,7 +21,7 @@ Current open work themes:
 - Operator UI and API bridge: `groupscout-site-eqm`, `groupscout-site-1x9`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-3gq`.
 - Observability, AI, and analytics: `groupscout-site-yyj`, `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-4b4`.
 - Lead workflow, deployment, and expansion: `groupscout-site-62h`, `groupscout-site-iuc`, `groupscout-site-39g`, `groupscout-site-2h1`, `groupscout-site-aaj`, and `groupscout-site-1ee`.
-- Infrastructure as Code: epic `groupscout-site-6ah`, with one child issue per phase (`6ah.1`–`6ah.12`). Phase 1, Compose and image hardening (`groupscout-site-6ah.2`), is done: verified on Podman and merged to backend `main` on 2026-10-14. Plan: [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md).
+- Infrastructure as Code: epic `groupscout-site-6ah`, with one child issue per phase (`6ah.1`–`6ah.12`). Phase 1 (Compose and image hardening, `groupscout-site-6ah.2`) and Phase 2 (app config as code, `groupscout-site-6ah.3`) are done: verified on Podman and merged to backend `main` on 2026-10-14. Plan: [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md).
 
 Recently completed:
 
@@ -33,7 +33,7 @@ Recently completed:
 - `groupscout-site-b38` — frontend Beads workspace identity was reconciled so frontend-local issue sync no longer requires bypassing the identity check.
 - `groupscout-site-b25` — event-driven `POST /ingest` and `EnrichOne` backend branch, with single-item enrichment tests, handler tests, and OpenAPI/docs updates.
 - `groupscout-site-fuc` — guaranteed Sunday/Wednesday one-lead backend delivery with a delivery log, run lock, fallback selector, and JSON `/run` result.
-- `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n and tracked under `backend/docs/workflows/n8n/`.
+- `groupscout-site-yfl` — importable Sunday/Wednesday n8n workflow asset is smoke-tested with Docker n8n; since IaC Phase 2 it lives in the backend repo under `deploy/config/n8n/workflows/` and is imported automatically.
 - `groupscout-site-j73` — opt-in raw audit retention worker, manual purge command, Docker env, and Postgres purge-safety coverage.
 - `groupscout-site-dxq` — UI schema/API roadmap documentation cleanup.
 - `groupscout-site-mt5` and `groupscout-site-e5a` - production UI Compose wiring and the backend plus UI Docker E2E gate were implemented in branch history; backend smoke artifact reconciliation later closed under `groupscout-site-crz`.

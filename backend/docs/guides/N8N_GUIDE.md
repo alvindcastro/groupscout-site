@@ -182,7 +182,7 @@ The scheduled cadence uses **idempotent cadence delivery mode** — the backend 
 
 **Backend defensive guard (2026-06-17)**: as of commit `038c08b`, the backend treats any `/run` request that includes a non-empty `cadence_key` or `schedule_key` as a guaranteed-delivery run, regardless of whether `guarantee_one_lead` parsed correctly. This defends against n8n expression evaluation failures that produce an invalid JSON body and silently default `GuaranteeOneLead` to false.
 
-Importable workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json). Import and Docker smoke notes live in [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
+Workflow asset: backend repo `deploy/config/n8n/workflows/sunday-wednesday-lead-cadence.json`. Since IaC Phase 2, the Compose `n8n` service imports and publishes it automatically each time n8n starts, whenever the workflow is missing or the file changed. The runbook is [`../workflows/n8n/README.md`](../workflows/n8n/README.md).
 
 For the provided Docker Compose stack, n8n reads the tracked workflow expressions from container environment variables. Recreate n8n after env changes with `docker compose up -d n8n`, then verify `N8N_BLOCK_ENV_ACCESS_IN_NODE`, `GROUPSCOUT_API_BASE_URL`, `GROUPSCOUT_API_TOKEN`, and `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` are all present before activating the workflow.
 
@@ -192,13 +192,13 @@ When validating an existing imported workflow, export it and confirm the `/run` 
 
 When the cadence days or time change:
 
-1. Edit the tracked asset at [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workflows/n8n/sunday-wednesday-lead-cadence.json).
+1. Edit the tracked asset: backend repo `deploy/config/n8n/workflows/sunday-wednesday-lead-cadence.json`.
 2. Change `triggerAtDay`, `triggerAtHour`, and `triggerAtMinute`.
-3. If the visible schedule meaning changed, rename the workflow display name, the schedule node name, and the matching `connections` key together.
-4. Import the JSON into n8n.
-5. Publish the workflow with `n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence`.
-6. Restart n8n so the schedule trigger re-registers.
-7. Export the live workflow and confirm the expected days, hour, minute, timezone, and guaranteed `/run` body.
+3. If the visible schedule meaning changed, rename the workflow display name, the schedule node name, and the matching `connections` key together. Keep the id, the filename and `"active": true`.
+4. Restart n8n (`docker compose restart n8n`). The bootstrap sees the changed file, unpublishes the old version, imports the new one, and publishes it before the server starts.
+5. Export the live workflow and confirm the expected days, hour, minute, timezone, and guaranteed `/run` body.
+
+On n8n 2.43, a manual `import:workflow` over an active workflow fails with `You do not have permission to deactivate this workflow`; run `unpublish:workflow` first.
 
 `n8n update:workflow --active=true` is deprecated in the current n8n CLI. Prefer `publish:workflow` for live activation after import.
 
@@ -248,14 +248,7 @@ The scheduled n8n cadence sends all currently eligible cadence candidates. Manua
 - **Cadence workflow never sends**: Confirm the imported workflow is active, the n8n container was restarted after activation, and the live export still shows `triggerAtDay:[0,2,4]`, `triggerAtHour:18`, `triggerAtMinute:0`, and `timezone:"America/Vancouver"`.
 - **No Slack push at all after a Docker→Podman switch (or after a reboot)**: Two distinct causes, verified 2026-07-02:
     1. **Nothing is running.** The Podman machine does not auto-start on Windows logon. Check `podman machine list` — if `LAST UP` is `Never` or the machine is `Stopped`, run `podman machine start`, then bring the stack up: `podman compose -p groupscout up -d postgres groupscout n8n`. A Windows scheduled task (`PodmanMachineAutostart`, AtLogOn) now does this automatically; see [PODMAN_MIGRATION.md → Machine Autostart On Windows](./PODMAN_MIGRATION.md#machine-autostart-on-windows).
-    2. **Empty n8n volume.** Docker and Podman keep separate named-volume stores, so a fresh Podman `n8n` container starts with **no workflows**. Verify with `podman exec groupscout_n8n n8n list:workflow`; if empty, re-import from the tracked asset:
-       ```sh
-       podman cp backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json groupscout_n8n:/tmp/cadence.json
-       # In Git Bash, prefix with MSYS_NO_PATHCONV=1 or the /tmp path is mangled to a Windows path:
-       podman exec groupscout_n8n n8n import:workflow --input=/tmp/cadence.json
-       podman exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
-       podman restart groupscout_n8n   # required for the schedule trigger to re-register
-       ```
+    2. **Empty n8n volume.** Docker and Podman keep separate named-volume stores, so a fresh Podman `n8n` container used to start with **no workflows** (2026-07-02). Since IaC Phase 2, the n8n bootstrap re-imports and publishes every tracked workflow when n8n starts, so `podman compose up -d n8n` or `podman restart groupscout_n8n` recovers it. Verify with `podman exec groupscout_n8n n8n list:workflow --active=true`, and look for `[groupscout-n8n-bootstrap] importing` in `podman logs groupscout_n8n`.
        The workflow is fully env-var driven (`GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, `GROUPSCOUT_API_TOKEN`, `GROUPSCOUT_API_BASE_URL` in the container env), so no n8n credentials need re-adding.
 - **Cadence sends fewer leads than expected**: Export the live workflow and confirm the `/run` body uses `delivery_mode:"all_eligible"` with a non-empty cadence key. Also check `lead_deliveries`; any lead already recorded with `status='sent'` is excluded from future cadence batches.
 - **Cannot sign in to local n8n**: Use `n8n user-management:reset` with the container stopped. If sign-in still shows an existing owner account, follow the local SQLite owner recovery steps in [Troubleshooting](./TROUBLESHOOTING.md#6-recover-local-n8n-sign-in).

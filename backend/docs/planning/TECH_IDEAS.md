@@ -87,7 +87,7 @@ This document outlines potential technical enhancements and a roadmap for the fu
 > Full tool comparison (embedding providers, vector stores, observability) with cloud alternatives: see [AI_DATA_STRATEGY.md](../prompts/AI_DATA_STRATEGY.md).
 
 **Automation & Orchestration:**
-- [x] **n8n** — Workflow automation to trigger `/run` and `/digest`. Also used for "Active Collection" (n8n scrapes → pushes to `/n8n/webhook`). The importable Sunday/Wednesday workflow is tracked under `backend/docs/workflows/n8n/`; guaranteed one-lead backend delivery was completed in `groupscout-site-fuc`.
+- [x] **n8n** — Workflow automation to trigger `/run` and `/digest`. Also used for "Active Collection" (n8n scrapes → pushes to `/n8n/webhook`). The Sunday/Wednesday workflow is tracked in the backend repo under `deploy/config/n8n/workflows/` and imported automatically (IaC Phase 2); guaranteed one-lead backend delivery was completed in `groupscout-site-fuc`.
 
 **Monitoring & Observability:**
 - [x] **Prometheus** — Infrastructure metrics.

@@ -41,7 +41,8 @@ Recently completed source-of-truth cleanup:
 Infrastructure as Code (epic `groupscout-site-6ah`, plan in [INFRASTRUCTURE_AS_CODE.md](./backend/docs/planning/INFRASTRUCTURE_AS_CODE.md)):
 
 - ~~`groupscout-site-6ah.2`~~ - Phase 1 Compose and image hardening is done (2026-10-14): verified on Podman and merged to backend `main`.
-- Next IaC work: `groupscout-site-6ah.3` (Phase 2, app config as code) and `groupscout-site-6ah.5` (Phase 4, CI). Fix `groupscout-site-482` (password in logs) before Phase 3 (`6ah.4`).
+- ~~`groupscout-site-6ah.3`~~ - Phase 2 app config as code is done (2026-10-14). The n8n workflow bootstrap, Prometheus scrape config, Grafana provisioning and Alloy are merged to backend `main`.
+- Next IaC work: `groupscout-site-6ah.5` (Phase 4, CI) and `groupscout-site-6ah.10` (Phase 9, cadence dead-man's switch, now unblocked). Fix `groupscout-site-482` (password in logs) before Phase 3 (`6ah.4`).
 - `groupscout-site-6ah.1` - Phase 0 decisions D1–D11 (deploy target, tooling) gate Phases 5–8.
 
 Then move to the operator UI bridge:

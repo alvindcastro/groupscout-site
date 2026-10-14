@@ -152,16 +152,11 @@ The names stay Docker-specific for compatibility, but the `COMPOSE` variable all
 
 ## Known Migration Risks
 
-### Promtail And Logs
+### Logs (Alloy)
 
-The backend Compose file currently mounts Docker-specific paths for Promtail:
+Promtail read `/var/lib/docker/containers`, which does not exist in the Podman machine, so the `obs` profile's log shipping never worked under Podman. IaC Phase 2 replaced it with Grafana Alloy, which reads logs through the Docker API at `/var/run/docker.sock`. Inside `podman-machine-default`, `/var/run/docker.sock` and `/run/docker.sock` are symlinks to the rootless `/run/user/1000/podman/podman.sock`, so the same mount works on both runtimes.
 
-```yaml
-/var/lib/docker/containers:/var/lib/docker/containers:ro
-/var/run/docker.sock:/var/run/docker.sock:ro
-```
-
-That path is not portable to rootless Podman. Treat Loki/Promtail dashboard claims as unverified under Podman until the log source is changed to a Podman-compatible file path, journald source, or another collector strategy. Prometheus and Grafana can still start, but container labels and log labels may differ.
+Verified 2026-10-14 on Podman 5.8.4: Alloy shipped every container's logs to Loki with `container`/`compose_service` labels, and Grafana's provisioned datasources and dashboard came up healthy. On first start, Alloy backfills each container's full log history, and Loki rejects anything older than one week. A burst of `timestamp too old` errors in the Alloy log right after the first start is expected.
 
 ### Log Rotation Options
 
@@ -169,7 +164,7 @@ The base Compose file sets `logging: json-file` with `max-size: 10m` and `max-fi
 
 ### Compose Profiles And Recovery Commands
 
-After IaC Phase 1, `ollama`/`ollama-init` are in the `llm` profile and Prometheus/Grafana/Loki/Promtail are in the `obs` profile. Recovery commands that name services, such as `podman compose -p groupscout up -d postgres groupscout n8n`, start only the core services unless `COMPOSE_PROFILES` is set in `.env` or the shell. The `PodmanMachineAutostart` script starts containers by name, so it is unaffected once the containers exist.
+After IaC Phase 1, `ollama`/`ollama-init` are in the `llm` profile and Prometheus/Grafana/Loki/Alloy are in the `obs` profile. Recovery commands that name services, such as `podman compose -p groupscout up -d postgres groupscout n8n`, start only the core services unless `COMPOSE_PROFILES` is set in `.env` or the shell. The `PodmanMachineAutostart` script starts containers by name, so it is unaffected once the containers exist.
 
 ### Reverse Proxy Socket Discovery
 
@@ -191,16 +186,16 @@ The current Ollama GPU notes are Docker-tested only. The Compose file includes N
 
 Docker and Podman keep separate local volume stores. Before switching runtimes on a machine with useful local data, export the Postgres and Ollama volumes from the old runtime or accept a fresh local stack.
 
-**Verified 2026-07-02 — the n8n volume gap silently breaks Slack cadence.** After the switch, the Podman `groupscout_n8n_data` volume came up empty, so the `n8n` container had **no workflows** — the daily lead cadence never fired and no Slack push happened. This is separate from any container being down: even with n8n running, an empty volume means no active schedule trigger. Detect and recover:
+**Verified 2026-07-02 — the n8n volume gap silently breaks Slack cadence.** After the switch, the Podman `groupscout_n8n_data` volume came up empty, so the `n8n` container had **no workflows** — the daily lead cadence never fired and no Slack push happened. This is separate from any container being down: even with n8n running, an empty volume means no active schedule trigger.
+
+**Fixed by IaC Phase 2 (2026-10-14).** The `n8n` service starts through `deploy/config/n8n/bootstrap.sh`, which imports and publishes every tracked workflow that is missing or changed before the server starts. An empty volume now recovers on the next `podman compose up -d n8n` or `podman restart groupscout_n8n`. This was verified against a fresh throwaway volume and on the live stack. Check it with:
 
 ```sh
-podman exec groupscout_n8n n8n list:workflow          # empty output == workflow lost
-podman cp backend/docs/workflows/n8n/sunday-wednesday-lead-cadence.json groupscout_n8n:/tmp/cadence.json
-# In Git Bash prefix with MSYS_NO_PATHCONV=1, or the /tmp path is rewritten to a Windows path and import fails with ENOENT:
-podman exec groupscout_n8n n8n import:workflow --input=/tmp/cadence.json
-podman exec groupscout_n8n n8n publish:workflow --id=groupscout-sunday-wednesday-lead-cadence
-podman restart groupscout_n8n                          # re-registers the schedule trigger
+podman exec groupscout_n8n n8n list:workflow --active=true
+podman logs groupscout_n8n | grep groupscout-n8n-bootstrap
 ```
+
+For a manual import outside the Compose stack, see the [workflow runbook](../workflows/n8n/README.md#importing-outside-the-compose-stack).
 
 The cadence workflow is fully env-var driven (`GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, `GROUPSCOUT_API_TOKEN`, `GROUPSCOUT_API_BASE_URL` are set on the `n8n` service), so no n8n credentials need re-adding. See [N8N_GUIDE.md § 8 Troubleshooting](./N8N_GUIDE.md#8-troubleshooting--tips).
 

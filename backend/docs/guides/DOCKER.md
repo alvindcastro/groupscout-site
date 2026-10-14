@@ -18,13 +18,20 @@ GroupScout's Compose setup starts the lead generation server, disruption monitor
 
 Commands that pass `-f` explicitly skip the dev override. For example, the UI repo's `-f docker-compose.yml -f compose.dev.yml` flows still build and run the backend, but don't publish its host ports. Add `-f docker-compose.override.yml` after the base file if you also need `localhost:8080`.
 
+`deploy/config/` holds config mounted read-only into the containers, so a fresh volume comes back fully configured:
+
+- `n8n/` holds the workflow bootstrap and the tracked workflows; see [the workflow runbook](../workflows/n8n/README.md).
+- `prometheus/prometheus.yml` is the scrape config.
+- `grafana/` holds the provisioned datasources and dashboards.
+- `alloy/config.alloy` configures container log shipping.
+
 ### Profiles
 
 | Profile | Services | Started by |
 |---|---|---|
 | none (core) | `postgres`, `groupscout`, `alertd`, `n8n` | Always |
 | `llm` | `ollama`, `ollama-init` | `make docker-up` (default), or `COMPOSE_PROFILES` containing `llm` |
-| `obs` | `prometheus`, `grafana`, `loki`, `promtail` | `make docker-up` (default), or `COMPOSE_PROFILES` containing `obs` |
+| `obs` | `prometheus`, `grafana`, `loki`, `alloy` | `make docker-up` (default), or `COMPOSE_PROFILES` containing `obs` |
 
 `make docker-up` exports `COMPOSE_PROFILES=llm,obs`. Use `make docker-up COMPOSE_PROFILES=` for core services only. Plain `docker compose up -d` and `podman compose up -d` read `COMPOSE_PROFILES` from `.env`. Without it, they start the core services only, and `/health` reports Ollama as `degraded`. Naming a profiled service directly (`docker compose up -d ollama`) starts it regardless.
 
@@ -83,7 +90,7 @@ make docker-up COMPOSE="podman compose"
 make compose-check COMPOSE="podman compose"
 ```
 
-The Compose file sets `name: groupscout`, so `-p groupscout` is no longer required (it is still harmless). Do not assume every Docker command below is Podman-compatible. Promtail, Traefik socket discovery, Ollama GPU access, and host aliases have separate caveats in [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md).
+The Compose file sets `name: groupscout`, so `-p groupscout` is no longer required (it is still harmless). Do not assume every Docker command below is Podman-compatible. Traefik socket discovery, Ollama GPU access, and host aliases have separate caveats in [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md).
 
 ### 4. Service Overview
 
@@ -97,7 +104,7 @@ The Compose file sets `name: groupscout`, so `-p groupscout` is no longer requir
 | `prometheus` | 9090 | `obs` | `prom/prometheus:v3.15.0` | none |
 | `grafana` | 3000 | `obs` | `grafana/grafana:13.2.4` | none |
 | `loki` | 3100 | `obs` | `grafana/loki:3.7.8` | none |
-| `promtail` | 9080 (internal) | `obs` | `grafana/promtail:3.6.11` | none |
+| `alloy` | not published | `obs` | `grafana/alloy:v1.20.1` | none |
 
 Check health with `docker compose ps`. Healthy core services show `(healthy)` in the status column. `GET /health` returns a `version` field with the git SHA the running image was built from. `"version":"dev"` means the image was built without `GROUPSCOUT_VERSION`:
 
@@ -235,8 +242,9 @@ docker compose exec postgres pg_dumpall -c -U groupscout > dump.sql
 
 GroupScout includes an optional observability stack (the `obs` profile).
 
-### Logging (Loki + Promtail)
-Logs from all containers are automatically scraped by `promtail` and sent to `loki`.
+### Logging (Loki + Alloy)
+Grafana Alloy reads every container's logs through the Docker API socket and ships them to `loki`, labelled `container`, `compose_service` and `compose_project`. On the Podman machine, `/var/run/docker.sock` links to the rootless Podman socket, so the same config works there. Promtail, which needed `/var/lib/docker/containers`, was removed in IaC Phase 2.
+- **First start**: Alloy backfills each container's full log history. Loki rejects entries older than one week, so a burst of `timestamp too old` errors in `docker compose logs alloy` right after the first start is expected. Read positions persist in the `alloy_data` volume.
 - **View logs in Grafana**: Open `http://localhost:3000`, go to **Explore**, and select the **Loki** data source.
 - **Filter by container**: Use `{container="groupscout_app"}` or `{container="groupscout_ollama"}`.
 
@@ -245,7 +253,7 @@ Metrics are collected by `prometheus` and can be visualized in `grafana`.
 - **Prometheus UI**: `http://localhost:9090`
 - **Grafana UI**: `http://localhost:3000` (login `admin` with `GRAFANA_ADMIN_PASSWORD`, default `admin` on a fresh volume)
 
-Known gap: Prometheus has no scrape config mounted yet, so it does not collect the app's `/metrics` endpoint, and Grafana has no provisioned datasources or dashboards. IaC Phase 2 (`groupscout-site-6ah.3`) adds both.
+Prometheus scrapes `groupscout:8080/metrics` every 30 s (`deploy/config/prometheus/prometheus.yml`). On every start, Grafana provisions the Prometheus and Loki datasources and the **GroupScout Overview** dashboard (folder *GroupScout*) from `deploy/config/grafana/`. The dashboard shows service status, uptime, memory, CPU, goroutines, Ollama calls and latency, and app and n8n logs. Edit dashboards as JSON in git; UI edits to provisioned dashboards are not saved. The app currently exports Go runtime metrics plus `ollama_*` (only when Ollama is used). Pipeline counters for collected, enriched and notified leads are tracked in `groupscout-site-yyj`.
 
 #### Custom Ollama Panel
 To monitor Ollama resource usage, add a panel with these queries:
@@ -294,3 +302,7 @@ GroupScout requires the `pdftotext` utility for scraping certain PDF sources. Th
 ### 9. n8n Refuses to Start: `Mismatching encryption keys`
 - **Symptom:** `groupscout_n8n` restarts in a loop and logs `Mismatching encryption keys`.
 - **Fix:** `N8N_ENCRYPTION_KEY` in `.env` differs from the key stored in `n8n_data`. Blank the variable to use the stored key, or copy the stored value from `/home/node/.n8n/config` into `.env`.
+
+### 10. n8n Restarts In A Loop After A Workflow Change
+- **Symptom:** `groupscout_n8n` keeps restarting, and `docker compose logs n8n` shows `[groupscout-n8n-bootstrap]` lines followed by an n8n error.
+- **Fix:** The workflow bootstrap stops the container when an import or publish fails, so a broken workflow file can't leave the schedule quietly dead. Fix the JSON under `deploy/config/n8n/workflows/`. `go test ./internal/smoke/` checks the id, name and `active` fields. Then run `docker compose up -d n8n`.

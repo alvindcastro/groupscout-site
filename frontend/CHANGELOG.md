@@ -7,7 +7,7 @@ Note: historical entries preserve the asset versions and commands that were curr
 ### Production Image And Backend Compose Layout (IaC Phase 1)
 
 - What: The production Docker stage now starts from a clean pinned `node:22.23.3-bookworm-slim` base. It copies only `package.json` and `web/` and runs as `node`; the test stage uses the same pinned base. Living runtime docs now list the backend `docker-compose.override.yml` in multi-file Compose commands, and the D5 docs test accepts the broadened CI secret wording.
-- Where: UI branch `task/iac-ui-production-image` (`Dockerfile`, `test/dockerization-contract.test.js`); docs `docs/docker-runtime-matrix.md`, `docs/ui-dockerization-contract.md`, `docs/troubleshooting.md`, `docs/how-to-run-backend.md`.
+- Where: UI branch `task/production-ui-compose`, fast-forwarded from `task/iac-ui-production-image` (`Dockerfile`, `test/dockerization-contract.test.js`); docs `docs/docker-runtime-matrix.md`, `docs/ui-dockerization-contract.md`, `docs/troubleshooting.md`, `docs/how-to-run-backend.md`.
 - When: Updated on 2026-10-14 under `groupscout-site-6ah.2` and `groupscout-site-7t7`.
 - Why: The old production stage inherited the test stage, so tests, Compose files and the Dockerfile shipped in the runtime image. Backend dev host ports moved into an override file that Compose skips whenever `-f` is passed. Dated phase evidence records keep their original commands.
 

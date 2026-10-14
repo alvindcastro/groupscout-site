@@ -247,7 +247,7 @@ Successful login sets `groupscout_session`. Logout must call `POST /api/auth/log
 
 The UI repo's `compose.dev.yml` is an override for the backend Compose file. It expects backend service `groupscout` and network `groupscout_net`.
 
-Run it merged with the backend file. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …). This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
+Run it merged with the backend file. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …).
 
 ```bash
 cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui

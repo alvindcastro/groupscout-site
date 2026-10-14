@@ -37,7 +37,7 @@ podman run --rm groupscout-ui-test
 
 `compose.dev.yml` is an override for the backend Compose stack, not a standalone Compose file. The backend Compose file defines service `groupscout` and network `groupscout_net`; without that file, Compose validation is expected to fail.
 
-The commands list the backend `docker-compose.override.yml` as well. After IaC Phase 1 (backend branch `task/iac-phase1-hardening`), the backend's dev host ports live in that file. Compose skips it whenever `-f` is passed, and an `up` without it recreates the backend containers without `localhost:8080`. Ollama is optional there (`llm` profile), so the backend no longer waits for model pulls unless that profile is active.
+The commands list the backend `docker-compose.override.yml` as well. Since IaC Phase 1, the backend's dev host ports live in that file. Compose skips it whenever `-f` is passed, and an `up` without it recreates the backend containers without `localhost:8080`. Ollama is optional there (`llm` profile), so the backend no longer waits for model pulls unless that profile is active.
 
 The production UI image (`--target production`) starts from a clean pinned `node:22.23.3-bookworm-slim` base. It contains only `package.json` and `web/`, with no tests, Compose files or Dockerfile, and runs as the unprivileged `node` user.
 

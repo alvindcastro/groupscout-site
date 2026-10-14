@@ -48,7 +48,7 @@ cd /mnt/c/Users/alvin/GolandProjects/groupscout
 $COMPOSE -p groupscout config --quiet
 ```
 
-With IaC Phase 1 (backend branch `task/iac-phase1-hardening`, Beads `groupscout-site-6ah.2`), the Compose file sets `name: groupscout`, so `-p groupscout` becomes optional but stays harmless. `make compose-check COMPOSE="podman compose"` renders every profile combination plus the production overlay. The layout and profiles are described in [DOCKER.md](./DOCKER.md#compose-layout).
+Since IaC Phase 1 (`groupscout-site-6ah.2`), the Compose file sets `name: groupscout`, so `-p groupscout` becomes optional but stays harmless. `make compose-check COMPOSE="podman compose"` renders every profile combination plus the production overlay. The layout and profiles are described in [DOCKER.md](./DOCKER.md#compose-layout).
 
 3. Start the core backend stack and check health:
 
@@ -77,7 +77,7 @@ podman build --target test -t groupscout-ui-test .
 podman run --rm groupscout-ui-test
 ```
 
-6. Validate merged backend plus UI Compose config. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …). This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
+6. Validate merged backend plus UI Compose config. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …).
 
 ```sh
 COMPOSE="podman compose"

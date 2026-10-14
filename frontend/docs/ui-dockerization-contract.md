@@ -69,7 +69,7 @@ The D3 Compose override lives in `compose.dev.yml`.
 
 The development service builds the existing D1 `test` target and overrides the command with the Phase 13 product dev server. It remains a development Compose integration point, not the production serving model.
 
-Use the override beside the backend Compose file. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …). This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
+Use the override beside the backend Compose file. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …).
 
 ```sh
 docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml config --quiet

@@ -69,7 +69,7 @@ These notes came from a documentation-only scan of the coordination repo plus th
 ### Runtime And Tooling
 
 - Backend headline runtime versions are already current enough that version churn is not the bottleneck right now: `go 1.26` in `go.mod`, `golang:1.26-alpine` in `Dockerfile`, and `node:22-bookworm-slim` in the UI Dockerfile.
-- ~~The backend runtime image still uses `alpine:latest`.~~ Pinned by IaC Phase 1 (`groupscout-site-6ah.2`, branch `task/iac-phase1-hardening`, pending merge), along with every Compose image and both Dockerfiles: `golang:1.26.9-alpine3.24`, `alpine:3.24.2`, `node:22.23.3-bookworm-slim`. Renovate (IaC Phase 4) will keep the pins moving.
+- ~~The backend runtime image still uses `alpine:latest`.~~ Pinned by IaC Phase 1 (`groupscout-site-6ah.2`, merged to backend `main` 2026-10-14), along with every Compose image and both Dockerfiles: `golang:1.26.9-alpine3.24`, `alpine:3.24.2`, `node:22.23.3-bookworm-slim`. Renovate (IaC Phase 4) will keep the pins moving.
 - The frontend still lacks package policy metadata in `package.json` (`engines`, `packageManager`) and does not advertise lint/format tooling through npm scripts. This is a low-effort baseline hardening pass under `groupscout-site-2h1`.
 - The frontend remains a custom Node + vanilla DOM stack, so framework migration is not the right default upgrade. The higher-value upgrade is stronger contracts and smaller modules, not swapping stacks.
 
@@ -106,7 +106,7 @@ These are the largest code hotspots observed during the scan and the places most
 4. **Reduce structural UI and backend smells before widening surface area.** Use `groupscout-site-2h1` to split large screen-model modules, decouple mock fixtures from runtime factories, separate renderer/server concerns, and pin the backend runtime image instead of adding more behavior to the current hotspots.
 5. **Upgrade operations visibility.** Finish `groupscout-site-yyj` before relying on dashboards or health views for production decisions.
 6. **Improve lead conversion workflows.** Add Slack actions, contact enrichment, analytics, and source attribution through `groupscout-site-62h`, `groupscout-site-iuc`, and `groupscout-site-4b4`.
-7. **Harden the AI and deployment platform.** Sequence `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-39g` after the runtime and UI bridge are stable. Deployment hardening follows the [Infrastructure as Code plan](./INFRASTRUCTURE_AS_CODE.md) (epic `groupscout-site-6ah`). Phase 1 (Compose and image hardening) is implemented and awaiting verification and merge. Phases 2–4 and the cadence heartbeat in Phase 9 don't depend on the deploy-target decision.
+7. **Harden the AI and deployment platform.** Sequence `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-39g` after the runtime and UI bridge are stable. Deployment hardening follows the [Infrastructure as Code plan](./INFRASTRUCTURE_AS_CODE.md) (epic `groupscout-site-6ah`). Phase 1 (Compose and image hardening) is done. Phases 2–4 and the cadence heartbeat in Phase 9 don't depend on the deploy-target decision.
 8. **Expand sources and routing deliberately.** Use `groupscout-site-aaj` and `groupscout-site-1ee` after the current pipeline, observability, and operator surfaces can absorb more lead volume.
 
 ## Documentation Maintenance Rules

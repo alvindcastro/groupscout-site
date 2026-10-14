@@ -40,7 +40,8 @@ Recently completed source-of-truth cleanup:
 
 Infrastructure as Code (epic `groupscout-site-6ah`, plan in [INFRASTRUCTURE_AS_CODE.md](./backend/docs/planning/INFRASTRUCTURE_AS_CODE.md)):
 
-- `groupscout-site-6ah.2` - Phase 1 Compose and image hardening is implemented on backend branch `task/iac-phase1-hardening` and UI branch `task/iac-ui-production-image`. Next: verify on Podman (`make docker-up`, `/health` shows the SHA, core services healthy, UI E2E smoke, cadence still active after the n8n upgrade), then merge both branches.
+- ~~`groupscout-site-6ah.2`~~ - Phase 1 Compose and image hardening is done (2026-10-14): verified on Podman and merged to backend `main`.
+- Next IaC work: `groupscout-site-6ah.3` (Phase 2, app config as code) and `groupscout-site-6ah.5` (Phase 4, CI). Fix `groupscout-site-482` (password in logs) before Phase 3 (`6ah.4`).
 - `groupscout-site-6ah.1` - Phase 0 decisions D1–D11 (deploy target, tooling) gate Phases 5–8.
 
 Then move to the operator UI bridge:
@@ -64,7 +65,6 @@ Then move to the operator UI bridge:
 
 ## Known Drift To Reconcile
 
-- Runtime docs describe the IaC Phase 1 Compose layout (base + dev override + prod overlay, `llm`/`obs` profiles). Until `task/iac-phase1-hardening` merges, backend `main` still has the single Compose file. The docs carry a "lands with `task/iac-phase1-hardening`" note; remove those notes when `groupscout-site-6ah.2` closes.
 - `frontend/docs/ui-tdd-phase-0-15-implementation.md` records branch-history evidence; current checkout now has `getLead`, production session gating, and deterministic Phase 15 hardening again, while `/admin/login` remains planned under `groupscout-site-1x9`.
 - `backend/docs/CHANGELOG.md` mentions UI API and pipeline/stat/system work that some planning contracts still mark as not live; verify against the backend source before relying on those claims.
 - The `.beads` permission warning on this Windows-mounted coordination checkout is accepted under `groupscout-site-783`; `chmod 700 .beads` does not persist on the current DrvFs/9p mount without metadata support.

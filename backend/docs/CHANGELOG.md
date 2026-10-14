@@ -3,7 +3,7 @@
 ### IaC plan tracked in Beads
 
 - **What:** Added the Infrastructure as Code plan and tracked it as Beads epic `groupscout-site-6ah`, with one child issue per phase. Phase 1 hardens the existing Compose stack and images without new tools.
-- **Where:** Plan: `backend/docs/planning/INFRASTRUCTURE_AS_CODE.md`. Code: backend branch `task/iac-phase1-hardening` and UI branch `task/iac-ui-production-image`, both pending Podman verification and merge.
+- **Where:** Plan: `backend/docs/planning/INFRASTRUCTURE_AS_CODE.md`. Code: merged to backend `main` (`10fab45`); the UI change was fast-forwarded onto `task/production-ui-compose` (`5a26117`).
 - **Why:** Recent incidents shared one cause: the running system drifted from git without anyone noticing. Examples: the Dockerfile built only `main.go`, the Podman switch emptied the n8n volume, the autostart task was hand-made, and every image used `:latest`.
 
 ### Phase 1 runtime changes
@@ -36,7 +36,8 @@
   - `go vet ./...`, `go test ./...` (including the new `internal/smoke/compose_hardening_test.go`) and `make eval-gate` pass.
   - Compose v5.6.0 `config` renders all dev profile sets plus prod, and prod rejects missing secrets.
   - The UI suite has 146 passing, 0 failing and 1 skipped. Its D5 docs regex was updated under `groupscout-site-7t7`.
-  - **Not yet verified on a container runtime.** `groupscout-site-6ah.2` stays open until `make docker-up`, `/health` and the UI E2E smoke pass on Podman.
+  - Verified on Podman 5.8.4 the same day, after backups. All running services were healthy, `/health` reported the branch SHA, Postgres data and the cadence workflow were intact after the n8n 2.28.4 → 2.43.5 upgrade, and the UI production smoke passed. Details are in `groupscout-site-6ah.2`.
+  - `2b6b55b` on backend `main` marks `scripts/*.sh` executable in git. The Windows checkout's `core.fileMode=false` had stored them as `100644`, which broke `TestSmokeScriptIsExecutable` on Linux checkouts.
 
 ---
 

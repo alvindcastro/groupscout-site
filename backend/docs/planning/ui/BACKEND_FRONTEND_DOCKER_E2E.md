@@ -45,7 +45,7 @@ The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compo
 
 Run from the UI repo so `compose.dev.yml` is local, but pin the Compose project name to `groupscout` so the Docker network name is stable:
 
-List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …). This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
+List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …).
 
 For Podman Compose, keep the same `-p groupscout` convention. On Windows, set `GROUPSCOUT_UI_REPO` to the native Windows UI path when using the standalone Docker Compose provider so the build context resolves correctly.
 

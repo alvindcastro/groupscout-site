@@ -4,7 +4,7 @@ This guide covers the Hetzner + Coolify path from Phase 26. Use it when uptime m
 
 > **IaC status:** The [Infrastructure as Code plan](../planning/INFRASTRUCTURE_AS_CODE.md) recommends (decision D6, pending in `groupscout-site-6ah.1`) replacing Coolify with plain Compose managed by Ansible and OpenTofu, because Coolify keeps its configuration in its own database instead of git. This guide remains the click-ops alternative.
 >
-> **Compose changes from IaC Phase 1** (backend branch `task/iac-phase1-hardening`) that affect this guide:
+> **Compose changes from IaC Phase 1** that affect this guide:
 > - Coolify deploys the base `docker-compose.yml` only. That file builds the image itself and publishes no host ports, which suits Coolify's proxy.
 > - The base file falls back to **dev defaults** for `POSTGRES_PASSWORD` (`groupscout`), `GRAFANA_ADMIN_PASSWORD` (`admin`) and `N8N_ENCRYPTION_KEY` (generated in the volume). Set all three in Coolify before the first deploy; nothing fails loudly if you forget. The stricter `deploy/compose/compose.prod.yml` overlay requires them, but it expects registry images, which arrive in IaC Phase 4.
 > - Ollama (`llm`) and Prometheus/Grafana/Loki/Promtail (`obs`) are Compose profiles. Set `COMPOSE_PROFILES` in Coolify if you want them, and confirm in the deploy log that Coolify honors it.

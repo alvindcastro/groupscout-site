@@ -59,7 +59,7 @@
 
 ### 🐳 Docker Deployment (Recommended)
 
-GroupScout includes a `docker-compose.yml` that starts the app along with **n8n** (automation), plus optional **Ollama** (`llm` profile) and **Prometheus/Grafana/Loki** (`obs` profile). Images are pinned, every core service has a healthcheck, and dev host ports live in the auto-loaded `docker-compose.override.yml`. A production overlay lives at `deploy/compose/compose.prod.yml`. See [DOCKER.md](./docs/guides/DOCKER.md#compose-layout) for the layout; it lands with backend branch `task/iac-phase1-hardening` (`groupscout-site-6ah.2`).
+GroupScout includes a `docker-compose.yml` that starts the app along with **n8n** (automation), plus optional **Ollama** (`llm` profile) and **Prometheus/Grafana/Loki** (`obs` profile). Images are pinned, every core service has a healthcheck, and dev host ports live in the auto-loaded `docker-compose.override.yml`. A production overlay lives at `deploy/compose/compose.prod.yml`. See [DOCKER.md](./docs/guides/DOCKER.md#compose-layout) for the layout.
 
 For local Podman runs, use [PODMAN_MIGRATION.md](./docs/guides/PODMAN_MIGRATION.md) first. It defines the validated `COMPOSE="podman compose"` smoke sequence, Windows PATH/Git Bash notes, known Promtail/socket/GPU caveats, and rollback path.
 

@@ -2,7 +2,7 @@
 
 This guide provides technical details for running and troubleshooting GroupScout using Docker and Docker Compose. Docker Compose remains the known-good baseline. If you are testing Podman compatibility, start with [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) and keep any unverified runtime differences there.
 
-> **Status:** The Compose layout, profiles, pinned images and `/health` version described here land with backend branch `task/iac-phase1-hardening` (Beads `groupscout-site-6ah.2`, IaC Phase 1). Until that branch merges, backend `main` still uses a single Compose file that starts every service and builds with `build: .`. The plan for the rest of the infrastructure is in [INFRASTRUCTURE_AS_CODE.md](../planning/INFRASTRUCTURE_AS_CODE.md).
+> **Status:** The Compose layout, profiles, pinned images and `/health` version described here are IaC Phase 1 (Beads `groupscout-site-6ah.2`), merged to backend `main` and verified on Podman 2026-10-14. The plan for the rest of the infrastructure is in [INFRASTRUCTURE_AS_CODE.md](../planning/INFRASTRUCTURE_AS_CODE.md).
 
 ## 🚀 Running with Docker Compose
 

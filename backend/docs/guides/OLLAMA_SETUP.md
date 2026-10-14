@@ -5,7 +5,7 @@
 
 > **Operational source of truth:** this guide covers the implemented Ollama runtime, `OLLAMA_*` environment variables, Docker service names, model volume, model pull/list/push commands, and troubleshooting. The broader Phase 16 `LLM_PROVIDER=ollama` provider-abstraction plan is separate and remains tracked in [PHASES.md](../planning/PHASES.md).
 
-> **Current Compose wiring (IaC Phase 1, backend branch `task/iac-phase1-hardening`):**
+> **Current Compose wiring (IaC Phase 1):**
 > - `ollama` and `ollama-init` are in the `llm` Compose profile. `make docker-up` enables it by default; plain `docker compose up -d` needs `COMPOSE_PROFILES=llm` (or `llm,obs`) in `.env`.
 > - The image is pinned to `ollama/ollama:0.40.4`.
 > - `groupscout`'s `depends_on` entries for Ollama use `required: false`. The core stack starts without the profile, and `/health` then reports `"ollama":"degraded"`.

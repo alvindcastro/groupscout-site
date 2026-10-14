@@ -1,7 +1,7 @@
 # Infrastructure as Code: Brainstorm & Task Plan
 
 Date: 2026-10-14
-Status: Phase 1 implemented on task branches (awaiting runtime verification and merge). Other phases planned.
+Status: Phase 1 done (2026-10-14). Other phases planned.
 
 > **Tracking:** Beads is the source of truth. Epic `groupscout-site-6ah` has one child issue per phase, linked by the dependencies in §8. Phase N is `groupscout-site-6ah.<N+1>`, and each phase heading below shows its ID. The task lists in this doc describe scope only; check status with `bd show <id>`. The existing home deploy, backups, and restore-smoke work is `groupscout-site-39g`, linked as related to Phase 8.
 
@@ -245,7 +245,7 @@ Sizes: **S** is about one session, **M** is a few sessions, and **L** is a week 
 
 ### Phase 1: Harden the existing Compose and images (M), no new tools · `groupscout-site-6ah.2`
 
-Implemented 2026-10-14 on backend branch `task/iac-phase1-hardening` and UI branch `task/iac-ui-production-image`. Neither is merged yet.
+Done 2026-10-14. Backend merged to `main` (`10fab45`, plus `2b6b55b`, which marks `scripts/*.sh` executable in git). The UI change was fast-forwarded onto `task/production-ui-compose` (`5a26117`); UI `main` hasn't caught up with that branch yet.
 
 Compose (backend repo):
 - Top-level `name: groupscout`, so volume and network names match the existing `groupscout_*` resources under Docker and Podman alike.
@@ -298,13 +298,17 @@ Verified in WSL without a container runtime:
 - The eval gate passes.
 - Compose v5.6.0 `config` renders all four dev profile sets plus prod, and prod rejects missing secrets.
 - The UI suite has 146 passing, 0 failing and 1 skipped. The pre-existing D5 docs failure (`groupscout-site-7t7`) was a stale regex, fixed on the UI branch.
-- The coordination docs describing the new layout were updated the same day (see the backend CHANGELOG entry for 2026-10-14). Their "lands with `task/iac-phase1-hardening`" notes come out when this phase closes.
+- The coordination docs describing the new layout were updated the same day (see the backend CHANGELOG entry for 2026-10-14). Their temporary "pending merge" notes were removed when this phase closed.
 
-**Still to verify on Podman before closing:**
-- `make compose-check COMPOSE="podman compose"`
-- `make docker-up`, then check that `/health` shows the SHA and `podman ps` lists the core services as healthy
-- the UI E2E smoke
-- the cadence workflow still active after the n8n upgrade
+**Verified on Podman 5.8.4 (2026-10-14), after backing up Postgres, the n8n volume and the cadence workflow:**
+- Compose renders every profile set, and the prod overlay rejects missing secrets.
+- `postgres`, `groupscout` and `n8n` were recreated from the branch:
+  - All running services are healthy, and `/health` reports `version 71eb547`. The app runs as uid 10001.
+  - Postgres moved to `0.8.7-pg17-bookworm` (PG 17.10 → 17.11) with lead and raw-input counts unchanged.
+  - n8n moved from 2.28.4 to 2.43.5 with clean migrations. The cadence workflow stays active with an unchanged trigger.
+- The UI production smoke passed: the image runs as `node` and contains only `package.json` and `web/`.
+- Ollama was left on its old image (`OLLAMA_ENABLED=false`). `alertd` wasn't started because it would post real Slack alerts.
+- Follow-up found: `groupscout-site-482` (the server logs `DATABASE_URL` with the password), which blocks Phase 3.
 
 ### Phase 2: App config as code (M) · `groupscout-site-6ah.3`
 

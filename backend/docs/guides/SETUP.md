@@ -43,7 +43,7 @@ Generate a secure `API_TOKEN`:
 openssl rand -hex 32
 ```
 
-For the Docker Compose stack (Option B), `.env` also controls which optional services start and the container secrets. With IaC Phase 1 (backend branch `task/iac-phase1-hardening`), blank values fall back to dev defaults that match existing volumes:
+For the Docker Compose stack (Option B), `.env` also controls which optional services start and the container secrets. Since IaC Phase 1, blank values fall back to dev defaults that match existing volumes:
 
 ```env
 COMPOSE_PROFILES=llm,obs   # Ollama + Prometheus/Grafana/Loki; blank = core services only

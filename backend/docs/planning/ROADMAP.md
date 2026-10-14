@@ -21,7 +21,7 @@ Current open work themes:
 - Operator UI and API bridge: `groupscout-site-eqm`, `groupscout-site-1x9`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-3gq`.
 - Observability, AI, and analytics: `groupscout-site-yyj`, `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-4b4`.
 - Lead workflow, deployment, and expansion: `groupscout-site-62h`, `groupscout-site-iuc`, `groupscout-site-39g`, `groupscout-site-2h1`, `groupscout-site-aaj`, and `groupscout-site-1ee`.
-- Infrastructure as Code: epic `groupscout-site-6ah`, with one child issue per phase (`6ah.1`–`6ah.12`). Phase 1, Compose and image hardening (`groupscout-site-6ah.2`), is implemented on backend branch `task/iac-phase1-hardening` and UI branch `task/iac-ui-production-image`, awaiting Podman verification and merge. Plan: [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md).
+- Infrastructure as Code: epic `groupscout-site-6ah`, with one child issue per phase (`6ah.1`–`6ah.12`). Phase 1, Compose and image hardening (`groupscout-site-6ah.2`), is done: verified on Podman and merged to backend `main` on 2026-10-14. Plan: [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md).
 
 Recently completed:
 

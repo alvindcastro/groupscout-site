@@ -114,7 +114,7 @@ cd /mnt/c/Users/alvin/GolandProjects/groupscout
 make docker-up
 ```
 
-`make docker-up` builds the backend image stamped with the git SHA (shown as `version` in `/health`) and starts the core services plus the `llm` (Ollama) and `obs` (Prometheus/Grafana/Loki) profiles. Plain `docker compose up -d` starts only the core services (`postgres`, `groupscout`, `alertd`, `n8n`) unless `COMPOSE_PROFILES=llm,obs` is in the backend `.env`. This is the IaC Phase 1 layout on backend branch `task/iac-phase1-hardening`; see the backend [Docker Guide](../../backend/docs/guides/DOCKER.md#compose-layout).
+`make docker-up` builds the backend image stamped with the git SHA (shown as `version` in `/health`) and starts the core services plus the `llm` (Ollama) and `obs` (Prometheus/Grafana/Loki) profiles. Plain `docker compose up -d` starts only the core services (`postgres`, `groupscout`, `alertd`, `n8n`) unless `COMPOSE_PROFILES=llm,obs` is in the backend `.env`. This is the IaC Phase 1 layout; see the backend [Docker Guide](../../backend/docs/guides/DOCKER.md#compose-layout).
 
 Local Podman equivalent after `podman machine init`, `podman machine start`, and Compose provider setup:
 

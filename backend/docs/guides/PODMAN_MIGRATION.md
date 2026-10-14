@@ -9,7 +9,7 @@ Run backend runtime commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`
 - Docker Compose is still the baseline documented runtime.
 - Podman support is validated for local development and smoke testing. Docker Compose remains the production baseline until deployment docs, CI, and production socket/logging assumptions are updated together.
 - 2026-07-01 verification: `RedHat.Podman` 5.8.3 and standalone `Docker.DockerCompose` 5.2.0 are installed. `podman machine init` and `podman machine start` provisioned a rootless WSL-backed machine, `podman --version`, `podman compose version`, and `podman info` passed, the backend stack started, the UI test image passed, and the backend-owned UI E2E smoke passed under Podman.
-- Current Windows notes: PowerShell needs the Winget user PATH refreshed for `docker-compose.exe` after install. Git Bash can run the backend-owned smoke script with `GROUPSCOUT_COMPOSE="podman compose"` when the Docker Compose Winget package directory is on PATH. Plain WSL has `make`, but cannot execute the Windows `podman.exe` in this environment.
+- Current Windows notes: PowerShell needs the Winget user PATH refreshed for `docker-compose.exe` after install. Git Bash can run the backend-owned smoke script with `GROUPSCOUT_COMPOSE="podman compose"` when the Docker Compose Winget package directory is on PATH. Plain WSL has `make`, and since 2026-10-14 it can also run the Windows `podman.exe` after the interop fix in [WSL Interop With systemd](#wsl-interop-with-systemd).
 - Prefer runtime variables in local notes and scripts:
 
 ```sh
@@ -203,6 +203,37 @@ podman restart groupscout_n8n                          # re-registers the schedu
 ```
 
 The cadence workflow is fully env-var driven (`GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`, `GROUPSCOUT_API_TOKEN`, `GROUPSCOUT_API_BASE_URL` are set on the `n8n` service), so no n8n credentials need re-adding. See [N8N_GUIDE.md § 8 Troubleshooting](./N8N_GUIDE.md#8-troubleshooting--tips).
+
+### WSL Interop With systemd
+
+The Ubuntu WSL distro runs with `systemd=true`. At boot, systemd mounts a fresh, empty `binfmt_misc` table, which drops the `WSLInterop` entry. Every Windows binary (`cmd.exe`, `podman.exe`) then fails with `cannot execute binary file: Exec format error`. WSL generates `/run/systemd/generator/systemd-binfmt.service.d/override.conf` to re-register `WSLInterop` via `systemd-binfmt.service`, but two drop-ins skipped that unit on WSL:
+
+- `/usr/lib/systemd/system/systemd-binfmt.service.d/wsl.conf` (`ConditionVirtualization=!wsl`)
+- `/etc/systemd/system/systemd-binfmt.service.d/00-wsl.conf` (`ConditionVirtualization=!container`; `systemd-detect-virt --container` reports `wsl`)
+
+Fixed 2026-10-14 with a drop-in that sorts last and resets those conditions:
+
+```sh
+# /etc/systemd/system/systemd-binfmt.service.d/zz-run-on-wsl.conf
+[Unit]
+ConditionVirtualization=
+ConditionPathIsMountPoint=/proc/sys/fs/binfmt_misc
+```
+
+Then run `sudo systemctl daemon-reload && sudo systemctl start systemd-binfmt`. `ls /proc/sys/fs/binfmt_misc/` should list `WSLInterop`. The unit is wanted by `sysinit.target`, so the fix re-applies on every boot. To undo, delete the file and reload.
+
+`binfmt_misc` tables are per distro. Changing `binfmt.d` inside `podman-machine-default` does not affect Ubuntu, and restarting `systemd-binfmt` inside the machine can stall its SSH logins for minutes.
+
+Without interop, WSL can still drive Podman by forwarding the machine's rootless API socket over SSH. Take the port and key from `C:\Users\alvin\.config\containers\podman\machine\wsl\podman-machine-default.json`; copy the key with `install -m 600` first, because DrvFs shows it as `0777`:
+
+```sh
+ssh -i <key-copy> -p <SSH.Port> -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+  -o StreamLocalBindUnlink=yes -N \
+  -L /run/user/1000/podman-wsl.sock:/run/user/1000/podman/podman.sock user@127.0.0.1 &
+export DOCKER_HOST=unix:///run/user/1000/podman-wsl.sock   # docker-compose / curl now reach Podman
+```
+
+Published container ports are reachable from WSL at `localhost` either way, because WSL2 distros share one network namespace.
 
 ### Machine Autostart On Windows
 

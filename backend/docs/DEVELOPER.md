@@ -9,11 +9,17 @@ This document is maintained in the coordinator repo at `/mnt/c/Users/alvin/group
 The `Makefile` is the central hub for common development tasks. Run `make help` to see all available commands.
 
 ### Common Tasks:
-- `make build`: Build `server` and `alertd` binaries.
-- `make test`: Run all Go tests.
-- `make run`: Run the lead generation server.
-- `make docker-up`: Start the full Docker stack.
+- `make build`: Build `server` and `alertd` binaries, stamped with the git SHA (`-X main.version`).
+- `make test`: Run all Go tests. This includes `internal/smoke/compose_hardening_test.go`, which fails on `:latest` images, host ports in the base Compose file, non-loopback production ports, missing core healthchecks, or an unpinned/root Dockerfile.
+- `make run`: Run the lead generation server (`go run ./cmd/server`).
+- `make docker-up`: Build the image with the git SHA and start the Docker stack, including the `llm` and `obs` profiles. Use `COMPOSE_PROFILES=` for core services only and `COMPOSE="podman compose"` for Podman.
+- `make docker-down`: Stop the stack across all profiles.
+- `make compose-check`: Render every dev profile set and the production overlay without starting anything.
 - `make clean`: Remove build artifacts.
+
+Always run commands against the package (`./cmd/server`), not `cmd/server/main.go`. The server is split across several files.
+
+The Compose layout (base, dev override, production overlay) and profiles are described in [DOCKER.md](./guides/DOCKER.md#compose-layout).
 
 ### Backend Plus UI Docker Smoke
 
@@ -66,17 +72,17 @@ ALERTD_PORT=8081                  # Port for alertd slash commands (default: 808
 ### 1. Lead Generation Server
 **Server Mode (API triggered):**
 ```bash
-go run cmd/server/main.go
+go run ./cmd/server
 ```
 **CLI Mode (One-time run):**
 ```bash
-go run cmd/server/main.go --run-once
+go run ./cmd/server --run-once
 ```
 
 ### 2. Alertd (Disruption Monitor)
 **Run Alertd:**
 ```bash
-go run cmd/alertd/main.go
+go run ./cmd/alertd
 ```
 Alertd requires a configuration file at `config/airports.yaml` to define hotels and their monitored airports.
 
@@ -86,19 +92,19 @@ GroupScout uses local Ollama models for enrichment and alert copy through the im
 **Push Modelfiles:**
 To update or create the personas on your local Ollama server without restarting the main server:
 ```bash
-go run cmd/server/main.go ollama push-models
+go run ./cmd/server ollama push-models
 ```
 This reads all `.modelfile` files from `internal/ollama/modelfile/` and pushes them to the Ollama endpoint.
 
 **List Models:**
 To see which models are currently loaded in your Ollama instance:
 ```bash
-go run cmd/server/main.go ollama list-models
+go run ./cmd/server ollama list-models
 ```
 
 **Workflow for Updating Persona Prompts:**
 1. Edit the relevant `.modelfile` in `internal/ollama/modelfile/`.
-2. Run `go run cmd/server/main.go ollama push-models`.
+2. Run `go run ./cmd/server ollama push-models`.
 3. The new persona is immediately available for the next LLM call.
 
 ## 🛠 New Features & How to Run

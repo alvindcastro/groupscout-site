@@ -21,6 +21,7 @@ Current open work themes:
 - Operator UI and API bridge: `groupscout-site-eqm`, `groupscout-site-1x9`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-3gq`.
 - Observability, AI, and analytics: `groupscout-site-yyj`, `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-4b4`.
 - Lead workflow, deployment, and expansion: `groupscout-site-62h`, `groupscout-site-iuc`, `groupscout-site-39g`, `groupscout-site-2h1`, `groupscout-site-aaj`, and `groupscout-site-1ee`.
+- Infrastructure as Code: epic `groupscout-site-6ah`, with one child issue per phase (`6ah.1`–`6ah.12`). Phase 1, Compose and image hardening (`groupscout-site-6ah.2`), is implemented on backend branch `task/iac-phase1-hardening` and UI branch `task/iac-ui-production-image`, awaiting Podman verification and merge. Plan: [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md).
 
 Recently completed:
 
@@ -54,7 +55,7 @@ Recently completed:
 - [ ] **Phase 11** — CRM direct integration: HubSpot, Salesforce
 - [ ] **Phase 12** — Source expansion: Metro Vancouver municipalities (`groupscout-site-aaj` selects the next slice)
 - [ ] **Phase 13** — Public tenders & utilities: BC Hydro, FortisBC (`groupscout-site-aaj` selects the next slice)
-- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem (`groupscout-site-39g`, `groupscout-site-yyj`, `groupscout-site-48g`)
+- [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem (`groupscout-site-39g`, `groupscout-site-yyj`, `groupscout-site-48g`; infrastructure as code under `groupscout-site-6ah`)
 - [x] **Phase 15** — PostgreSQL + pgvector migration: production storage + RAG foundation ✅
 - [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄 (`groupscout-site-vud`)
 - [x] **Phase 17** — Airport Disruption Alert System (`alertd`): YVR real-time monitoring ✅
@@ -442,7 +443,7 @@ Tracked follow-up: `groupscout-site-yyj` owns Prometheus metrics, collector fres
 - [ ] **Part A** — Home server: No-IP/DuckDNS DDNS + port forwarding → Traefik + Let's Encrypt → optional Cloudflare Tunnel; `docs/guides/HOME_DEPLOY.md` (`groupscout-site-39g`)
 - [ ] **Part B** — Hetzner + Coolify cloud deploy (if uptime SLA matters): VPS provision, Coolify setup, backup config; guide complete in `docs/guides/COOLIFY.md`
 - [x] **Part C** — Event-driven ingestion: `POST /ingest` + `EnrichOne()` (platform-agnostic) (`groupscout-site-b25`)
-- [ ] **Part D** — Terraform IaC for GCP (optional; alertd needs Compute Engine VM — Cloud Run won't work)
+- [ ] ~~**Part D** — Terraform IaC for GCP~~ **Superseded 2026-10-14** by the provider-neutral [Infrastructure as Code plan](./INFRASTRUCTURE_AS_CODE.md) (`groupscout-site-6ah`): OpenTofu for Hetzner/Cloudflare plus Ansible. GCP Cloud Run still can't host `alertd`.
 
 ---
 

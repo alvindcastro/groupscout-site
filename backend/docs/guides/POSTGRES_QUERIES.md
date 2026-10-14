@@ -20,7 +20,7 @@ How to connect to and query the Postgres database when running via Docker Compos
 3. Click **Test Connection** — should show "Successful"
 4. Click **OK**
 
-> These credentials match the defaults in `docker-compose.yml`. If you changed them in `.env`, use those values instead.
+> These credentials match the dev defaults in `docker-compose.yml`. The password comes from `POSTGRES_PASSWORD` (default `groupscout`). It only takes effect when the `pgdata` volume is first created, so an existing volume keeps the password it was created with. Port `5432` is published by the dev override (`docker-compose.override.yml`); the production overlay publishes no Postgres port.
 
 > **Driver:** DataGrip will prompt you to download the PostgreSQL driver on first use — click Download.
 
@@ -181,7 +181,7 @@ AND NOT EXISTS (SELECT 1 FROM leads l WHERE l.raw_input_id = ri.id);
 
 #### Trigger a purge through the backend CLI
 ```bash
-go run cmd/server/main.go audit-retention purge --days 30
+go run ./cmd/server audit-retention purge --days 30
 ```
 
 For Docker:
@@ -225,6 +225,6 @@ SELECT version, dirty FROM schema_migrations;
 
 Drops all data and re-runs migrations on next app start:
 ```bash
-docker compose down --volumes
-docker compose up -d
+COMPOSE_PROFILES=llm,obs docker compose down --volumes
+make docker-up
 ```

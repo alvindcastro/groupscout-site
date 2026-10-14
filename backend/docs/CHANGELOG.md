@@ -1,3 +1,45 @@
+## 2026-10-14 - Infrastructure as Code plan and Phase 1 Compose/image hardening (groupscout-site-6ah, groupscout-site-6ah.2)
+
+### IaC plan tracked in Beads
+
+- **What:** Added the Infrastructure as Code plan and tracked it as Beads epic `groupscout-site-6ah`, with one child issue per phase. Phase 1 hardens the existing Compose stack and images without new tools.
+- **Where:** Plan: `backend/docs/planning/INFRASTRUCTURE_AS_CODE.md`. Code: backend branch `task/iac-phase1-hardening` and UI branch `task/iac-ui-production-image`, both pending Podman verification and merge.
+- **Why:** Recent incidents shared one cause: the running system drifted from git without anyone noticing. Examples: the Dockerfile built only `main.go`, the Podman switch emptied the n8n volume, the autostart task was hand-made, and every image used `:latest`.
+
+### Phase 1 runtime changes
+
+- **Compose layout:**
+  - `docker-compose.yml` is the base: it builds locally, stamps `GROUPSCOUT_VERSION`, and publishes no host ports.
+  - `docker-compose.override.yml` holds the dev host ports and is auto-loaded only when no `-f` flag is given.
+  - `deploy/compose/compose.prod.yml` is the production overlay: registry image by tag, `build: !reset`, required secrets, `127.0.0.1` ports.
+- **Profiles:** Ollama is in `llm` and Prometheus/Grafana/Loki/Promtail are in `obs`. `make docker-up` starts both. Plain `docker compose up` needs `COMPOSE_PROFILES` in `.env`.
+- **Pins:**
+  - n8n `2.43.5`
+  - Grafana `13.2.4`
+  - Prometheus `v3.15.0`
+  - Loki `3.7.8`
+  - Promtail `3.6.11`
+  - Ollama `0.40.4`
+  - pgvector `0.8.7-pg17-bookworm`
+  - `golang:1.26.9-alpine3.24`
+  - `alpine:3.24.2`
+  - UI `node:22.23.3-bookworm-slim`
+- **Secrets and config:** `POSTGRES_PASSWORD`, `N8N_ENCRYPTION_KEY` and `GRAFANA_ADMIN_PASSWORD` come from `.env`, with dev defaults that match existing volumes. `alertd` receives only its 6 variables instead of `env_file: .env`. The unused `SENDGRID_API_KEY` passthrough was removed.
+- **Health:** healthchecks for `groupscout`, `alertd` (new `/health`) and `n8n`; json-file log rotation on every service. `/health` reports `version`, the image's git SHA.
+- **Images:** the backend runs as uid 10001 with OCI labels, and `alertd` is built as a package. The new `.dockerignore` keeps `.env` and `server.exe` out of the build context. The UI production image starts from a clean pinned base and runs as `node`.
+- **Makefile:** `COMPOSE`/`COMPOSE_PROFILES` variables, `docker-up --build`, a `compose-check` target, and the `run`/`run-once`/`ollama-push` targets now run `go run ./cmd/server`; they had stopped compiling.
+- **Docs:** updated `DOCKER.md`, `PODMAN_MIGRATION.md`, `SETUP.md`, `TROUBLESHOOTING.md`, `OLLAMA_SETUP.md`, `ALERTD_SETUP.md`, `N8N_GUIDE.md`, `COOLIFY.md`, `HOME_DEPLOY.md`, `POSTGRES_QUERIES.md`, `TESTING.md`, `DEVELOPER.md`, the backend README, the UI E2E runbook, the planning indexes, and the frontend runtime docs.
+  - Multi-file `-f docker-compose.yml -f compose.dev.yml` commands now also list `docker-compose.override.yml`. Without it, `up` recreates the backend without its host ports.
+  - One-off `n8nio/n8n:latest` commands now use the pinned version, so they can't migrate the volume forward.
+  - The GCP Terraform Part D plan is marked superseded.
+- **Verification:**
+  - `go vet ./...`, `go test ./...` (including the new `internal/smoke/compose_hardening_test.go`) and `make eval-gate` pass.
+  - Compose v5.6.0 `config` renders all dev profile sets plus prod, and prod rejects missing secrets.
+  - The UI suite has 146 passing, 0 failing and 1 skipped. Its D5 docs regex was updated under `groupscout-site-7t7`.
+  - **Not yet verified on a container runtime.** `groupscout-site-6ah.2` stays open until `make docker-up`, `/health` and the UI E2E smoke pass on Podman.
+
+---
+
 ## 2026-07-07 - Lead email recipient and normal trigger behavior documented (groupscout-site-lil)
 
 ### Digest-first and normal `/run` expectations captured

@@ -154,10 +154,21 @@ We provide a helper script to check Ollama connectivity, model availability, and
     ```bash
     make ollama-push
     # OR
-    go run cmd/server/main.go ollama push-models
+    go run ./cmd/server ollama push-models
     ```
 
 ---
+
+### 2b. Compose And Image Guardrails
+`go test ./internal/smoke/` (part of `make test`) includes `compose_hardening_test.go`, which needs no container runtime. It fails when:
+- an image uses `:latest` or has no tag
+- the base Compose file publishes host ports
+- the production overlay publishes a non-`127.0.0.1` port or skips `!reset` on the local build
+- a core service lacks a healthcheck, or any service lacks log rotation
+- `alertd` uses an `env_file`
+- the Dockerfile uses unpinned or root images, or builds single files instead of packages
+
+`make compose-check` renders every profile set and the production overlay with the real Compose CLI (`COMPOSE="podman compose"` for Podman).
 
 ### 3. Manual Verification & Tools
 Several utility scripts are provided for manual verification:

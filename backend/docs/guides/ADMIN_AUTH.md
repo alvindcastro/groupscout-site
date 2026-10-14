@@ -116,7 +116,7 @@ Rebuild when auth routes or static assets changed:
 ```bash
 cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
 npm run build
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up -d --build groupscout-ui
+docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml up -d --build groupscout-ui
 ```
 
 Verify the UI proxy can reach backend auth:

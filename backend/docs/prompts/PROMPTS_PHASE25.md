@@ -416,6 +416,8 @@ Verify C:
 
 ## Part D — Terraform IaC for GCP (Optional)
 
+> **Superseded 2026-10-14** by [INFRASTRUCTURE_AS_CODE.md](../planning/INFRASTRUCTURE_AS_CODE.md) (Beads epic `groupscout-site-6ah`). Do not start this prompt; it is kept for reference only.
+
 > GCP Cloud Run is incompatible with `alertd` (scales to zero). If GCP is required,
 > `alertd` must run on a Compute Engine VM — not Cloud Run. This adds ~$12–20/month.
 > Only pursue Part D if there is a specific compliance or organizational requirement for GCP.

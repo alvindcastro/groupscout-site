@@ -43,6 +43,17 @@ Generate a secure `API_TOKEN`:
 openssl rand -hex 32
 ```
 
+For the Docker Compose stack (Option B), `.env` also controls which optional services start and the container secrets. With IaC Phase 1 (backend branch `task/iac-phase1-hardening`), blank values fall back to dev defaults that match existing volumes:
+
+```env
+COMPOSE_PROFILES=llm,obs   # Ollama + Prometheus/Grafana/Loki; blank = core services only
+POSTGRES_PASSWORD=         # dev default: groupscout (applies only when pgdata is first created)
+N8N_ENCRYPTION_KEY=        # blank keeps the key stored in n8n_data; if set, it must match it
+GRAFANA_ADMIN_PASSWORD=    # dev default: admin (applies only when grafana_data is first created)
+```
+
+See [DOCKER.md](./DOCKER.md#2-environment-setup) for what each one does on an existing volume.
+
 > Everything else has sensible defaults. See `.env.example` for the full list.
 
 Contract-only admin auth defaults on after the `/api/auth/*` implementation lands. The inspected backend source snapshot does not currently create `ADMIN_SETUP_TOKEN_FILE` or expose `/admin/login`/`/api/auth/*`; see [ADMIN_AUTH.md](./ADMIN_AUTH.md) for the target login, logout, and token-rotation flow.
@@ -84,7 +95,7 @@ GroupScout keeps a `raw_inputs` audit trail to ensure traceability of leads.
 ### 1. Retention Policy
 To prevent infinite database growth, raw inputs that are NOT referenced by any lead can be purged.
 - **Auto-purge**: Set `AUDIT_RETENTION_ENABLED=true` in server mode. The worker defaults to `AUDIT_RETENTION_DAYS=30`, `AUDIT_RETENTION_INTERVAL_HOURS=24`, and `AUDIT_RETENTION_RUN_ON_START=true`.
-- **Manual purge**: Run `go run cmd/server/main.go audit-retention purge --days 30` from the backend source repo. The command prints JSON with `cutoff`, `deleted`, `started_at`, and `ended_at`.
+- **Manual purge**: Run `go run ./cmd/server audit-retention purge --days 30` from the backend source repo. The command prints JSON with `cutoff`, `deleted`, `started_at`, and `ended_at`.
 - **Safety**: The purge logic uses a `NOT EXISTS` check on the `leads` table to ensure that any raw data linked to a lead is NEVER deleted.
 
 ### 2. PII Stripping
@@ -117,7 +128,7 @@ This prints a side-by-side table of `priority_score`, `estimated_crew_size`, and
 go mod download
 
 # Start the HTTP server (stays running, listens on :8080)
-go run cmd/server/main.go
+go run ./cmd/server
 ```
 
 Expected output:
@@ -128,18 +139,22 @@ INFO  Database ready
 
 **Or run the pipeline once and exit (no server):**
 ```bash
-go run cmd/server/main.go --run-once
+go run ./cmd/server --run-once
 ```
+
+Run the package (`./cmd/server`), not `cmd/server/main.go`. The server is split across several files, and naming one file compiles only that file.
 
 ---
 
 ### Option B — Docker Compose (recommended)
 
-Starts GroupScout + **Postgres (with pgvector/pgvector:pg17)** + n8n + Prometheus + Grafana + Loki in one command. Testing Podman instead of Docker? Use [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) first. The core app/Postgres/n8n path is the initial target; Promtail Docker socket mounts, Traefik Docker provider examples, host aliases, and Ollama GPU support need separate validation.
+Starts GroupScout + **Postgres (pgvector `0.8.7-pg17-bookworm`)** + n8n, plus Ollama (`llm` profile) and Prometheus + Grafana + Loki (`obs` profile), in one command. The Compose layout, profiles and pinned image versions are described in [DOCKER.md](./DOCKER.md#compose-layout). Testing Podman instead of Docker? Use [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) first. The core app/Postgres/n8n path is the initial target; Promtail Docker socket mounts, Traefik Docker provider examples, host aliases, and Ollama GPU support need separate validation.
 
 ```bash
-docker compose up -d
+make docker-up
 ```
+
+`make docker-up` builds the backend image stamped with the current git SHA and starts the `llm` and `obs` profiles. Plain `docker compose up -d --build` starts only the core services unless `COMPOSE_PROFILES` is set in `.env`.
 
 > **WSL2 users:** Modern Docker installations use the `docker compose` (v2 plugin) command. If you get a "'docker-compose' could not be found" error, ensure you are using the space-separated command `docker compose` instead of the hyphenated `docker-compose`. Ensure **Docker Desktop → Settings → Resources → WSL Integration** is enabled for your distro.
 
@@ -155,6 +170,8 @@ Services that come up:
 | Grafana | http://localhost:3000 | Dashboards + log viewer |
 | Prometheus | http://localhost:9090 | Metrics |
 | Loki | http://localhost:3100 | Log aggregation |
+
+Prometheus, Grafana and Loki come from the `obs` profile. Ollama (`llm` profile) is internal only and has no host port.
 
 ---
 
@@ -188,7 +205,7 @@ docker compose logs grafana --tail=30
 
 #### Docker — Operator Quick Check
 
-Run these checks after `docker compose up -d`:
+Run these checks after `make docker-up`:
 
 ```bash
 docker compose ps
@@ -242,24 +259,28 @@ INFO  sent leads to Slack  count=1
 #### Docker — Rebuild After Code Changes
 
 ```bash
-docker compose up -d --build
+make docker-up
 ```
 
-> If `go mod download` fails during build, check that the Go version in `Dockerfile` matches `go.mod`. `go.mod` currently declares `go 1.26` — the Dockerfile must use `golang:1.26-alpine` or higher.
+`make docker-up` always rebuilds, so `/health` reports the SHA of your checkout.
+
+> If `go mod download` fails during build, check that the Go version in `Dockerfile` satisfies `go.mod`. `go.mod` currently declares `go 1.26`, and the Dockerfile pins `golang:1.26.9-alpine3.24`.
 
 ---
 
 #### Docker — Teardown
 
-Stop containers (keep volumes/images):
+Stop containers in every profile (keep volumes/images):
 ```bash
-docker compose down
+make docker-down
 ```
 
 Stop and remove everything including volumes:
 ```bash
-docker compose down --rmi all --volumes
+COMPOSE_PROFILES=llm,obs docker compose down --rmi all --volumes
 ```
+
+Plain `docker compose down` only stops services in the active profiles.
 
 ---
 
@@ -272,10 +293,10 @@ curl -i --max-time 5 http://localhost:8080/health
 Expected response: HTTP `200` with JSON similar to:
 
 ```json
-{"status":"ok","database":"ok","ollama":"ok"}
+{"database":"ok","ollama":"ok","status":"ok","version":"bdcff09"}
 ```
 
-The `ollama` value may also be `degraded` or `unavailable`; that blocks LLM enrichment verification, not basic health or UI/API smoke. A non-`ok` database value blocks the backend.
+The `ollama` value may also be `degraded` or `unavailable`. That blocks LLM enrichment verification, not basic health or UI/API smoke; `degraded` usually means the `llm` profile isn't running. A non-`ok` database value blocks the backend. `version` is the git SHA the image was built from (`dev` for `go run` or builds without `GROUPSCOUT_VERSION`). Compare it with `git rev-parse --short HEAD` to confirm the container runs your checkout.
 
 ---
 
@@ -330,11 +351,11 @@ docker logs --tail 40 groupscout_n8n
 
 Expected: the container is `Up`, port `5678` is published, and logs include `Editor is now accessible via: http://localhost:5678`.
 
-If the local sign-in password is lost, stop the running n8n container before resetting user state so SQLite is not open:
+If the local sign-in password is lost, stop the running n8n container before resetting user state so SQLite is not open. Use the same n8n version that `docker-compose.yml` pins. A newer image would migrate the volume's database, and n8n can't migrate it back:
 
 ```bash
 docker stop groupscout_n8n
-docker run --rm --volumes-from groupscout_n8n n8nio/n8n:latest user-management:reset
+docker run --rm --volumes-from groupscout_n8n n8nio/n8n:2.43.5 user-management:reset
 docker start groupscout_n8n
 ```
 
@@ -448,7 +469,7 @@ Workflow asset: [`../workflows/n8n/sunday-wednesday-lead-cadence.json`](../workf
 
 If you've been using SQLite (`groupscout.db`) and want to move your data to a new PostgreSQL instance:
 
-1.  **Ensure Postgres is running** and accessible (e.g., via `docker compose up -d`).
+1.  **Ensure Postgres is running** and accessible (e.g., via `docker compose up -d postgres`).
 2.  **Run the migration script**:
 
     ```bash
@@ -490,8 +511,11 @@ For `/n8n/webhook`, send `PriorityScore` on the Slack/internal `0-10` scale. Leg
 | No leads generated | Lower `MIN_PERMIT_VALUE_CAD` to `100000` for testing |
 | PDF parse errors | Confirm `pdftotext` is on your PATH: `pdftotext -v` |
 | `pdftotext not found` (local) | Add `C:\Program Files\Git\mingw64\bin` to your system PATH |
-| `pdftotext not found` (Docker) | `poppler-utils` is now included in the Docker image. If you see this, run `docker compose up -d --build`. |
-| `go mod download` fails during Docker build | Go version mismatch — `Dockerfile` must use `golang:1.26-alpine` to match `go.mod` |
+| `pdftotext not found` (Docker) | `poppler-utils` is now included in the Docker image. If you see this, rebuild with `make docker-up`. |
+| `go mod download` fails during Docker build | Go version mismatch — the pinned builder (`golang:1.26.9-alpine3.24`) must satisfy `go.mod`; bump the Dockerfile pin when `go.mod` moves forward |
+| `/health` shows `"ollama":"degraded"` and no `groupscout_ollama` container | Ollama is in the `llm` profile — use `make docker-up` or set `COMPOSE_PROFILES=llm,obs` in `.env` |
+| n8n restarts with `Mismatching encryption keys` | `N8N_ENCRYPTION_KEY` in `.env` differs from the key in `n8n_data` — blank it or copy the stored key from `/home/node/.n8n/config` |
+| `go run cmd/server/main.go` fails with `undefined: ...` | Run the package instead: `go run ./cmd/server` |
 | `Failed to initialize: protocol not available` | Docker Desktop WSL integration not enabled for your distro — see Docker Desktop → Settings → Resources → WSL Integration |
 | `podman compose` cannot find a provider | Install standalone `Docker.DockerCompose`, refresh PATH, and confirm `podman compose version` prints the Compose version. |
 | Podman host port returns an empty response | Retry with an explicit IPv4 host mapping such as `-p 127.0.0.1:3004:3000`; the 2026-07-01 smoke hit a rootless relay issue on `3002:3000`. |

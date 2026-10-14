@@ -14,7 +14,7 @@ API_TOKEN=dev-token \
 ADMIN_AUTH_ENABLED=true \
 OLLAMA_ENABLED=false \
 ENRICHMENT_ENABLED=false \
-go run cmd/server/main.go
+go run ./cmd/server
 ```
 
 The server listens on `http://localhost:8080` unless `PORT` is set.
@@ -70,7 +70,7 @@ DATABASE_URL='postgres://groupscout:groupscout@localhost:5432/groupscout?sslmode
 API_TOKEN=dev-token \
 OLLAMA_ENABLED=false \
 ENRICHMENT_ENABLED=false \
-go run cmd/server/main.go
+go run ./cmd/server
 ```
 
 Verify:

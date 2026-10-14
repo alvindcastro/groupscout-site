@@ -52,7 +52,7 @@
 | LLM Provider Abstraction (`LLMClient` interface, factory) | 📋 planned | Phase 16 |
 | Hetzner CX32 + Coolify production deploy (primary recommendation, ~$10/month) | 📋 planned | Phase 26-B |
 | Event-driven ingestion: `POST /ingest` → `EnrichOne()` (platform-agnostic) | ✅ implemented in backend branch `task/event-driven-ingest` | Phase 26-C |
-| Terraform IaC for GCP (optional; alertd incompatible with Cloud Run — needs Compute Engine VM) | 📋 optional | Phase 26-D |
+| ~~Terraform IaC for GCP~~ superseded by the provider-neutral [IaC plan](./INFRASTRUCTURE_AS_CODE.md) (`groupscout-site-6ah`) | ⛔ superseded | Phase 26-D |
 | AIaaS API Layer: expose enrichment as standalone service | 📋 future | Phase 10 |
 | CRM/ERP Integration: HubSpot, Salesforce, SAP | 📋 future | Phase 11 |
 

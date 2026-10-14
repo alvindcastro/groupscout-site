@@ -801,6 +801,8 @@ This older workflow is retained for context only. Current sessions use Beads and
 Postgres integration follow-up: `groupscout-site-wda` tracks the raw-input foreign-key failure observed in the enrichment integration suite after the `/ingest` implementation; unit and handler suites pass.
 
 ### Part D — Terraform IaC (GCP, optional)
+> **Superseded 2026-10-14** by [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md) (Beads epic `groupscout-site-6ah`), which targets a single Linux host (home or Hetzner) with OpenTofu, Ansible and Cloudflare Tunnel. The tasks below are kept for reference only.
+
 > Only pursue this path if GCP-specific requirements exist (compliance, existing credits, org policy). Requires adding a persistent Compute Engine VM for `alertd` — Cloud Run cannot host the daemon.
 
 - [ ] **C1** `terraform/main.tf` — Compute Engine VM for `alertd` (e2-micro or e2-small); Cloud Run for `server` (weekly pipeline trigger only)

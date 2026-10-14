@@ -35,6 +35,9 @@ Hotel configurations are stored in `config/airports.yaml`.
 - `SLACK_BOT_TOKEN`: (Required) The Bot User OAuth Token for the Slack app.
 - `ALERTD_CONFIG_PATH`: (Optional) Custom path to the YAML config (defaults to `config/airports.yaml`).
 - `ALERTD_PORT`: (Optional) Port for the Slack slash command HTTP server (defaults to `8081`).
+- `OLLAMA_ENABLED`, `OLLAMA_ALERT_COPY_ENABLED`, `OLLAMA_ENDPOINT`, `OLLAMA_ALERT_COPY_TIMEOUT_S`: (Optional) Ollama-generated alert copy. It is used only when both flags are `true`, prefers `llama3.1:8b`, and falls back to `mistral`.
+
+`alertd` reads nothing else. In Docker Compose it receives only these variables: `SLACK_BOT_TOKEN` and the `OLLAMA_*` flags from `.env`, `ALERTD_PORT=8081`, and `OLLAMA_ENDPOINT=http://ollama:11434`. It does not get the whole `.env` (no `env_file`), so pipeline secrets such as `CLAUDE_API_KEY` never reach it. This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
 
 ## Slack Slash Commands
 
@@ -55,11 +58,17 @@ If room inventory is not set, alerts will display: "room count not set — use /
 
 ## Deployment
 
-`alertd` runs as a separate service in `docker-compose.yml`:
+`alertd` runs as a separate core service in `docker-compose.yml`. It uses the same image as `groupscout`, with `command: ["./alertd"]`:
 
 ```bash
 docker compose up -d alertd
 ```
+
+Without `SLACK_BOT_TOKEN`, `alertd` exits at startup (`SLACK_BOT_TOKEN is required`), and `restart: unless-stopped` keeps restarting it.
+
+### Health
+
+`GET /health` on port `8081` returns `{"status":"ok","version":"<git sha>"}` while the HTTP server is up. The Compose healthcheck uses it, so `docker compose ps` shows `alertd` as `(healthy)`.
 
 ## Monitoring & Logs
 

@@ -39,11 +39,13 @@ The D4 production UI runtime is wired through the UI repo's `smoke-ui-e2e` Compo
 - For Podman: `RedHat.Podman`, standalone `Docker.DockerCompose`, an initialized/running Podman machine, and a shell where `podman compose version` succeeds. See [PODMAN_MIGRATION.md](../../guides/PODMAN_MIGRATION.md).
 - Backend `.env` in `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 - UI repo present at `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`.
-- Time for first backend boot: the current `groupscout` service depends on `ollama` and `ollama-init`, so first startup may pull models.
+- Time for first backend boot: when the `llm` Compose profile is active (`COMPOSE_PROFILES=llm` in the backend `.env`, or `make docker-up`), `groupscout` waits for `ollama` and `ollama-init`, so first startup may pull models. Without that profile, the backend starts as soon as Postgres is healthy, and `/health` reports `"ollama":"degraded"`.
 
 ## Start Backend Plus D3 UI Product Server
 
 Run from the UI repo so `compose.dev.yml` is local, but pin the Compose project name to `groupscout` so the Docker network name is stable:
+
+List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …). This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
 
 For Podman Compose, keep the same `-p groupscout` convention. On Windows, set `GROUPSCOUT_UI_REPO` to the native Windows UI path when using the standalone Docker Compose provider so the build context resolves correctly.
 
@@ -52,6 +54,7 @@ cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
 
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   up -d --build groupscout groupscout-ui
 ```
@@ -77,6 +80,7 @@ Still from the UI repo:
 ```sh
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   --profile smoke-ui-e2e \
   up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy
@@ -105,12 +109,14 @@ The executable gate performs these checks and verifies the UI Compose overlay do
 ```sh
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   --profile smoke-ui-e2e \
   stop groupscout-ui-production groupscout-ui-production-bad-proxy
 
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   --profile smoke-ui-e2e \
   rm -f groupscout-ui-production groupscout-ui-production-bad-proxy

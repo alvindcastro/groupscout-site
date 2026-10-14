@@ -11,9 +11,9 @@ Docker remains the production and CI command baseline for the commands below. Lo
 | Mode | Entry Point | Serves Assets | Proxies `/api/*` | Backend Required | Primary Use |
 | --- | --- | --- | --- | --- | --- |
 | D1 test image | `docker run --rm groupscout-ui-test` | No | No | No | Run the model-level Node test suite in a clean container. |
-| Phase 13 development product server | `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout` | Yes, from `web/dist` | Server-side target metadata and same-origin behavior | Yes, for merged Compose wiring | Prove the UI service can join the backend Compose network, expose `/healthz`, and serve generated product assets. |
+| Phase 13 development product server | `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml up --build groupscout-ui groupscout` | Yes, from `web/dist` | Server-side target metadata and same-origin behavior | Yes, for merged Compose wiring | Prove the UI service can join the backend Compose network, expose `/healthz`, and serve generated product assets. |
 | D4 production server | `npm run start:ui` or `docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production` | Yes, from `web/dist` | Yes, server-side and session-gated when UI session auth is configured | Backend required for `/api/*` smoke checks | Serve one browser origin for static assets plus same-origin API forwarding. |
-| D4 production server on backend network | `docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml --profile smoke-ui-e2e up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy` | Yes, from `web/dist` | Yes, server-side and session-gated when UI session auth is configured | Yes | Production UI runtime smoke path; backend-owned repeatable gate is available through `make smoke-ui-docker-e2e`. |
+| D4 production server on backend network | `docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml --profile smoke-ui-e2e up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy` | Yes, from `web/dist` | Yes, server-side and session-gated when UI session auth is configured | Yes | Production UI runtime smoke path; backend-owned repeatable gate is available through `make smoke-ui-docker-e2e`. |
 
 ## D1 Test Image
 
@@ -37,15 +37,19 @@ podman run --rm groupscout-ui-test
 
 `compose.dev.yml` is an override for the backend Compose stack, not a standalone Compose file. The backend Compose file defines service `groupscout` and network `groupscout_net`; without that file, Compose validation is expected to fail.
 
+The commands list the backend `docker-compose.override.yml` as well. After IaC Phase 1 (backend branch `task/iac-phase1-hardening`), the backend's dev host ports live in that file. Compose skips it whenever `-f` is passed, and an `up` without it recreates the backend containers without `localhost:8080`. Ollama is optional there (`llm` profile), so the backend no longer waits for model pulls unless that profile is active.
+
+The production UI image (`--target production`) starts from a clean pinned `node:22.23.3-bookworm-slim` base. It contains only `package.json` and `web/`, with no tests, Compose files or Dockerfile, and runs as the unprivileged `node` user.
+
 The Phase 13 service builds the D1 `test` target but overrides the command with `node web/src/server/productDevServer.js`. It serves generated `web/dist` assets, exposes `/healthz` JSON metadata, and keeps backend discovery server-side through `http://groupscout:8080`.
 
 Use it when validating container networking beside the backend stack:
 
 ```sh
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout
+docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml config --quiet
+docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml up --build groupscout-ui groupscout
 curl -i http://localhost:${GROUPSCOUT_UI_HOST_PORT:-3001}/healthz
-docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml down
+docker compose -p groupscout -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml down
 ```
 
 The `-p groupscout` flag keeps the Docker network name predictable as `groupscout_groupscout_net`, which is useful when attaching the D4 production container manually.
@@ -83,6 +87,7 @@ To smoke the production UI container against the backend container instead of a 
 ```sh
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   --profile smoke-ui-e2e \
   up -d --build groupscout groupscout-ui-production groupscout-ui-production-bad-proxy
@@ -95,11 +100,13 @@ curl -i http://localhost:3003/api/system
 
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   --profile smoke-ui-e2e \
   stop groupscout-ui-production groupscout-ui-production-bad-proxy
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   --profile smoke-ui-e2e \
   rm -f groupscout-ui-production groupscout-ui-production-bad-proxy

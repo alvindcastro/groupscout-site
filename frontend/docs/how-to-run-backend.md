@@ -30,7 +30,7 @@ API_TOKEN=your_secure_token_here
 DATABASE_URL=groupscout.db
 ```
 
-Note: backend email-provider docs have had `SENDGRID_API_KEY` versus `RESEND_API_KEY` drift. Prefer the backend repo's current `.env.example` and `config/config.go` when configuring email.
+Email uses `RESEND_API_KEY`. No backend code reads `SENDGRID_API_KEY`; IaC Phase 1 removed its Compose passthrough, so older docs that mention it are stale.
 
 For Postgres local development:
 
@@ -43,7 +43,7 @@ DATABASE_URL=postgres://groupscout:groupscout@localhost:5432/groupscout
 ```sh
 cd /mnt/c/Users/alvin/GolandProjects/groupscout
 go mod download
-go run cmd/server/main.go
+go run ./cmd/server
 ```
 
 Expected API base:
@@ -72,7 +72,7 @@ Run one collector/enrichment/notification pass and exit:
 
 ```sh
 cd /mnt/c/Users/alvin/GolandProjects/groupscout
-go run cmd/server/main.go --run-once
+go run ./cmd/server --run-once
 ```
 
 Equivalent Makefile target:
@@ -102,7 +102,7 @@ DATABASE_URL=postgres://groupscout:groupscout@localhost:5432/groupscout
 Then run:
 
 ```sh
-go run cmd/server/main.go --run-once
+go run ./cmd/server --run-once
 ```
 
 Migrations run automatically on first boot.
@@ -111,8 +111,10 @@ Migrations run automatically on first boot.
 
 ```sh
 cd /mnt/c/Users/alvin/GolandProjects/groupscout
-docker compose up -d
+make docker-up
 ```
+
+`make docker-up` builds the backend image stamped with the git SHA (shown as `version` in `/health`) and starts the core services plus the `llm` (Ollama) and `obs` (Prometheus/Grafana/Loki) profiles. Plain `docker compose up -d` starts only the core services (`postgres`, `groupscout`, `alertd`, `n8n`) unless `COMPOSE_PROFILES=llm,obs` is in the backend `.env`. This is the IaC Phase 1 layout on backend branch `task/iac-phase1-hardening`; see the backend [Docker Guide](../../backend/docs/guides/DOCKER.md#compose-layout).
 
 Local Podman equivalent after `podman machine init`, `podman machine start`, and Compose provider setup:
 
@@ -176,7 +178,7 @@ Run the airport disruption monitor locally:
 
 ```sh
 cd /mnt/c/Users/alvin/GolandProjects/groupscout
-go run cmd/alertd/main.go
+go run ./cmd/alertd
 ```
 
 Alertd listens on `localhost:8081` by default and needs `config/airports.yaml`.

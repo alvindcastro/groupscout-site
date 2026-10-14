@@ -38,6 +38,11 @@ Recently completed source-of-truth cleanup:
 - `groupscout-site-783` - `.beads` permission warning documented as an accepted Windows-mounted checkout limitation.
 - `groupscout-site-lkr` - Podman CLI, Compose provider, backend stack, UI image tests, and backend-owned UI E2E smoke validated.
 
+Infrastructure as Code (epic `groupscout-site-6ah`, plan in [INFRASTRUCTURE_AS_CODE.md](./backend/docs/planning/INFRASTRUCTURE_AS_CODE.md)):
+
+- `groupscout-site-6ah.2` - Phase 1 Compose and image hardening is implemented on backend branch `task/iac-phase1-hardening` and UI branch `task/iac-ui-production-image`. Next: verify on Podman (`make docker-up`, `/health` shows the SHA, core services healthy, UI E2E smoke, cadence still active after the n8n upgrade), then merge both branches.
+- `groupscout-site-6ah.1` - Phase 0 decisions D1–D11 (deploy target, tooling) gate Phases 5–8.
+
 Then move to the operator UI bridge:
 
 - `groupscout-site-eqm` - backend `/api/*` routes needed by the UI.
@@ -48,6 +53,8 @@ Then move to the operator UI bridge:
 
 ## Documentation Anchors
 
+- Infrastructure as Code plan and phase scope: [backend/docs/planning/INFRASTRUCTURE_AS_CODE.md](./backend/docs/planning/INFRASTRUCTURE_AS_CODE.md)
+- Compose layout, profiles and pinned images: [backend/docs/guides/DOCKER.md](./backend/docs/guides/DOCKER.md#compose-layout)
 - Active not-done and upgrade order: [backend/docs/planning/NOT_DONE_AND_UPGRADES.md](./backend/docs/planning/NOT_DONE_AND_UPGRADES.md)
 - Strategic roadmap: [backend/docs/planning/ROADMAP.md](./backend/docs/planning/ROADMAP.md)
 - Podman migration runbook: [backend/docs/guides/PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md)
@@ -57,6 +64,7 @@ Then move to the operator UI bridge:
 
 ## Known Drift To Reconcile
 
+- Runtime docs describe the IaC Phase 1 Compose layout (base + dev override + prod overlay, `llm`/`obs` profiles). Until `task/iac-phase1-hardening` merges, backend `main` still has the single Compose file. The docs carry a "lands with `task/iac-phase1-hardening`" note; remove those notes when `groupscout-site-6ah.2` closes.
 - `frontend/docs/ui-tdd-phase-0-15-implementation.md` records branch-history evidence; current checkout now has `getLead`, production session gating, and deterministic Phase 15 hardening again, while `/admin/login` remains planned under `groupscout-site-1x9`.
 - `backend/docs/CHANGELOG.md` mentions UI API and pipeline/stat/system work that some planning contracts still mark as not live; verify against the backend source before relying on those claims.
 - The `.beads` permission warning on this Windows-mounted coordination checkout is accepted under `groupscout-site-783`; `chmod 700 .beads` does not persist on the current DrvFs/9p mount without metadata support.

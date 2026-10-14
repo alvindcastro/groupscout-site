@@ -6,6 +6,8 @@
 >
 > **Container runtime note:** Docker Compose is still the known-good baseline for these deployment options. Podman is currently a local migration target; use [PODMAN_MIGRATION.md](../guides/PODMAN_MIGRATION.md) before treating Traefik socket discovery, Promtail log scraping, host aliases, GPU-backed Ollama, or Compose networking as Podman-compatible.
 >
+> **Infrastructure as Code:** [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md) (Beads epic `groupscout-site-6ah`) plans how whichever target is chosen gets provisioned and deployed from git: Compose overlays, Ansible, OpenTofu for Hetzner/Cloudflare, SOPS secrets, GHCR images and scripted backups. It recommends Cloudflare Tunnel over port forwarding and dropping Coolify (decision D6). After IaC Phase 1, the backend Compose setup is a base file plus a dev override plus `deploy/compose/compose.prod.yml`, so "deploys your existing `docker-compose.yml` as-is" below now means the base file plus the production overlay.
+>
 > **Key constraint:** `alertd` polls every 10–90 seconds. It **cannot** run on a platform that scales to zero between requests (e.g. Cloud Run, Render free tier).
 
 ---

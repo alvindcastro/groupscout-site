@@ -2,60 +2,113 @@
 
 This guide provides technical details for running and troubleshooting GroupScout using Docker and Docker Compose. Docker Compose remains the known-good baseline. If you are testing Podman compatibility, start with [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md) and keep any unverified runtime differences there.
 
+> **Status:** The Compose layout, profiles, pinned images and `/health` version described here land with backend branch `task/iac-phase1-hardening` (Beads `groupscout-site-6ah.2`, IaC Phase 1). Until that branch merges, backend `main` still uses a single Compose file that starts every service and builds with `build: .`. The plan for the rest of the infrastructure is in [INFRASTRUCTURE_AS_CODE.md](../planning/INFRASTRUCTURE_AS_CODE.md).
+
 ## 🚀 Running with Docker Compose
 
-GroupScout includes a `docker-compose.yml` that starts the full stack, including the lead generation server, disruption monitor, database, and monitoring tools.
+GroupScout's Compose setup starts the lead generation server, disruption monitor, database and n8n, plus optional Ollama and monitoring services.
+
+### Compose Layout
+
+| File | Purpose | Loaded when |
+|---|---|---|
+| `docker-compose.yml` | Base: every service, the local image build (stamped with the git SHA), pinned images, healthchecks, log rotation. **No host ports.** | Always |
+| `docker-compose.override.yml` | Dev host ports (`8080`, `8081`, `5432`, `5678`, `9090`, `3000`, `3100`) | Automatically, when no `-f` flag is given |
+| `deploy/compose/compose.prod.yml` | Production: registry image by tag (no local build), required secrets, ports bound to `127.0.0.1`, memory limits, `JSON_LOG=true`, Ollama off by default | Only with `-f docker-compose.yml -f deploy/compose/compose.prod.yml` |
+
+Commands that pass `-f` explicitly skip the dev override. For example, the UI repo's `-f docker-compose.yml -f compose.dev.yml` flows still build and run the backend, but don't publish its host ports. Add `-f docker-compose.override.yml` after the base file if you also need `localhost:8080`.
+
+### Profiles
+
+| Profile | Services | Started by |
+|---|---|---|
+| none (core) | `postgres`, `groupscout`, `alertd`, `n8n` | Always |
+| `llm` | `ollama`, `ollama-init` | `make docker-up` (default), or `COMPOSE_PROFILES` containing `llm` |
+| `obs` | `prometheus`, `grafana`, `loki`, `promtail` | `make docker-up` (default), or `COMPOSE_PROFILES` containing `obs` |
+
+`make docker-up` exports `COMPOSE_PROFILES=llm,obs`. Use `make docker-up COMPOSE_PROFILES=` for core services only. Plain `docker compose up -d` and `podman compose up -d` read `COMPOSE_PROFILES` from `.env`. Without it, they start the core services only, and `/health` reports Ollama as `degraded`. Naming a profiled service directly (`docker compose up -d ollama`) starts it regardless.
 
 ## Current Operational Runbooks
 
 Use [BACKEND_FOR_UI_TESTING.md](../planning/ui/BACKEND_FOR_UI_TESTING.md) for local backend startup notes, [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md) for backend plus external UI smoke, [TESTING.md](./TESTING.md) for test commands, and [OLLAMA_SETUP.md](./OLLAMA_SETUP.md) for Ollama model operations.
 
 ### 1. Prerequisites
-- **Docker Desktop** (for Windows/macOS) or **Docker Engine + Docker Compose** (for Linux).
+- **Docker Desktop** (for Windows/macOS) or **Docker Engine + Docker Compose** (for Linux). Compose 2.20 or newer is required for optional `depends_on` (`required: false`) and the production overlay's `!reset` tag.
 - **WSL2** (strongly recommended for Windows users).
 
 ### 2. Environment Setup
-Ensure you have a `.env` file in the project root with the minimum required variables:
+Ensure you have a `.env` file in the project root, copied from `.env.example`. The minimum values for the Compose stack:
 ```env
 CLAUDE_API_KEY=sk-ant-...
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/XXX/YYY/ZZZ
 SLACK_BOT_TOKEN=xoxb-...
 API_TOKEN=your_secure_token_here
-DATABASE_URL=postgres://groupscout:groupscout@postgres:5432/groupscout
+COMPOSE_PROFILES=llm,obs
 AUDIT_RETENTION_ENABLED=false
 AUDIT_RETENTION_DAYS=30
 AUDIT_RETENTION_INTERVAL_HOURS=24
 AUDIT_RETENTION_RUN_ON_START=true
 ```
 
+Compose builds the container's `DATABASE_URL` from `POSTGRES_PASSWORD`. A `DATABASE_URL` in `.env` only affects `go run` outside Docker. These optional values fall back to dev defaults when blank, and the production overlay requires all three:
+
+| Variable | Dev default | Notes |
+|---|---|---|
+| `POSTGRES_PASSWORD` | `groupscout` | Only applied when the `pgdata` volume is first created. Use a URL-safe value (`openssl rand -hex 24`), since it is embedded in `DATABASE_URL`. To rotate on an existing volume, also run `ALTER USER groupscout PASSWORD '...'`. |
+| `N8N_ENCRYPTION_KEY` | key stored in `n8n_data` | When set, it must match `/home/node/.n8n/config` inside the volume, or n8n refuses to start. Read it with `docker compose exec n8n cat /home/node/.n8n/config`. |
+| `GRAFANA_ADMIN_PASSWORD` | `admin` | Only applied when the `grafana_data` volume is first created. |
+
+`alertd` receives only the variables it reads (`SLACK_BOT_TOKEN`, `ALERTD_PORT`, and its `OLLAMA_*` settings), not the whole `.env`.
+
 ### 3. Start the Stack
 ```bash
-docker compose up -d
+make docker-up
 ```
-This starts all services in the background.
-
-Podman migration shorthand:
+This builds the backend image stamped with the current git SHA (`--build`), then starts the core services plus the `llm` and `obs` profiles in the background. The plain Compose equivalent:
 
 ```bash
-COMPOSE="podman compose"
-$COMPOSE -p groupscout config --quiet
-$COMPOSE -p groupscout up -d --build
+GROUPSCOUT_VERSION=$(git rev-parse --short HEAD) COMPOSE_PROFILES=llm,obs docker compose up -d --build
 ```
 
-Do not assume every Docker command below is Podman-compatible. Promtail, Traefik socket discovery, Ollama GPU access, and host aliases have separate caveats in [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md).
+Validate every profile combination and the production overlay without starting anything:
+
+```bash
+make compose-check
+```
+
+Podman uses the same targets:
+
+```bash
+make docker-up COMPOSE="podman compose"
+make compose-check COMPOSE="podman compose"
+```
+
+The Compose file sets `name: groupscout`, so `-p groupscout` is no longer required (it is still harmless). Do not assume every Docker command below is Podman-compatible. Promtail, Traefik socket discovery, Ollama GPU access, and host aliases have separate caveats in [PODMAN_MIGRATION.md](./PODMAN_MIGRATION.md).
 
 ### 4. Service Overview
 
-| Service | Port | Description |
-|---|---|---|
-| `groupscout` | 8080 | Main lead generation server (cmd/server) |
-| `alertd` | 8081 | Airport disruption monitor (cmd/alertd) |
-| `postgres` | 5432 | Database with `pgvector` extension |
-| `n8n` | 5678 | Workflow automation / scheduler |
-| `prometheus`| 9090 | Metrics collection |
-| `grafana` | 3000 | Dashboards and log viewer |
-| `loki` | 3100 | Log aggregation |
-| `promtail`| 9080 | Log scraper (internal) |
+| Service | Dev host port | Profile | Image | Healthcheck |
+|---|---|---|---|---|
+| `groupscout` | 8080 | core | local build (`groupscout:local`) | `GET /health` |
+| `alertd` | 8081 | core | local build (same image) | `GET /health` |
+| `postgres` | 5432 | core | `pgvector/pgvector:0.8.7-pg17-bookworm` | `pg_isready` |
+| `n8n` | 5678 | core | `n8nio/n8n:2.43.5` | `GET /healthz` |
+| `ollama` | not published | `llm` | `ollama/ollama:0.40.4` | `ollama list` |
+| `prometheus` | 9090 | `obs` | `prom/prometheus:v3.15.0` | none |
+| `grafana` | 3000 | `obs` | `grafana/grafana:13.2.4` | none |
+| `loki` | 3100 | `obs` | `grafana/loki:3.7.8` | none |
+| `promtail` | 9080 (internal) | `obs` | `grafana/promtail:3.6.11` | none |
+
+Check health with `docker compose ps`. Healthy core services show `(healthy)` in the status column. `GET /health` returns a `version` field with the git SHA the running image was built from. `"version":"dev"` means the image was built without `GROUPSCOUT_VERSION`:
+
+```bash
+curl -s http://localhost:8080/health
+# {"database":"ok","ollama":"ok","status":"ok","version":"bdcff09"}
+```
+
+Images are pinned. n8n and Grafana migrate their databases forward on upgrade and cannot be downgraded, so back up `n8n_data` (and `grafana_data` if it holds anything you care about) before bumping their tags. pgvector pins the `-bookworm` variant on purpose. If the `pg17` tag moves to a newer Debian base, the glibc collation change can corrupt text indexes on an existing data directory.
+
+The backend containers run as an unprivileged user (uid `10001`).
 
 ### n8n Local Access
 
@@ -88,10 +141,12 @@ docker compose logs -f alertd
 docker compose logs --tail=50
 ```
 
+Container logs rotate at 10 MB, keeping 5 files per container.
+
 ### Rebuild and Restart
-If you change the Go code, you must rebuild the containers:
+`make docker-up` always rebuilds, so the running image matches your checkout. To rebuild just the backend services:
 ```bash
-docker compose up -d --build
+GROUPSCOUT_VERSION=$(git rev-parse --short HEAD) docker compose up -d --build groupscout alertd
 ```
 
 ### Raw Audit Retention
@@ -111,12 +166,13 @@ docker compose exec groupscout ./groupscout audit-retention purge --days 30
 The purge preserves every `raw_inputs` row referenced by `leads.raw_input_id`.
 
 ### Teardown
+`docker compose down` only acts on services in the active profiles. `make docker-down` exports `COMPOSE_PROFILES=llm,obs`, so it stops everything.
 ```bash
-# Stop and remove containers
-docker compose down
+# Stop and remove containers (all profiles)
+make docker-down
 
 # Stop and remove containers, volumes, and images
-docker compose down --rmi all --volumes
+COMPOSE_PROFILES=llm,obs docker compose down --rmi all --volumes
 
 # Clear everything (database, volumes, and local SQLite)
 make clear
@@ -128,17 +184,28 @@ To completely reset the environment and run one pipeline pass to verify the flow
 make start-fresh
 ```
 
+## 🏭 Production Overlay
+
+`deploy/compose/compose.prod.yml` is the starting point for a real deployment, which IaC Phases 5–7 will automate:
+
+```bash
+export GROUPSCOUT_IMAGE=ghcr.io/alvindcastro/groupscout GROUPSCOUT_IMAGE_TAG=<git sha>
+docker compose -f docker-compose.yml -f deploy/compose/compose.prod.yml up -d
+```
+
+It refuses to render unless these are set: `GROUPSCOUT_IMAGE`, `GROUPSCOUT_IMAGE_TAG`, `POSTGRES_PASSWORD`, `API_TOKEN`, `N8N_ENCRYPTION_KEY`, `GRAFANA_ADMIN_PASSWORD`. It never builds from source; the base file's `build` is removed with `!reset`. Only `groupscout` (8080), `n8n` (5678) and `grafana` (3000) are published, all on `127.0.0.1` for SSH-tunnel access, because Docker-published ports bypass UFW. Registry images arrive with IaC Phase 4 (`groupscout-site-6ah.5`).
+
 ## 🖥 Frontend UI Docker Smoke
 
 The operator UI lives in a separate repo at `/mnt/c/Users/alvin/WebstormProjects/groupscout-ui`. For the current backend-plus-frontend Docker runbook, see [Backend And Frontend Docker E2E](../planning/ui/BACKEND_FRONTEND_DOCKER_E2E.md).
 
 Key points:
 
-- Backend Compose service `groupscout` publishes `http://localhost:8080` and joins `groupscout_net`.
+- Backend Compose service `groupscout` joins `groupscout_net`. It publishes `http://localhost:8080` through the dev override, which `make docker-up` and plain `docker compose up` load automatically.
 - Grafana uses host port `3000`, so UI examples use `3001` for the development health harness and `3002` for the production static/proxy smoke container.
 - The UI repo's `compose.dev.yml` is an override, not a standalone Compose file.
-- The UI Compose service is the Phase 13 product dev server. It serves generated `web/dist` assets and `/healthz`; use the UI D4 production image when you need the production static/proxy runtime.
-- First backend boot can be slow because `groupscout` depends on `ollama` and `ollama-init`.
+- The UI Compose service is the Phase 13 product dev server. It serves generated `web/dist` assets and `/healthz`; use the UI D4 production image when you need the production static/proxy runtime. The production image starts from a clean pinned Node base and contains only `package.json` and `web/`.
+- First backend boot can be slow when the `llm` profile is active, because `groupscout` waits for `ollama` and `ollama-init`. Without that profile, the backend starts as soon as Postgres is healthy.
 
 Keep the full command sequence in the E2E runbook so D3/D4 smoke expectations do not drift across docs.
 
@@ -146,18 +213,18 @@ UI Docker gate status, reconciled 2026-06-13 (`groupscout-site-crz`): `make smok
 
 ## 🧠 Ollama Model Management
 
-Models are stored in a persistent volume (`groupscout_ollama_data`). Use [OLLAMA_SETUP.md](./OLLAMA_SETUP.md) for model pull/list/push commands, default-model configuration, and Ollama troubleshooting.
+Models are stored in a persistent volume (`groupscout_ollama_data`). Ollama runs only with the `llm` profile. Use [OLLAMA_SETUP.md](./OLLAMA_SETUP.md) for model pull/list/push commands, default-model configuration, and Ollama troubleshooting.
 
 ## 💾 Backups
 
-It is recommended to back up your database and Ollama models periodically.
+It is recommended to back up your database and Ollama models periodically. IaC Phase 8 (`groupscout-site-6ah.9`) replaces these manual steps with scheduled offsite backups and a restore smoke.
 
 ### Automated Backup Script
 Run the provided script to back up all named volumes:
 ```bash
 ./scripts/backup-volumes.sh
 ```
-This creates compressed tarballs in the `./backups` directory.
+This creates compressed tarballs in the `./backups` directory. The script is Docker-only. On Podman, use `podman volume export <volume> -o <file>.tar`.
 
 ### Manual Database Dump (Postgres)
 ```bash
@@ -166,7 +233,7 @@ docker compose exec postgres pg_dumpall -c -U groupscout > dump.sql
 
 ## 📊 Monitoring & Logging
 
-GroupScout includes a full observability stack.
+GroupScout includes an optional observability stack (the `obs` profile).
 
 ### Logging (Loki + Promtail)
 Logs from all containers are automatically scraped by `promtail` and sent to `loki`.
@@ -176,7 +243,9 @@ Logs from all containers are automatically scraped by `promtail` and sent to `lo
 ### Metrics (Prometheus + Grafana)
 Metrics are collected by `prometheus` and can be visualized in `grafana`.
 - **Prometheus UI**: `http://localhost:9090`
-- **Grafana UI**: `http://localhost:3000` (default login: `admin/admin`)
+- **Grafana UI**: `http://localhost:3000` (login `admin` with `GRAFANA_ADMIN_PASSWORD`, default `admin` on a fresh volume)
+
+Known gap: Prometheus has no scrape config mounted yet, so it does not collect the app's `/metrics` endpoint, and Grafana has no provisioned datasources or dashboards. IaC Phase 2 (`groupscout-site-6ah.3`) adds both.
 
 #### Custom Ollama Panel
 To monitor Ollama resource usage, add a panel with these queries:
@@ -186,13 +255,13 @@ To monitor Ollama resource usage, add a panel with these queries:
 ## 🔍 Troubleshooting
 
 ### 1. `pdftotext not found` (Alpine Container)
-GroupScout requires the `pdftotext` utility for scraping certain PDF sources. The Alpine-based Dockerfile now includes `poppler-utils` in the final stage to provide this functionality.
+GroupScout requires the `pdftotext` utility for scraping certain PDF sources. The Alpine-based Dockerfile includes `poppler-utils` in the final stage to provide this functionality.
 - **Symptom:** `richmond_permits` and `delta_permits` collectors failing.
-- **Fix:** Ensure you are using the latest `Dockerfile` and have rebuilt your container with `docker compose up -d --build`.
+- **Fix:** Rebuild with `make docker-up`, then confirm `/health` reports the SHA you expect.
 
 ### 2. Go Version Mismatch
 - **Symptom:** `go mod download` fails during `docker build`.
-- **Fix:** Ensure the `FROM golang:X.XX-alpine` version in `Dockerfile` matches the `go 1.XX` version in `go.mod`.
+- **Fix:** The builder image is pinned to a full patch release (`golang:1.26.9-alpine3.24`). It must satisfy the `go` directive in `go.mod`. Bump the Dockerfile pin when `go.mod` moves forward.
 
 ### 3. Container Communication
 - **Symptom:** n8n cannot connect to the `groupscout` server.
@@ -211,9 +280,17 @@ GroupScout requires the `pdftotext` utility for scraping certain PDF sources. Th
   ```
 
 ### 6. Database Connection Issues
-- **Symptom:** `groupscout` container fails to start because it can't reach Postgres.
-- **Fix:** The `groupscout` service is configured to depend on `postgres` being healthy. Check `docker compose logs postgres` to ensure the database initialized correctly.
+- **Symptom:** `groupscout` container fails to start because it can't reach Postgres, or logs `password authentication failed`.
+- **Fix:** The `groupscout` service waits for `postgres` to be healthy. Check `docker compose logs postgres` to ensure the database initialized correctly. If you set `POSTGRES_PASSWORD` after the `pgdata` volume already existed, the database still has the old password. Either unset it, or run `ALTER USER groupscout PASSWORD '<new>'` inside `postgres`.
 
 ### 7. Missing or Low Lead Count
 - **Symptom:** Pipeline runs successfully but returns fewer leads than expected.
 - **Fix:** See the [Troubleshooting Guide](./TROUBLESHOOTING.md) for details on adjusting thresholds (`MIN_PERMIT_VALUE_CAD`, `ENRICHMENT_THRESHOLD`) and checking the database for skipped or duplicate records.
+
+### 8. Ollama or Grafana Not Running After `docker compose up`
+- **Symptom:** `docker compose ps` lists only `postgres`, `groupscout`, `alertd` and `n8n`, or `/health` shows `"ollama":"degraded"`.
+- **Fix:** Ollama and the monitoring services are behind the `llm` and `obs` profiles. Use `make docker-up`, add `COMPOSE_PROFILES=llm,obs` to `.env`, or run `COMPOSE_PROFILES=llm,obs docker compose up -d`.
+
+### 9. n8n Refuses to Start: `Mismatching encryption keys`
+- **Symptom:** `groupscout_n8n` restarts in a loop and logs `Mismatching encryption keys`.
+- **Fix:** `N8N_ENCRYPTION_KEY` in `.env` differs from the key stored in `n8n_data`. Blank the variable to use the stored key, or copy the stored value from `/home/node/.n8n/config` into `.env`.

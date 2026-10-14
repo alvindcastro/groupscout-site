@@ -41,7 +41,7 @@ GroupScout filters data at three distinct stages. Understanding these is key to 
 ## 🛠 Troubleshooting Steps
 
 ### 1. Check the Logs
-If you run `go run cmd/server/main.go --run-once`, look for these log markers:
+If you run `go run ./cmd/server --run-once`, look for these log markers:
 
 For Docker runs:
 
@@ -66,7 +66,7 @@ Actions by marker:
 | `skipping enrichment: low score` | Lower `ENRICHMENT_THRESHOLD` for testing or improve scoring rules. |
 | `slack notify` | Check `SLACK_WEBHOOK_URL` and Slack webhook status. |
 | `failed to email leads` or `failed to email guaranteed leads` with a Resend 403 | Check `LEAD_NOTIFY_EMAILS` and `EMAIL_FROM`. With `onboarding@resend.dev`, send only to the Resend account owner (`alvin.dcastro@gmail.com`) until a sending domain is verified. |
-| collector or `pdftotext` error | Rebuild with `docker compose up -d --build` and confirm `poppler-utils`/`pdftotext` exists in the image. |
+| collector or `pdftotext` error | Rebuild with `make docker-up`, confirm `/health` reports the expected `version` SHA, and confirm `poppler-utils`/`pdftotext` exists in the image. |
 
 The tracked n8n cadence uses the guaranteed cadence `/run` body and returns `delivery_status`, `notified_leads`, and `message`. Optional manual `/run` calls without a cadence key still use the normal multi-lead path:
 
@@ -136,12 +136,14 @@ If you need to force a run immediately, prefer **Test Workflow** in the n8n UI. 
 
 Use this only for the local Docker n8n instance. Do not run these steps against production n8n without a backup and an approved credential-rotation plan.
 
+These one-off containers must use the n8n version pinned in the backend `docker-compose.yml` (`2.43.5` after IaC Phase 1). A newer image migrates the volume's database forward, and the pinned n8n then can't open it.
+
 First try the built-in reset while n8n is stopped:
 
 ```bash
 cd /mnt/c/Users/alvin/GolandProjects/groupscout
 docker stop groupscout_n8n
-docker run --rm --volumes-from groupscout_n8n n8nio/n8n:latest user-management:reset
+docker run --rm --volumes-from groupscout_n8n n8nio/n8n:2.43.5 user-management:reset
 docker start groupscout_n8n
 ```
 
@@ -165,7 +167,7 @@ If the owner row has a blank email or unusable login, set a temporary owner emai
 
 ```bash
 TEMP_PASSWORD='replace-with-a-local-temporary-password'
-TEMP_HASH=$(docker run --rm --entrypoint node -e TEMP_PASSWORD="$TEMP_PASSWORD" n8nio/n8n:latest -e "const bcrypt=require('/usr/local/lib/node_modules/n8n/node_modules/bcryptjs'); bcrypt.hash(process.env.TEMP_PASSWORD, 10).then(h=>console.log(h));")
+TEMP_HASH=$(docker run --rm --entrypoint node -e TEMP_PASSWORD="$TEMP_PASSWORD" n8nio/n8n:2.43.5 -e "const bcrypt=require('/usr/local/lib/node_modules/n8n/node_modules/bcryptjs'); bcrypt.hash(process.env.TEMP_PASSWORD, 10).then(h=>console.log(h));")
 OWNER_EMAIL='owner@example.local'
 export TEMP_HASH OWNER_EMAIL
 python3 - <<'PY'
@@ -185,7 +187,7 @@ cur.execute('pragma wal_checkpoint(TRUNCATE)')
 con.close()
 PY
 docker cp /tmp/groupscout-n8n-password-reset/database.sqlite groupscout_n8n:/home/node/.n8n/database.sqlite
-docker run --rm --volumes-from groupscout_n8n --entrypoint sh n8nio/n8n:latest -lc 'rm -f /home/node/.n8n/database.sqlite-wal /home/node/.n8n/database.sqlite-shm && chown node:node /home/node/.n8n/database.sqlite'
+docker run --rm --volumes-from groupscout_n8n --entrypoint sh n8nio/n8n:2.43.5 -lc 'rm -f /home/node/.n8n/database.sqlite-wal /home/node/.n8n/database.sqlite-shm && chown node:node /home/node/.n8n/database.sqlite'
 docker start groupscout_n8n
 ```
 
@@ -245,13 +247,14 @@ Successful login sets `groupscout_session`. Logout must call `POST /api/auth/log
 
 The UI repo's `compose.dev.yml` is an override for the backend Compose file. It expects backend service `groupscout` and network `groupscout_net`.
 
-Run it merged with the backend file:
+Run it merged with the backend file. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …). This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
 
 ```bash
 cd /mnt/c/Users/alvin/WebstormProjects/groupscout-ui
 
 docker compose -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   config --quiet
 ```

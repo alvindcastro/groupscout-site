@@ -150,14 +150,15 @@ Do not validate or start `compose.dev.yml` by itself. It depends on backend-defi
 Inspect service state and UI logs:
 
 ```sh
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml ps
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml logs groupscout-ui --tail=100
+docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml ps
+docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml logs groupscout-ui --tail=100
 ```
 
 Common causes:
 
 - The backend Compose file path is wrong or the sibling backend repo is not present at `/mnt/c/Users/alvin/GolandProjects/groupscout`.
 - The override was run by itself instead of being merged with `/mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml`.
+- `localhost:8080` stopped answering after a UI Compose run: the command omitted `/mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml`, so `up` recreated `groupscout` without host ports. Rerun with the override listed, or run `make docker-up` from the backend repo.
 - Docker Desktop or WSL integration is not running, so `docker compose` cannot inspect or build services.
 - Host port `3001` is already in use. Set `GROUPSCOUT_UI_HOST_PORT` to another host port; the container still listens on `3000`.
 - The UI service cannot resolve `groupscout` because the override was run without the backend Compose file or without the `groupscout_net` network definition.
@@ -204,7 +205,7 @@ The backend stack publishes Grafana on host port `3000`, so the UI development C
 Use another development host port:
 
 ```sh
-GROUPSCOUT_UI_HOST_PORT=3005 docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout
+GROUPSCOUT_UI_HOST_PORT=3005 docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml up --build groupscout-ui groupscout
 ```
 
 Use another standalone production smoke host port:
@@ -378,7 +379,7 @@ Known backend documentation drift observed during housekeeping:
 
 - Long-lived markdown docs are centralized in `/mnt/c/Users/alvin/groupscout-site/backend` and `/mnt/c/Users/alvin/groupscout-site/frontend`; the backend and frontend source repos may no longer contain those files.
 - Some historical docs reference `docs/API_TESTING.md`, but that file was not present during inspection.
-- Some historical docs use `SENDGRID_API_KEY`, while `.env.example` and config use `RESEND_API_KEY`.
+- Some historical docs use `SENDGRID_API_KEY`, while `.env.example` and config use `RESEND_API_KEY`. `SENDGRID_API_KEY` is unused, and IaC Phase 1 removed it from Compose.
 - Some historical Postgres examples reference a generated container name, while compose sets `container_name: groupscout_postgres`.
 
-Prefer the current backend source files `.env.example`, `config/config.go`, `docker-compose.yml`, and `Makefile` when commands disagree.
+Prefer the current backend source files `.env.example`, `config/config.go`, `docker-compose.yml` (plus `docker-compose.override.yml` for dev ports), and `Makefile` when commands disagree.

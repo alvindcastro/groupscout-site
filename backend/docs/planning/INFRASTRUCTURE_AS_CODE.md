@@ -197,8 +197,8 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 ```
 groupscout/
-├── docker-compose.yml              # base: pinned images, healthchecks, profiles, no host ports  ✅ Phase 1
-├── docker-compose.override.yml     # dev: local build + host ports, auto-loaded by `compose up`  ✅ Phase 1
+├── docker-compose.yml              # base: local build, pinned images, healthchecks, profiles, no host ports  ✅ Phase 1
+├── docker-compose.override.yml     # dev host ports, auto-loaded when no -f is given  ✅ Phase 1
 ├── deploy/
 │   ├── compose/
 │   │   └── compose.prod.yml        # prod overlay: registry image by tag, required secrets, 127.0.0.1 binds  ✅ Phase 1
@@ -237,8 +237,8 @@ Sizes: **S** is about one session, **M** is a few sessions, and **L** is a week 
 ### Phase 0: Decisions and groundwork (S) · `groupscout-site-6ah.1`
 
 - Review D1–D11 and record the outcome of each in §5.
-- Mark PHASES.md / PROMPTS_PHASE25 Part D (GCP Terraform) as **superseded by this doc**.
-- Add a pointer from DEPLOYMENT_OPTIONS.md and the ROADMAP Phase 14/26 entries to this doc.
+- ~~Mark PHASES.md / PROMPTS_PHASE25 Part D (GCP Terraform) as superseded~~ Done 2026-10-14, along with FUTURE_INTEGRATION.md and the ROADMAP Part D entry.
+- ~~Add pointers from DEPLOYMENT_OPTIONS.md, ROADMAP, NOT_DONE_AND_UPGRADES, WHERE_TO_START and the root README~~ Done 2026-10-14.
 - ~~Create the Beads epic and per-phase issues~~ Done 2026-10-14: `groupscout-site-6ah` with `.1`–`.12`. `39g` is linked as related to Phase 8, so it stays ready.
 
 **Done when:** the decisions are recorded.
@@ -250,9 +250,9 @@ Implemented 2026-10-14 on backend branch `task/iac-phase1-hardening` and UI bran
 Compose (backend repo):
 - Top-level `name: groupscout`, so volume and network names match the existing `groupscout_*` resources under Docker and Podman alike.
 - Three-file layout using Compose's built-in override convention instead of the `deploy/compose/compose.{base,dev}.yml` split first proposed in §6. Plain `docker compose up` and `podman compose up` keep working with no `-f` flags:
-  - `docker-compose.yml` is the base: no host ports.
-  - `docker-compose.override.yml` is dev: a local build stamped with the git SHA, plus today's host ports.
-  - `deploy/compose/compose.prod.yml` is prod: `GROUPSCOUT_IMAGE`/`GROUPSCOUT_IMAGE_TAG` required, secrets required through `${VAR:?}`, ports bound to `127.0.0.1` only, memory limits, `JSON_LOG=true`, and Ollama off by default.
+  - `docker-compose.yml` is the base: a local build stamped with the git SHA, and no host ports. The build stays in the base because the UI repo's `-f docker-compose.yml -f compose.dev.yml` flows skip the override. A first version put the build in the override, which left those flows with nothing to build (fixed in `71eb547`).
+  - `docker-compose.override.yml` is dev: today's host ports only. Multi-file `-f` commands in the docs now list it explicitly, because without it `up` recreates the backend without host ports.
+  - `deploy/compose/compose.prod.yml` is prod: `GROUPSCOUT_IMAGE`/`GROUPSCOUT_IMAGE_TAG` required, `build: !reset null` so hosts never build, secrets required through `${VAR:?}`, ports bound to `127.0.0.1` only, memory limits, `JSON_LOG=true`, and Ollama off by default.
 - Every image is pinned to the version `:latest` resolved to on 2026-10-14, so pinning never downgrades a volume:
   - n8n `2.43.5`
   - Grafana `13.2.4`
@@ -297,7 +297,8 @@ Verified in WSL without a container runtime:
 - `go vet ./...` and `go test ./...` pass.
 - The eval gate passes.
 - Compose v5.6.0 `config` renders all four dev profile sets plus prod, and prod rejects missing secrets.
-- The UI suite has 145 passing, 1 skipped, and 1 pre-existing failure, `groupscout-site-7t7`.
+- The UI suite has 146 passing, 0 failing and 1 skipped. The pre-existing D5 docs failure (`groupscout-site-7t7`) was a stale regex, fixed on the UI branch.
+- The coordination docs describing the new layout were updated the same day (see the backend CHANGELOG entry for 2026-10-14). Their "lands with `task/iac-phase1-hardening`" notes come out when this phase closes.
 
 **Still to verify on Podman before closing:**
 - `make compose-check COMPOSE="podman compose"`

@@ -5,6 +5,14 @@
 
 > **Operational source of truth:** this guide covers the implemented Ollama runtime, `OLLAMA_*` environment variables, Docker service names, model volume, model pull/list/push commands, and troubleshooting. The broader Phase 16 `LLM_PROVIDER=ollama` provider-abstraction plan is separate and remains tracked in [PHASES.md](../planning/PHASES.md).
 
+> **Current Compose wiring (IaC Phase 1, backend branch `task/iac-phase1-hardening`):**
+> - `ollama` and `ollama-init` are in the `llm` Compose profile. `make docker-up` enables it by default; plain `docker compose up -d` needs `COMPOSE_PROFILES=llm` (or `llm,obs`) in `.env`.
+> - The image is pinned to `ollama/ollama:0.40.4`.
+> - `groupscout`'s `depends_on` entries for Ollama use `required: false`. The core stack starts without the profile, and `/health` then reports `"ollama":"degraded"`.
+> - The production overlay sets `OLLAMA_ENABLED=false` unless overridden.
+>
+> The snippets below record the original phase work. The backend `docker-compose.yml` is authoritative.
+
 > **Your machine:** Windows 11 + WSL2 · Intel i5-13400F · **32 GB RAM** · **NVIDIA RTX 4060 Ti (16 GB VRAM)**  
 > Mistral 7B (~4 GB) and Llama 3.1 8B (~5 GB) both fit in VRAM simultaneously with headroom to spare. Inference is ~1–2s per call with GPU, vs 8–15s CPU-only. **GPU passthrough is strongly recommended on this machine.**
 
@@ -74,7 +82,7 @@ Ollama runs as a **sidecar container** in the same Docker Compose stack as Group
 services:
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.40.4
     container_name: groupscout_ollama
     restart: unless-stopped
     volumes:
@@ -111,7 +119,7 @@ networks:
 ### Tasks
 
 - [x] Add `ollama-init` service to `docker-compose.yml` — runs once, pulls required models, then exits
-- [x] Use `ollama/ollama:latest` image for init service (same image, different entrypoint)
+- [x] Use `ollama/ollama:0.40.4` image for init service (same image, different entrypoint)
 - [x] Pull models: `mistral` (required), `llama3.1:8b` (optional, alert copy), `phi3:mini` (fallback)
 - [x] Use `depends_on` in `groupscout` service: wait for both `ollama` (healthy) and `ollama-init` (completed)
 - [x] Mark `ollama-init` with `restart: "no"` — it must not loop
@@ -121,7 +129,7 @@ networks:
 
 ```yaml
   ollama-init:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.40.4
     container_name: groupscout_ollama_init
     restart: "no"
     volumes:
@@ -192,8 +200,10 @@ curl http://ollama:11434/api/tags
     depends_on:
       ollama:
         condition: service_healthy
+        required: false        # core stack starts without the llm profile
       ollama-init:
         condition: service_completed_successfully
+        required: false
     environment:
       - OLLAMA_ENDPOINT=http://ollama:11434
       - OLLAMA_MODEL=mistral
@@ -324,7 +334,7 @@ GroupScout uses custom personas (e.g., `permit_extractor`) defined in `.modelfil
 ```bash
 make ollama-push
 # OR
-go run cmd/server/main.go ollama push-models
+go run ./cmd/server ollama push-models
 ```
 
 ### Verify models are loaded
@@ -400,7 +410,7 @@ WSL2 has first-class CUDA support. The Windows NVIDIA driver exposes CUDA to WSL
 
 ```yaml
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.40.4
     # ... existing config ...
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
@@ -435,7 +445,7 @@ WSL2 has first-class CUDA support. The Windows NVIDIA driver exposes CUDA to WSL
 ### Startup sequence
 
 ```
-docker compose up -d
+make docker-up        # or: COMPOSE_PROFILES=llm,obs docker compose up -d --build
 
 1. ollama container starts
 2. ollama healthcheck: GET /api/tags (retries every 30s, up to 5 times)
@@ -476,7 +486,7 @@ This is the complete Ollama-related block to merge into the existing `docker-com
 services:
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.40.4
     container_name: groupscout_ollama
     restart: unless-stopped
     volumes:
@@ -506,7 +516,7 @@ services:
     #           capabilities: [gpu]
 
   ollama-init:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.40.4
     container_name: groupscout_ollama_init
     restart: "no"
     volumes:
@@ -534,8 +544,10 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
+        required: false        # core stack starts without the llm profile
       ollama-init:
         condition: service_completed_successfully
+        required: false
     environment:
       - OLLAMA_ENABLED=true
       - OLLAMA_ENDPOINT=http://ollama:11434

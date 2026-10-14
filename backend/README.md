@@ -59,13 +59,14 @@
 
 ### 🐳 Docker Deployment (Recommended)
 
-GroupScout includes a `docker-compose.yml` that starts the app along with **n8n** (automation), **Prometheus/Grafana** (monitoring), and **Loki** (logging).
+GroupScout includes a `docker-compose.yml` that starts the app along with **n8n** (automation), plus optional **Ollama** (`llm` profile) and **Prometheus/Grafana/Loki** (`obs` profile). Images are pinned, every core service has a healthcheck, and dev host ports live in the auto-loaded `docker-compose.override.yml`. A production overlay lives at `deploy/compose/compose.prod.yml`. See [DOCKER.md](./docs/guides/DOCKER.md#compose-layout) for the layout; it lands with backend branch `task/iac-phase1-hardening` (`groupscout-site-6ah.2`).
 
 For local Podman runs, use [PODMAN_MIGRATION.md](./docs/guides/PODMAN_MIGRATION.md) first. It defines the validated `COMPOSE="podman compose"` smoke sequence, Windows PATH/Git Bash notes, known Promtail/socket/GPU caveats, and rollback path.
 
 ```bash
 # Define your keys in .env first, then:
-docker compose up -d
+make docker-up            # builds with the git SHA, starts core + llm + obs
+make compose-check        # optional: validate dev and prod Compose configs
 ```
 
 *   **GroupScout API**: `http://localhost:8080`
@@ -75,8 +76,8 @@ docker compose up -d
 Quick post-start check:
 
 ```bash
-docker compose ps
-curl -i --max-time 5 http://localhost:8080/health
+docker compose ps                                  # core services show (healthy)
+curl -i --max-time 5 http://localhost:8080/health  # "version" is the image's git SHA
 docker exec groupscout_postgres psql -U groupscout -d groupscout -c "SELECT 1;"
 ```
 
@@ -159,21 +160,22 @@ Runs a persistent HTTP server that listens for remote triggers (ideal for n8n/cr
 See `/mnt/c/Users/alvin/GolandProjects/groupscout/api/swagger.yaml` in the backend source repo for the full OpenAPI specification.
 
 ```bash
-go run cmd/server/main.go
+go run ./cmd/server
 ```
 *   **Trigger via API:** Send a `POST` request to `http://localhost:8080/run` with `Authorization: Bearer YOUR_API_TOKEN`.
 
 #### 2. CLI Mode (Run Once)
 Executes the full pipeline once and exits immediately.
 ```bash
-go run cmd/server/main.go --run-once
+go run ./cmd/server --run-once
 ```
 
 #### 3. Docker Mode
-Run the entire stack (app, database, monitoring) using Docker Compose:
+Run the entire stack (app, database, n8n, Ollama, monitoring) using Docker Compose:
 ```bash
-docker compose up -d
+make docker-up
 ```
+Plain `docker compose up -d --build` starts only the core services unless `COMPOSE_PROFILES=llm,obs` is set in `.env`.
 
 #### 4. AI Quality EvalOps
 Reconciled 2026-06-13 (`groupscout-site-crz`): `internal/evalops` and EvalOps targets are now present.

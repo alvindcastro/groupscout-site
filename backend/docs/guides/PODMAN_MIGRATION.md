@@ -48,19 +48,25 @@ cd /mnt/c/Users/alvin/GolandProjects/groupscout
 $COMPOSE -p groupscout config --quiet
 ```
 
+With IaC Phase 1 (backend branch `task/iac-phase1-hardening`, Beads `groupscout-site-6ah.2`), the Compose file sets `name: groupscout`, so `-p groupscout` becomes optional but stays harmless. `make compose-check COMPOSE="podman compose"` renders every profile combination plus the production overlay. The layout and profiles are described in [DOCKER.md](./DOCKER.md#compose-layout).
+
 3. Start the core backend stack and check health:
 
 ```sh
-$COMPOSE -p groupscout up -d --build postgres groupscout n8n
+GROUPSCOUT_VERSION=$(git rev-parse --short HEAD) \
+  $COMPOSE -p groupscout up -d --build postgres groupscout n8n
 $COMPOSE -p groupscout ps
 curl -i --max-time 5 http://localhost:8080/health
 $COMPOSE -p groupscout exec postgres psql -U groupscout -d groupscout -c "SELECT 1;"
 ```
 
+`/health` includes a `version` field with the SHA passed as `GROUPSCOUT_VERSION`. After IaC Phase 1, Ollama sits behind the `llm` profile. A targeted `up` like the one above no longer starts it as a dependency, so `/health` reports `"ollama":"degraded"`. Add `COMPOSE_PROFILES=llm` (or `llm,obs`) to `.env`, or prefix the command with it, when local LLM enrichment is needed.
+
 4. Check logs without Docker-only container names:
 
 ```sh
-$COMPOSE -p groupscout logs --tail=100 groupscout postgres n8n ollama
+$COMPOSE -p groupscout logs --tail=100 groupscout postgres n8n
+COMPOSE_PROFILES=llm $COMPOSE -p groupscout logs --tail=100 ollama
 ```
 
 5. Validate the UI test image:
@@ -71,12 +77,13 @@ podman build --target test -t groupscout-ui-test .
 podman run --rm groupscout-ui-test
 ```
 
-6. Validate merged backend plus UI Compose config:
+6. Validate merged backend plus UI Compose config. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …). This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
 
 ```sh
 COMPOSE="podman compose"
 $COMPOSE -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   config --quiet
 ```
@@ -86,6 +93,7 @@ $COMPOSE -p groupscout \
 ```sh
 $COMPOSE -p groupscout \
   -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml \
+  -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml \
   -f compose.dev.yml \
   up --build groupscout-ui groupscout
 
@@ -137,9 +145,10 @@ make docker-logs
 COMPOSE="podman compose" make docker-up
 COMPOSE="podman compose" make docker-down
 COMPOSE="podman compose" make docker-logs
+COMPOSE="podman compose" make compose-check
 ```
 
-The names stay Docker-specific for compatibility, but the `COMPOSE` variable allows Podman validation without duplicating every target.
+The names stay Docker-specific for compatibility, but the `COMPOSE` variable allows Podman validation without duplicating every target. `make docker-up` exports `COMPOSE_PROFILES=llm,obs` and stamps the image with the git SHA. Pass `COMPOSE_PROFILES=` for the core services only.
 
 ## Known Migration Risks
 
@@ -153,6 +162,14 @@ The backend Compose file currently mounts Docker-specific paths for Promtail:
 ```
 
 That path is not portable to rootless Podman. Treat Loki/Promtail dashboard claims as unverified under Podman until the log source is changed to a Podman-compatible file path, journald source, or another collector strategy. Prometheus and Grafana can still start, but container labels and log labels may differ.
+
+### Log Rotation Options
+
+The base Compose file sets `logging: json-file` with `max-size: 10m` and `max-file: 5` on every service. Podman 5.x maps `json-file` to its `k8s-file` driver and applies `max-size`. It passes `max-file` through as a generic option without erroring, but does not enforce it. That is acceptable for local development. Production hosts run Docker Engine, which honors both.
+
+### Compose Profiles And Recovery Commands
+
+After IaC Phase 1, `ollama`/`ollama-init` are in the `llm` profile and Prometheus/Grafana/Loki/Promtail are in the `obs` profile. Recovery commands that name services, such as `podman compose -p groupscout up -d postgres groupscout n8n`, start only the core services unless `COMPOSE_PROFILES` is set in `.env` or the shell. The `PodmanMachineAutostart` script starts containers by name, so it is unaffected once the containers exist.
 
 ### Reverse Proxy Socket Discovery
 

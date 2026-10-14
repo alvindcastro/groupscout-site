@@ -69,13 +69,13 @@ The D3 Compose override lives in `compose.dev.yml`.
 
 The development service builds the existing D1 `test` target and overrides the command with the Phase 13 product dev server. It remains a development Compose integration point, not the production serving model.
 
-Use the override beside the backend Compose file:
+Use the override beside the backend Compose file. List the backend `docker-compose.override.yml` too. An explicit `-f` skips the auto-loaded dev override, and without it, `up` recreates the backend containers without their host ports (`8080`, `5432`, …). This applies from IaC Phase 1, backend branch `task/iac-phase1-hardening`.
 
 ```sh
-docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet
+docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml config --quiet
 ```
 
-The basic D3 smoke path targets `groupscout-ui` and the minimum backend services needed by the current backend `groupscout` dependency chain: `groupscout`, `postgres`, `ollama`, and `ollama-init`. It does not require `alertd`, `n8n`, `grafana`, `prometheus`, `loki`, `promtail`, or a lead pipeline run.
+The basic D3 smoke path targets `groupscout-ui` and the minimum backend services needed by the current backend `groupscout` dependency chain: `groupscout` and `postgres`, plus `ollama` and `ollama-init` only when the backend `llm` Compose profile is active. It does not require `alertd`, `n8n`, `grafana`, `prometheus`, `loki`, `promtail`, or a lead pipeline run.
 
 D3 still does not add production same-origin proxying, static asset serving, or a product UI renderer.
 
@@ -130,9 +130,9 @@ D5 added operations documentation only. Phase 13 later changed `compose.dev.yml`
 - Local test command: `npm test`
 - Containerized test image build: `docker build --target test -t groupscout-ui-test .`
 - Containerized test command: `docker run --rm groupscout-ui-test`
-- Compose config validation: `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml config --quiet`
-- Development Compose startup: `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml up --build groupscout-ui groupscout`
-- Development Compose teardown: `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f compose.dev.yml down`
+- Compose config validation: `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml config --quiet`
+- Development Compose startup: `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml up --build groupscout-ui groupscout`
+- Development Compose teardown: `docker compose -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.yml -f /mnt/c/Users/alvin/GolandProjects/groupscout/docker-compose.override.yml -f compose.dev.yml down`
 - Production image build: `docker build --target production -t groupscout-ui-production .`
 - Production smoke run: `docker run --rm -p 3002:3000 -e UI_API_PROXY_TARGET=http://host.docker.internal:8080 groupscout-ui-production`
 

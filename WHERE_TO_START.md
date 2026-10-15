@@ -43,7 +43,7 @@ Infrastructure as Code (epic `groupscout-site-6ah`, plan in [INFRASTRUCTURE_AS_C
 - ~~`groupscout-site-6ah.2`~~ - Phase 1 Compose and image hardening is done (2026-10-14): verified on Podman and merged to backend `main`.
 - ~~`groupscout-site-6ah.3`~~ - Phase 2 app config as code is done (2026-10-14). The n8n workflow bootstrap, Prometheus scrape config, Grafana provisioning and Alloy are merged to backend `main`.
 - ~~`groupscout-site-6ah.4`~~ - Phase 3 secrets as code is done (2026-10-14). The live `.env` renders from SOPS-encrypted `deploy/secrets/prod.sops.env`. The owner still needs to back up the age key (`groupscout-site-6ah.13`, P1).
-- `groupscout-site-6ah.5` - Phase 4 CI is built and green on backend PR #14 and UI PR #1 (2026-10-15). The owner merges them and sets up branch protection, the Renovate app and GHCR visibility (`groupscout-site-6ah.14`, [CI.md](./backend/docs/guides/CI.md)).
+- `groupscout-site-6ah.5` - Phase 4 CI is merged (2026-10-15). Every backend `main` commit now publishes `ghcr.io/alvindcastro/groupscout:<sha>`. The owner still needs to set up branch protection and the Renovate app, and decide on UI `main` (`groupscout-site-6ah.14`, [CI.md](./backend/docs/guides/CI.md)).
 - Next: `groupscout-site-sfi` (P1, code guards so integration tests can't hit the live database) and `groupscout-site-6ah.10` (Phase 9, cadence dead-man's switch).
 - `groupscout-site-6ah.1` - Phase 0 decisions D1–D11 (deploy target, tooling) gate Phases 5–8.
 

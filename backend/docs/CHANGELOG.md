@@ -12,15 +12,15 @@
   - The UI gets the same `ci.yml`, plus a gitleaks `secret-scan.yml`.
   - `renovate.json` in both repos proposes weekly grouped updates, with digest pinning and no automerge.
 - **Where:**
-  - Backend PR #14 (`task/iac-phase4-ci`: `.github/workflows/ci.yml`, `renovate.json`, `internal/smoke/ci_test.go`).
-  - UI PR #1 (`task/iac-phase4-ci` into `task/production-ui-compose`).
+  - Backend PR #14, squash-merged to `main` as `4ec5252` (`.github/workflows/ci.yml`, `renovate.json`, `internal/smoke/ci_test.go`).
+  - UI PR #1, merged into `task/production-ui-compose` as `758fc56`.
   - Docs: new [CI.md](./guides/CI.md). The IaC plan, `TESTING.md` (throwaway test database recipe), `SECRETS.md`, `DOCKER.md`, frontend `testing.md`, `docker-runtime-matrix.md` and the frontend CHANGELOG are updated.
 - **Why:**
   - Nothing ran tests on PRs, and the `cmd/server/main.go` Dockerfile break shows a broken image could go unnoticed for weeks.
   - Phase 7 deploys need an image per commit.
   - Pinned versions were drifting with no update process.
 - **Gotchas:**
-  - Claude Code's auto-mode guard blocks the agent from merging a PR without review. The merge, branch protection, the Renovate app and GHCR package visibility are owner steps (`groupscout-site-6ah.14`).
+  - Claude Code's auto-mode guard blocks the agent from merging a PR without review, so the owner merged both PRs. Branch protection and the Renovate app are still owner steps (`groupscout-site-6ah.14`). The backend GHCR package came out public with no extra step.
   - UI images publish only once `task/production-ui-compose` reaches UI `main`.
   - The UI's `node:22.23.3-bookworm-slim` base had 5 fixable critical `perl-base` CVEs, so the UI moved to `trixie-slim`.
   - The backend has 6 fixable High findings (`x/net`, `x/text`, Alpine `zlib`) for Renovate to pick up. Bundled npm in the UI image is `groupscout-site-6ah.15`.
@@ -28,6 +28,7 @@
   - Renovate rules match by datasource, so the CI Postgres service image updates in the same PR as its Compose copy.
 - **Verification:**
   - Every job passed on both PRs. The backend `image` job's `/health` returned the full commit SHA with the database OK.
+  - The first `main` run (`4ec5252`) published `ghcr.io/alvindcastro/groupscout:<sha>` and `:main`. The package is public, and an anonymous `podman pull` run against a throwaway Postgres reported that SHA from `/health`.
   - Locally:
     - The unit gates pass in a clean clone with no `.env`.
     - All 60 integration tests pass against a throwaway pgvector container.

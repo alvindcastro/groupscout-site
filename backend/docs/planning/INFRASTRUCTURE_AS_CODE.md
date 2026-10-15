@@ -1,7 +1,7 @@
 # Infrastructure as Code: Brainstorm & Task Plan
 
 Date: 2026-10-14
-Status: Phases 1–3 done (2026-10-14). Phase 4 is built and green and waits for the owner to merge it (2026-10-15). Other phases planned.
+Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15). Branch protection, the Renovate app and UI `main` are still open. Other phases planned.
 
 > **Tracking:** Beads is the source of truth. Epic `groupscout-site-6ah` has one child issue per phase, linked by the dependencies in §8. Phase N is `groupscout-site-6ah.<N+1>`, and each phase heading below shows its ID. The task lists in this doc describe scope only; check status with `bd show <id>`. The existing home deploy, backups, and restore-smoke work is `groupscout-site-39g`, linked as related to Phase 8.
 
@@ -383,7 +383,11 @@ Done 2026-10-14. Merged to backend `main` as `a9f8323`: branch `task/iac-phase3-
 
 **Done when:** a broken Dockerfile can't merge, and every `main` commit has a pullable image tagged with its SHA.
 
-Built 2026-10-15, waiting for the owner to merge. Backend PR [#14](https://github.com/alvindcastro/groupscout/pull/14) and UI PR [#1](https://github.com/alvindcastro/groupscout-ui/pull/1) are green on every check. Claude Code's auto-mode guard blocks the agent from merging without review, so the merge, branch protection, Renovate app and GHCR visibility are owner steps (`groupscout-site-6ah.14`). The runbook is [CI.md](../guides/CI.md).
+Merged 2026-10-15. The runbook is [CI.md](../guides/CI.md).
+- Backend PR [#14](https://github.com/alvindcastro/groupscout/pull/14) was squash-merged to `main` as `4ec5252`. The first `main` run passed every job and published `ghcr.io/alvindcastro/groupscout:4ec5252…` and `:main`.
+- The package came out public. An anonymous pull of the SHA tag, run against a throwaway Postgres, reported `/health` with the database OK and that version. So "every `main` commit has a pullable SHA-tagged image" holds for the backend.
+- UI PR [#1](https://github.com/alvindcastro/groupscout-ui/pull/1) merged into `task/production-ui-compose` (`758fc56`). UI images start publishing when that branch reaches UI `main`.
+- Claude Code's auto-mode guard blocks the agent from merging without review, so the owner merged both PRs. Still open for the owner (`groupscout-site-6ah.14`): branch protection (the "broken Dockerfile can't merge" half), the Renovate app, and the UI `main` decision.
 - **Backend `ci.yml`.** Jobs `go` (gofmt, vet, unit tests, eval gate), `integration`, `compose` (`make compose-check`) and `image`.
   - `integration` runs the `-tags integration` suites against a throwaway `pgvector/pgvector:0.8.7-pg17-bookworm` service container with `-p 1`. The advisory-lock fix isn't on `main` yet (`groupscout-site-g95`), so `-p 1` does the serializing.
   - `image` builds the image, starts it with `compose.prod.yml` (registry tag, no build, required secrets) and checks that `/health` reports the database OK and the commit's full SHA. Then grype gates it.

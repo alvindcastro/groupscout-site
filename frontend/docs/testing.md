@@ -122,7 +122,7 @@ node --test test/dockerization-contract.test.js
 
 CI should run `npm test`, build and run the D1 test image, then build the production image. If the backend Compose file is available, CI can also run the merged Compose config validation command or the backend-owned `make smoke-ui-docker-e2e` gate. Smoke `/healthz`, `/`, and `/assets/app.js` against the production UI container without backend secrets; smoke `/api/system` through the D4 proxy and accept the current backend status (`404` on backend `main`, or `401` once protected UI API routes are present).
 
-IaC Phase 4 implements this in GitHub Actions (UI PR #1, waiting to be merged; runbook: [CI.md](../../backend/docs/guides/CI.md)):
+IaC Phase 4 implements this in GitHub Actions (UI PR #1, merged into `task/production-ui-compose`; runbook: [CI.md](../../backend/docs/guides/CI.md)):
 - `.github/workflows/ci.yml` runs `npm test` inside `node:22.23.3-trixie-slim`, the Dockerfile's base image.
 - It then builds `--target production`, checks `/healthz` and that the container runs as `node`, and fails on fixable critical vulnerabilities (grype).
 - On UI `main` it pushes `ghcr.io/alvindcastro/groupscout-ui:<sha>` and `:main`.

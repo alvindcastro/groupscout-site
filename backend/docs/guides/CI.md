@@ -2,10 +2,13 @@
 
 IaC Phase 4 (`groupscout-site-6ah.5`). GitHub Actions tests every pull request in the backend and UI repos. A commit merged to `main` gets a container image in GitHub Container Registry (GHCR), tagged with its full commit SHA.
 
-**Status:** built and green, but waiting to be merged (2026-10-15).
-- Backend: PR [#14](https://github.com/alvindcastro/groupscout/pull/14), branch `task/iac-phase4-ci`. Every check passed.
-- UI: PR [#1](https://github.com/alvindcastro/groupscout-ui/pull/1), branch `task/iac-phase4-ci`, targets `task/production-ui-compose`. Every check passed. UI images publish once that branch reaches UI `main`.
-- No image is in GHCR until the first push to `main` runs. Branch protection and the Renovate app come after the merge (see [Owner Steps](#owner-steps)).
+**Status:** the backend has published images since 2026-10-15. The UI image waits for UI `main`.
+- **Backend:** PR [#14](https://github.com/alvindcastro/groupscout/pull/14) was squash-merged to `main` as `4ec5252`.
+  - The first `main` run passed every job and pushed `ghcr.io/alvindcastro/groupscout:4ec52525542e29ed561420c5a1550232a0d1ae18` and `:main` (digest `sha256:5b2f62a2ba9c…`).
+  - The package is already public: the registry serves the manifest without a login.
+  - An anonymous `podman pull` of the SHA tag, run against a throwaway Postgres, answered `/health` with the database OK and that version.
+- **UI:** PR [#1](https://github.com/alvindcastro/groupscout-ui/pull/1) merged into `task/production-ui-compose` as `758fc56`. UI images publish once that branch reaches UI `main`.
+- Branch protection and the Renovate app are still to do (see [Owner Steps](#owner-steps)).
 
 ## What Runs
 
@@ -99,13 +102,20 @@ npx --yes --package renovate@44.125.2 renovate-config-validator --strict
 
 These need the repo owner on GitHub (`groupscout-site-6ah.14`):
 
-1. **Merge** backend PR #14, then UI PR #1. Claude Code's auto-mode guard blocks the agent from merging without review.
+1. ~~**Merge** backend PR #14, then UI PR #1.~~ Done on 2026-10-15. Claude Code's auto-mode guard blocks the agent from merging without review, so later PRs need the owner too.
 2. **Branch protection on `main`** (backend, and UI once CI is on UI `main`):
    - Required checks: backend `go`, `integration`, `compose`, `image`, `scan`; UI `test`, `image`, `scan`.
    - Settings: source GitHub Actions (app id 15368), "Require branches to be up to date" off, force pushes and deletion blocked.
    - "Include administrators" off, so the owner can still push an emergency fix.
 3. **Install the Renovate GitHub app** (Mend Renovate, free) for `groupscout` and `groupscout-ui` only. Its onboarding PR shows the detected dependencies.
-4. **Package visibility:** after the first `main` run, open each GHCR package's settings and make it public, or give the deploy host a `read:packages` token. The repos are public, so public images expose nothing new.
+4. **Package visibility:** the backend package came out public, inheriting the public repo, so no step was needed. Check `groupscout-ui` the same way after its first `main` run:
+   ```sh
+   tok=$(curl -fsS 'https://ghcr.io/token?scope=repository:alvindcastro/groupscout-ui:pull' | jq -r .token)
+   curl -s -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $tok" \
+     -H 'Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json' \
+     https://ghcr.io/v2/alvindcastro/groupscout-ui/manifests/main   # 200 = public
+   ```
+5. **UI `main`:** decide whether `task/production-ui-compose` (with the Phase 4 CI) merges into UI `main`. UI images publish only from there.
 
 ## Run CI Locally
 

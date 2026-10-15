@@ -11,8 +11,8 @@ Note: historical entries preserve the asset versions and commands that were curr
   - `secret-scan.yml` runs gitleaks over the full history.
   - `renovate.json` proposes weekly grouped updates.
   - Both Dockerfile stages move to `node:22.23.3-trixie-slim`.
-- Where: UI branch `task/iac-phase4-ci` (commit `90389a2`, PR #1 into `task/production-ui-compose`). Files: `.github/workflows/ci.yml`, `.github/workflows/secret-scan.yml`, `.gitleaksignore`, `renovate.json`, `Dockerfile`, `README.md`, `test/ci-contract.test.js`. Docs: `docs/docker-runtime-matrix.md`, `docs/testing.md`, and backend `docs/guides/CI.md`.
-- When: 2026-10-15 under `groupscout-site-6ah.5`. Every check passed on the PR, which waits for the owner to merge it (`groupscout-site-6ah.14`).
+- Where: UI branch `task/iac-phase4-ci` (commit `90389a2`), merged into `task/production-ui-compose` as `758fc56` (PR #1). Files: `.github/workflows/ci.yml`, `.github/workflows/secret-scan.yml`, `.gitleaksignore`, `renovate.json`, `Dockerfile`, `README.md`, `test/ci-contract.test.js`. Docs: `docs/docker-runtime-matrix.md`, `docs/testing.md`, and backend `docs/guides/CI.md`.
+- When: 2026-10-15 under `groupscout-site-6ah.5`. Every check passed on the PR, and the owner merged it the same day. UI images publish once `task/production-ui-compose` reaches UI `main` (`groupscout-site-6ah.14`).
 - Why:
   - The UI had no CI, so no PR was tested and no image was published.
   - The bookworm base carried five fixable critical `perl-base` CVEs; trixie has none.

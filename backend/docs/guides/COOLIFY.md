@@ -2,7 +2,7 @@
 
 This guide covers the Hetzner + Coolify path from Phase 26. Use it when uptime matters more than the free home-server path in [HOME_DEPLOY.md](./HOME_DEPLOY.md).
 
-> **IaC status:** The [Infrastructure as Code plan](../planning/INFRASTRUCTURE_AS_CODE.md) recommends (decision D6, pending in `groupscout-site-6ah.1`) replacing Coolify with plain Compose managed by Ansible and OpenTofu, because Coolify keeps its configuration in its own database instead of git. This guide remains the click-ops alternative.
+> **IaC status: not on the IaC path.** Decision D6 in the [Infrastructure as Code plan](../planning/INFRASTRUCTURE_AS_CODE.md) was settled on 2026-10-15: Coolify is dropped in favour of plain Docker Compose, managed by Ansible and OpenTofu, because Coolify keeps its configuration in its own database instead of git. This guide is kept as a historical click-ops alternative and is no longer maintained against new Compose changes.
 >
 > **Compose changes from IaC Phase 1** that affect this guide:
 > - Coolify deploys the base `docker-compose.yml` only. That file builds the image itself and publishes no host ports, which suits Coolify's proxy.

@@ -46,8 +46,8 @@ Infrastructure as Code (epic `groupscout-site-6ah`, plan in [INFRASTRUCTURE_AS_C
 - `groupscout-site-6ah.5` - Phase 4 CI is merged (2026-10-15). Every backend `main` commit now publishes `ghcr.io/alvindcastro/groupscout:<sha>`. The owner still needs to set up branch protection and the Renovate app, and decide on UI `main` (`groupscout-site-6ah.14`, [CI.md](./backend/docs/guides/CI.md)).
 - `groupscout-site-6ah.10` - Phase 9 monitoring is built and running live (2026-10-15): a cadence dead man's switch, ops metrics and Grafana alerts. The owner merges backend PR #15 and sets up Healthchecks.io and the ops Slack webhook (`groupscout-site-6ah.16`, [MONITORING.md](./backend/docs/guides/MONITORING.md)).
 - `groupscout-site-6ah.11` - Phase 10 is built (backend PR #16, 2026-10-15). The home PC's `PodmanMachineAutostart` task now runs `deploy/windows/podman-autostart.ps1`, which also starts the monitoring containers. A new PC needs `winget configure` plus `setup-dev.ps1` ([PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md#machine-autostart-on-windows)).
-- Next: `groupscout-site-sfi` (P1, code guards so integration tests can't hit the live database) and `groupscout-site-q74` (alertd has not run since the Podman migration). Phases 5–8 wait on the Phase 0 decisions (`groupscout-site-6ah.1`).
-- `groupscout-site-6ah.1` - Phase 0 decisions D1–D11 (deploy target, tooling) gate Phases 5–8.
+- Next: `groupscout-site-sfi` (P1, code guards so integration tests can't hit the live database) and `groupscout-site-q74` (alertd has not run since the Podman migration). Phases 5–8 wait on the host and ingress decision (`groupscout-site-6ah.17`).
+- ~~`groupscout-site-6ah.1`~~ - Phase 0 is done (2026-10-15): OpenTofu, Ansible and Docker Compose, Coolify dropped, outcomes in plan §5. The production host (D1) and ingress (D5) are deferred to `groupscout-site-6ah.17`, which gates Phases 5–8.
 
 Then move to the operator UI bridge:
 

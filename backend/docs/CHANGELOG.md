@@ -1,3 +1,15 @@
+## 2026-10-15 - IaC Phase 0: decisions recorded (groupscout-site-6ah.1)
+
+### OpenTofu + Ansible + Docker Compose, Coolify dropped, host and ingress still open
+
+- **What:**
+  - Every IaC decision now has an outcome in [INFRASTRUCTURE_AS_CODE.md](./planning/INFRASTRUCTURE_AS_CODE.md) §5. The owner chose OpenTofu (D2), Ansible (D3) and Docker Engine + Compose (D4) for the server, and dropped Coolify from the IaC path (D6).
+  - SOPS + age (D7), `deploy/` in the backend repo (D8), Ollama off by default in production (D10) and n8n workflows as code (D11) are recorded as adopted in the phases that built them. The state bucket (D9) follows OpenTofu.
+  - The production host (D1) and ingress (D5) are deferred, together with the domain and access-list questions, to `groupscout-site-6ah.17`, which now blocks Phases 5 and 6, and through them 7 and 8.
+- **Where:** plan §5, the Phase 0 section and §10; `COOLIFY.md` and `DEPLOYMENT_OPTIONS.md` mark Coolify as historical; `WHERE_TO_START.md`.
+- **Why:** Phase 0 gated every server-side phase. Recording the settled choices lets Phases 5–8 start as soon as the host is picked.
+- **Until D1 is decided:** production stays on the Windows PC. The Phase 9 alerts and the Phase 10 autostart cover it.
+
 ## 2026-10-15 - IaC Phase 10: Windows workstation as code (groupscout-site-6ah.11)
 
 ### The home PC's Podman autostart is now code, and a new PC needs two commands

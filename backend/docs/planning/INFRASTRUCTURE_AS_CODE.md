@@ -1,7 +1,7 @@
 # Infrastructure as Code: Brainstorm & Task Plan
 
 Date: 2026-10-14
-Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15); branch protection, the Renovate app and UI `main` are still open. Phase 9 is built, verified and running live, and waits for the merge and the owner's Healthchecks.io and ops Slack setup (2026-10-15). Phase 10 is built, and the home PC's autostart task runs the versioned script (2026-10-15). Other phases planned.
+Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15); branch protection, the Renovate app and UI `main` are still open. Phase 9 is built, verified and running live, and waits for the merge and the owner's Healthchecks.io and ops Slack setup (2026-10-15). Phase 10 is built, and the home PC's autostart task runs the versioned script (2026-10-15). Phase 0 is done (2026-10-15): D1 (host) and D5 (ingress) are deferred to `groupscout-site-6ah.17`, which blocks Phases 5–8.
 
 > **Tracking:** Beads is the source of truth. Epic `groupscout-site-6ah` has one child issue per phase, linked by the dependencies in §8. Phase N is `groupscout-site-6ah.<N+1>`, and each phase heading below shows its ID. The task lists in this doc describe scope only; check status with `bd show <id>`. The existing home deploy, backups, and restore-smoke work is `groupscout-site-39g`, linked as related to Phase 8.
 
@@ -99,7 +99,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** Write L1–L5 against an abstract target, "one Debian/Ubuntu host reachable over SSH." Targets (b) and (c) then share 100% of the code, and only the Ansible inventory and the L0 module differ. Pick the first real target separately. Keep (a) for development only.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** deferred by the owner on 2026-10-15. Phases 5–8 stay blocked on it, tracked in `groupscout-site-6ah.17`. Until then the Windows PC runs production, with the Phase 9 alerts and the Phase 10 autostart.
 
 ### D2: Provisioning tool (L0)
 
@@ -107,7 +107,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** **OpenTofu.** It's MPL-licensed, uses the same `hcloud` and `cloudflare` providers, and has **native client-side state encryption**. That matters here because state will hold tunnel tokens. Pulumi in Go is a reasonable alternative if you prefer writing Go over HCL. "None" is valid for a home-only target, where L0 shrinks to Cloudflare resources plus a backup bucket.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** **OpenTofu**, as recommended (owner, 2026-10-15). If D1 lands on a home box, its scope shrinks to the Cloudflare or Tailscale resources and the backup bucket.
 
 ### D3: Host configuration (L1)
 
@@ -115,7 +115,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** **Ansible.** Runs are idempotent, `--check --diff` gives you drift detection, and it works on a home box that has no cloud-init. On Hetzner, cloud-init only creates the deploy user and SSH key, and Ansible does the rest. NixOS is powerful, but it's a big learning step for one host.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** **Ansible**, as recommended (owner, 2026-10-15).
 
 ### D4: Container runtime on the server
 
@@ -124,7 +124,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 **Recommendation:** **Docker Engine + Compose for v1.** It's the documented production baseline, and existing Traefik, Promtail, and smoke scripts assume it. On Linux, the Docker daemon starts at boot, so `restart: unless-stopped` works there, unlike on the Podman machine. Revisit Quadlets later; `podlet` can convert the Compose file.
 **Gotcha:** Docker-published ports **bypass UFW**. In production, bind ports to `127.0.0.1` or don't publish them at all.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** **Docker Engine + Compose**, as recommended (owner, 2026-10-15). `deploy/compose/compose.prod.yml` (Phase 1) already targets it. Podman stays the Windows dev runtime (Phase 10).
 
 ### D5: Ingress
 
@@ -132,13 +132,13 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** **Cloudflare Tunnel** with the tunnel, DNS, and Access policies defined in OpenTofu. This means no open inbound ports on either target and no CGNAT problems. Put **Cloudflare Access** (free for small teams) in front of n8n, Grafana, the UI, and alertd. Expose only the API hostname publicly, protected by its bearer token. Use **Tailscale** for SSH and admin access.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** deferred until D1, by the owner on 2026-10-15 (`groupscout-site-6ah.17`). The domain and Access allow-list questions in §10 go with it.
 
 ### D6: Coolify
 
 **Recommendation:** **Drop it on the IaC path.** Coolify keeps its config in its own database and UI, which conflicts with git being the source of truth, and it has a recent CVE history. Keep COOLIFY.md as the click-ops alternative.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** **dropped from the IaC path**, as recommended (owner, 2026-10-15). COOLIFY.md stays as a historical click-ops alternative and is marked as such.
 
 ### D7: Secrets
 
@@ -154,13 +154,13 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** **(a) to start.** Compose already lives in the backend repo, so one PR can change the app and its infrastructure together, and one CI setup covers both. The UI repo publishes an image to GHCR that the backend's `deploy/` consumes by tag. Long-lived docs stay in this coordination repo, following the existing convention. Split into a separate repo only if a second app or a different deploy cadence appears.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** **(a), a `deploy/` folder in the backend repo**. Adopted as Phases 1–4, 9 and 10 were built there (2026-10-14/15); the UI repo publishes its own image.
 
 ### D9: OpenTofu state backend
 
 **Recommendation:** An S3-compatible bucket (Cloudflare R2, Hetzner Object Storage, or Backblaze B2) with OpenTofu state encryption turned on. The state bucket is created once by hand, or by a tiny `bootstrap/` stack with local state, to solve the chicken-and-egg problem. Document that step.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** an S3-compatible bucket with OpenTofu client-side state encryption, following D2 (2026-10-15). The provider comes with D1/D5: Cloudflare R2 if Cloudflare is used, otherwise Hetzner Object Storage or Backblaze B2.
 
 ### D10: Ollama in production
 
@@ -168,7 +168,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** Move Ollama into an `llm` Compose profile that's **off by default in production**, and set `OLLAMA_ENABLED=false` there. Revisit after measuring how often the Ollama paths actually matter. Hetzner GPU servers cost far more than the rest of the stack combined.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** adopted as recommended. Phase 1 put Ollama in the `llm` profile, and `compose.prod.yml` defaults `OLLAMA_ENABLED=false`. The home stack already runs with Ollama disabled. Revisit with data.
 
 ### D11: Scheduling
 
@@ -176,7 +176,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** Keep n8n for now and add `n8n-init` (Phase 2). Moving the cadence would be a product change, not an infrastructure change. Track it separately if it's wanted.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** **keep n8n with workflows as code**. Adopted in Phase 2 (the n8n bootstrap re-imports the tracked workflows); Phase 9 added the external dead man's switch.
 
 ### Recommended stack at a glance
 
@@ -238,7 +238,7 @@ Sizes: **S** is about one session, **M** is a few sessions, and **L** is a week 
 
 ### Phase 0: Decisions and groundwork (S) · `groupscout-site-6ah.1`
 
-- Review D1–D11 and record the outcome of each in §5.
+- ~~Review D1–D11 and record the outcome of each in §5.~~ Done 2026-10-15. The owner chose OpenTofu, Ansible and Docker Compose (D2–D4) and dropped Coolify (D6). D7, D8, D10 and D11 were recorded as adopted in the phases that built them, and D9 follows D2. D1 (host) and D5 (ingress) were deferred to `groupscout-site-6ah.17`, which blocks Phases 5 and 6.
 - ~~Mark PHASES.md / PROMPTS_PHASE25 Part D (GCP Terraform) as superseded~~ Done 2026-10-14, along with FUTURE_INTEGRATION.md and the ROADMAP Part D entry.
 - ~~Add pointers from DEPLOYMENT_OPTIONS.md, ROADMAP, NOT_DONE_AND_UPGRADES, WHERE_TO_START and the root README~~ Done 2026-10-14.
 - ~~Create the Beads epic and per-phase issues~~ Done 2026-10-14: `groupscout-site-6ah` with `.1`–`.12`. `39g` is linked as related to Phase 8, so it stays ready.
@@ -570,8 +570,8 @@ Suggested first slice (about a week): **Phase 1 + the `n8n-init` part of Phase 2
 ## 10. Open Questions
 
 - ~~Is the backend GitHub repo public or private?~~ Public, as are the UI and coordination repos (checked 2026-10-14). GHCR images can be public, Actions minutes are free, self-hosted runners must not take PRs from forks, and SOPS ciphertext is public, so a leaked age key means rotating every value.
-- Which domain should be used? (The `EMAIL_FROM` example mentions `groupscout.ai`, and Resend domain verification is `7ak`.) Cloudflare Tunnel needs a zone on Cloudflare.
-- Who besides you needs access to n8n, Grafana, and the UI? This sets the Cloudflare Access allow-list.
+- Which domain should be used? (The `EMAIL_FROM` example mentions `groupscout.ai`, and Resend domain verification is `7ak`.) Cloudflare Tunnel needs a zone on Cloudflare. Decided together with D5 in `groupscout-site-6ah.17`.
+- Who besides you needs access to n8n, Grafana, and the UI? This sets the Cloudflare Access allow-list. Also part of `groupscout-site-6ah.17`.
 - ~~Is `SENDGRID_API_KEY` still used?~~ No. No Go code reads it, and Phase 1 removed it from Compose.
 - Does `alertd` expose `/metrics`? If not, should it?
 - Is a home GPU box for Ollama (D10) worth keeping powered on around the clock?

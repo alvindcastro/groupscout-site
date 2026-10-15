@@ -191,20 +191,29 @@ Integration tests are available for the storage layer and require a running data
 - **SQLite**: Standard tests run on SQLite by default.
 - **Postgres**: Integration tests for Postgres are gated by the `TEST_POSTGRES_URL` environment variable and the `integration` build tag.
 
-Start or confirm the Postgres test container:
+> **Warning (`groupscout-site-sfi`):** `localhost:5432/groupscout` is the live home-stack database, and some integration suites run `DELETE FROM leads`. Never point `TEST_POSTGRES_URL` at it. Use a throwaway database like the one below. CI does the same with a service container ([CI.md](./CI.md)).
+
+Start a throwaway pgvector Postgres. It uses the same image as `docker-compose.yml`, listens on port 55432, keeps its data in tmpfs, and disappears when stopped. `docker` works the same as `podman`.
 
 ```bash
-cd /mnt/c/Users/alvin/GolandProjects/groupscout
-docker compose up -d postgres
-docker compose ps postgres
+podman run -d --rm --name groupscout_test_pg -p 127.0.0.1:55432:5432 \
+  --tmpfs /var/lib/postgresql/data \
+  -e POSTGRES_USER=groupscout -e POSTGRES_PASSWORD=test -e POSTGRES_DB=groupscout_test \
+  pgvector/pgvector:0.8.7-pg17-bookworm
+until podman exec groupscout_test_pg pg_isready -U groupscout -d groupscout_test; do sleep 1; done
 ```
 
-> **Warning (`groupscout-site-sfi`):** `localhost:5432/groupscout` is the live home-stack database, and some integration suites run `DELETE FROM leads`. Don't point `TEST_POSTGRES_URL` at it. Since IaC Phase 3 rotated the Postgres password, this default URL no longer authenticates against that stack. A dedicated test database is tracked in `groupscout-site-sfi`.
+**Run Postgres integration tests** (`-p 1`: the packages share the database and clean tables between tests, so they must not run concurrently):
+```bash
+cd /mnt/c/Users/alvin/GolandProjects/groupscout
+TEST_POSTGRES_URL='postgres://groupscout:test@localhost:55432/groupscout_test?sslmode=disable' \
+  go test -tags integration -p 1 -count=1 ./...
+podman stop groupscout_test_pg
+```
 
-**Run Postgres integration tests:**
 ```powershell
-$env:TEST_POSTGRES_URL="postgres://groupscout:groupscout@localhost:5432/groupscout?sslmode=disable"
-go test -v -tags integration ./internal/storage/...
+$env:TEST_POSTGRES_URL="postgres://groupscout:test@localhost:55432/groupscout_test?sslmode=disable"
+go test -v -tags integration -p 1 ./internal/storage/...
 ```
 
 These tests verify:
@@ -406,8 +415,8 @@ go test -v ./internal/storage -run TestAuditStore_PurgeOlderThan
 go test -v ./internal/auditretention
 
 # This test verifies Postgres preserves referenced raw inputs during purge
-# Use a dedicated test database, not the live one (groupscout-site-sfi).
-TEST_POSTGRES_URL="postgres://groupscout:groupscout@localhost:5432/groupscout?sslmode=disable" \
+# Use the throwaway test database from section 4, never the live one (groupscout-site-sfi).
+TEST_POSTGRES_URL="postgres://groupscout:test@localhost:55432/groupscout_test?sslmode=disable" \
   go test -v -tags integration ./internal/storage -run TestAuditStore_PurgeOlderThan_PostgresPreservesReferencedRawInputs
 ```
 

@@ -200,7 +200,7 @@ export GROUPSCOUT_IMAGE=ghcr.io/alvindcastro/groupscout GROUPSCOUT_IMAGE_TAG=<gi
 docker compose -f docker-compose.yml -f deploy/compose/compose.prod.yml up -d
 ```
 
-It refuses to render unless these are set: `GROUPSCOUT_IMAGE`, `GROUPSCOUT_IMAGE_TAG`, `POSTGRES_PASSWORD`, `API_TOKEN`, `N8N_ENCRYPTION_KEY`, `GRAFANA_ADMIN_PASSWORD`. It never builds from source; the base file's `build` is removed with `!reset`. Only `groupscout` (8080), `n8n` (5678) and `grafana` (3000) are published, all on `127.0.0.1` for SSH-tunnel access, because Docker-published ports bypass UFW. Registry images arrive with IaC Phase 4 (`groupscout-site-6ah.5`).
+It refuses to render unless these are set: `GROUPSCOUT_IMAGE`, `GROUPSCOUT_IMAGE_TAG`, `POSTGRES_PASSWORD`, `API_TOKEN`, `N8N_ENCRYPTION_KEY`, `GRAFANA_ADMIN_PASSWORD`. It never builds from source; the base file's `build` is removed with `!reset`. Only `groupscout` (8080), `n8n` (5678) and `grafana` (3000) are published, all on `127.0.0.1` for SSH-tunnel access, because Docker-published ports bypass UFW. Registry images come from IaC Phase 4 CI (`groupscout-site-6ah.5`): once it is merged, every `main` commit is published as `ghcr.io/alvindcastro/groupscout:<full sha>`, and `/health` reports that SHA. Deploy by SHA, not the moving `:main` tag. See [CI.md](./CI.md) for tags, the vulnerability gate and package visibility.
 
 ## 🖥 Frontend UI Docker Smoke
 

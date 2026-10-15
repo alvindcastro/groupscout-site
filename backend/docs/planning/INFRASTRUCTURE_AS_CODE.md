@@ -1,7 +1,7 @@
 # Infrastructure as Code: Brainstorm & Task Plan
 
 Date: 2026-10-14
-Status: Phase 1 done (2026-10-14). Other phases planned.
+Status: Phases 1–3 done (2026-10-14). Phase 4 is built and green and waits for the owner to merge it (2026-10-15). Other phases planned.
 
 > **Tracking:** Beads is the source of truth. Epic `groupscout-site-6ah` has one child issue per phase, linked by the dependencies in §8. Phase N is `groupscout-site-6ah.<N+1>`, and each phase heading below shows its ID. The task lists in this doc describe scope only; check status with `bd show <id>`. The existing home deploy, backups, and restore-smoke work is `groupscout-site-39g`, linked as related to Phase 8.
 
@@ -225,8 +225,8 @@ groupscout/
 │       └── register-autostart.ps1
 ├── .sops.yaml                      # Phase 3
 ├── .gitleaksignore                 # Phase 3: reviewed historical false positives
-├── renovate.json
-└── .github/workflows/{secret-scan.yml,ci.yml,images.yml,infra.yml,deploy.yml,drift.yml}
+├── renovate.json                   # Phase 4 (UI repo has its own)
+└── .github/workflows/{secret-scan.yml,ci.yml,infra.yml,deploy.yml,drift.yml}   # secret-scan Phase 3; ci Phase 4 (image publishing lives in ci.yml)
 ```
 
 ---
@@ -367,7 +367,7 @@ Done 2026-10-14. Merged to backend `main` as `a9f8323`: branch `task/iac-phase3-
   - `.gitleaksignore` lists the 43 reviewed false positives in published history.
   - Scanning the history of all three public repos found no real credentials.
   - GitHub secret scanning and push protection were already on for all three repos.
-- Still open: the owner backs up the age key (`groupscout-site-6ah.13`). The UI and coordination repos have no CI secret scan yet, and Phase 4 adds the UI one.
+- Still open: the owner backs up the age key (`groupscout-site-6ah.13`). Phase 4 adds the CI secret scan to the UI repo. The coordination repo's scan is `groupscout-site-ymx`.
 - Found along the way: the documented integration-test URL targeted the live database, and the tests wipe tables (`groupscout-site-sfi`, P1). The docs now warn about it.
 
 ### Phase 4: CI with build, scan, and publish (M) · `groupscout-site-6ah.5`
@@ -382,6 +382,36 @@ Done 2026-10-14. Merged to backend `main` as `a9f8323`: branch `task/iac-phase3-
 - Add a backend-owned integration-test job with a Postgres service container, keeping the advisory-lock serialization that already exists.
 
 **Done when:** a broken Dockerfile can't merge, and every `main` commit has a pullable image tagged with its SHA.
+
+Built 2026-10-15, waiting for the owner to merge. Backend PR [#14](https://github.com/alvindcastro/groupscout/pull/14) and UI PR [#1](https://github.com/alvindcastro/groupscout-ui/pull/1) are green on every check. Claude Code's auto-mode guard blocks the agent from merging without review, so the merge, branch protection, Renovate app and GHCR visibility are owner steps (`groupscout-site-6ah.14`). The runbook is [CI.md](../guides/CI.md).
+- **Backend `ci.yml`.** Jobs `go` (gofmt, vet, unit tests, eval gate), `integration`, `compose` (`make compose-check`) and `image`.
+  - `integration` runs the `-tags integration` suites against a throwaway `pgvector/pgvector:0.8.7-pg17-bookworm` service container with `-p 1`. The advisory-lock fix isn't on `main` yet (`groupscout-site-g95`), so `-p 1` does the serializing.
+  - `image` builds the image, starts it with `compose.prod.yml` (registry tag, no build, required secrets) and checks that `/health` reports the database OK and the commit's full SHA. Then grype gates it.
+  - On `main`, after every other job passes, `image` pushes `ghcr.io/alvindcastro/groupscout:<sha>` and `:main`. Publishing sits in this job rather than a separate `images.yml`, so untested commits never publish.
+- **UI `ci.yml`.** `test` runs `npm test` inside the Dockerfile's base image. `image` builds the production target and checks `/healthz` and the non-root user, then runs grype. On UI `main` it pushes `ghcr.io/alvindcastro/groupscout-ui:<sha>` and `:main`.
+  - The UI PR targets `task/production-ui-compose`, which isn't on UI `main` yet. UI images start publishing once it is.
+  - The UI also gets the gitleaks `secret-scan.yml`, with 13 reviewed false positives in its `.gitleaksignore`.
+- **Vulnerability scan: grype 0.119.0, checksum-verified.**
+  - Trivy wasn't used because its release tags were hijacked in 2026.
+  - `--only-fixed --fail-on critical` fails only on fixable critical findings.
+  - The backend image has no fixable criticals. It has 6 fixable Highs (`golang.org/x/net`, `golang.org/x/text`, Alpine `zlib`), which Renovate will pick up.
+  - The UI's `node:22.23.3-bookworm-slim` base had 5 fixable critical `perl-base` CVEs, so the UI moved to `node:22.23.3-trixie-slim`, which has none. The remaining Highs are in the npm copy bundled with Node (`groupscout-site-6ah.15`).
+- **Pinning.** Every action is pinned to a commit SHA, using releases at least two weeks old: `actions/checkout` v7.0.1 and `actions/setup-go` v7.0.0. Downloaded tools are checksum-verified.
+- **`renovate.json` in both repos.**
+  - Weekly on Monday mornings, with no automerge and digest pinning for every image.
+  - Go modules and Actions wait 7 days after release.
+  - Rules match by datasource, so the CI Postgres service image moves in the same PR as Compose's copy. A local `renovate --dry-run=lookup` (44.125.2) confirmed this.
+  - n8n, Grafana and pgvector get their own PRs with a backup warning.
+  - OpenTofu and Ansible get covered automatically once those files exist.
+- **Guard tests.** Backend `internal/smoke/ci_test.go` and UI `test/ci-contract.test.js` check:
+  - the action pins, gates and triggers;
+  - that the scan runs before the push, and that the push runs only on `main`;
+  - that the CI Postgres image matches Compose and that the test URL targets the throwaway database;
+  - that Renovate never automerges.
+  - Deliberate breakage confirmed that every check fires (nine backend, six UI).
+- **Verified:**
+  - Locally: `go vet`, gofmt, unit tests, the eval gate and `compose-check` pass in a clean clone without `.env`; all 60 integration tests pass against a throwaway pgvector container; `actionlint` 1.7.12 is clean; `renovate-config-validator --strict` passes; the trixie UI image is healthy and passes grype.
+  - On GitHub: every job passed on both PRs, and the backend `image` job's `/health` reported the commit's full SHA.
 
 ### Phase 5: Host configuration with Ansible (L), needs D1/D3/D4 · `groupscout-site-6ah.6`
 

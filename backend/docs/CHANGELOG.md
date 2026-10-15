@@ -1,3 +1,40 @@
+## 2026-10-15 - IaC Phase 4: CI, GHCR images and Renovate (groupscout-site-6ah.5)
+
+### Every PR is tested, and every `main` commit gets an image
+
+- **What:**
+  - Backend `ci.yml` runs on PRs and on `main`:
+    - `go`: gofmt, vet, unit tests and the eval gate.
+    - `integration`: the integration suites against a throwaway pgvector service container, with `-p 1`.
+    - `compose`: `make compose-check`.
+    - `image`: builds the image, starts it with the prod overlay, checks that `/health` reports the database OK and the commit's SHA, then runs grype `--only-fixed --fail-on critical`.
+  - On `main`, `image` pushes `ghcr.io/alvindcastro/groupscout:<sha>` and `:main`.
+  - The UI gets the same `ci.yml`, plus a gitleaks `secret-scan.yml`.
+  - `renovate.json` in both repos proposes weekly grouped updates, with digest pinning and no automerge.
+- **Where:**
+  - Backend PR #14 (`task/iac-phase4-ci`: `.github/workflows/ci.yml`, `renovate.json`, `internal/smoke/ci_test.go`).
+  - UI PR #1 (`task/iac-phase4-ci` into `task/production-ui-compose`).
+  - Docs: new [CI.md](./guides/CI.md). The IaC plan, `TESTING.md` (throwaway test database recipe), `SECRETS.md`, `DOCKER.md`, frontend `testing.md`, `docker-runtime-matrix.md` and the frontend CHANGELOG are updated.
+- **Why:**
+  - Nothing ran tests on PRs, and the `cmd/server/main.go` Dockerfile break shows a broken image could go unnoticed for weeks.
+  - Phase 7 deploys need an image per commit.
+  - Pinned versions were drifting with no update process.
+- **Gotchas:**
+  - Claude Code's auto-mode guard blocks the agent from merging a PR without review. The merge, branch protection, the Renovate app and GHCR package visibility are owner steps (`groupscout-site-6ah.14`).
+  - UI images publish only once `task/production-ui-compose` reaches UI `main`.
+  - The UI's `node:22.23.3-bookworm-slim` base had 5 fixable critical `perl-base` CVEs, so the UI moved to `trixie-slim`.
+  - The backend has 6 fixable High findings (`x/net`, `x/text`, Alpine `zlib`) for Renovate to pick up. Bundled npm in the UI image is `groupscout-site-6ah.15`.
+  - Grype rather than Trivy, because Trivy's tags were hijacked in 2026.
+  - Renovate rules match by datasource, so the CI Postgres service image updates in the same PR as its Compose copy.
+- **Verification:**
+  - Every job passed on both PRs. The backend `image` job's `/health` returned the full commit SHA with the database OK.
+  - Locally:
+    - The unit gates pass in a clean clone with no `.env`.
+    - All 60 integration tests pass against a throwaway pgvector container.
+    - `actionlint` 1.7.12 and `renovate-config-validator --strict` are clean.
+    - `renovate --dry-run=lookup` shows the intended PR grouping.
+    - Deliberate breakage confirmed every guard check fires (nine backend, six UI).
+
 ## 2026-10-14 - IaC Phase 3: secrets as code (groupscout-site-6ah.4, groupscout-site-482)
 
 ### The live `.env` is now rendered from an encrypted file in git

@@ -4,6 +4,23 @@ Note: historical entries preserve the asset versions and commands that were curr
 
 ## Unreleased
 
+### CI, GHCR Image Publishing, Secret Scan And Renovate (IaC Phase 4)
+
+- What:
+  - GitHub Actions `ci.yml` runs `npm test` in the Dockerfile's base image, then builds the production target and checks `/healthz` and the non-root user. grype fails the build on fixable critical vulnerabilities. Pushes to `main` publish `ghcr.io/alvindcastro/groupscout-ui:<sha>` and `:main`.
+  - `secret-scan.yml` runs gitleaks over the full history.
+  - `renovate.json` proposes weekly grouped updates.
+  - Both Dockerfile stages move to `node:22.23.3-trixie-slim`.
+- Where: UI branch `task/iac-phase4-ci` (commit `90389a2`, PR #1 into `task/production-ui-compose`). Files: `.github/workflows/ci.yml`, `.github/workflows/secret-scan.yml`, `.gitleaksignore`, `renovate.json`, `Dockerfile`, `README.md`, `test/ci-contract.test.js`. Docs: `docs/docker-runtime-matrix.md`, `docs/testing.md`, and backend `docs/guides/CI.md`.
+- When: 2026-10-15 under `groupscout-site-6ah.5`. Every check passed on the PR, which waits for the owner to merge it (`groupscout-site-6ah.14`).
+- Why:
+  - The UI had no CI, so no PR was tested and no image was published.
+  - The bookworm base carried five fixable critical `perl-base` CVEs; trixie has none.
+  - The 13 historical gitleaks findings are reviewed false positives: a `0123456789...` session-secret test fixture and `YOUR_API_TOKEN` doc placeholders.
+- Verification:
+  - On the PR: 153 tests in CI (143 pass; the 10 that read coordination-repo docs skip). The production container answered `/healthz`, and grype passed.
+  - Locally: all 153 tests run, with 152 passing, none failing and the one usual skip. `actionlint` and `renovate-config-validator --strict` are clean, and deliberately breaking each of the six guard checks makes the test fail.
+
 ### Production Image And Backend Compose Layout (IaC Phase 1)
 
 - What: The production Docker stage now starts from a clean pinned `node:22.23.3-bookworm-slim` base. It copies only `package.json` and `web/` and runs as `node`; the test stage uses the same pinned base. Living runtime docs now list the backend `docker-compose.override.yml` in multi-file Compose commands, and the D5 docs test accepts the broadened CI secret wording.

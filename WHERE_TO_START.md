@@ -42,7 +42,9 @@ Infrastructure as Code (epic `groupscout-site-6ah`, plan in [INFRASTRUCTURE_AS_C
 
 - ~~`groupscout-site-6ah.2`~~ - Phase 1 Compose and image hardening is done (2026-10-14): verified on Podman and merged to backend `main`.
 - ~~`groupscout-site-6ah.3`~~ - Phase 2 app config as code is done (2026-10-14). The n8n workflow bootstrap, Prometheus scrape config, Grafana provisioning and Alloy are merged to backend `main`.
-- Next IaC work: `groupscout-site-6ah.5` (Phase 4, CI) and `groupscout-site-6ah.10` (Phase 9, cadence dead-man's switch, now unblocked). Fix `groupscout-site-482` (password in logs) before Phase 3 (`6ah.4`).
+- ~~`groupscout-site-6ah.4`~~ - Phase 3 secrets as code is done (2026-10-14). The live `.env` renders from SOPS-encrypted `deploy/secrets/prod.sops.env`. The owner still needs to back up the age key (`groupscout-site-6ah.13`, P1).
+- `groupscout-site-6ah.5` - Phase 4 CI is built and green on backend PR #14 and UI PR #1 (2026-10-15). The owner merges them and sets up branch protection, the Renovate app and GHCR visibility (`groupscout-site-6ah.14`, [CI.md](./backend/docs/guides/CI.md)).
+- Next: `groupscout-site-sfi` (P1, code guards so integration tests can't hit the live database) and `groupscout-site-6ah.10` (Phase 9, cadence dead-man's switch).
 - `groupscout-site-6ah.1` - Phase 0 decisions D1–D11 (deploy target, tooling) gate Phases 5–8.
 
 Then move to the operator UI bridge:
@@ -61,6 +63,7 @@ Then move to the operator UI bridge:
 - Strategic roadmap: [backend/docs/planning/ROADMAP.md](./backend/docs/planning/ROADMAP.md)
 - Podman migration runbook: [backend/docs/guides/PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md)
 - Secrets (SOPS + age), rendering `.env`, rotation and secret scanning: [backend/docs/guides/SECRETS.md](./backend/docs/guides/SECRETS.md)
+- CI, GHCR images, the vulnerability gate and Renovate: [backend/docs/guides/CI.md](./backend/docs/guides/CI.md)
 - Frontend current-checkout reconciliation: [frontend/README.md](./frontend/README.md)
 - UI implementation history: [frontend/docs/ui-tdd-phase-0-15-implementation.md](./frontend/docs/ui-tdd-phase-0-15-implementation.md)
 - Frontend smell refactor prompts: [frontend/docs/code-smell-transformation-prompts.md](./frontend/docs/code-smell-transformation-prompts.md)

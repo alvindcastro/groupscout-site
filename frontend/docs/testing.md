@@ -122,6 +122,13 @@ node --test test/dockerization-contract.test.js
 
 CI should run `npm test`, build and run the D1 test image, then build the production image. If the backend Compose file is available, CI can also run the merged Compose config validation command or the backend-owned `make smoke-ui-docker-e2e` gate. Smoke `/healthz`, `/`, and `/assets/app.js` against the production UI container without backend secrets; smoke `/api/system` through the D4 proxy and accept the current backend status (`404` on backend `main`, or `401` once protected UI API routes are present).
 
+IaC Phase 4 implements this in GitHub Actions (UI PR #1, waiting to be merged; runbook: [CI.md](../../backend/docs/guides/CI.md)):
+- `.github/workflows/ci.yml` runs `npm test` inside `node:22.23.3-trixie-slim`, the Dockerfile's base image.
+- It then builds `--target production`, checks `/healthz` and that the container runs as `node`, and fails on fixable critical vulnerabilities (grype).
+- On UI `main` it pushes `ghcr.io/alvindcastro/groupscout-ui:<sha>` and `:main`.
+- `secret-scan.yml` runs gitleaks over the full history.
+- CI never receives backend secrets.
+
 The production UI Compose profile is implemented in the UI source repo. The backend-owned repeatable UI Docker E2E gate is now available as `make smoke-ui-docker-e2e` in the backend source repo.
 
 Do not run CI UI containers with backend `.env` or `--env-file`. `UI_SESSION_SECRET` is valid only as server-side runtime configuration for deployments that need session-gated `/api/*`. Do not inject `API_TOKEN`, provider keys, Slack tokens, Resend/SendGrid keys, database URLs, `OLLAMA_BASE_URL`, or `UI_SESSION_SECRET` into browser-visible config, static assets, Compose output, or CI artifacts.

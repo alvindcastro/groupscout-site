@@ -17,7 +17,7 @@ Docker remains the production and CI command baseline for the commands below. Lo
 
 ## D1 Test Image
 
-The `test` Docker target uses `node:22-bookworm-slim`, copies the no-install test inputs, and runs `npm test`. It has no exposed port, healthcheck, backend network dependency, product dev server, static asset server, or proxy behavior.
+The `test` Docker target uses `node:22.23.3-trixie-slim`, copies the no-install test inputs, and runs `npm test`. It has no exposed port, healthcheck, backend network dependency, product dev server, static asset server, or proxy behavior.
 
 Use it when validating model contracts and documentation guardrails:
 
@@ -39,7 +39,7 @@ podman run --rm groupscout-ui-test
 
 The commands list the backend `docker-compose.override.yml` as well. Since IaC Phase 1, the backend's dev host ports live in that file. Compose skips it whenever `-f` is passed, and an `up` without it recreates the backend containers without `localhost:8080`. Ollama is optional there (`llm` profile), so the backend no longer waits for model pulls unless that profile is active.
 
-The production UI image (`--target production`) starts from a clean pinned `node:22.23.3-bookworm-slim` base. It contains only `package.json` and `web/`, with no tests, Compose files or Dockerfile, and runs as the unprivileged `node` user.
+The production UI image (`--target production`) starts from a clean pinned `node:22.23.3-trixie-slim` base. It contains only `package.json` and `web/`, with no tests, Compose files or Dockerfile, and runs as the unprivileged `node` user. IaC Phase 4 moved both stages from `bookworm-slim` to `trixie-slim`, because the bookworm image carried five fixable critical `perl-base` CVEs that the CI vulnerability gate rejects (UI PR #1, waiting to be merged).
 
 The Phase 13 service builds the D1 `test` target but overrides the command with `node web/src/server/productDevServer.js`. It serves generated `web/dist` assets, exposes `/healthz` JSON metadata, and keeps backend discovery server-side through `http://groupscout:8080`.
 

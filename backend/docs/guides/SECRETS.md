@@ -104,7 +104,8 @@ Note when each change takes effect. Several images read their secret only when t
 | `GRAFANA_ADMIN_PASSWORD` | Grafana applies it only on first init. Edit, render, recreate `grafana`, then run `printf '%s\n' "$NEW" \| podman exec -i groupscout_grafana grafana cli admin reset-admin-password --password-from-stdin`. |
 | `API_TOKEN` | Edit, render, and recreate `groupscout` and `n8n`. n8n receives it as `GROUPSCOUT_API_TOKEN`. Update any Bruno or curl environment that holds the old token. |
 | `N8N_ENCRYPTION_KEY` | **Do not rotate casually.** It must equal the key stored in the `n8n_data` volume, or n8n refuses to start ("Mismatching encryption keys"), and it encrypts n8n credentials. The encrypted file keeps a copy so a volume restore stays usable. |
-| `CLAUDE_API_KEY`, `SLACK_*`, `RESEND_API_KEY` | Rotate at the provider, then edit, render, and recreate the consumers listed in IaC plan Appendix A. |
+| `CLAUDE_API_KEY`, `SLACK_*`, `OPS_SLACK_WEBHOOK_URL`, `RESEND_API_KEY` | Rotate at the provider, then edit, render, and recreate the consumers listed in IaC plan Appendix A. |
+| `CADENCE_HEARTBEAT_URL`, `HEALTHCHECKS_API_KEY` | Regenerate the ping key or API key in the Healthchecks.io project settings. Edit, render, and recreate `groupscout`; the API key is only read by `make monitors-apply`. See [MONITORING.md](./MONITORING.md). |
 
 Generate URL-safe values with `openssl rand -hex 24` (or `-hex 32` for `API_TOKEN`). `POSTGRES_PASSWORD` sits inside a URL, so avoid `@ : / ?`.
 

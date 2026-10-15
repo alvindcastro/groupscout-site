@@ -44,7 +44,8 @@ Infrastructure as Code (epic `groupscout-site-6ah`, plan in [INFRASTRUCTURE_AS_C
 - ~~`groupscout-site-6ah.3`~~ - Phase 2 app config as code is done (2026-10-14). The n8n workflow bootstrap, Prometheus scrape config, Grafana provisioning and Alloy are merged to backend `main`.
 - ~~`groupscout-site-6ah.4`~~ - Phase 3 secrets as code is done (2026-10-14). The live `.env` renders from SOPS-encrypted `deploy/secrets/prod.sops.env`. The owner still needs to back up the age key (`groupscout-site-6ah.13`, P1).
 - `groupscout-site-6ah.5` - Phase 4 CI is merged (2026-10-15). Every backend `main` commit now publishes `ghcr.io/alvindcastro/groupscout:<sha>`. The owner still needs to set up branch protection and the Renovate app, and decide on UI `main` (`groupscout-site-6ah.14`, [CI.md](./backend/docs/guides/CI.md)).
-- Next: `groupscout-site-sfi` (P1, code guards so integration tests can't hit the live database) and `groupscout-site-6ah.10` (Phase 9, cadence dead-man's switch).
+- `groupscout-site-6ah.10` - Phase 9 monitoring is built and running live (2026-10-15): a cadence dead man's switch, ops metrics and Grafana alerts. The owner merges backend PR #15 and sets up Healthchecks.io and the ops Slack webhook (`groupscout-site-6ah.16`, [MONITORING.md](./backend/docs/guides/MONITORING.md)).
+- Next: `groupscout-site-sfi` (P1, code guards so integration tests can't hit the live database). Phases 5–8 wait on the Phase 0 decisions (`groupscout-site-6ah.1`).
 - `groupscout-site-6ah.1` - Phase 0 decisions D1–D11 (deploy target, tooling) gate Phases 5–8.
 
 Then move to the operator UI bridge:
@@ -64,6 +65,7 @@ Then move to the operator UI bridge:
 - Podman migration runbook: [backend/docs/guides/PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md)
 - Secrets (SOPS + age), rendering `.env`, rotation and secret scanning: [backend/docs/guides/SECRETS.md](./backend/docs/guides/SECRETS.md)
 - CI, GHCR images, the vulnerability gate and Renovate: [backend/docs/guides/CI.md](./backend/docs/guides/CI.md)
+- Monitoring, alerts and the cadence dead man's switch: [backend/docs/guides/MONITORING.md](./backend/docs/guides/MONITORING.md)
 - Frontend current-checkout reconciliation: [frontend/README.md](./frontend/README.md)
 - UI implementation history: [frontend/docs/ui-tdd-phase-0-15-implementation.md](./frontend/docs/ui-tdd-phase-0-15-implementation.md)
 - Frontend smell refactor prompts: [frontend/docs/code-smell-transformation-prompts.md](./frontend/docs/code-smell-transformation-prompts.md)

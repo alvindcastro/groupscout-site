@@ -1,3 +1,33 @@
+## 2026-10-15 - IaC Phase 9: monitoring as code (groupscout-site-6ah.10)
+
+### A missed lead cadence now raises an alert by itself
+
+- **What:**
+  - **Heartbeat.** After each cadence run, the API pings `CADENCE_HEARTBEAT_URL`, a Healthchecks.io dead man's switch: success, or `/fail` on error. The check is defined in `deploy/config/healthchecks/checks.json` (Sun/Tue/Thu 18:00 Vancouver, 45 minutes' grace) and applied with `make monitors-apply`.
+  - **Metrics.** New pipeline, collector, lead and cadence metrics, including a schedule-aware `groupscout_cadence_overdue`. The last run and newest lead are seeded from Postgres at startup.
+  - **Grafana alerts.** Five rules are provisioned as code (API down, cadence missed, collector failed, no new leads in 14 days, restart loop), sending to a new `OPS_SLACK_WEBHOOK_URL` and never the lead channel.
+- **Where:**
+  - Backend PR #15 (`task/iac-phase9-monitoring`, `31e11db`): `internal/cadence`, `internal/heartbeat`, `internal/storage/activity.go`, `cmd/server/monitoring.go`, the enricher's `OnCollectorRun` hook, `deploy/config/grafana/provisioning/alerting/`, `deploy/config/healthchecks/`, `deploy/scripts/monitors.sh`, the Makefile, Compose, `.env.example`, `internal/smoke/monitoring_test.go` and the CI image check.
+  - Docs: new [MONITORING.md](./guides/MONITORING.md). The IaC plan (Phase 9 and Appendix A), `SECRETS.md`, `DOCKER.md`, `N8N_GUIDE.md` and `WHERE_TO_START.md` are updated.
+- **Why:**
+  - In July 2026 the Podman move silently stopped lead deliveries for weeks, because nothing expected the cadence to run.
+  - A check outside the stack catches n8n, the API, Podman or the PC being down, which an in-stack check can't.
+- **Gotchas:**
+  - The Alpine runtime image has no time zone database, so `America/Vancouver` used to fall back to UTC inside the container. The binary now embeds `time/tzdata`.
+  - Grafana 13's Slack integration needs the webhook to answer exactly `ok`. Otherwise it treats the firing notice as failed and never sends "resolved".
+  - Grafana 13 moved the receiver test endpoint to `/apis/notifications.alerting.grafana.app/v1beta1/namespaces/default/receivers/<uid>/test`.
+  - While checking the Compose wiring, `docker-compose config` against the live `.env` printed the lead-channel Slack webhook URL into the session output. Render config with key names only.
+  - The external `/health` uptime check (Phase 6) and the Postgres disk alert (Phase 5) are deferred.
+- **Verification:**
+  - In a simulation on an isolated Podman network (Phase 9 image, seeded Postgres, Prometheus, Grafana 13.2.4, mock Slack and Healthchecks):
+    - A missed slot fired "lead cadence missed".
+    - A cadence run sent the success ping, and Grafana sent RESOLVED.
+    - A run with the database down sent `/fail`.
+    - Stopping the API fired "API down" after 5 minutes.
+  - `monitors-apply` against a mock Healthchecks API creates the check, then updates it in place.
+  - Live: the API seeded the last run (Tue 18:00:19) and reports overdue 0, and the live Grafana evaluates all five rules healthy.
+  - CI passed on PR #15, including the gauge check inside the built image.
+
 ## 2026-10-15 - IaC Phase 4: CI, GHCR images and Renovate (groupscout-site-6ah.5)
 
 ### Every PR is tested, and every `main` commit gets an image

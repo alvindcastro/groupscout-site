@@ -212,7 +212,7 @@ Use this when an operator wants to visually confirm the workflow before leaving 
 4. Confirm the top-right workflow toggle is **Active**.
 5. Confirm the graph contains schedule, cadence-key, duplicate guard, health preflight, `/run` trigger, run classifier, delivered marker, and ops Slack failure/no-lead branches.
 6. Open **Trigger GroupScout Run** and confirm the body expression includes `guarantee_one_lead: true` and `cadence_key`.
-7. Open each ops Slack node and confirm the URL is environment-backed, not the placeholder webhook URL.
+7. Open each ops Slack node and confirm the URL is environment-backed, not the placeholder webhook URL. Compose sets `GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` to `OPS_SLACK_WEBHOOK_URL` (the ops channel), falling back to `SLACK_WEBHOOK_URL` when that is unset (IaC Phase 9). Whether the cadence ran at all is watched from outside by the Healthchecks.io dead man's switch: [MONITORING.md](./MONITORING.md).
 
 #### Backend delivery guarantee
 

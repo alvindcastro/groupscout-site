@@ -1,7 +1,7 @@
 # Infrastructure as Code: Brainstorm & Task Plan
 
 Date: 2026-10-14
-Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15). Branch protection, the Renovate app and UI `main` are still open. Other phases planned.
+Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15); branch protection, the Renovate app and UI `main` are still open. Phase 9 is built, verified and running live, and waits for the merge and the owner's Healthchecks.io and ops Slack setup (2026-10-15). Other phases planned.
 
 > **Tracking:** Beads is the source of truth. Epic `groupscout-site-6ah` has one child issue per phase, linked by the dependencies in §8. Phase N is `groupscout-site-6ah.<N+1>`, and each phase heading below shows its ID. The task lists in this doc describe scope only; check status with `bd show <id>`. The existing home deploy, backups, and restore-smoke work is `groupscout-site-39g`, linked as related to Phase 8.
 
@@ -204,7 +204,8 @@ groupscout/
 │   │   └── compose.prod.yml        # prod overlay: registry image by tag, required secrets, 127.0.0.1 binds  ✅ Phase 1
 │   ├── config/
 │   │   ├── prometheus/prometheus.yml
-│   │   ├── grafana/provisioning/{datasources,dashboards,alerting}/
+│   │   ├── grafana/provisioning/{datasources,dashboards,alerting}/   # alerting rules, contact point, policy: Phase 9
+│   │   ├── healthchecks/checks.json  # dead man's switch (Healthchecks.io): Phase 9
 │   │   ├── alloy/config.alloy
 │   │   └── n8n/workflows/*.json    # runtime artifact, synced from coordination repo
 │   ├── secrets/
@@ -218,7 +219,7 @@ groupscout/
 │   │   ├── bootstrap/              # state bucket (local state)
 │   │   ├── modules/{hetzner_host,cloudflare_edge,backup_bucket,monitors}/
 │   │   └── envs/prod/
-│   ├── scripts/{secrets.sh,deploy.sh,verify.sh,backup.sh,restore-smoke.sh}
+│   ├── scripts/{secrets.sh,monitors.sh,deploy.sh,verify.sh,backup.sh,restore-smoke.sh}
 │   └── windows/
 │       ├── configuration.dsc.yaml  # winget configure: podman, compose, git, go, node
 │       ├── podman-autostart.ps1
@@ -475,6 +476,36 @@ Merged 2026-10-15. The runbook is [CI.md](../guides/CI.md).
 
 **Done when:** stopping the n8n container through a cadence window produces an alert without anyone checking manually.
 
+Built 2026-10-15 on backend PR [#15](https://github.com/alvindcastro/groupscout/pull/15) (`task/iac-phase9-monitoring`, `31e11db`). Every CI check passed, and it is deployed on the live stack. The runbook is [MONITORING.md](../guides/MONITORING.md).
+- **Dead man's switch.**
+  - The backend `/run` path pings, rather than n8n, so a single ping covers n8n, the API, Podman, the PC and the network. After each cadence run the API pings `CADENCE_HEARTBEAT_URL`: success when the run completed, `/fail` when it errored.
+  - The Healthchecks.io check in `deploy/config/healthchecks/checks.json` is applied by `make monitors-apply` (`deploy/scripts/monitors.sh`, Healthchecks v3 API, matched by name, key passed in a header file). It expects pings on cron `0 18 * * 0,2,4` in `America/Vancouver` with 45 minutes' grace.
+  - The ping URL holds the ping key and is never logged.
+- **Metrics** (`cmd/server/monitoring.go`): pipeline runs by kind and result, collector runs and last success, leads created and the newest lead, the last cadence run, and the schedule-aware `groupscout_cadence_overdue` (`internal/cadence`). The last run and newest lead are seeded from Postgres at startup.
+  - The Alpine image had no time zone database, so `America/Vancouver` silently fell back to UTC inside the container. The binary now embeds `time/tzdata`, and CI checks the gauge inside the built image.
+- **Grafana alert rules,** provisioned from `deploy/config/grafana/provisioning/alerting`:
+  - API down (5 min);
+  - lead cadence missed (the in-stack backup of the external check);
+  - collector failed (per collector, from a counter whose series start at 0);
+  - no new leads in 14 days;
+  - a restart loop of the app or n8n, counted from Loki startup lines.
+- **Ops channel.** Grafana alerts go only to the new `OPS_SLACK_WEBHOOK_URL`. Unset, a placeholder URL keeps them in the Grafana UI. n8n's cadence notices prefer it and fall back to the lead channel as before.
+- **Not done here:**
+  - The external uptime check on a public `/health` moves to Phase 6, because it needs public ingress and an always-on host. A home PC that sleeps would page nightly.
+  - The Postgres disk alert moves to Phase 5, with node_exporter.
+  - The Windows autostart task still doesn't start the `obs` profile (Phase 10). The external check doesn't depend on it.
+- **Guard tests.** `internal/smoke/monitoring_test.go` keeps the n8n trigger, `cadence.Default` and the Healthchecks check in step, checks every rule's metrics and datasources, and guards the ops-only routing and the key handling. Deliberate breakage confirmed all nine checks fire.
+- **Verified, in a simulation on an isolated Podman network** (Phase 9 image, seeded Postgres, Prometheus, Grafana 13.2.4, mock Slack and Healthchecks):
+  - A missed slot fired "lead cadence missed" to ops Slack.
+  - A cadence run sent the success ping, and Grafana sent RESOLVED.
+  - A run with the database down sent `/fail`.
+  - Stopping the API fired "API down" after 5 minutes.
+  - `monitors-apply` creates the check, then updates it in place, against a mock of the Healthchecks API.
+- **Verified live:**
+  - The API seeded the last run (Tue 2026-10-13 18:00:19) from Postgres and reports overdue 0.
+  - The live Grafana loaded all five rules, and they evaluate healthy against live Prometheus and Loki.
+- **Owner steps** (`groupscout-site-6ah.16`): merge PR #15, create the Healthchecks.io project and the `#groupscout-ops` webhook, add the three secrets with `make secrets-edit`, then run `make monitors-apply`. The "stop n8n across a real cadence window" test needs that account.
+
 ### Phase 10: Dev workstation as code (S), Windows/Podman · `groupscout-site-6ah.11`
 
 - Copy `podman-autostart.ps1` into `deploy/windows/` and parameterize it (service list, timeouts).
@@ -540,7 +571,10 @@ Suggested first slice (about a week): **Phase 1 + the `n8n-init` part of Phase 2
 | Secret | Consumers | Notes |
 |---|---|---|
 | `CLAUDE_API_KEY` | groupscout, alertd | Rotate if it was ever in a plaintext `.env` backup |
-| `SLACK_WEBHOOK_URL` | groupscout, n8n (`GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`) | |
+| `SLACK_WEBHOOK_URL` | groupscout, n8n (`GROUPSCOUT_OPS_SLACK_WEBHOOK_URL` fallback) | The lead channel |
+| `OPS_SLACK_WEBHOOK_URL` | grafana and n8n (`GROUPSCOUT_OPS_SLACK_WEBHOOK_URL`) | **New in Phase 9.** Ops alerts, never the lead channel. Owner adds it (`groupscout-site-6ah.16`) |
+| `CADENCE_HEARTBEAT_URL` | groupscout | **New in Phase 9.** Healthchecks.io ping URL, which embeds the ping key |
+| `HEALTHCHECKS_API_KEY` | `make monitors-apply` only | **New in Phase 9.** Read-write Healthchecks.io key; no container receives it |
 | `SLACK_BOT_TOKEN` | alertd | |
 | `RESEND_API_KEY` | groupscout | |
 | ~~`SENDGRID_API_KEY`~~ | none | Unused. Removed from Compose in Phase 1; delete it from `.env` |

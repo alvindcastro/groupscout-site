@@ -1,3 +1,34 @@
+## 2026-10-15 - IaC Phase 5: the WSL production host (groupscout-site-6ah.6)
+
+### Production gets a real host: a WSL 2 distro configured by Ansible, running rootless Podman
+
+- **What:**
+  - Decision D1: production moves to a dedicated WSL 2 distro, `groupscout-prod` (Ubuntu 26.04), on the home PC.
+  - Decision D4: rootless Podman 5.7 + Compose, after the owner asked for Podman over Docker where possible.
+  - Backend `deploy/windows/new-wsl-host.ps1` creates the distro. `deploy/ansible/site.yml` (roles base, hardening, podman, groupscout) configures it and runs the stack from the GHCR image.
+  - New make targets: `make ansible-deps/apply/check/lint`. CI lints the playbook.
+  - The host runs staging until the cutover (`groupscout-site-6ah.18`): throwaway secrets, no n8n, ports 18080, 15678 and 13000.
+- **Where:**
+  - Backend PR #17 (`task/iac-phase5-ansible`, stacked on #16): `deploy/ansible/`, `deploy/windows/new-wsl-host.ps1`, `deploy/secrets/staging.sops.env`, `compose.prod.yml` port variables, Alloy's `CONTAINER_SOCKET`, the Makefile, `ci.yml` and `internal/smoke/ansible_test.go`.
+  - Docs: new [WSL_HOST.md](./guides/WSL_HOST.md). The IaC plan (D1, D4, Phase 5), PODMAN_MIGRATION.md and WHERE_TO_START.md are updated.
+- **Why:**
+  - The Podman machine is a black box with its own quirks.
+  - A standard Ubuntu host configured from git can be rebuilt with one command, and moves to a VPS later by changing the inventory.
+- **Gotchas found:**
+  - **All WSL 2 distros share one `binfmt_misc` table.** systemd 259's shutdown flushes it whenever it's mounted. Each stop of the new distro deleted `WSLInterop`, and `cmd.exe`, `wsl.exe` and `podman.exe` failed in every distro until it was re-registered. The host now has interop off, the binfmt units masked, and a boot unit that unmounts `binfmt_misc`.
+  - **All distros share one cgroup tree.** A second `user@1000.service` fails with "Device or resource busy", because the Podman machine's user is 1000. The dev distro's own `user@1000` has been failing for the same reason, which is why it reports "degraded". `deploy` is uid 2000.
+  - WSL idle-stops a distro about 15 s after its last `wsl.exe` session, even with services running.
+  - `podman-restart` ignores `unless-stopped`.
+  - Ansible ignores `ansible.cfg` in world-writable directories, which includes `/mnt/c`.
+  - `wsl.exe -- cmd` runs the command through a shell; use `--exec`.
+- **Verification on the host:**
+  - A fresh apply works; a second run and `--check --diff` both report `changed=0`.
+  - A cold restart is healthy in 15 s without manual steps.
+  - Interop survives terminate and idle-stop.
+  - sshd refuses root.
+  - Lint is clean at the `production` profile.
+  - Eight deliberate breakages are caught by the guard tests.
+
 ## 2026-10-15 - IaC Phase 0: decisions recorded (groupscout-site-6ah.1)
 
 ### OpenTofu + Ansible + Docker Compose, Coolify dropped, host and ingress still open

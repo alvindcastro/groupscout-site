@@ -6,6 +6,8 @@ Run backend runtime commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`
 
 ## Current Decision
 
+> **Production host (IaC Phase 5, 2026-10-15):** production is moving from this Podman machine to a dedicated WSL 2 distro, `groupscout-prod`, which runs rootless Podman and is configured by Ansible. See [WSL_HOST.md](./WSL_HOST.md); the cutover is `groupscout-site-6ah.18`. After the cutover this machine is for development only. One finding from that work applies here too: all WSL distros share one cgroup tree and one `binfmt_misc` table (details in WSL_HOST.md).
+
 - Docker Compose is still the baseline documented runtime.
 - Podman support is validated for local development and smoke testing. Docker Compose remains the production baseline until deployment docs, CI, and production socket/logging assumptions are updated together.
 - 2026-07-01 verification: `RedHat.Podman` 5.8.3 and standalone `Docker.DockerCompose` 5.2.0 are installed. `podman machine init` and `podman machine start` provisioned a rootless WSL-backed machine, `podman --version`, `podman compose version`, and `podman info` passed, the backend stack started, the UI test image passed, and the backend-owned UI E2E smoke passed under Podman.

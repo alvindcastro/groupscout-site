@@ -1,7 +1,7 @@
 # Infrastructure as Code: Brainstorm & Task Plan
 
 Date: 2026-10-14
-Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15); branch protection, the Renovate app and UI `main` are still open. Phase 9 is built, verified and running live, and waits for the merge and the owner's Healthchecks.io and ops Slack setup (2026-10-15). Phase 10 is built, and the home PC's autostart task runs the versioned script (2026-10-15). Phase 0 is done (2026-10-15): D1 (host) and D5 (ingress) are deferred to `groupscout-site-6ah.17`, which blocks Phases 5–8.
+Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15); branch protection, the Renovate app and UI `main` are still open. Phase 9 is built, verified and running live, and waits for the merge and the owner's Healthchecks.io and ops Slack setup (2026-10-15). Phase 10 is built, and the home PC's autostart task runs the versioned script (2026-10-15). Phase 0 is done (2026-10-15). D1 became a WSL 2 host and D4 rootless Podman; D5 (ingress) is still open in `groupscout-site-6ah.17`. Phase 5 is built: `groupscout-prod` runs staging, and the cutover is `groupscout-site-6ah.18`.
 
 > **Tracking:** Beads is the source of truth. Epic `groupscout-site-6ah` has one child issue per phase, linked by the dependencies in §8. Phase N is `groupscout-site-6ah.<N+1>`, and each phase heading below shows its ID. The task lists in this doc describe scope only; check status with `bd show <id>`. The existing home deploy, backups, and restore-smoke work is `groupscout-site-39g`, linked as related to Phase 8.
 
@@ -99,7 +99,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** Write L1–L5 against an abstract target, "one Debian/Ubuntu host reachable over SSH." Targets (b) and (c) then share 100% of the code, and only the Ansible inventory and the L0 module differ. Pick the first real target separately. Keep (a) for development only.
 
-**Outcome:** deferred by the owner on 2026-10-15. Phases 5–8 stay blocked on it, tracked in `groupscout-site-6ah.17`. Until then the Windows PC runs production, with the Phase 9 alerts and the Phase 10 autostart.
+**Outcome:** **a dedicated WSL 2 distro on the home Windows PC** (`groupscout-prod`, Ubuntu 26.04 for its Podman 5.7), chosen by the owner on 2026-10-15. It's option (a) made into a standard host, running rootless Podman + Compose under systemd (D4) and configured by Ansible like any Ubuntu host, so the same code moves to (b) or (c) by changing the inventory. Uptime still depends on the PC being on and logged in; Phase 9's Healthchecks check catches missed runs. The owner will look at the VPS (c) again later. It's separate from the dev `Ubuntu` distro because container names are fixed, and the Podman machine stays for development only.
 
 ### D2: Provisioning tool (L0)
 
@@ -124,7 +124,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 **Recommendation:** **Docker Engine + Compose for v1.** It's the documented production baseline, and existing Traefik, Promtail, and smoke scripts assume it. On Linux, the Docker daemon starts at boot, so `restart: unless-stopped` works there, unlike on the Podman machine. Revisit Quadlets later; `podlet` can convert the Compose file.
 **Gotcha:** Docker-published ports **bypass UFW**. In production, bind ports to `127.0.0.1` or don't publish them at all.
 
-**Outcome:** **Docker Engine + Compose**, as recommended (owner, 2026-10-15). `deploy/compose/compose.prod.yml` (Phase 1) already targets it. Podman stays the Windows dev runtime (Phase 10).
+**Outcome:** **rootless Podman + Compose**, changed from the recommendation by the owner on 2026-10-15 ("use Podman instead of Docker when possible"). The host runs Podman 5.7 (Ubuntu 26.04) with `docker-compose-v2` as the `podman compose` provider, for the deploy user, under systemd lingering. That matches how production already ran on the Podman machine. The same `compose.prod.yml` is used; its host ports and Alloy's socket path are now variables. A restart policy of `unless-stopped` isn't covered by `podman-restart.service`, so a user unit runs `podman compose up` at boot. Quadlets remain an option for later.
 
 ### D5: Ingress
 
@@ -184,7 +184,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 |---|---|
 | L0 Resources | OpenTofu (`hcloud`, `cloudflare`, S3 backend with state encryption) |
 | L1 Host | Ansible + cloud-init bootstrap |
-| L2 Workload | Docker Engine + Compose (base + prod override + profiles) |
+| L2 Workload | Compose (base + prod override + profiles) on rootless Podman (D4, changed from Docker Engine on 2026-10-15) |
 | L3 App config | Files in git, mounted read-only, plus an `n8n-init` import step |
 | L4 Delivery | GitHub Actions → GHCR → SSH over Tailscale, with environment approval |
 | L5 Monitoring | Healthchecks.io-style heartbeat, external uptime check, Grafana alert rules |
@@ -210,10 +210,10 @@ groupscout/
 │   │   └── n8n/workflows/*.json    # runtime artifact, synced from coordination repo
 │   ├── secrets/
 │   │   └── prod.sops.env           # SOPS-encrypted dotenv (Phase 3; .env suffix lets sops infer the format)
-│   ├── ansible/
-│   │   ├── inventory/{home.yml,hetzner.yml}
-│   │   ├── group_vars/all/{main.yml,secrets.sops.yml}
-│   │   ├── roles/{base,hardening,docker,tailscale,groupscout,backups,observability}/
+│   ├── ansible/                    # Phase 5
+│   │   ├── inventory/{home-wsl.yml,host_vars/}   # groupscout-prod (WSL 2); a VPS would be another host
+│   │   ├── group_vars/all/main.yml
+│   │   ├── roles/{base,hardening,podman,groupscout}/   # tailscale (D5) and backups (Phase 8) to come
 │   │   └── site.yml
 │   ├── tofu/
 │   │   ├── bootstrap/              # state bucket (local state)
@@ -431,6 +431,29 @@ Merged 2026-10-15. The runbook is [CI.md](../guides/CI.md).
 - Use `ansible-lint` in CI, and run `ansible-playbook --check --diff` as the drift check.
 
 **Done when:** one command takes a fresh Debian/Ubuntu host to a running, healthy stack, and a re-run makes no changes.
+
+Built 2026-10-15 on backend PR [#17](https://github.com/alvindcastro/groupscout/pull/17) (`task/iac-phase5-ansible`, stacked on #16). The runbook is [WSL_HOST.md](../guides/WSL_HOST.md).
+- **Host.** D1 is the WSL 2 distro `groupscout-prod` (Ubuntu 26.04). `deploy/windows/new-wsl-host.ps1` creates it and does what cloud-init would: systemd, a `deploy` user with uid 2000 and sudo, and sshd on `127.0.0.1:2222`. The controller is the dev distro: ansible-core 2.21.4 and ansible-lint 26.9.0 via `uv` on Python 3.12, with pinned collections.
+- **Roles.**
+  - `base`: packages, time zone, unattended upgrades, and the WSL protections below; chrony and swap only off WSL.
+  - `hardening`: a key-only sshd for `deploy`; UFW only off WSL.
+  - `podman`: rootless Podman 5.7, the `docker-compose-v2` provider, lingering and the user's `podman.socket`. This replaces the planned `docker` role (D4).
+  - `groupscout`: copies the files to `/opt/groupscout`, renders `.env` from `deploy/secrets/<env>.sops.env` with `no_log`, runs `podman compose up` with the prod overlay, waits until `/health` reports the image SHA, and installs a boot unit.
+  - Not yet: `tailscale` waits for D5, and `backups` comes with Phase 8.
+- **Commands.** `make ansible-deps/apply/check/lint`, plus a CI `ansible` job (lint and syntax check). The playbook lints clean at ansible-lint's `production` profile.
+- **WSL findings, each fixed and guarded by `internal/smoke/ansible_test.go`:**
+  - Distros share one `binfmt_misc` table, and systemd 259's shutdown flushed it, deleting WSL interop for every distro. The host turns interop off, masks the binfmt units and unmounts `binfmt_misc` at boot.
+  - Distros share one cgroup tree, so a second `user@1000` can't start (the Podman machine's user is 1000). That's why `deploy` is uid 2000.
+  - WSL idle-stops a distro about 15 seconds after its last `wsl.exe` session ends.
+  - Distros share ports.
+  - `podman-restart` ignores `unless-stopped`.
+- **Verified on `groupscout-prod`:**
+  - A fresh apply works; a second run and `--check --diff` both report `changed=0`.
+  - A cold restart of the distro brings the stack back healthy in 15 s with no steps.
+  - Interop survives terminate and idle-stop.
+  - sshd refuses root, and password logins are off.
+- **Staging until cutover:** `staging.sops.env` with throwaway values and no Slack, Resend or Claude keys; no n8n, so there's no second cadence; ports 18080, 15678 and 13000. The image is `main` `4ec5252`.
+- **Cutover** (`groupscout-site-6ah.18`): needs #15 merged for the Phase 9 image, more WSL memory (`.wslconfig` caps it at 4 GB) and a Windows logon task that keeps the distro alive. Then the data moves and `make ansible-apply` runs on the standard ports.
 
 ### Phase 6: Cloud resources with OpenTofu (M), needs D1/D2/D5/D9 · `groupscout-site-6ah.7`
 

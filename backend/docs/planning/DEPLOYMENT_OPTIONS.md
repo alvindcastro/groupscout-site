@@ -6,7 +6,13 @@
 >
 > **Container runtime note:** Docker Compose is still the known-good baseline for these deployment options. Podman is currently a local migration target; use [PODMAN_MIGRATION.md](../guides/PODMAN_MIGRATION.md) before treating Traefik socket discovery, host aliases, GPU-backed Ollama, or Compose networking as Podman-compatible.
 >
-> **Infrastructure as Code:** [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md) (Beads epic `groupscout-site-6ah`) plans how whichever target is chosen gets provisioned and deployed from git: Compose overlays, Ansible, OpenTofu for Hetzner/Cloudflare, SOPS secrets, GHCR images and scripted backups. Phase 0 (2026-10-15) chose OpenTofu, Ansible and Docker Engine + Compose, and dropped Coolify from the IaC path (D6). The Coolify options below are historical. The target (D1) and ingress (D5) are still open in `groupscout-site-6ah.17`; the plan recommends Cloudflare Tunnel over port forwarding. After IaC Phase 1, the backend Compose setup is a base file plus a dev override plus `deploy/compose/compose.prod.yml`, so "deploys your existing `docker-compose.yml` as-is" below now means the base file plus the production overlay.
+> **Infrastructure as Code:** [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md) (Beads epic `groupscout-site-6ah`) plans how whichever target is chosen gets provisioned and deployed from git: Compose overlays, Ansible, OpenTofu for Hetzner/Cloudflare, SOPS secrets, GHCR images and scripted backups. Decisions made on 2026-10-15:
+>
+> - **Target (D1):** a dedicated WSL 2 distro, `groupscout-prod`, on the home PC ([WSL_HOST.md](../guides/WSL_HOST.md)). Hetzner stays the option if production must run while the PC is off.
+> - **Tooling:** OpenTofu, Ansible, and rootless Podman + Compose (D2–D4).
+> - **Coolify (D6):** dropped from the IaC path, so the Coolify options below are historical.
+>
+> Ingress (D5) is still open in `groupscout-site-6ah.17`; the plan recommends Cloudflare Tunnel over port forwarding. After IaC Phase 1, the backend Compose setup is a base file plus a dev override plus `deploy/compose/compose.prod.yml`, so "deploys your existing `docker-compose.yml` as-is" below now means the base file plus the production overlay.
 >
 > **Key constraint:** `alertd` polls every 10–90 seconds. It **cannot** run on a platform that scales to zero between requests (e.g. Cloud Run, Render free tier).
 

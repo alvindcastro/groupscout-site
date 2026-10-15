@@ -48,7 +48,12 @@ Infrastructure as Code (epic `groupscout-site-6ah`, plan in [INFRASTRUCTURE_AS_C
 - `groupscout-site-6ah.11` - Phase 10 is built (backend PR #16, 2026-10-15). The home PC's `PodmanMachineAutostart` task now runs `deploy/windows/podman-autostart.ps1`, which also starts the monitoring containers. A new PC needs `winget configure` plus `setup-dev.ps1` ([PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md#machine-autostart-on-windows)).
 - `groupscout-site-6ah.6` - Phase 5 is built (backend PR #17, 2026-10-15). Production gets a WSL 2 host, `groupscout-prod`, configured by Ansible with rootless Podman; it runs staging until the cutover, `groupscout-site-6ah.18` ([WSL_HOST.md](./backend/docs/guides/WSL_HOST.md)).
 - Next: the cutover (`6ah.18`), `groupscout-site-sfi` (P1, code guards so integration tests can't hit the live database), and `groupscout-site-q74` (alertd has not run since the Podman migration). Phase 6 waits on the ingress decision (`groupscout-site-6ah.17`).
-- ~~`groupscout-site-6ah.1`~~ - Phase 0 is done (2026-10-15): OpenTofu, Ansible and Docker Compose, Coolify dropped, outcomes in plan §5. The production host (D1) and ingress (D5) are deferred to `groupscout-site-6ah.17`, which gates Phases 5–8.
+- ~~`groupscout-site-6ah.1`~~ - Phase 0 is done (2026-10-15), with outcomes in plan §5:
+  - host (D1): a WSL 2 distro;
+  - tooling: OpenTofu, Ansible, and rootless Podman + Compose (D2–D4; D4 changed from Docker at the owner's request);
+  - Coolify (D6): dropped.
+
+  Ingress (D5) is still open in `groupscout-site-6ah.17` and gates Phase 6.
 
 Then move to the operator UI bridge:
 

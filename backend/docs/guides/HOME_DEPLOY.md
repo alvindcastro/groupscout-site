@@ -4,6 +4,8 @@
 >
 > **Stack:** DuckDNS (dynamic DNS) → Router port forwarding OR Cloudflare Tunnel → Traefik v3 (reverse proxy + Let's Encrypt TLS) → Docker Compose (groupscout + alertd + Postgres).
 >
+> **Superseded for production (2026-10-15):** the home production host is now the WSL 2 distro `groupscout-prod`, built by Ansible with rootless Podman. See [WSL_HOST.md](./WSL_HOST.md). Ingress (DuckDNS/Traefik vs Cloudflare Tunnel or Tailscale) is decision D5, still open in `groupscout-site-6ah.17`. This guide stays as background for that decision.
+>
 > **Before following Tier 2:** don't replace the backend `docker-compose.yml` with the Traefik example below. Since IaC Phase 1, the real file is hardened, and replacing it would bring back `:latest` images, a hard-coded Postgres password and full-`.env` `env_file` wiring. Add Traefik or `cloudflared` as an extra Compose file next to `deploy/compose/compose.prod.yml` instead. The [Infrastructure as Code plan](../planning/INFRASTRUCTURE_AS_CODE.md) automates this path with Ansible and Cloudflare Tunnel (Phases 5–8, `groupscout-site-6ah.6`–`.9`); `groupscout-site-39g` tracks executing it.
 
 ---

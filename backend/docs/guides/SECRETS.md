@@ -15,6 +15,9 @@ IaC Phase 3 (`groupscout-site-6ah.4`). The runtime secrets live in the backend r
 | Encrypted Compose environment | `deploy/secrets/prod.sops.env` (dotenv; key names readable, values and comments encrypted) | Yes |
 | Recipients and creation rules | `.sops.yaml` | Yes |
 | Rendered plaintext | `.env` in the checkout (mode `0600` on Linux) | No (`.gitignore`) |
+| Staging environment | `deploy/secrets/staging.sops.env`: throwaway values for the staging stack on the WSL host, with no Slack, Resend or Claude keys (Phase 5) | Yes |
+| Rendered plaintext on the WSL host | `/opt/groupscout/.env` on `groupscout-prod` (mode `0600`). Ansible decrypts on the controller with the `community.sops` lookup (`no_log`), so the age key never leaves the dev distro ([WSL_HOST.md](./WSL_HOST.md)) | No |
+| Ansible SSH key | `~/.ssh/groupscout_prod_ed25519` in the dev distro; the only key `deploy` accepts on `groupscout-prod` | **Never** |
 | age private key | `~/.config/sops/age/keys.txt` in WSL (`%AppData%\sops\age\keys.txt` for Windows-native sops) | **Never** |
 | Template for setups without the key | `.env.example` | Yes |
 

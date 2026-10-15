@@ -8,8 +8,11 @@ Run backend runtime commands from `/mnt/c/Users/alvin/GolandProjects/groupscout`
 
 > **Production host (IaC Phase 5, 2026-10-15):** production is moving from this Podman machine to a dedicated WSL 2 distro, `groupscout-prod`, which runs rootless Podman and is configured by Ansible. See [WSL_HOST.md](./WSL_HOST.md); the cutover is `groupscout-site-6ah.18`. After the cutover this machine is for development only. One finding from that work applies here too: all WSL distros share one cgroup tree and one `binfmt_misc` table (details in WSL_HOST.md).
 
-- Docker Compose is still the baseline documented runtime.
-- Podman support is validated for local development and smoke testing. Docker Compose remains the production baseline until deployment docs, CI, and production socket/logging assumptions are updated together.
+- Podman is the runtime everywhere GroupScout runs:
+  - This Podman machine runs development, and production until the cutover.
+  - Production moves to rootless Podman on the WSL host (D4, 2026-10-15).
+- The Compose files stay the source of truth. `podman compose` uses the standalone Docker Compose binary as its provider, and the GitHub Actions runners in CI use Docker.
+- Docker-specific notes in older guides (DOCKER.md, HOME_DEPLOY.md) still apply to anyone running Docker, but Docker is not needed.
 - 2026-07-01 verification: `RedHat.Podman` 5.8.3 and standalone `Docker.DockerCompose` 5.2.0 are installed. `podman machine init` and `podman machine start` provisioned a rootless WSL-backed machine, `podman --version`, `podman compose version`, and `podman info` passed, the backend stack started, the UI test image passed, and the backend-owned UI E2E smoke passed under Podman.
 - Current Windows notes: PowerShell needs the Winget user PATH refreshed for `docker-compose.exe` after install. Git Bash can run the backend-owned smoke script with `GROUPSCOUT_COMPOSE="podman compose"` when the Docker Compose Winget package directory is on PATH. Plain WSL has `make`, and since 2026-10-14 it can also run the Windows `podman.exe` after the interop fix in [WSL Interop With systemd](#wsl-interop-with-systemd).
 - Prefer runtime variables in local notes and scripts:

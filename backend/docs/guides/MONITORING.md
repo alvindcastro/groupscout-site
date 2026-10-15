@@ -70,7 +70,7 @@ One-time steps, tracked in `groupscout-site-6ah.16`:
    - `CADENCE_HEARTBEAT_URL=https://hc-ping.com/<ping key>/groupscout-cadence`.
    - `OPS_SLACK_WEBHOOK_URL=<incoming webhook for a new #groupscout-ops channel>`.
 3. **Render and apply.** Run `make secrets-render FORCE=1`, then `make monitors-apply`. That creates the check with the schedule above, and rerunning it updates it in place.
-4. **Recreate the services** that read the new values: `podman compose --profile obs up -d groupscout grafana n8n`. The API logs `cadence heartbeat enabled host=hc-ping.com`.
+4. **Recreate the services** that read the new values: `podman compose --profile obs up -d groupscout grafana n8n`. After the cutover to the WSL host (`groupscout-site-6ah.18`), run `make ansible-apply` instead; it renders the new `.env` and recreates what changed. The API logs `cadence heartbeat enabled host=hc-ping.com`.
 5. **Test it.** The check shows "new" until the next cadence slot, then "up" after the run's ping. To test the alert without missing a real run, pause a test check, or use Healthchecks' "Send test notification" on the integration.
 
 ## Changing Things

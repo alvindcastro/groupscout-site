@@ -18,6 +18,7 @@ IaC Phase 4 (`groupscout-site-6ah.5`). GitHub Actions tests every pull request i
 | backend | `ci.yml` | `integration` | `go test -tags integration -p 1 ./...` against a throwaway pgvector Postgres service container | PRs, pushes to `main` |
 | backend | `ci.yml` | `compose` | `make compose-check`: every dev profile set plus the prod overlay render | PRs, pushes to `main` |
 | backend | `ci.yml` | `image` | Builds the image, starts it with the prod overlay, checks `/health` reports the database OK and this commit's SHA, then runs the vulnerability gate. On `main` it pushes. | After the three jobs above pass |
+| backend | `ci.yml` | `ansible` | `ansible-lint` (production profile) and `ansible-playbook --syntax-check` of `deploy/ansible`, with pinned ansible-core 2.21.4, ansible-lint 26.9.0 and collections. Added in Phase 5 (PR #17). | PRs, pushes to `main` |
 | backend | `secret-scan.yml` | `scan` | `make secrets-scan` (gitleaks over the full history, redacted) | Every push and PR |
 | UI | `ci.yml` | `test` | `npm test` inside `node:22.23.3-trixie-slim`, the Dockerfile's base image | PRs, pushes to `main` |
 | UI | `ci.yml` | `image` | Builds `--target production`, checks `/healthz` and the `node` user, then runs the vulnerability gate. On `main` it pushes. | After `test` passes |
@@ -75,6 +76,7 @@ When the gate fails, update the base image tag or digest, or the dependency, to 
   | `actions/setup-go` | v7.0.0 | `b7ad1dad31e06c5925ef5d2fc7ad053ef454303e` |
   | grype | 0.119.0 | sha256 `3fa2dc4b924621ab65404cf08d0b8438d896d80ab949c9d5a4ca283c36004c9b` |
   | gitleaks | 8.30.1 | sha256 `551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb` |
+  | ansible-core / ansible-lint | 2.21.4 / 26.9.0 | pip versions in a venv; collections pinned in `deploy/ansible/requirements.yml` |
 
 - Renovate doesn't bump the grype and gitleaks downloads. Update `*_VERSION` and `*_SHA256` together from the release's checksums file.
 - `GITHUB_TOKEN` is read-only except in the `image` job, which gets `packages: write`. The push step runs only for non-PR events on `main` in the owner's repo, and passes the token to `docker login` on stdin.
@@ -104,7 +106,7 @@ These need the repo owner on GitHub (`groupscout-site-6ah.14`):
 
 1. ~~**Merge** backend PR #14, then UI PR #1.~~ Done on 2026-10-15. Claude Code's auto-mode guard blocks the agent from merging without review, so later PRs need the owner too.
 2. **Branch protection on `main`** (backend, and UI once CI is on UI `main`):
-   - Required checks: backend `go`, `integration`, `compose`, `image`, `scan`; UI `test`, `image`, `scan`.
+   - Required checks: backend `go`, `integration`, `compose`, `ansible` (once PR #17 merges), `image`, `scan`; UI `test`, `image`, `scan`.
    - Settings: source GitHub Actions (app id 15368), "Require branches to be up to date" off, force pushes and deletion blocked.
    - "Include administrators" off, so the owner can still push an emergency fix.
 3. **Install the Renovate GitHub app** (Mend Renovate, free) for `groupscout` and `groupscout-ui` only. Its onboarding PR shows the detected dependencies.
@@ -129,6 +131,8 @@ TEST_POSTGRES_URL='postgres://groupscout:test@localhost:55432/groupscout_test?ss
   go test -tags integration -p 1 -count=1 ./...
 # UI: test job
 npm test
+# backend: ansible job (controller tools: see WSL_HOST.md)
+make ansible-deps && make ansible-lint
 # workflow lint (rhysd/actionlint 1.7.12)
 actionlint .github/workflows/*.yml
 ```

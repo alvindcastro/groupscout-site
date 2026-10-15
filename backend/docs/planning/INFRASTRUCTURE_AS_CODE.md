@@ -132,7 +132,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** **Cloudflare Tunnel** with the tunnel, DNS, and Access policies defined in OpenTofu. This means no open inbound ports on either target and no CGNAT problems. Put **Cloudflare Access** (free for small teams) in front of n8n, Grafana, the UI, and alertd. Expose only the API hostname publicly, protected by its bearer token. Use **Tailscale** for SSH and admin access.
 
-**Outcome:** deferred until D1, by the owner on 2026-10-15 (`groupscout-site-6ah.17`). The domain and Access allow-list questions in §10 go with it.
+**Outcome:** still open (`groupscout-site-6ah.17`). The owner deferred it on 2026-10-15; D1 has since been decided (the WSL host). The domain and Access allow-list questions in §10 go with it. Until then the WSL host publishes only on `127.0.0.1`, and nothing is reachable from outside the PC.
 
 ### D6: Coolify
 
@@ -424,7 +424,7 @@ Merged 2026-10-15. The runbook is [CI.md](../guides/CI.md).
 - Role `base`: packages, timezone, `unattended-upgrades`, chrony/NTP, swap file sized for 8 GB hosts.
 - Role `hardening`: deploy user with an SSH key only, no root login, no password auth, UFW default-deny inbound, SSH allowed only on the Tailscale interface.
 - Role `tailscale`: install and join with an auth key from SOPS, and tag the node `tag:groupscout`.
-- Role `docker`: install Docker Engine from the official repo, `daemon.json` (log rotation, `live-restore`), and add the deploy user to the `docker` group.
+- ~~Role `docker`: install Docker Engine from the official repo, `daemon.json` (log rotation, `live-restore`), and add the deploy user to the `docker` group.~~ Replaced by role `podman` (rootless Podman + Compose) when D4 changed on 2026-10-15.
 - Role `groupscout`: create `/opt/groupscout`, render the Compose files and decrypted `.env` (`0600`), log in to GHCR with a read-only token, then `docker compose up -d` with the prod and profile flags.
 - Role `backups`: install restic and the systemd units from Phase 8.
 - Make `site.yml` idempotent: a second run reports `changed=0`.
@@ -623,7 +623,9 @@ Suggested first slice (about a week): **Phase 1 + the `n8n-init` part of Phase 2
 | `HCLOUD_TOKEN` | OpenTofu only | Only if D1 = c |
 | `TS_AUTHKEY` | Ansible (host), CI (ephemeral) | Tailscale |
 | `RESTIC_PASSWORD`, bucket keys | backups | **New** |
-| `GHCR_READ_TOKEN` | host image pulls | Only if the packages are private |
+| ~~`GHCR_READ_TOKEN`~~ | host image pulls | Not needed: both GHCR packages are public (anonymous pull verified 2026-10-15) |
+| Ansible SSH key | the controller (dev distro) | `~/.ssh/groupscout_prod_ed25519`; its public half is the only key `deploy` accepts on `groupscout-prod`. Never in git (Phase 5) |
+| Staging values | `deploy/secrets/staging.sops.env` | Throwaway passwords for the staging stack on the WSL host. No Slack, Resend or Claude keys (Phase 5) |
 | Tofu state passphrase | OpenTofu | **New** |
 | age private key | humans and CI | Root of trust. Never in git |
 
@@ -631,14 +633,14 @@ Not secrets (plain config): `RICHMOND_PERMITS_URL`, `DELTA_PERMITS_URL`, collect
 
 ## Appendix B: Port Exposure
 
-| Service | Today (host) | Proposed production |
-|---|---|---|
-| groupscout API | `0.0.0.0:8080` | Tunnel hostname `api.<domain>`, protected by bearer token |
-| UI | `3001`/`3002` | Tunnel `app.<domain>` + Cloudflare Access |
-| alertd | `0.0.0.0:8081` | Internal only, or Tunnel + Access |
-| n8n | `0.0.0.0:5678` | Tunnel `n8n.<domain>` + Access (only if webhooks need it), otherwise Tailscale only |
-| Grafana | `0.0.0.0:3000` | Tunnel `grafana.<domain>` + Access |
-| Postgres | `0.0.0.0:5432` | **None.** Admin access through an SSH tunnel over Tailscale |
-| Prometheus | `0.0.0.0:9090` | None (internal network) |
-| Loki | `0.0.0.0:3100` | None (internal network) |
-| Ollama | Not published ✅ | None |
+| Service | Before IaC (dev host) | WSL host `groupscout-prod` (Phase 5) | Proposed production |
+|---|---|---|---|
+| groupscout API | `0.0.0.0:8080` | `127.0.0.1:8080` (staging: 18080) | Tunnel hostname `api.<domain>`, protected by bearer token |
+| UI | `3001`/`3002` | Not deployed yet | Tunnel `app.<domain>` + Cloudflare Access |
+| alertd | `0.0.0.0:8081` | Not started (`groupscout-site-q74`) | Internal only, or Tunnel + Access |
+| n8n | `0.0.0.0:5678` | `127.0.0.1:5678` (staging: off) | Tunnel `n8n.<domain>` + Access (only if webhooks need it), otherwise Tailscale only |
+| Grafana | `0.0.0.0:3000` | `127.0.0.1:3000` (staging: off) | Tunnel `grafana.<domain>` + Access |
+| Postgres | `0.0.0.0:5432` | None | **None.** Admin access through an SSH tunnel over Tailscale |
+| Prometheus | `0.0.0.0:9090` | None | None (internal network) |
+| Loki | `0.0.0.0:3100` | None | None (internal network) |
+| Ollama | Not published ✅ | Off (`llm` profile, D10) | None |

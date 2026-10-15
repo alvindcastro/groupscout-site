@@ -21,7 +21,12 @@ Current open work themes:
 - Operator UI and API bridge: `groupscout-site-eqm`, `groupscout-site-1x9`, `groupscout-site-29q`, `groupscout-site-4cv`, `groupscout-site-kb4`, and `groupscout-site-3gq`.
 - Observability, AI, and analytics: `groupscout-site-yyj`, `groupscout-site-vud`, `groupscout-site-48g`, and `groupscout-site-4b4`.
 - Lead workflow, deployment, and expansion: `groupscout-site-62h`, `groupscout-site-iuc`, `groupscout-site-39g`, `groupscout-site-2h1`, `groupscout-site-aaj`, and `groupscout-site-1ee`.
-- Infrastructure as Code: epic `groupscout-site-6ah`, with one child issue per phase (`6ah.1`–`6ah.12`). Phase 1 (Compose and image hardening, `groupscout-site-6ah.2`) and Phase 2 (app config as code, `groupscout-site-6ah.3`) are done: verified on Podman and merged to backend `main` on 2026-10-14. Plan: [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md).
+- Infrastructure as Code: epic `groupscout-site-6ah`, with one child issue per phase (`6ah.1`–`6ah.12`). Status (2026-10-15):
+  - **Done:** Phases 0–3: decisions, Compose and image hardening, app config as code, and secrets as code with SOPS + age.
+  - **Merged:** Phase 4 (CI and GHCR images); its owner steps remain.
+  - **Built and waiting for merge:** Phase 9 (monitoring, PR #15), Phase 10 (Windows workstation, PR #16) and Phase 5 (the WSL production host with Ansible and rootless Podman, PR #17). The production cutover is `groupscout-site-6ah.18`.
+  - **Not started:** Phase 6 waits on the ingress decision (`groupscout-site-6ah.17`); Phases 7, 8 and 11 follow.
+  - Plan: [INFRASTRUCTURE_AS_CODE.md](./INFRASTRUCTURE_AS_CODE.md).
 
 Recently completed:
 

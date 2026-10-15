@@ -14,7 +14,7 @@ This repo is the starting point for GroupScout planning, feature prompts, bug-fi
 - Root `AGENTS.md` and `CLAUDE.md` describe how agents should coordinate work from this repo.
 - Backend and frontend source repositories should keep only their repo-local `README.md` markdown pointer unless a generated or runtime-local Markdown artifact is explicitly required.
 - Infrastructure as Code plan (Beads epic `groupscout-site-6ah`) lives in [backend/docs/planning/INFRASTRUCTURE_AS_CODE.md](./backend/docs/planning/INFRASTRUCTURE_AS_CODE.md).
-- Container runtime migration notes live in [backend/docs/guides/PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md). Local Podman smoke gates passed on 2026-07-01; Docker Compose remains the production and CI command baseline until deployment docs are updated together.
+- Container runtime migration notes live in [backend/docs/guides/PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md). Production runs on Podman and is moving to a dedicated WSL 2 host configured by Ansible ([backend/docs/guides/WSL_HOST.md](./backend/docs/guides/WSL_HOST.md)). CI uses Docker on GitHub's runners.
 
 ## Agent Workflow
 

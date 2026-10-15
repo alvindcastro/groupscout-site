@@ -178,6 +178,18 @@ We provide a helper script to check Ollama connectivity, model availability, and
 
 `make compose-check` renders every profile set and the production overlay with the real Compose CLI (`COMPOSE="podman compose"` for Podman).
 
+The rest of `internal/smoke/` guards the later IaC phases the same way, without a runtime:
+
+| File | Phase | Fails when |
+|---|---|---|
+| `secrets_test.go` | 3 | a `deploy/secrets` file isn't fully SOPS-encrypted, `prod.sops.env` lacks a variable the prod overlay requires, or the secret scan isn't wired |
+| `ci_test.go` | 4 | an action isn't pinned to a SHA, a CI gate is dropped, images could publish from a PR or before the vulnerability scan, the CI Postgres image drifts from Compose, or Renovate automerges |
+| `monitoring_test.go` | 9 | the n8n schedule, the Healthchecks check and `internal/cadence` disagree, an alert rule queries a metric or datasource that doesn't exist, or alerts can reach the lead channel |
+| `windows_test.go` | 10 | the Windows autostart list drifts from the Compose container names, a script isn't ASCII, or the winget package list loses a tool |
+| `ansible_test.go` | 5 | a staging host could start n8n (a second cadence) or alertd, a collection isn't pinned, `.env` renders without `no_log` and 0600, or the WSL protections (uid, interop) are dropped |
+
+Infrastructure linters, also run in CI: `make ansible-lint` (with `make ansible-deps` first), `actionlint .github/workflows/*.yml` and `make secrets-scan`. See [CI.md](./CI.md).
+
 ### 3. Manual Verification & Tools
 Several utility scripts are provided for manual verification:
 - `scripts/test-ollama.sh`: Verifies Ollama connectivity and models.

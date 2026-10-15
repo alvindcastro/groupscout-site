@@ -47,8 +47,8 @@ Output: prioritized lead intelligence delivered through Slack/email plus the sep
 | Scheduler | n8n / HTTP trigger | ✅ |
 | Migrations | `golang-migrate/migrate` | ✅ |
 | Email | Resend | ✅ |
-| Monitoring | Sentry | ✅ |
-| Deployment | Docker, VPS or Railway | ✅ |
+| Monitoring | Sentry; Prometheus + Grafana alert rules and a Healthchecks.io dead man's switch for the cadence (IaC Phase 9) | ✅ |
+| Deployment | Rootless Podman + Compose on the WSL 2 host `groupscout-prod`, configured by Ansible; images from GHCR (IaC Phases 4–5; see the coordination repo's `backend/docs/guides/WSL_HOST.md`) | 🔄 cutover pending |
 
 ---
 

@@ -93,7 +93,7 @@ One-time steps, tracked in `groupscout-site-6ah.16`:
 - **Deferred:**
   - An external uptime check on a public `/health` needs public ingress and an always-on host (Phase 6). A home PC that sleeps at night would page every night.
   - The Postgres disk alert needs host metrics (node_exporter, Phase 5).
-  - The `obs` profile (Grafana and Prometheus) isn't started by the Windows autostart task yet (Phase 10). The external check doesn't depend on it.
+  - ~~The `obs` profile isn't started by the Windows autostart task.~~ Fixed in Phase 10: `deploy/windows/podman-autostart.ps1` starts Prometheus, Loki, Alloy and Grafana at logon. The external check never depended on it.
 
 ## Related
 

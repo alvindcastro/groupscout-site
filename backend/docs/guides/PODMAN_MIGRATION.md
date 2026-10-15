@@ -164,7 +164,7 @@ The base Compose file sets `logging: json-file` with `max-size: 10m` and `max-fi
 
 ### Compose Profiles And Recovery Commands
 
-After IaC Phase 1, `ollama`/`ollama-init` are in the `llm` profile and Prometheus/Grafana/Loki/Alloy are in the `obs` profile. Recovery commands that name services, such as `podman compose -p groupscout up -d postgres groupscout n8n`, start only the core services unless `COMPOSE_PROFILES` is set in `.env` or the shell. The `PodmanMachineAutostart` script starts containers by name, so it is unaffected once the containers exist.
+After IaC Phase 1, `ollama`/`ollama-init` are in the `llm` profile and Prometheus/Grafana/Loki/Alloy are in the `obs` profile. Recovery commands that name services, such as `podman compose -p groupscout up -d postgres groupscout n8n`, start only the core services unless `COMPOSE_PROFILES` is set in `.env` or the shell. The `PodmanMachineAutostart` script (`deploy/windows/podman-autostart.ps1`) starts containers by name, including the `obs` set, so it is unaffected once the containers exist.
 
 ### Reverse Proxy Socket Discovery
 
@@ -232,23 +232,37 @@ Published container ports are reachable from WSL at `localhost` either way, beca
 
 ### Machine Autostart On Windows
 
-The Podman machine does **not** start on Windows logon/boot. If it is down, every GroupScout container is down and the n8n schedule trigger never fires — the most common cause of a silently missed Slack cadence after a reboot. Check with `podman machine list`; `LAST UP: Never` or `Stopped` means nothing is running.
+The Podman machine does **not** start on Windows logon/boot. If it is down, every GroupScout container is down and the n8n schedule trigger never fires — the most common cause of a silently missed Slack cadence after a reboot. Check with `podman machine list`; `LAST UP: Never` or `Stopped` means nothing is running. Since IaC Phase 9 a missed cadence also raises the Healthchecks.io alert ([MONITORING.md](./MONITORING.md)).
 
-A Windows scheduled task, **`PodmanMachineAutostart`** (trigger: AtLogOn, current user), closes this gap. It runs `C:\Users\alvin\.local\share\containers\podman-autostart.ps1`, which:
+A Windows scheduled task, **`PodmanMachineAutostart`** (trigger: AtLogOn, current user), closes this gap. Since IaC Phase 10 (2026-10-15) it is code in the backend repo, `deploy/windows/`:
 
-1. runs `podman machine start` (no-op if already up),
-2. polls `podman info` until the client connection is ready,
-3. starts the stack in dependency order: `groupscout_postgres`, then `groupscout_ollama`, `groupscout_app`, `groupscout_n8n`.
+| File | What it does |
+|---|---|
+| `podman-autostart.ps1` | Starts the machine, waits for `podman info`, starts `groupscout_postgres` and waits until it reports healthy, then starts `groupscout_ollama`, `groupscout_app`, `groupscout_n8n` and the `obs` containers (`groupscout_prometheus`, `groupscout_loki`, `groupscout_alloy`, `groupscout_grafana`). A container that doesn't exist yet is logged and skipped. Exit code 0 = all started, 1 = Podman never answered, 2 = a container failed to start. Log: `%LOCALAPPDATA%\GroupScout\podman-autostart.log` (rotated at 1 MB). |
+| `register-autostart.ps1` | Copies the script to `%LOCALAPPDATA%\GroupScout` and creates or updates the task (no admin needed). The task runs that copy, so it never depends on a checkout or branch. Re-run it after changing the script. `-RunNow` runs the task and reports its result, `-Unregister` removes it, `-WhatIf` shows the plan. |
+| `configuration.dsc.yaml` | `winget configure` file for a new workstation: WSL, Podman, Docker Compose, Git, GitHub CLI, Go, Node LTS, age, sops. |
+| `setup-dev.ps1` | Second step on a new workstation: creates and starts the Podman machine if needed, checks the Compose provider, creates `.env` from `.env.example` if missing (never writes secrets), registers the task, then `podman compose up -d --build` with `llm,obs` and waits for `/health`. `-SkipStack`, `-SkipAutostart`, `-WhatIf`. |
 
-The task owns container bring-up on purpose. Containers are `restart=unless-stopped`, but Podman's in-machine `podman-restart.service` **cannot be enabled over non-interactive `podman machine ssh`** (`Access denied`, a WSL/dbus limitation), so `unless-stopped` alone does not bring containers back after a machine restart. Verified end-to-end from a cold `podman machine stop`: the task brings the machine and all four containers up with the cadence workflow active.
+The task owns container bring-up on purpose. Containers are `restart=unless-stopped`, but Podman's in-machine `podman-restart.service` **cannot be enabled over non-interactive `podman machine ssh`** (`Access denied`, a WSL/dbus limitation), so `unless-stopped` alone does not bring containers back after a machine restart. `groupscout_alertd` is not in the list: it has not run under Podman since the migration (`groupscout-site-q74`).
 
-Manage or re-run the task from PowerShell:
+Install or update the task from PowerShell in the backend checkout:
 
 ```powershell
-Get-ScheduledTask -TaskName PodmanMachineAutostart | Select-Object TaskName, State
-Start-ScheduledTask -TaskName PodmanMachineAutostart          # run it now
+powershell -ExecutionPolicy Bypass -File deploy\windows\register-autostart.ps1 -RunNow
+Get-Content $env:LOCALAPPDATA\GroupScout\podman-autostart.log -Tail 15
 (Get-ScheduledTaskInfo -TaskName PodmanMachineAutostart).LastTaskResult   # 0 == success
 ```
+
+**New workstation, two commands** (from a checkout of the backend repo; without Git, download the repo zip from GitHub):
+
+```powershell
+winget configure -f deploy\windows\configuration.dsc.yaml --accept-configuration-agreements
+powershell -ExecutionPolicy Bypass -File deploy\windows\setup-dev.ps1
+```
+
+The first command asks for elevation for WSL and may need a reboot before Podman can create its machine; re-running either command is safe. The stack starts with placeholder values from `.env.example`; render the real ones with `make secrets-render` in WSL ([SECRETS.md](./SECRETS.md)). `winget configure test -f deploy\windows\configuration.dsc.yaml --accept-configuration-agreements` reports drift without changing anything.
+
+History: until 2026-10-15 the task ran a hand-made `C:\Users\alvin\.local\share\containers\podman-autostart.ps1` that started only Postgres, Ollama, the app and n8n, with no log. That script and the previous task definition are kept in `C:\Users\alvin\groupscout-backups\2026-10-15-iac-phase10\` (restore with `Register-ScheduledTask -TaskName PodmanMachineAutostart -Xml (Get-Content -Raw <xml>) -Force`).
 
 Note: the trigger fires at user logon, not at the pre-login lock screen. Headless start before any user signs in would require a rootful machine plus a system service.
 

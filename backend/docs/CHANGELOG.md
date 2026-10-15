@@ -1,3 +1,31 @@
+## 2026-10-15 - IaC Phase 10: Windows workstation as code (groupscout-site-6ah.11)
+
+### The home PC's Podman autostart is now code, and a new PC needs two commands
+
+- **What:**
+  - Backend `deploy/windows/`:
+    - `podman-autostart.ps1` starts the Podman machine, waits for Postgres to be healthy, then starts the app, n8n, Ollama and now the monitoring containers. It writes a log.
+    - `register-autostart.ps1` installs that script and creates or updates the `PodmanMachineAutostart` task.
+    - `configuration.dsc.yaml` lets `winget configure` install the toolchain.
+    - `setup-dev.ps1` sets up the machine, `.env`, the autostart task and the stack.
+  - The home PC's task now runs the versioned script.
+- **Where:**
+  - Backend PR #16 (`task/iac-phase10-workstation`, `db7ac80`), with `internal/smoke/windows_test.go`.
+  - Docs: [PODMAN_MIGRATION.md](./guides/PODMAN_MIGRATION.md#machine-autostart-on-windows), the IaC plan, MONITORING.md and WHERE_TO_START.md.
+- **Why:**
+  - The autostart that keeps the cadence alive after a reboot existed only as a hand-made script, with no log and no record of how it was registered.
+  - It didn't start Grafana or Prometheus, which the Phase 9 alerts need.
+- **Gotchas:**
+  - Windows PowerShell 5.1 turns stderr from a redirected native command into a terminating error under `$ErrorActionPreference = 'Stop'`, and podman logs progress to stderr. The scripts check `$LASTEXITCODE` instead.
+  - PowerShell 5.1 reads a `.ps1` without a BOM as ANSI, so the scripts are ASCII only, and a guard test enforces it.
+  - `groupscout_alertd` has never run under Podman. A plain `compose up` would start it and post to Slack (`groupscout-site-q74`).
+- **Verification:**
+  - `winget configure validate` and `test` run.
+  - Registration was rehearsed on a throwaway task (create, idempotent update, run with result 0, remove) before the real task was switched and run with result 0.
+  - `setup-dev.ps1` ran with `-WhatIf`, then with `-SkipStack` twice.
+  - CI passed on PR #16.
+  - The full fresh-machine run isn't verified: it can't run here without disturbing the live stack.
+
 ## 2026-10-15 - IaC Phase 9: monitoring as code (groupscout-site-6ah.10)
 
 ### A missed lead cadence now raises an alert by itself

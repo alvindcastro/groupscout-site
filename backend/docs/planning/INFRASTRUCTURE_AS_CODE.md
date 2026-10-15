@@ -1,7 +1,7 @@
 # Infrastructure as Code: Brainstorm & Task Plan
 
 Date: 2026-10-14
-Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15); branch protection, the Renovate app and UI `main` are still open. Phase 9 is built, verified and running live, and waits for the merge and the owner's Healthchecks.io and ops Slack setup (2026-10-15). Other phases planned.
+Status: Phases 1–3 done (2026-10-14). Phase 4 is merged, and the backend publishes images (2026-10-15); branch protection, the Renovate app and UI `main` are still open. Phase 9 is built, verified and running live, and waits for the merge and the owner's Healthchecks.io and ops Slack setup (2026-10-15). Phase 10 is built, and the home PC's autostart task runs the versioned script (2026-10-15). Other phases planned.
 
 > **Tracking:** Beads is the source of truth. Epic `groupscout-site-6ah` has one child issue per phase, linked by the dependencies in §8. Phase N is `groupscout-site-6ah.<N+1>`, and each phase heading below shows its ID. The task lists in this doc describe scope only; check status with `bd show <id>`. The existing home deploy, backups, and restore-smoke work is `groupscout-site-39g`, linked as related to Phase 8.
 
@@ -514,6 +514,18 @@ Built 2026-10-15 on backend PR [#15](https://github.com/alvindcastro/groupscout/
 - Update PODMAN_MIGRATION.md to point at these files instead of describing hand-made state.
 
 **Done when:** a fresh Windows machine reaches a working dev stack with two commands.
+
+Built 2026-10-15 on backend PR [#16](https://github.com/alvindcastro/groupscout/pull/16) (`task/iac-phase10-workstation`, `db7ac80`). Every CI check passed. The runbook is [PODMAN_MIGRATION.md](../guides/PODMAN_MIGRATION.md#machine-autostart-on-windows).
+- **`deploy/windows/podman-autostart.ps1`.** Parameterized by container lists and timeouts. It waits for Postgres to be healthy instead of sleeping, and now also starts the `obs` containers that the Phase 9 alerts need. It logs to `%LOCALAPPDATA%\GroupScout`, and its exit code reports a failed start to Task Scheduler.
+- **`register-autostart.ps1`.** Creates or updates `PodmanMachineAutostart` idempotently, without admin, keeping the old trigger, limits and rights. The task runs an installed copy, so it doesn't depend on a checkout.
+- **`configuration.dsc.yaml`.** `winget configure` installs WSL, Podman, Compose, Git, gh, Go, Node LTS, age and sops.
+- **`setup-dev.ps1`.** The second command: machine, Compose check, `.env` from the example (never secrets), the autostart task, `compose up --build`, and `/health`.
+- **Guard tests.** `internal/smoke/windows_test.go` checks that the autostart list matches the Compose container names, that Postgres starts first, that the scripts are ASCII (Windows PowerShell 5.1 reads them as ANSI), the task contract, the package list and the no-secrets rule. Deliberate breakage confirmed all seven checks fire.
+- **Verified on the home PC:**
+  - `winget configure validate` passes. `winget configure test` matches for WSL, Podman, Compose, Git, gh and Go; Node LTS, age and sops differ, because this PC has Node 25 and keeps age and sops in WSL.
+  - Registration was rehearsed on a throwaway task name: `-WhatIf`, create, an idempotent update, `-RunNow` (result 0, all 8 containers started, Postgres healthy first) and `-Unregister`. Then the real task was switched to the versioned script and run with result 0. The old task XML and script are backed up in `groupscout-backups\2026-10-15-iac-phase10`.
+  - `setup-dev.ps1` ran with `-WhatIf`, then for real with `-SkipStack`, twice. It created `.env` the first time and left it alone the second.
+- **Not verified:** the full two-command path on a truly fresh machine, and `setup-dev.ps1`'s `compose up` step. The container names are fixed, so running it here would recreate the live stack and start `groupscout_alertd`, which has not run since the Podman migration (`groupscout-site-q74`).
 
 ### Phase 11: Docs and cleanup (S) · `groupscout-site-6ah.12`
 

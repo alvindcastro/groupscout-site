@@ -17,7 +17,9 @@ End-to-end walkthrough: from prerequisites to n8n scheduling the pipeline automa
 
 ## Step 1 — Create your `.env` file
 
-Copy the example and fill in your keys:
+If you have the age key, render the real values instead: `make secrets-render` writes `.env` from the encrypted `deploy/secrets/prod.sops.env`. See [SECRETS.md](./SECRETS.md).
+
+Without the key, copy the example and fill in your keys:
 
 ```bash
 cp .env.example .env

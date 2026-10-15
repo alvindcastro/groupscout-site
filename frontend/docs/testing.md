@@ -262,7 +262,7 @@ Alertd tests:
 go test ./cmd/alertd/... ./internal/alert/...
 ```
 
-Postgres integration tests:
+Postgres integration tests (point `TEST_POSTGRES_URL` at a dedicated test database, never the live `groupscout` one, because some suites run `DELETE FROM leads`; see `groupscout-site-sfi`):
 
 ```sh
 TEST_POSTGRES_URL="postgres://groupscout:groupscout@localhost:5432/groupscout?sslmode=disable" \

@@ -1,3 +1,37 @@
+## 2026-10-14 - IaC Phase 3: secrets as code (groupscout-site-6ah.4, groupscout-site-482)
+
+### The live `.env` is now rendered from an encrypted file in git
+
+- **What:**
+  - The live environment is SOPS-encrypted to an age key in `deploy/secrets/prod.sops.env`. `make secrets-render` writes `.env`, and `make secrets-edit` changes values.
+  - `make secrets-diff` names drifted keys, `make secrets-updatekeys` re-encrypts after recipient changes, and `make secrets-scan` runs gitleaks plus tracked-file checks.
+  - A `secret-scan` GitHub Actions workflow runs that scan on every push.
+  - The Postgres role password, Grafana admin password and `API_TOKEN` were rotated on the live stack. `N8N_ENCRYPTION_KEY` was captured from the n8n volume.
+  - The server no longer logs the database password (`groupscout-site-482`).
+- **Where:**
+  - Backend `main`: `1d85f35` (log redaction) and `a9f8323`. The latter covers `.sops.yaml`, `deploy/secrets/prod.sops.env`, `deploy/scripts/secrets.sh`, the `Makefile`, `.github/workflows/secret-scan.yml`, `.gitleaksignore` and `internal/smoke/secrets_test.go`.
+  - Docs: new [SECRETS.md](./guides/SECRETS.md). `SETUP.md`, `DOCKER.md`, `TESTING.md`, frontend `testing.md`, the IaC plan (D7 = SOPS + age, Appendix A) and `WHERE_TO_START.md` were updated.
+- **Why:**
+  - The live secrets existed only in an untracked `.env`, and the Postgres and Grafana passwords were still dev defaults.
+  - Nothing scanned commits for leaks, and all three repos are public.
+- **Gotchas:**
+  - sops' dotenv store encrypts comments and drops blank lines.
+  - Postgres and Grafana read their passwords only on first volume init, so rotation needs `ALTER ROLE` and `grafana cli admin reset-admin-password --password-from-stdin`.
+  - Claude Code's auto-mode guard blocks the agent from writing real secrets even with chat approval, so the owner ran the build and rotate scripts.
+  - The documented integration-test URL pointed at the live database, and the tests delete leads (`groupscout-site-sfi`, P1). The docs now warn about it.
+- **Verification:**
+  - The tooling was rehearsed against fake data and a throwaway key.
+  - On the live stack:
+    - `/health` reports the database OK, and the data is intact (136 leads).
+    - The API returns 400 with the new token and 401 without one.
+    - n8n is healthy with the cadence still active, and its calls to the API pass.
+    - Grafana accepts the new password and rejects `admin:admin`.
+    - The old Postgres password fails.
+  - A fresh GitHub clone plus the age key rendered a byte-identical `.env`.
+  - `go test ./...`, `make secrets-scan` and `make compose-check` all pass, and CI's `secret-scan` is green.
+
+---
+
 ## 2026-10-14 - IaC Phase 2: app config as code (groupscout-site-6ah.3)
 
 ### n8n workflows, Prometheus, Grafana and Alloy now come from git

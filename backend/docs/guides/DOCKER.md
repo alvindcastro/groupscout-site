@@ -44,7 +44,7 @@ Use [BACKEND_FOR_UI_TESTING.md](../planning/ui/BACKEND_FOR_UI_TESTING.md) for lo
 - **WSL2** (strongly recommended for Windows users).
 
 ### 2. Environment Setup
-Ensure you have a `.env` file in the project root, copied from `.env.example`. The minimum values for the Compose stack:
+Ensure you have a `.env` file in the project root. With the age key, render it with `make secrets-render` from the encrypted `deploy/secrets/prod.sops.env` ([SECRETS.md](./SECRETS.md)); otherwise copy `.env.example`. The minimum values for the Compose stack:
 ```env
 CLAUDE_API_KEY=sk-ant-...
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/XXX/YYY/ZZZ
@@ -63,7 +63,7 @@ Compose builds the container's `DATABASE_URL` from `POSTGRES_PASSWORD`. A `DATAB
 |---|---|---|
 | `POSTGRES_PASSWORD` | `groupscout` | Only applied when the `pgdata` volume is first created. Use a URL-safe value (`openssl rand -hex 24`), since it is embedded in `DATABASE_URL`. To rotate on an existing volume, also run `ALTER USER groupscout PASSWORD '...'`. |
 | `N8N_ENCRYPTION_KEY` | key stored in `n8n_data` | When set, it must match `/home/node/.n8n/config` inside the volume, or n8n refuses to start. Read it with `docker compose exec n8n cat /home/node/.n8n/config`. |
-| `GRAFANA_ADMIN_PASSWORD` | `admin` | Only applied when the `grafana_data` volume is first created. |
+| `GRAFANA_ADMIN_PASSWORD` | `admin` | Only applied when the `grafana_data` volume is first created. Changing it later needs `grafana cli admin reset-admin-password` ([SECRETS.md](./SECRETS.md#rotating-a-secret)). |
 
 `alertd` receives only the variables it reads (`SLACK_BOT_TOKEN`, `ALERTD_PORT`, and its `OLLAMA_*` settings), not the whole `.env`.
 

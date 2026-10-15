@@ -2,7 +2,11 @@
 
 IaC Phase 3 (`groupscout-site-6ah.4`). The runtime secrets live in the backend repo, encrypted with [SOPS](https://github.com/getsops/sops) to [age](https://github.com/FiloSottile/age) keys. A fresh clone plus an age private key can render a working `.env`.
 
-**Status (2026-10-14):** the tooling is on backend branch `task/iac-phase3-secrets`, and the secret scan passes in GitHub Actions. Still pending: creating the encrypted `deploy/secrets/prod.sops.env` and rotating the live Postgres, Grafana and `API_TOKEN` values. Those steps write real secrets, so they wait for the owner.
+**Status:** done on 2026-10-14 and merged to backend `main` as `a9f8323`.
+- The live home stack runs from a `.env` rendered out of `deploy/secrets/prod.sops.env`. A fresh GitHub clone plus the age key renders a byte-identical `.env`.
+- The Postgres role password, Grafana admin password and `API_TOKEN` were rotated in place. `N8N_ENCRYPTION_KEY` was copied from the `n8n_data` volume.
+- The pre-rotation `.env` is kept age-encrypted at `C:\Users\alvin\groupscout-backups\2026-10-14-iac-phase3\env-before-rotation.age`. Decrypt it with `age -d -i ~/.config/sops/age/keys.txt`.
+- The age key backup is still open in `groupscout-site-6ah.13`.
 
 ## What Lives Where
 

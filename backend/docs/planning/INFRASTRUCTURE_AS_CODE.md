@@ -343,19 +343,32 @@ Observability:
 
 **Done when:** a fresh clone plus the age key can render a working `.env`, and the secret scanner runs in CI.
 
-Progress on 2026-10-14. Backend branch `task/iac-phase3-secrets` holds commit `f358287`; it isn't merged yet. The runbook is [SECRETS.md](../guides/SECRETS.md).
+Done 2026-10-14. Merged to backend `main` as `a9f8323`: branch `task/iac-phase3-secrets`, commit `f358287` for the tooling and `2483d01` for the encrypted file. The runbook is [SECRETS.md](../guides/SECRETS.md).
 - Prerequisite `groupscout-site-482` is done: `storage.RedactDSN` masks the password in the server's database log lines. Merged to `main` as `1d85f35` and verified live.
 - Tooling, implemented as planned with one rename: the file is `deploy/secrets/prod.sops.env` rather than `prod.env.sops`, so sops infers the dotenv format.
   - `.sops.yaml` encrypts to the workstation age key, which lives in WSL at `~/.config/sops/age/keys.txt`.
-  - `deploy/scripts/secrets.sh` backs the `make secrets-edit`, `-render`, `-diff`, `-updatekeys` and `-scan` targets. `render` refuses to replace a `.env` that differs unless `FORCE=1`, and `diff` names keys without printing values.
-  - These were rehearsed in a scratch clone with a throwaway key: render, re-render, drift refusal, `FORCE=1`, edit, adding a second recipient, a clean scan, and scans that must fail (a tracked plaintext env, an unencrypted `.sops.env`, a Slack-webhook-shaped leak).
+  - `deploy/scripts/secrets.sh` backs the `make secrets-edit`, `-render`, `-diff`, `-updatekeys` and `-scan` targets. `render` writes mode `0600` and refuses to replace a `.env` that differs unless `FORCE=1`. `diff` names keys without printing values.
+  - These were rehearsed in a scratch clone with a throwaway key before touching real values: render, re-render, drift refusal, `FORCE=1`, edit, adding a second recipient, a clean scan, and scans that must fail (a tracked plaintext env, an unencrypted `.sops.env`, a Slack-webhook-shaped leak).
+  - sops' dotenv store drops blank lines and encrypts comments, so the rendered `.env` has comments but no blank lines.
+- Secrets and rotation:
+  - `prod.sops.env` holds the 18 live keys, the Compose secrets `POSTGRES_PASSWORD` and `GRAFANA_ADMIN_PASSWORD`, and `N8N_ENCRYPTION_KEY` copied from the `n8n_data` volume.
+  - The Postgres role password, Grafana admin password and `API_TOKEN` were rotated on the live stack. The owner ran the two scripts, because the session's permission guard blocks Claude from writing real secrets even with chat approval.
+  - Verified live:
+    - `/health` reports the database OK, and leads (136) and raw inputs (48) are intact.
+    - `/ingest` returns 400 with the new token and 401 without one.
+    - n8n is healthy, its bootstrap logged `unchanged` with no encryption-key mismatch, the cadence is still active, and n8n's calls to the API pass.
+    - Grafana accepts the new admin password and returns 401 for `admin:admin`.
+    - The old default Postgres password fails authentication.
+    - The prod overlay renders with the real `.env`.
+    - A fresh GitHub clone plus the key rendered a byte-identical `.env`.
+  - The pre-rotation `.env` is backed up age-encrypted in `groupscout-backups\2026-10-14-iac-phase3`.
 - Secret scanning:
-  - The `secret-scan` workflow runs gitleaks 8.30.1 (pinned and checksum-verified, with `actions/checkout` pinned to a SHA) over the full history, with redacted output. Its first run passed: 158 commits scanned.
+  - The `secret-scan` workflow runs gitleaks 8.30.1 (pinned and checksum-verified, with `actions/checkout` pinned to a SHA) over the full history, with redacted output. It ran green on both branch commits.
   - `.gitleaksignore` lists the 43 reviewed false positives in published history.
   - Scanning the history of all three public repos found no real credentials.
   - GitHub secret scanning and push protection were already on for all three repos.
-- **Pending:** building the encrypted `prod.sops.env` from the live `.env`, and rotating the live Postgres role password, Grafana admin password and `API_TOKEN`. The session's permission guard blocks both because they write real secrets, so they wait for the owner. The owner also has to back up the age key and run the recovery test (`groupscout-site-6ah.13`). Until the encrypted file exists, `TestSecretsFilesAreEncrypted` fails on the branch, by design.
-- Found along the way: the documented integration-test URL targets the live database, and the tests wipe tables (`groupscout-site-sfi`, P1).
+- Still open: the owner backs up the age key (`groupscout-site-6ah.13`). The UI and coordination repos have no CI secret scan yet, and Phase 4 adds the UI one.
+- Found along the way: the documented integration-test URL targeted the live database, and the tests wipe tables (`groupscout-site-sfi`, P1). The docs now warn about it.
 
 ### Phase 4: CI with build, scan, and publish (M) · `groupscout-site-6ah.5`
 
@@ -497,11 +510,11 @@ Suggested first slice (about a week): **Phase 1 + the `n8n-init` part of Phase 2
 | `SLACK_BOT_TOKEN` | alertd | |
 | `RESEND_API_KEY` | groupscout | |
 | ~~`SENDGRID_API_KEY`~~ | none | Unused. Removed from Compose in Phase 1; delete it from `.env` |
-| `API_TOKEN` | groupscout, n8n (`GROUPSCOUT_API_TOKEN`), UI proxy? | Rotate when moving to production |
+| `API_TOKEN` | groupscout, n8n (`GROUPSCOUT_API_TOKEN`) | Rotated 2026-10-14 (Phase 3). The UI doesn't use it |
 | `HUNTER_API_KEY` | planned | |
-| `POSTGRES_PASSWORD` | postgres, groupscout, alertd | **New.** Currently hard-coded as `groupscout` |
-| `N8N_ENCRYPTION_KEY` | n8n | **New.** Currently auto-generated inside the volume |
-| `GF_SECURITY_ADMIN_PASSWORD` | grafana | **New.** Currently the default |
+| `POSTGRES_PASSWORD` | postgres, groupscout | In `prod.sops.env`, rotated 2026-10-14. The dev default `groupscout` applies only without it |
+| `N8N_ENCRYPTION_KEY` | n8n | In `prod.sops.env`, copied from the `n8n_data` volume. Never rotate casually |
+| `GRAFANA_ADMIN_PASSWORD` | grafana (`GF_SECURITY_ADMIN_PASSWORD`) | In `prod.sops.env`, rotated 2026-10-14 |
 | `CLOUDFLARE_TUNNEL_TOKEN` | cloudflared | **New.** OpenTofu output |
 | `CLOUDFLARE_API_TOKEN` | OpenTofu only | Scoped to zone, tunnel, and Access |
 | `HCLOUD_TOKEN` | OpenTofu only | Only if D1 = c |

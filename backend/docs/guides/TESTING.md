@@ -199,6 +199,8 @@ docker compose up -d postgres
 docker compose ps postgres
 ```
 
+> **Warning (`groupscout-site-sfi`):** `localhost:5432/groupscout` is the live home-stack database, and some integration suites run `DELETE FROM leads`. Don't point `TEST_POSTGRES_URL` at it. Since IaC Phase 3 rotated the Postgres password, this default URL no longer authenticates against that stack. A dedicated test database is tracked in `groupscout-site-sfi`.
+
 **Run Postgres integration tests:**
 ```powershell
 $env:TEST_POSTGRES_URL="postgres://groupscout:groupscout@localhost:5432/groupscout?sslmode=disable"
@@ -404,6 +406,7 @@ go test -v ./internal/storage -run TestAuditStore_PurgeOlderThan
 go test -v ./internal/auditretention
 
 # This test verifies Postgres preserves referenced raw inputs during purge
+# Use a dedicated test database, not the live one (groupscout-site-sfi).
 TEST_POSTGRES_URL="postgres://groupscout:groupscout@localhost:5432/groupscout?sslmode=disable" \
   go test -v -tags integration ./internal/storage -run TestAuditStore_PurgeOlderThan_PostgresPreservesReferencedRawInputs
 ```

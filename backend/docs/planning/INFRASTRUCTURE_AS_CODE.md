@@ -146,7 +146,7 @@ Each decision lists the options, a recommendation, and the reason. Phase 0 (`gro
 
 **Recommendation:** **SOPS + age.** It's free and git-native, and it integrates with Ansible (`community.sops`) and OpenTofu (sops provider). It encrypts values, not whole files, so diffs stay readable. The age private key is the root of trust: store it in a password manager and keep one offline backup.
 
-**Outcome:** pending (Phase 0, `groupscout-site-6ah.1`).
+**Outcome:** SOPS + age, adopted when Phase 3 started (2026-10-14). See [SECRETS.md](../guides/SECRETS.md).
 
 ### D8: Where the IaC code lives
 
@@ -208,7 +208,7 @@ groupscout/
 │   │   ├── alloy/config.alloy
 │   │   └── n8n/workflows/*.json    # runtime artifact, synced from coordination repo
 │   ├── secrets/
-│   │   └── prod.env.sops           # SOPS-encrypted dotenv
+│   │   └── prod.sops.env           # SOPS-encrypted dotenv (Phase 3; .env suffix lets sops infer the format)
 │   ├── ansible/
 │   │   ├── inventory/{home.yml,hetzner.yml}
 │   │   ├── group_vars/all/{main.yml,secrets.sops.yml}
@@ -218,14 +218,15 @@ groupscout/
 │   │   ├── bootstrap/              # state bucket (local state)
 │   │   ├── modules/{hetzner_host,cloudflare_edge,backup_bucket,monitors}/
 │   │   └── envs/prod/
-│   ├── scripts/{deploy.sh,verify.sh,backup.sh,restore-smoke.sh}
+│   ├── scripts/{secrets.sh,deploy.sh,verify.sh,backup.sh,restore-smoke.sh}
 │   └── windows/
 │       ├── configuration.dsc.yaml  # winget configure: podman, compose, git, go, node
 │       ├── podman-autostart.ps1
 │       └── register-autostart.ps1
-├── .sops.yaml
+├── .sops.yaml                      # Phase 3
+├── .gitleaksignore                 # Phase 3: reviewed historical false positives
 ├── renovate.json
-└── .github/workflows/{ci.yml,images.yml,infra.yml,deploy.yml,drift.yml}
+└── .github/workflows/{secret-scan.yml,ci.yml,images.yml,infra.yml,deploy.yml,drift.yml}
 ```
 
 ---
@@ -341,6 +342,20 @@ Observability:
 - Rotate secrets that were ever shared in plaintext or are defaults: the Postgres password, the Grafana admin password, and `API_TOKEN`.
 
 **Done when:** a fresh clone plus the age key can render a working `.env`, and the secret scanner runs in CI.
+
+Progress on 2026-10-14. Backend branch `task/iac-phase3-secrets` holds commit `f358287`; it isn't merged yet. The runbook is [SECRETS.md](../guides/SECRETS.md).
+- Prerequisite `groupscout-site-482` is done: `storage.RedactDSN` masks the password in the server's database log lines. Merged to `main` as `1d85f35` and verified live.
+- Tooling, implemented as planned with one rename: the file is `deploy/secrets/prod.sops.env` rather than `prod.env.sops`, so sops infers the dotenv format.
+  - `.sops.yaml` encrypts to the workstation age key, which lives in WSL at `~/.config/sops/age/keys.txt`.
+  - `deploy/scripts/secrets.sh` backs the `make secrets-edit`, `-render`, `-diff`, `-updatekeys` and `-scan` targets. `render` refuses to replace a `.env` that differs unless `FORCE=1`, and `diff` names keys without printing values.
+  - These were rehearsed in a scratch clone with a throwaway key: render, re-render, drift refusal, `FORCE=1`, edit, adding a second recipient, a clean scan, and scans that must fail (a tracked plaintext env, an unencrypted `.sops.env`, a Slack-webhook-shaped leak).
+- Secret scanning:
+  - The `secret-scan` workflow runs gitleaks 8.30.1 (pinned and checksum-verified, with `actions/checkout` pinned to a SHA) over the full history, with redacted output. Its first run passed: 158 commits scanned.
+  - `.gitleaksignore` lists the 43 reviewed false positives in published history.
+  - Scanning the history of all three public repos found no real credentials.
+  - GitHub secret scanning and push protection were already on for all three repos.
+- **Pending:** building the encrypted `prod.sops.env` from the live `.env`, and rotating the live Postgres role password, Grafana admin password and `API_TOKEN`. The session's permission guard blocks both because they write real secrets, so they wait for the owner. The owner also has to back up the age key and run the recovery test (`groupscout-site-6ah.13`). Until the encrypted file exists, `TestSecretsFilesAreEncrypted` fails on the branch, by design.
+- Found along the way: the documented integration-test URL targets the live database, and the tests wipe tables (`groupscout-site-sfi`, P1).
 
 ### Phase 4: CI with build, scan, and publish (M) · `groupscout-site-6ah.5`
 
@@ -464,7 +479,7 @@ Suggested first slice (about a week): **Phase 1 + the `n8n-init` part of Phase 2
 
 ## 10. Open Questions
 
-- Is the backend GitHub repo public or private? This affects GHCR visibility, self-hosted runner safety, and Actions minutes.
+- ~~Is the backend GitHub repo public or private?~~ Public, as are the UI and coordination repos (checked 2026-10-14). GHCR images can be public, Actions minutes are free, self-hosted runners must not take PRs from forks, and SOPS ciphertext is public, so a leaked age key means rotating every value.
 - Which domain should be used? (The `EMAIL_FROM` example mentions `groupscout.ai`, and Resend domain verification is `7ak`.) Cloudflare Tunnel needs a zone on Cloudflare.
 - Who besides you needs access to n8n, Grafana, and the UI? This sets the Cloudflare Access allow-list.
 - ~~Is `SENDGRID_API_KEY` still used?~~ No. No Go code reads it, and Phase 1 removed it from Compose.

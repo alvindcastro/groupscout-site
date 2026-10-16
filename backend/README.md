@@ -131,7 +131,9 @@ EVENTBRITE_ENABLED=true
 RICHMOND_PERMITS_URL=https://www.richmond.ca/shared/assets/Building_Permit_Reports_Current_Year57037.pdf
 DELTA_PERMITS_URL=https://www.delta.ca/sites/default/files/2024-03/Building%20Permit%20Report%20-%20Current.pdf
 VCC_URL=https://www.vancouverconventioncentre.com/events
-BCBID_RSS_URL=https://www.civicinfo.bc.ca/rss/bids-bt.php?id=14,https://www.civicinfo.bc.ca/rss/bids-bt.php?id=53
+# Default: CivicInfo construction categories 5, 13, 33, 34, 42, 62, 69 (see config.go defaultBCBidRSSURLs)
+BCBID_RSS_URL=https://www.civicinfo.bc.ca/rss/bids-bt.php?id=5,https://www.civicinfo.bc.ca/rss/bids-bt.php?id=33
+CREATIVEBC_URL=https://creativebc.my.salesforce-sites.com/inproduction
 EVENTBRITE_URL=https://www.eventbrite.ca/d/canada--vancouver/professional-services--events/
 
 # --- OLLAMA ---

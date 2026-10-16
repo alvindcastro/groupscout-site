@@ -32,9 +32,9 @@ docker compose logs --tail=100 groupscout postgres n8n ollama
 
 GroupScout filters data at three distinct stages. Understanding these is key to troubleshooting:
 
-1.  **Collector-level Filter**: Each source (Richmond, Delta, BCBid, etc.) has its own relevance rules. For example, Richmond building permits are filtered by a **minimum value** (default $500,000) and **commercial sub-types** (e.g., "hotel", "warehouse", "apartment"). Anything else is skipped before it even reaches the main pipeline.
-2.  **Database Deduplication**: Before processing a lead, the system checks the `raw_projects` table for a matching SHA256 hash (based on title, location, and date). If it's already in the database, it's skipped.
-3.  **Pre-scoring (Enrichment Threshold)**: The Go pre-scoring engine calculates a score based on location (Richmond/YVR gets +2) and keywords. If the score is below the `ENRICHMENT_THRESHOLD` (default: 1), it is marked as `skipped` and **will not** be enriched by AI or sent to Slack.
+1.  **Collector-level Filter**: Each source (Richmond, Delta, BCBid, etc.) has its own relevance rules. For example, Richmond building permits are filtered by a **minimum value** (default $500,000) and **commercial sub-types** (e.g., "hotel", "warehouse", "apartment"). Anything else is skipped before it even reaches the main pipeline. Richmond reads the three newest weekly reports each run, parsed from `pdftotext -bbox-layout` cell coordinates.
+2.  **Database Deduplication**: Before processing a lead, the system checks the `raw_projects` table for a matching SHA256 hash (based on title, location, and date). If it's already in the database, it's skipped. The hash is recorded only once the project is stored, skipped, or found to be a duplicate lead, so a failed AI enrichment is retried on the next run.
+3.  **Pre-scoring (Enrichment Threshold)**: The Go pre-scoring engine scores the title, location **and description**: Richmond/YVR and nearby places (Sea Island, Steveston, Massey, Roberts Bank, Delta) get +2, value over $1M/$10M (from the collector or a dollar figure in the text) gets +1/+2, and each crew or group keyword gets +1. Residential-type titles and stories that are clearly outside B.C. get -5. If the score is below the `ENRICHMENT_THRESHOLD` (default: 1), it is marked as `skipped` and **will not** be enriched by AI or sent to Slack. A skipped project keeps its hash, so it is not re-scored on later runs.
 
 ---
 

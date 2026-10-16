@@ -12,6 +12,7 @@ This repo is the starting point for GroupScout planning, feature prompts, bug-fi
 - `backend/` contains markdown moved from the backend repo, preserving the original relative paths.
 - `frontend/` contains markdown moved from the frontend repo, preserving the original relative paths.
 - Root `AGENTS.md` and `CLAUDE.md` describe how agents should coordinate work from this repo.
+- `docs/architecture/` holds system-wide Mermaid diagrams (context, end-to-end lead flow, collectors, runtime topology, tech stack, data model, IaC, observability). Start at [docs/architecture/README.md](./docs/architecture/README.md).
 - Backend and frontend source repositories should keep only their repo-local `README.md` markdown pointer unless a generated or runtime-local Markdown artifact is explicitly required.
 - Infrastructure as Code plan (Beads epic `groupscout-site-6ah`) lives in [backend/docs/planning/INFRASTRUCTURE_AS_CODE.md](./backend/docs/planning/INFRASTRUCTURE_AS_CODE.md).
 - Container runtime migration notes live in [backend/docs/guides/PODMAN_MIGRATION.md](./backend/docs/guides/PODMAN_MIGRATION.md). Production runs on Podman and is moving to a dedicated WSL 2 host configured by Ansible ([backend/docs/guides/WSL_HOST.md](./backend/docs/guides/WSL_HOST.md)). CI uses Docker on GitHub's runners.

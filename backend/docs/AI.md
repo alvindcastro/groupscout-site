@@ -166,8 +166,8 @@ New permit → AI-Ready SQL builds context_text
 
 ## Model & Provider Selection Guide
 
-> Current implementation can select Claude or Gemini with `AI_PROVIDER`, and uses separate Ollama runtime paths for local extraction/scoring. The broader no-lock-in provider abstraction is not implemented yet. For the planned OpenAI-compatible/Azure/fallback provider layer, see [AI_DATA_STRATEGY.md — LLM Provider Abstraction](./prompts/AI_DATA_STRATEGY.md) and `groupscout-site-vud`.
-> Short version: one `LLMClient` interface, cloud/self-hosted concrete implementations, config-driven fallback, and shared observability.
+> Enrichment goes through the provider chain in backend `internal/llm` (PR #19, `groupscout-site-vud`). `LLM_PROVIDERS` lists the providers to try, in order (`claude`, `openai`, `gemini`, `ollama`, `custom`), and the chain fails over when one has no credit, is down, or sends an unusable reply. Setup, failover rules, `llm-check` and alerts: [guides/AI_PROVIDERS.md](./guides/AI_PROVIDERS.md).
+> The Ollama extraction, rationale and alert-copy paths still use the separate `internal/ollama` client.
 
 ### By use case (Claude defaults)
 
@@ -187,7 +187,7 @@ New permit → AI-Ready SQL builds context_text
 | Provider | Hosted by | Best fit | Data residency |
 |---|---|---|---|
 | **Anthropic** | US cloud | Default — best quality for permit enrichment | US only |
-| **OpenAI** | US cloud | Drop-in fallback via `OpenAICompatibleClient` | US only |
+| **OpenAI** | US cloud | Built-in `openai` provider; the first fallback in the default chain | US only |
 | **Azure OpenAI** | Microsoft Azure | Enterprise / compliance use case; Canadian region available | Canada possible |
 | **Groq** | US cloud | High-volume batch runs (fastest inference) | US only |
 | **Mistral AI** | EU cloud | GDPR-sensitive data | EU |

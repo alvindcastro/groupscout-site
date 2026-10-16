@@ -408,7 +408,9 @@ This older workflow is retained for context only. Current sessions use Beads and
 
 ---
 
-## Phase 16 — LLM Provider Abstraction 📋
+## Phase 16 — LLM Provider Abstraction 🔄
+
+> **Status 2026-10-16:** built in backend PR #19 (`internal/llm`, provider chain with failover). The task list below is the original plan; names differ. Runbook: [AI_PROVIDERS.md](../guides/AI_PROVIDERS.md).
 **Goal:** Remove vendor lock-in from `internal/enrichment`. All LLM calls go through a `LLMClient` interface. Provider is config-driven — switch between Claude, OpenAI, Azure OpenAI, Groq, Mistral, Ollama, or Gemini without touching pipeline code.
 
 > Full context and provider comparison: see `docs/AI_DATA_STRATEGY.md`.

@@ -19,6 +19,7 @@ Expected:
 
 - Backend health is HTTP `200` and includes `"database":"ok"`.
 - `ollama` may be `degraded` or `unavailable` for UI/API smoke, but must be healthy before claiming LLM enrichment is working.
+- `ai` is `ok` (once backend PR #19 is deployed). `degraded` or `down` means an AI provider is parked after an account or outage error, and `ai_providers` names it. See [AI_PROVIDERS.md](./AI_PROVIDERS.md).
 - Postgres query succeeds. Zero `new` leads is not automatically a failure; check filter and dedup logs below.
 - n8n reaches the backend over `http://groupscout:8080`.
 
@@ -298,6 +299,15 @@ This usually happens if:
 - You've already run the pipeline today, and all other permits are now **duplicates**.
 - The latest weekly report only has 1 permit that meets both the **commercial sub-type** AND the **$500k+ value** criteria.
 - Most other permits have a **score of 0** (meaning they aren't in Richmond/YVR and didn't contain any high-value keywords like "pipeline", "film", or "concrete").
+
+### Why does every run say "no new leads" when sources have items?
+Check that AI enrichment works. From 2026-10-07 to 10-16 the Anthropic account had no credit, so every Claude call returned HTTP 400 "credit balance is too low". The enricher logged `enrichment failed` and skipped each item, and the run still reported `no_eligible_lead`.
+
+- Logs: search the app logs for `enrichment failed` or `AI provider`.
+- `/health`: `ai` and `ai_providers` (backend PR #19).
+- Each provider on its own: `podman exec groupscout_app ./groupscout llm-check`.
+
+With PR #19 deployed and a second provider's key set, the chain fails over and Grafana raises *AI provider account problem*. Failed items aren't marked seen, so the next run retries them once a provider works. Runbook: [AI_PROVIDERS.md](./AI_PROVIDERS.md).
 
 ### Why did Slack show `98/10`?
 That means an external pre-enriched payload posted to `/n8n/webhook` supplied a raw `PriorityScore` such as `98` while Slack renders priority as `/10`. The backend now normalizes webhook scores before storage and notification: `90` becomes `9`, `98` becomes `10`, values above `100` become `10`, and negatives become `0`.

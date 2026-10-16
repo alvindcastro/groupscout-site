@@ -39,7 +39,7 @@ Output: prioritized lead intelligence delivered through Slack/email plus the sep
 | Language | Go 1.26 | ✅ |
 | Database | Postgres (`pgx`) / SQLite (`modernc.org/sqlite`) | ✅ |
 | Vector DB | `pgvector` (Postgres) / Go-native (SQLite) | ✅ |
-| AI enrichment | Claude Messages API / Gemini / Ollama (local LLMs) | ✅ |
+| AI enrichment | `internal/llm` provider chain: Claude, OpenAI, Gemini, Ollama, any OpenAI-format server (`LLM_PROVIDERS`) | 🔄 PR #19 |
 | Notifications | Slack incoming webhook (Block Kit) | ✅ |
 | Config | Environment variables + `.env` loader (12-factor) | ✅ |
 | Scraping | `github.com/PuerkitoBio/goquery` | ✅ |
@@ -96,8 +96,8 @@ groupscout/
 │   │   ├── utilities/         # BCHydro, FortisBC (Phase 13.1) 🔄
 │   │   └── collector.go       # Collector interface + RawProject struct
 │   ├── enrichment/
-│   │   ├── claude.go          # Claude Messages API client ✅
-│   │   ├── claude_test.go     # unit tests: stripMarkdown, extractText ✅
+│   │   ├── ai.go              # LLMEnricher: enrichment + outreach through the llm chain (PR #19)
+│   │   ├── prompts.go         # provider-neutral prompts per source
 │   │   ├── enricher.go        # orchestrates collect→dedup→enrich→store ✅
 │   │   ├── enricher_test.go   # unit tests: toLeadRecord ✅
 │   │   └── scorer.go          # rule-based pre-scorer (Phase 3-B)
@@ -119,6 +119,7 @@ groupscout/
 │   │   ├── yvr.go             # YVR flight scraper (Phase 17) ✅
 │   │   ├── navcanada.go       # NOTAM parser (Phase 17) ✅
 │   │   └── scorer.go          # SPS calculation (Phase 17) ✅
+│   ├── llm/                   # provider chain: Anthropic + OpenAI-format adapters, failover, metrics (PR #19)
 │   ├── ollama/
 │   │   ├── client.go          # Ollama HTTP client ✅
 │   │   ├── extractor.go       # NLP signal extraction ✅
@@ -208,8 +209,8 @@ type RawProject struct {
 
 - **Repository pattern** — all DB access behind interfaces, storage is swappable
 - **Collector interface** — adding a new source = new struct, core pipeline unchanged
-- **Claude for enrichment only** — scraping stays deterministic Go; AI only for interpretation
-- **Rule-based pre-scorer** — filter noise in Go before spending Claude API tokens
+- **AI for enrichment only** — scraping stays deterministic Go; AI only for interpretation, through the `internal/llm` provider chain
+- **Rule-based pre-scorer** — filter noise in Go before spending AI tokens
 - **Slack/email remain notification channels** — the operator UI is developed separately from backend pipeline code
 - **Outreach stays manual** — Claude drafts the email, human sends it. No auto-send.
 - **12-factor config** — all secrets and config via env vars
@@ -236,7 +237,7 @@ Use `bd` for live task state. `docs/planning/PHASES.md` is retained as the phase
 | Phase 8 | Observability — structured logging, Sentry, health checks | 🔄 in progress |
 | Phase 14 | Infrastructure — Docker Compose, n8n, Prometheus, Loki | 🔄 in progress |
 | Phase 15 | PostgreSQL + pgvector migration | ✅ complete |
-| Phase 16 | LLM provider abstraction (Claude / Gemini / Ollama) | 📋 planned; current Ollama runtime is separate |
+| Phase 16 | LLM provider abstraction (Claude / OpenAI / Gemini / Ollama) | 🔄 built in PR #19; Ollama extraction/rationale still separate |
 | Phase 17 | Airport disruption alert system (`cmd/alertd/`) | ✅ complete |
 | Phase 20 | Housekeeping & developer experience | ◐ baseline complete; broader smell refactors open in `groupscout-site-2h1` |
 | Phase 21 | Ollama prod hardening | ✅ complete |
@@ -266,6 +267,10 @@ Standalone n8n workflows for LUX Construction. Run independently — only n8n ne
 DATABASE_URL=groupscout.db          # SQLite file path (local) or postgres:// (production)
 CLAUDE_API_KEY=sk-ant-...
 SLACK_WEBHOOK_URL=https://hooks.slack.com/...
+
+# AI providers, tried in order (PR #19; see docs/guides/AI_PROVIDERS.md)
+LLM_PROVIDERS=claude,openai,gemini
+OPENAI_API_KEY=sk-...
 
 # Pipeline tuning
 MIN_PERMIT_VALUE_CAD=500000         # filter threshold; lower to 100000 during testing

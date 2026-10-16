@@ -40,8 +40,11 @@ GroupScout integrates with several external SaaS providers.
 
 | Service | Environment Variable | Default / Base URL | Purpose |
 |---|---|---|---|
-| **Anthropic** | `CLAUDE_API_KEY` | `https://api.anthropic.com/v1/messages` | AI lead enrichment and outreach drafting. |
-| **Google Gemini** | `GEMINI_API_KEY` | `https://generativelanguage.googleapis.com/...` | Alternative AI provider. |
+| **AI provider order** | `LLM_PROVIDERS` | `claude,openai,gemini` | Providers tried in order for enrichment and outreach drafts; one without a key is left out. See [AI_PROVIDERS.md](./guides/AI_PROVIDERS.md). |
+| **Anthropic** | `CLAUDE_API_KEY`, `CLAUDE_MODEL` | `https://api.anthropic.com/v1/messages` | AI lead enrichment and outreach drafting (provider `claude`). |
+| **OpenAI** | `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_BASE_URL` | `https://api.openai.com/v1` | AI provider `openai`; default model `gpt-4.1-mini`. |
+| **Google Gemini** | `GEMINI_API_KEY`, `GEMINI_MODEL` | `https://generativelanguage.googleapis.com/v1beta/openai` | AI provider `gemini`, through Gemini's OpenAI-compatible endpoint. |
+| **Other OpenAI-format server** | `CUSTOM_LLM_BASE_URL`, `CUSTOM_LLM_MODEL`, `CUSTOM_LLM_API_KEY` | none | AI provider `custom`: LM Studio, llama.cpp, vLLM, LiteLLM, OpenRouter, Groq, Azure OpenAI. |
 | **Slack Webhooks** | `SLACK_WEBHOOK_URL` | `https://hooks.slack.com/services/...` | Posting lead digests to channels. |
 | **Slack Bot API** | `SLACK_BOT_TOKEN` | `https://slack.com/api/...` | Used by `alertd` for stateful alert updates. |
 | **Resend** | `RESEND_API_KEY` | `https://api.resend.com/emails` | Sending the weekly digest and per-delivery lead emails. |

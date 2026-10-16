@@ -62,7 +62,7 @@ Recently completed:
 - [ ] **Phase 13** — Public tenders & utilities: BC Hydro, FortisBC (`groupscout-site-aaj` selects the next slice)
 - [ ] **Phase 14** — Infrastructure & self-hosting: Docker ecosystem (`groupscout-site-39g`, `groupscout-site-yyj`, `groupscout-site-48g`; infrastructure as code under `groupscout-site-6ah`)
 - [x] **Phase 15** — PostgreSQL + pgvector migration: production storage + RAG foundation ✅
-- [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄 (`groupscout-site-vud`)
+- [ ] **Phase 16** — LLM Provider Abstraction: no vendor lock-in (Claude / OpenAI / Ollama / Gemini) 🔄 (`groupscout-site-vud`; built in backend PR #19, see [AI_PROVIDERS.md](../guides/AI_PROVIDERS.md))
 - [x] **Phase 17** — Airport Disruption Alert System (`alertd`): YVR real-time monitoring ✅
 - [ ] **Phase 18** — Contact Enrichment: Hunter.io integration & budget tiers 📋 (`groupscout-site-iuc`)
 - [ ] **Phase 19** — Slack Actions & Lead Feedback: claim/dismiss/snooze buttons 📋 (`groupscout-site-62h`; `groupscout-site-eqm` covers overlapping lead-state API work)
@@ -315,7 +315,9 @@ Tracked follow-up: `groupscout-site-yyj` owns Prometheus metrics, collector fres
 
 ---
 
-## Phase 16 — LLM Provider Abstraction 🔭
+## Phase 16 — LLM Provider Abstraction 🔄
+
+> **Status 2026-10-16:** built in backend PR #19 as `internal/llm`: `LLM_PROVIDERS` sets the order, and the chain fails over between Claude, OpenAI, Gemini, Ollama and any OpenAI-format server. See [AI_PROVIDERS.md](../guides/AI_PROVIDERS.md).
 
 > Remove vendor lock-in from `internal/enrichment`. All LLM calls go through a `LLMClient` interface. Provider is config-driven — switch between Claude, OpenAI, Azure OpenAI, Groq, Mistral, Ollama, or Gemini without touching pipeline code.
 > This is separate from the implemented `internal/ollama` operational runtime documented in [OLLAMA_INTEGRATION.md](./OLLAMA_INTEGRATION.md) and [OLLAMA_SETUP.md](../guides/OLLAMA_SETUP.md). Phase 16 is about routing enrichment through a provider abstraction such as `LLM_PROVIDER=ollama`.

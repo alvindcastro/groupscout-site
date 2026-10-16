@@ -18,16 +18,17 @@ flowchart TB
         direction LR
         http["net/http API<br/>/run /health /metrics /ingest<br/>/n8n/webhook /digest /leads/{id}/raw"]
         collectors["Collectors<br/>goquery, golang.org/x/net/html,<br/>gofeed, encoding/xml,<br/>poppler pdftotext 25.12"]
-        enrich["Enrichment<br/>rule pre-scorer, Claude client,<br/>Gemini client, Ollama client"]
+        enrich["Enrichment<br/>rule pre-scorer, internal/llm<br/>provider chain (PR #19),<br/>Ollama client"]
         storage["Storage<br/>pgx v5, modernc sqlite (dev),<br/>golang-migrate, pgvector-go"]
         ops["Ops<br/>prometheus/client_golang, slog,<br/>sentry-go, Healthchecks pinger"]
         alertd["alertd (separate binary)<br/>ECCC, YVR, NAV CANADA,<br/>Slack bot"]
     end
 
-    subgraph ai["AI providers"]
-        claude["Anthropic API<br/>claude-haiku-4-5 (default)"]
-        gemini["Google Gemini 2.0 Flash<br/>(AI_PROVIDER=gemini, no key set)"]
-        ollama["Ollama 0.40.4, mistral<br/>(llm profile, disabled)"]
+    subgraph ai["AI providers, tried in LLM_PROVIDERS order (PR #19)"]
+        claude["Anthropic API<br/>claude-haiku-4-5 (first)"]
+        openai["OpenAI API<br/>gpt-4.1-mini (needs OPENAI_API_KEY)"]
+        gemini["Gemini 2.5 Flash, OpenAI-compatible endpoint<br/>(no key set)"]
+        ollama["Ollama 0.40.4 or any OpenAI-format server<br/>(llm profile, disabled)"]
     end
 
     subgraph data["Data"]
@@ -54,6 +55,7 @@ flowchart TB
     n8n --> http
     http --> collectors --> enrich --> storage --> pg
     enrich --> claude
+    enrich -.-> openai
     enrich -.-> gemini
     enrich -.-> ollama
     http --> slack
@@ -74,7 +76,7 @@ flowchart TB
 | Language | Go 1.26, one module, two binaries (`groupscout`, `alertd`) | Single static binary, small Alpine image |
 | HTML / feeds | goquery, `x/net/html`, gofeed, `encoding/xml` | Every source is a public page, feed or PDF; no source has an API |
 | PDFs | Poppler `pdftotext` (`-bbox-layout` for Richmond, `-layout` for Delta) | Correct font handling; word coordinates for table parsing |
-| AI | Claude Haiku 4.5 via the Messages API (512 max tokens) | Cheap structured enrichment; the rule pre-scorer limits calls |
+| AI | Claude Haiku 4.5 today. PR #19 adds an ordered provider chain: Anthropic's Messages API plus one OpenAI-format adapter for OpenAI, Gemini, Ollama and others | Cheap structured enrichment; the rule pre-scorer limits calls; failover when one account is empty ([AI_PROVIDERS.md](../../backend/docs/guides/AI_PROVIDERS.md)) |
 | Database | Postgres 17 + pgvector; SQLite for local dev | Dedup, audit trail, leads, delivery records, embeddings |
 | Scheduling | n8n workflow imported from git at start | Retries and ops notices without new code (D11) |
 | Notifications | Slack webhooks, Resend email | Where the sales team already works |

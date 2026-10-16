@@ -1,6 +1,6 @@
 # 6. Data Model
 
-_As of 2026-10-16: Postgres schema after migrations 001–011, read from the live database._
+_As of 2026-10-16: Postgres schema after migrations 001–011, read from the live database. Migration 012 (backend PR #19, not deployed) adds `leads.ai_provider` and `leads.ai_model`._
 
 ```mermaid
 erDiagram
@@ -44,12 +44,14 @@ erDiagram
         int estimated_crew_size
         int estimated_duration_months
         bool out_of_town_crew_likely
-        int priority_score "1-10 from Claude, or pre-score"
+        int priority_score "1-10 from the AI provider, or pre-score"
         text priority_reason
         text rationale
         text suggested_outreach_timing
         text notes
         text status "new | notified | skipped"
+        text ai_provider "who scored it (migration 012)"
+        text ai_model
         text owner "UI, unused"
         timestamptz snoozed_until "UI, unused"
         bool flagged "UI, unused"

@@ -23,7 +23,7 @@ Every diagram is Mermaid inside Markdown, so it renders on GitHub and in the VS 
 
 ## Known gaps on 2026-10-16
 
-- The Anthropic API credit balance is exhausted, so every Claude enrichment fails (`groupscout-site-n47`). Failed items are retried on the next run.
+- The Anthropic API credit balance is exhausted, so every Claude enrichment fails (`groupscout-site-n47`). Failed items are retried on the next run. Backend PR #19 adds provider failover; with an OpenAI key set, OpenAI scores leads until Claude is topped up ([AI_PROVIDERS.md](../../backend/docs/guides/AI_PROVIDERS.md)).
 - Enrichment failures are reported as "no new leads" (`groupscout-site-chd`).
 - Delta permits read a frozen March PDF (`groupscout-site-pkk`).
 - `alertd` is not running (`groupscout-site-q74`). The operator UI is built but not deployed, and its `/api/*` routes are not implemented yet (`groupscout-site-eqm`).

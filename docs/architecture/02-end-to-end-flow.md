@@ -22,8 +22,8 @@ flowchart TD
         audit --> ollamaX["Ollama extraction<br/>(off: OLLAMA_EXTRACTION_ENABLED)"]
         ollamaX --> prescore{"rule pre-score<br/>at least ENRICHMENT_THRESHOLD (1)?"}
         prescore -->|no| skipped["insert lead<br/>status = skipped"]
-        prescore -->|yes| ai["AI enrichment<br/>Claude Haiku 4.5 (or Gemini)"]
-        ai -->|error| retry(["log error, hash NOT recorded<br/>retried next run"])
+        prescore -->|yes| ai["AI enrichment<br/>Claude Haiku 4.5 today;<br/>LLM_PROVIDERS chain in PR #19"]
+        ai -->|"every provider failed"| retry(["log error, hash NOT recorded<br/>retried next run"])
         ai -->|ok| titledup{"same source + title<br/>already a lead?"}
         titledup -->|yes| dropdup(["skip: duplicate lead"])
         titledup -->|no| ollamaR["Ollama rationale<br/>(off: OLLAMA_SCORING_ENABLED)"]
@@ -48,9 +48,10 @@ flowchart TD
 
 **Notes**
 
-- The pre-scorer (`internal/enrichment/scorer.go`) is a cheap gate in front of Claude. It scores title, location and description: +2 for Richmond/YVR and nearby places, +1/+2 for value over $1M/$10M, +1 per crew or event keyword, -5 for residential titles or stories outside B.C.
+- With PR #19, AI enrichment tries the providers in `LLM_PROVIDERS` in order (default `claude,openai,gemini`). A provider with no credit or a bad key is parked for 6 hours and the next one scores the item. See [AI_PROVIDERS.md](../../backend/docs/guides/AI_PROVIDERS.md).
+- The pre-scorer (`internal/enrichment/scorer.go`) is a cheap gate in front of the AI provider. It scores title, location and description: +2 for Richmond/YVR and nearby places, +1/+2 for value over $1M/$10M, +1 per crew or event keyword, -5 for residential titles or stories outside B.C.
 - Skipped items keep their hash, so a later scorer change does not revisit them (`groupscout-site-95y`).
-- Delivery sends every eligible lead regardless of Claude's priority score (`groupscout-site-ea0`).
+- Delivery sends every eligible lead regardless of the AI priority score (`groupscout-site-ea0`).
 - `new_leads` in the result counts skipped leads too. Enrichment failures are not reported in the result (`groupscout-site-chd`).
 
 ## 2.2 Cadence run, step by step
@@ -62,7 +63,7 @@ sequenceDiagram
     participant A as groupscout_app<br/>POST /run
     participant DB as Postgres
     participant S as Sources
-    participant C as Anthropic API
+    participant C as AI provider<br/>(Claude, failover chain in PR 19)
     participant SL as Slack
     participant R as Resend
     participant H as Healthchecks.io

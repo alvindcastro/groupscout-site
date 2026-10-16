@@ -77,7 +77,7 @@ These notes came from a documentation-only scan of the coordination repo plus th
 
 - `groupscout-site-29q` remains a high-value follow-up once backend contracts settle: typed/generated frontend API bindings will remove part of the current duplicated normalization and field-name drift risk.
 - `groupscout-site-kb4` remains high value because current UI tests are still model-level and do not prove browser layout, focus, or overlap behavior.
-- `groupscout-site-vud` remains important because the backend enrichment layer still carries provider-specific request building, prompt selection, response parsing, and outreach generation in a small number of coupled modules.
+- `groupscout-site-vud` remains important because the backend enrichment layer still carries provider-specific request building, prompt selection, response parsing, and outreach generation in a small number of coupled modules. (Update 2026-10-16: built in backend PR #19, which moves all of that behind `internal/llm`.)
 
 ## Current Large-File Refactor Targets
 

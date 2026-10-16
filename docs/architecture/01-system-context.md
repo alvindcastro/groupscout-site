@@ -33,7 +33,7 @@ flowchart LR
 
     subgraph ext["External services"]
         direction TB
-        claude["Anthropic API<br/>Claude Haiku 4.5"]
+        claude["AI providers<br/>Claude Haiku 4.5 (live);<br/>OpenAI, Gemini, Ollama failover<br/>(PR #19, not deployed)"]
         slack["Slack<br/>incoming webhooks"]
         resend["Resend<br/>email"]
         hc["Healthchecks.io<br/>(Phase 9, not configured)"]

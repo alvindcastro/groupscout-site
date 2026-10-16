@@ -260,14 +260,14 @@ Current Beads: Phase A AI-ready SQL, Langfuse/noop tracing, and runtime `EvalLea
 > Full atomic task breakdown with TDD: see `PHASES.md` Phase 16.
 > Coding prompts: [PROMPTS_PHASE16.md](./PROMPTS_PHASE16.md)
 
-**Current state:** `ClaudeClient` + `GeminiClient` both exist and implement `EnricherAI`. Phase 16 extracts a lower-level `LLMClient` interface so the enricher is fully provider-agnostic.
+**Current state (2026-10-16):** built in backend PR #19 under different names than planned below. Runbook: [AI_PROVIDERS.md](../guides/AI_PROVIDERS.md).
 
-- [ ] `LLMClient` interface + `CompletionRequest` struct (`internal/enrichment/llm.go`)
-- [ ] `ClaudeClient` refactored to implement `LLMClient` (remove `Enrich`/`DraftOutreach`)
-- [ ] `GeminiClient` refactored to implement `LLMClient` (Phase 16-F: wire into factory)
-- [ ] `OpenAICompatibleClient` covers OpenAI, Groq, Mistral, Azure, Ollama
-- [ ] `FallbackClient` wraps primary + secondary with Sentry logging
-- [ ] `LLM_PROVIDER` env var selects the impl via factory
+- [x] `llm.Client` interface + `llm.Request` (`internal/llm/llm.go`)
+- [x] Claude adapter `llm.Anthropic`; the Claude and Gemini enrichers are replaced by `enrichment.LLMEnricher`
+- [x] Gemini goes through its OpenAI-compatible endpoint; `gemini.go` is removed
+- [x] `llm.OpenAI` covers OpenAI, Gemini, Ollama and any other OpenAI-format server (`custom`: Groq, Mistral, Azure, LM Studio, vLLM, LiteLLM)
+- [x] `llm.Chain` fails over through an ordered list, parks providers after account errors, and exports `groupscout_llm_*` metrics with Grafana alerts
+- [x] `LLM_PROVIDERS` (an ordered list) selects providers; `AI_PROVIDER` still works as a one-provider chain
 
 ---
 
